@@ -9,7 +9,25 @@ import SwiftUI
 
 struct StatsView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack{
+            HStack{
+                Text("yo")
+                Image(systemName:"globe")
+            }
+            .navigationTitle("Statistics")
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbar{
+                ToolbarItem(placement:.topBarTrailing){
+                    Image("pfp")
+                        .resizable()
+                        .frame(width: 44, height: 44)
+                        .clipShape(.circle)
+                        
+                }.sharedBackgroundVisibility(.hidden)
+                    
+            }
+        }
+        
     }
 }
 
