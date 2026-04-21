@@ -10,7 +10,7 @@ import SwiftUI
 
 
 
-struct Tab: View {
+struct MainView: View {
     
     @State private var selectedTab = 0
 
@@ -25,13 +25,13 @@ struct Tab: View {
 
             PlayView()
                 .tabItem {
-                    Label("Search", systemImage: "magnifyingglass")
+                    Label("Play", systemImage: "play")
                 }
                 .tag(1)
             
             StatsView()
                 .tabItem {
-                    Label("Stats", systemImage: "magnifyingglass")
+                    Label("Stats", systemImage: "chart.bar")
                 }
                 .tag(2)
 
@@ -45,5 +45,5 @@ struct Tab: View {
 }
 
 #Preview {
-    Tab()
+    MainView()
 }
