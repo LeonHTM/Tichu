@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  PlayView.swift
 //  Tichu
 //
 //  Created by Leon on 21.04.2026.
@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct PlayView: View {
     var body: some View {
         NavigationStack{
             HStack{
                 Text("yo")
                 Image(systemName:"globe")
             }
-            .navigationTitle("Home")
             .toolbarTitleDisplayMode(.inlineLarge)
+            .navigationTitle("Play")
             .toolbar{
                 ToolbarItem(placement:.topBarTrailing){
                     Image("pfp")
@@ -27,11 +27,9 @@ struct HomeView: View {
                     
             }
         }
-        
-           
     }
 }
 
 #Preview {
-    HomeView()
+    PlayView()
 }

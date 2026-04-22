@@ -8,6 +8,9 @@
 import SwiftUI
 
 struct ProfileView: View {
+    
+    @State private var showNameSheet:Bool = false
+    @AppStorage("username") var userName: String = "Unknown"
     var body: some View {
         NavigationStack{
             List {
@@ -19,7 +22,7 @@ struct ProfileView: View {
                             .frame(width: 100, height: 100)
                             .clipShape(.circle)
                         
-                        Text("LeonHTM")
+                        Text(userName)
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .padding(.top,10)
@@ -28,16 +31,20 @@ struct ProfileView: View {
                     }
                     Spacer()
                 }
+                .padding(.top,-15)
                 .listRowBackground(Color.clear)
                 
                 Section{
                     Button{
-                        print("Change Username")
+                        showNameSheet = true
                     }label: {
                         HStack{
                             Image(systemName:"person")
                             Text("Change Username").foregroundStyle(.white)
                         }
+                    }.sheet(isPresented: $showNameSheet) {
+                        NameSheetView(showNameSheet: .constant(showNameSheet)).presentationDetents([.medium])
+                        
                     }
                     Button{
                         print("Change Profile Picture")
