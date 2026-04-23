@@ -8,10 +8,23 @@
 import SwiftUI
 
 struct TestView: View {
+    private let tags: [String] = ["All Time","Year","Month","Week","Today"]
+   
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationStack {
+            ChipsView(tags: tags) { tag, isSelected in
+                ChipView(tag, isSelected: isSelected)
+            } didChangeSelection: { selection in
+               print(selection)
+            }
+            .padding(10)
+            .background(.gray.opacity(0.1), in: .rect(cornerRadius: 20))
+            .navigationTitle("Test View")
+        }
+        .padding(15)
     }
 }
+       
 
 #Preview {
     TestView()

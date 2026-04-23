@@ -1,5 +1,5 @@
 //
-//  PlayView.swift
+//  HistoryView.swift
 //  Tichu
 //
 //  Created by Leon on 21.04.2026.
@@ -7,29 +7,33 @@
 
 import SwiftUI
 
-struct PlayView: View {
+struct HistoryView: View {
+    //Storage
+    @AppStorage("userImageData") private var userImageData: Data?
+    //Vars
+    @State private var selectedImage: UIImage?
+    
     var body: some View {
         NavigationStack{
             HStack{
-                Text("yo")
-                Image(systemName:"globe")
+                Text("History")
+                Image(systemName:"clock")
             }
             .toolbarTitleDisplayMode(.inlineLarge)
-            .navigationTitle("Play")
+            .navigationTitle("History")
             .toolbar{
                 ToolbarItem(placement:.topBarTrailing){
-                    Image("pfp")
-                        .resizable()
-                        .frame(width: 44, height: 44)
-                        .clipShape(.circle)
+                    profileImage(selectedImage: selectedImage, size: 44)
                         
                 }.sharedBackgroundVisibility(.hidden)
                     
             }
+        }.onAppear {
+            selectedImage = dataToPhoto(data:userImageData)
         }
     }
 }
 
 #Preview {
-    PlayView()
+    HistoryView()
 }
