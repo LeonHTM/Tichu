@@ -6,89 +6,127 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     
+    //Storage
+    @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("userImageData") private var userImageData: Data?
+    @AppStorage("userElo") var userElo: Int = 1000
+    
+    //Vars
+    //Photo Logic
+    @State private var showPhotoSheet: Bool = false
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var selectedImage: UIImage?
+    //Sheets and Alerts
     @State private var showNameSheet:Bool = false
-    @AppStorage("username") var userName: String = "Unknown"
+    @State private var showFriendsSheet:Bool = false
+    @State private var showPrivacyAlert: Bool = false
+    @State private var showDeleteAlert: Bool = false
+    
     var body: some View {
         NavigationStack{
             List {
                 HStack{
                     Spacer()
                     VStack{
-                        Image("pfp")
-                            .resizable()
-                            .frame(width: 100, height: 100)
-                            .clipShape(.circle)
+                        profileImage(selectedImage: selectedImage, size: 100)
+                            .shadow(radius: 10)
+                            
+                        
                         
                         Text(userName)
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .padding(.top,10)
+                            
                         
-                        Text("Elo: 2400").foregroundStyle(.gray)
+                        Text("Elo: \(userElo)").foregroundStyle(.gray)
                     }
                     Spacer()
                 }
-                .padding(.top,-15)
                 .listRowBackground(Color.clear)
                 
                 Section{
-                    Button{
-                        showNameSheet = true
-                    }label: {
-                        HStack{
-                            Image(systemName:"person")
-                            Text("Change Username").foregroundStyle(.white)
-                        }
-                    }.sheet(isPresented: $showNameSheet) {
-                        NameSheetView(showNameSheet: .constant(showNameSheet)).presentationDetents([.medium])
+                    HStack{
+                        Image(systemName:"person").foregroundStyle(.accent)
                         
-                    }
-                    Button{
-                        print("Change Profile Picture")
-                    }label: {
-                        HStack{
-                            Image(systemName:"photo")
-                            Text("Change Profile Picture").foregroundStyle(.white)
+                        Button("Change Username"){
+                            showNameSheet = true
+                            
+                            
                         }
-                    }
-                    Button{
-                        print("Contact")
-                    }label: {
-                        HStack{
-                            Image(systemName:"envelope")
-                            Text("Contact").foregroundStyle(.white)
+                        .foregroundColor(.primary)
+                        .sheet(isPresented: $showNameSheet) {
+                            NameSheetView(showNameSheet: $showNameSheet).presentationDetents([.medium])
+                            
                         }
                     }
                     
-                    Button{
-                        print("Privacy")
-                    }label: {
-                        HStack{
-                            Image(systemName:"lock.shield.fill")
-                            Text("Privacy").foregroundStyle(.white)
+                
+                    
+                    HStack{
+                        Image(systemName:"photo").foregroundStyle(Color.accent).offset(x:-2)
+                        PhotosPicker("Change Profile Picture", selection: $pickerItem, matching: .images).foregroundColor(.primary)
+                            .offset(x:-2)
+                            
+                    }.onChange(of: pickerItem) { _, newItem in
+                        guard let newItem else { return }
+                        Task {
+                            if let data = try? await newItem.loadTransferable(type: Data.self),
+                               let uiImage = UIImage(data: data) {
+                                await MainActor.run {
+                                    self.selectedImage = uiImage
+                                    self.userImageData = uiImage.jpegData(compressionQuality: 0.9)
+                                }
+                            }
+
+                        }
+                    }
+                    HStack{
+                        Image(systemName:"person.3").foregroundStyle(.accent).offset(x:-6)
+                        
+                        Button("Manage Friendlist"){
+                            showFriendsSheet = true
+                            
+                            
+                        }
+                        .offset(x:-12)
+                        .foregroundColor(.primary)
+                        .sheet(isPresented: $showFriendsSheet) {
+                        FriendsSheetView(showFriendsSheet: $showFriendsSheet).presentationDetents([.medium])
+                            
                         }
                     }
                     
+                        
                 }
+                    
                 
                 Section{
                     Button{
-                        print("Delete Account")
+                        showDeleteAlert = true
                     }label: {
                         HStack{
                             Image(systemName:"trash").foregroundStyle(.red)
-                            Text("Delete Account").foregroundStyle(.white)
+                            Text("Delete Account").foregroundColor(.primary)
                         }
-                    }
+                    }.alert("Do you really want to delete your Account?", isPresented: $showDeleteAlert, actions: {
+                        Button(role: .destructive) {
+                            } label: {
+                                Text("Delete")
+                            }
+                            }, message: {
+                                Text("All your data will be deleted and you won't have access to your Account anymore.")
+                            })
+                    
                     Button{
                         print("Log Out")
                     }label: {
                         HStack{
                             Image(systemName:"rectangle.portrait.and.arrow.right")
-                            Text("Swtich Account").foregroundStyle(.white)
+                            Text("Switch Account").foregroundColor(.primary)
                         }
                     }
                     Button{
@@ -96,24 +134,70 @@ struct ProfileView: View {
                     }label: {
                         HStack{
                             Image(systemName:"rectangle.portrait.and.arrow.right")
-                            Text("Log Out").foregroundStyle(.white)
+                            Text("Log Out").foregroundColor(.primary)
                         }
                     }
                     
                 }
+                Section{
+                    HStack{
+                        Image(systemName:"envelope").foregroundStyle(Color.accentColor)
+                            .offset(x:-2)
+                        Link("Contact", destination: URL(string: "mailto:straussl@student.ethz.ch")!).foregroundColor(.primary)
+                        
+                    }
+                    
+                    
+                    
+                    
+                    HStack{
+                        Image(systemName:"lock.shield.fill")
+                            .foregroundStyle(.accent)
+                          
+                        Text("")
+                        Button("Privacy"){
+                            showPrivacyAlert = true
+                        }
+                        .foregroundColor(.primary)
+                        .alert("Tichu App doesnt collect any Data!", isPresented: $showPrivacyAlert, actions: {
+                            Button(role: .close) {
+                            } label: {
+                                Text("Cool!")
+                            }
+                        }, message: {
+                            Text("We store only your Tichu Rounds and your Login data.")
+                        })
+                    }
+                    HStack{
+                        Image("github")
+                            .resizable()
+                            .frame(width: 18, height: 18)
+                            .foregroundStyle(Color.accentColor)
+                            .offset(x:-2)
+                        Link("Source Code", destination: URL(string: "https://github.com/LeonHTM/Tichu")!).foregroundColor(.primary)
+                        
+                    }
+                }
+                
                 HStack{
                     Spacer()
                     VStack{
                         Text("Made with ❤️ in Bern")
-                        Text("Version 1.0 Build 1")
+                        Text("Version 0.1 Build 1")
                             .foregroundStyle(.gray)
                     }
                     
                     Spacer()
                 }.listRowBackground(Color.clear)
             }
+            .padding(.top,-20)
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
+            .onAppear {
+                selectedImage = dataToPhoto(data:userImageData)
+                
+                
+            }
             
             
         }
