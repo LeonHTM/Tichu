@@ -205,7 +205,7 @@ struct PlayView: View {
                
         }
         .sheet(isPresented: $showAddPlayersSheet) {
-            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet).presentationDetents([.medium,.large])
+            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,showGuest:true).presentationDetents([.medium,.large])
             
         }
         
