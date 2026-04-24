@@ -10,7 +10,7 @@ import SwiftUI
 struct AddPlayersSheetView: View {
     //Open/Close Sheet
     @Binding var showAddPlayersSheet:Bool
-    
+    var showGuest: Bool
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
   
@@ -20,13 +20,15 @@ struct AddPlayersSheetView: View {
         NavigationStack{
             
             List{
-                Section{
-                    HStack{
-                        Button("Guest"){
-                            showAddPlayersSheet = false
-                        }.foregroundStyle(.white)
-                        Spacer()
-                        profileImage(selectedImage: nil, size: 44)
+                if showGuest == true{
+                    Section{
+                        HStack{
+                            Button("Guest"){
+                                showAddPlayersSheet = false
+                            }.foregroundStyle(.white)
+                            Spacer()
+                            profileImage(selectedImage: nil, size: 44)
+                        }
                     }
                 }
                 Section{
@@ -38,14 +40,14 @@ struct AddPlayersSheetView: View {
                                 Button() {
                                     friendsFilterActive.toggle()
                                 }label:{
-                                    Image(systemName:"arrow.down")
-                                    Text("A-Z")
+                                    Image("ABC.down")
+                                    Text("Alphabetical (A-Z)")
                                 }
                                 Button() {
                                     friendsFilterActive.toggle()
                                 }label:{
-                                    Image(systemName:"arrow.up")
-                                    Text("Z-A")
+                                    Image("ABC.up")
+                                    Text("Alphabetical (Z-A)")
                                     
                                 }
                             } label: {
@@ -73,14 +75,14 @@ struct AddPlayersSheetView: View {
                             Button() {
                                 playersFilterActive.toggle()
                             }label:{
-                                Image(systemName:"arrow.down")
-                                Text("A-Z")
+                                Image("ABC.down")
+                                Text("Alphabetical (A-Z)")
                             }
                             Button() {
                                 playersFilterActive.toggle()
                             }label:{
-                                Image(systemName:"arrow.up")
-                                Text("Z-A")
+                                Image("ABC.up")
+                                Text("Alphabetical (Z-A)")
                                 
                             }
                         } label: {
@@ -125,5 +127,5 @@ struct AddPlayersSheetView: View {
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true))
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),showGuest:true)
 }
