@@ -15,6 +15,16 @@ struct ProfileView: View {
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("userElo") var userElo: Int = 1000
     
+    @AppStorage("testPic1") private var testPic1Data: Data?
+    @AppStorage("testPic2") private var testPic2Data: Data?
+    @AppStorage("testPic3") private var testPic3Data: Data?
+    @AppStorage("testPic4") private var testPic4Data: Data?
+    
+    @AppStorage("testPic5") private var testPic5Data: Data?
+    @AppStorage("testPic6") private var testPic6Data: Data?
+    @AppStorage("testPic7") private var testPic7Data: Data?
+    @AppStorage("testPic8") private var testPic8Data: Data?
+     
     //Vars
     //Photo Logic
     @State private var showPhotoSheet: Bool = false
@@ -32,14 +42,52 @@ struct ProfileView: View {
                 HStack{
                     Spacer()
                     VStack{
-                        profileImage(selectedImage: selectedImage, size: 100)
-                            .shadow(radius: 10)
+                        ZStack{
+                            profileImage(selectedImage: selectedImage, size: 100)
+                                .shadow(radius: 10)
                             
+                            PhotosPicker(selection: $pickerItem,
+                                         matching: .images) {
+                                Image(systemName:"camera.fill")
+                                  
+                                    .frame(width: 30, height: 30)
+                                    .clipShape(Circle())
+                                    .foregroundColor(.primary)
+                                    
+                                    .glassEffect(.regular.interactive())
+                                    .offset(y:32)
+                                
+                            }.onChange(of: pickerItem) { _, newItem in
+                                guard let newItem else { return }
+                                Task {
+                                    if let data = try? await newItem.loadTransferable(type: Data.self),
+                                       let uiImage = UIImage(data: data) {
+                                        await MainActor.run {
+                                            self.selectedImage = uiImage
+                                            self.userImageData = uiImage.jpegData(compressionQuality: 1)
+                                        }
+                                    }
+
+                                }
+                            }
+                            
+                            
+                        }
                         
-                        
-                        Text(userName)
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                        HStack{
+                            Text(userName)
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                            /*Button(){
+                                showNameSheet = true
+                            }label:{
+                                Image(systemName:"pencil").foregroundColor(.gray)
+                                    .font(.system(size:25))
+                            }.sheet(isPresented: $showNameSheet) {
+                                NameSheetView(showNameSheet: $showNameSheet).presentationDetents([.medium])
+                                
+                            }*/
+                        }
                             
                         
                         Text("Elo: \(userElo)").foregroundStyle(.gray)
@@ -53,8 +101,8 @@ struct ProfileView: View {
                         Image(systemName:"person").foregroundStyle(.accent)
                         
                         Button("Change Username"){
-                            showNameSheet = true
                             
+                            showNameSheet = true
                             
                         }
                         .foregroundColor(.primary)
@@ -62,28 +110,10 @@ struct ProfileView: View {
                             NameSheetView(showNameSheet: $showNameSheet).presentationDetents([.medium])
                             
                         }
+                        
                     }
                     
                 
-                    
-                    HStack{
-                        Image(systemName:"photo").foregroundStyle(Color.accent).offset(x:-2)
-                        PhotosPicker("Change Profile Picture", selection: $pickerItem, matching: .images).foregroundColor(.primary)
-                            .offset(x:-2)
-                            
-                    }.onChange(of: pickerItem) { _, newItem in
-                        guard let newItem else { return }
-                        Task {
-                            if let data = try? await newItem.loadTransferable(type: Data.self),
-                               let uiImage = UIImage(data: data) {
-                                await MainActor.run {
-                                    self.selectedImage = uiImage
-                                    self.userImageData = uiImage.jpegData(compressionQuality: 0.9)
-                                }
-                            }
-
-                        }
-                    }
                     HStack{
                         Image(systemName:"person.3").foregroundStyle(.accent).offset(x:-6)
                         

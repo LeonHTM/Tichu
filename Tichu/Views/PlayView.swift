@@ -32,7 +32,13 @@ struct PlayView: View {
     @State private var player3Image: UIImage?
     @State private var player4Image: UIImage?
     
-    @State private var showAddPlayersSheet:Bool = false
+    @State private var player2: Profile = emptyProfile
+    @State private var player3: Profile  = emptyProfile
+    @State private var player4: Profile  = emptyProfile
+    
+    @State private var showAddPlayersSheet2:Bool = false
+    @State private var showAddPlayersSheet3:Bool = false
+    @State private var showAddPlayersSheet4:Bool = false
     
     var body: some View {
         NavigationStack{
@@ -54,19 +60,24 @@ struct PlayView: View {
                     Spacer()
                     profileImage(selectedImage: userImage, size: 44)
                 }
-                    if player2Elo != -69420 {
+                    if let name2 = player2.name {
                         
                         HStack{
                             VStack(alignment:.leading){
                                 
-                                Text(player2Name)
+                                Text(name2).fontWeight(.bold)
                                 Text("Elo: \(player2Elo)")
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 16))
                                 
                             }
                             Spacer()
-                            profileImage(selectedImage: player2Image, size: 44)
+                            if let data = player2.imageData,
+                               let uiImage = UIImage(data: data) {
+                                profileImage(selectedImage: uiImage, size: 44)
+                            } else {
+                                profileImage(selectedImage: nil, size: 44)
+                            }
                             
                         }
                     }else{
@@ -78,9 +89,13 @@ struct PlayView: View {
                             
                                 
                                 Button("Add Player 2"){
-                                    showAddPlayersSheet = true
+                                    showAddPlayersSheet2 = true
                                 }
                                 .fontWeight(.bold).foregroundColor(.primary)
+                                .sheet(isPresented: $showAddPlayersSheet2) {
+                                    AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet2,addPlayer:$player2,showGuest:true).presentationDetents([.medium,.large])
+                                    
+                                }
                                 
                                 
                                
@@ -115,19 +130,24 @@ struct PlayView: View {
                         .fontWeight(.bold)
                         .listRowBackground(Color.clear)}
                 Section{
-                    if player3Elo != -69420 {
+                    if let name3 = player3.name  {
                     
                     HStack{
                         VStack(alignment:.leading){
                             
-                            Text(player3Name)
+                            Text(name3).fontWeight(.bold)
                             Text("Elo: \(player3Elo)")
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                             
                         }
                         Spacer()
-                        profileImage(selectedImage: player3Image, size: 44)
+                        if let data = player3.imageData,
+                           let uiImage = UIImage(data: data) {
+                            profileImage(selectedImage: uiImage, size: 44)
+                        } else {
+                            profileImage(selectedImage: nil, size: 44)
+                        }
                         
                     }
                 }else{
@@ -139,30 +159,38 @@ struct PlayView: View {
                         VStack(alignment:.leading){
                             
                             
-                            Button("Add Player 3"){showAddPlayersSheet = true}.fontWeight(.bold).foregroundColor(.primary)
+                            Button("Add Player 3"){showAddPlayersSheet3 = true}.fontWeight(.bold).foregroundColor(.primary)
                             
                             
                             
-                        }.padding(.vertical,10.6)
+                        }.padding(.vertical,10.6).sheet(isPresented: $showAddPlayersSheet3) {
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet3,addPlayer:$player3,showGuest:true).presentationDetents([.medium,.large])
+                            
+                        }
                         
                         Spacer()
                         
                     }
                     
                 }
-                    if player4Elo != -69420 {
+                    if let name4 = player4.name {
                                        
                                        HStack{
                                            VStack(alignment:.leading){
                                                
-                                               Text(player4Name)
+                                               Text(name4).fontWeight(.bold)
                                                Text("Elo: \(player4Elo)")
                                                    .foregroundStyle(.secondary)
                                                    .font(.system(size: 16))
                                                
                                            }
                                            Spacer()
-                                           profileImage(selectedImage: player4Image, size: 44)
+                                           if let data = player2.imageData,
+                                              let uiImage = UIImage(data: data) {
+                                               profileImage(selectedImage: uiImage, size: 44)
+                                           } else {
+                                               profileImage(selectedImage: nil, size: 44)
+                                           }
                                            
                                        }
                                    }else{
@@ -174,7 +202,11 @@ struct PlayView: View {
                                            
                                                
                                                Button("Add Player 4"){
-                                                   showAddPlayersSheet = true
+                                                   showAddPlayersSheet4 = true
+                                               }
+                                               .sheet(isPresented: $showAddPlayersSheet4) {
+                                                   AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet4,addPlayer:$player4,showGuest:true).presentationDetents([.medium,.large])
+                                                   
                                                }.fontWeight(.bold).foregroundColor(.primary)
                                                
                                               
@@ -204,10 +236,7 @@ struct PlayView: View {
             
                
         }
-        .sheet(isPresented: $showAddPlayersSheet) {
-            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,showGuest:true).presentationDetents([.medium,.large])
-            
-        }
+       
         
         .onAppear {
             userImage = dataToPhoto(data:userImageData)

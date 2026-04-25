@@ -270,7 +270,7 @@ struct StatsView: View {
                                 .font(.system(size: 20)).foregroundColor( Color.primary)
                             Text("Edit comparison").foregroundColor(Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,10).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,showGuest:true).presentationDetents([.medium,.large])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:.constant(exampleProfile),showGuest:false).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)
