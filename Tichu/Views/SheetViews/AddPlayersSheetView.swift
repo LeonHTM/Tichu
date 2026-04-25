@@ -16,6 +16,7 @@ struct AddPlayersSheetView: View {
     @State private var playersFilterActive: Bool = false
     @State private var ascendingFriends: Bool = true
     @State private var ascendingPlayers: Bool = true
+    @State private var searchText: String = ""
     
     
     var body: some View {
@@ -29,12 +30,24 @@ struct AddPlayersSheetView: View {
                     let r = rhs.name ?? ""
                     return ascendingFriends ? (l.localizedCaseInsensitiveCompare(r) == .orderedAscending) : (l.localizedCaseInsensitiveCompare(r) == .orderedDescending)
                 }
+                .filter { profile in
+                    let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !query.isEmpty else { return true }
+                    let name = profile.name ?? ""
+                    return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+                }
 
             let sortedPlayers: [Profile] = exampleProfiles
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
                     let r = rhs.name ?? ""
                     return ascendingPlayers ? (l.localizedCaseInsensitiveCompare(r) == .orderedAscending) : (l.localizedCaseInsensitiveCompare(r) == .orderedDescending)
+                }
+                .filter { profile in
+                    let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !query.isEmpty else { return true }
+                    let name = profile.name ?? ""
+                    return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
                 }
             
             List{
@@ -51,34 +64,38 @@ struct AddPlayersSheetView: View {
                     }
                 }
                 
-              
+                if !sortedFriends.isEmpty{
                     Section(){
                         HStack{
                             Text("Friends").fontWeight(.bold)
                             Spacer()
-                            Menu {
-                                Button() {
-                                    ascendingFriends = true
-                                    friendsFilterActive = false
-                                }label:{
-                                    Image("ABC.down")
-                                    Text("Alphabetical (A-Z)")
+                            if sortedFriends.count != 1 {
+                                Menu {
+                                    Button() {
+                                        ascendingFriends = true
+                                        friendsFilterActive = false
+                                    }label:{
+                                        Image("ABC.down")
+                                        Text("Alphabetical (A-Z)")
+                                    }
+                                    Button() {
+                                        ascendingFriends = false
+                                        friendsFilterActive = true
+                                    }label:{
+                                        Image("ABC.up")
+                                        Text("Alphabetical (Z-A)")
+                                        
+                                    }
+                                } label: {
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 20))
                                 }
-                                Button() {
-                                    ascendingFriends = false
-                                    friendsFilterActive = true
-                                }label:{
-                                    Image("ABC.up")
-                                    Text("Alphabetical (Z-A)")
-                                    
-                                }
-                            } label: {
-                                Image(systemName: "line.3.horizontal.decrease.circle")
-                                    .font(.system(size: 20))
+                                .foregroundColor(friendsFilterActive ? .accentColor : .primary)
                             }
-                           .foregroundColor(friendsFilterActive ? .accentColor : .primary)
+                            
                         }.padding(.top,20)
                     }.listRowBackground(Color.clear)
+                }
                 
                 
                 Section(){
@@ -103,34 +120,37 @@ struct AddPlayersSheetView: View {
                     }
                 }
                     
-                
-                Section(){
-                    HStack{
-                        Text("All Players").fontWeight(.bold)
-                        Spacer()
-                        Menu {
-                            Button() {
-                                ascendingPlayers = true
-                                playersFilterActive = false
-                            }label:{
-                                Image("ABC.down")
-                                Text("Alphabetical (A-Z)")
+                if !sortedPlayers.isEmpty{
+                    Section(){
+                        HStack{
+                            Text("All Players").fontWeight(.bold)
+                            Spacer()
+                            if sortedPlayers.count != 1 {
+                                Menu {
+                                    Button() {
+                                        ascendingPlayers = true
+                                        playersFilterActive = false
+                                    }label:{
+                                        Image("ABC.down")
+                                        Text("Alphabetical (A-Z)")
+                                    }
+                                    Button() {
+                                        ascendingPlayers = false
+                                        playersFilterActive = true
+                                    }label:{
+                                        Image("ABC.up")
+                                        Text("Alphabetical (Z-A)")
+                                        
+                                    }
+                                } label: {
+                                    Image(systemName: "line.3.horizontal.decrease.circle")
+                                        .font(.system(size: 20))
+                                }
+                                .foregroundColor(playersFilterActive ? .accentColor : .primary)
                             }
-                            Button() {
-                                ascendingPlayers = false
-                                playersFilterActive = true
-                            }label:{
-                                Image("ABC.up")
-                                Text("Alphabetical (Z-A)")
-                                
-                            }
-                        } label: {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.system(size: 20))
-                        }
-                       .foregroundColor(playersFilterActive ? .accentColor : .primary)
-                    }.padding(.top,20)
-                }.listRowBackground(Color.clear)
+                        }.padding(.top,20)
+                    }.listRowBackground(Color.clear)
+                }
                 
                     ForEach(sortedPlayers) { profile in
                         Button(){
@@ -152,12 +172,40 @@ struct AddPlayersSheetView: View {
                         
                     }
                 
+           
+                    
+               
+                
                 
                 
             }
             .listSectionSpacing(0)
             .navigationTitle("Add Players")
             .navigationBarTitleDisplayMode(.inline)
+            .safeAreaInset(edge:.bottom){
+                HStack(spacing: 12) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundStyle(.secondary)
+                    TextField("Search players by name", text: $searchText)
+                        .textInputAutocapitalization(.words)
+                        .disableAutocorrection(true)
+                    if !searchText.isEmpty {
+                        Button {
+                            withAnimation { searchText = "" }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Clear search")
+                    }
+                }
+                .padding(.vertical, 15)
+                .padding(.horizontal,15)
+                .glassEffect(.regular.interactive())
+                .padding(.horizontal,10)
+                .padding(.bottom,10)
+            }
             .toolbar{
                                 ToolbarItem(placement:.cancellationAction){
                     Button("Cancel",systemImage:"xmark"){
@@ -176,3 +224,4 @@ struct AddPlayersSheetView: View {
 #Preview {
     AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfile),showGuest:true)
 }
+
