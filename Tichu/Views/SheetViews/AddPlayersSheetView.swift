@@ -11,6 +11,7 @@ struct AddPlayersSheetView: View {
     //Open/Close Sheet
     @Binding var showAddPlayersSheet:Bool
     @Binding var addPlayer: Profile
+    var alreadyAdded: [Profile]
     var showGuest: Bool
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
@@ -57,7 +58,7 @@ struct AddPlayersSheetView: View {
                             Button("Guest"){
                                 addPlayer = guestProfile
                                 showAddPlayersSheet = false
-                            }.foregroundStyle(.white)
+                            }.foregroundColor(.primary)
                             Spacer()
                             profileImage(selectedImage: nil, size: 44)
                         }
@@ -72,17 +73,29 @@ struct AddPlayersSheetView: View {
                             if sortedFriends.count != 1 {
                                 Menu {
                                     Button() {
-                                        ascendingFriends = true
-                                        friendsFilterActive = false
-                                    }label:{
-                                        Image("ABC.down")
+                                        withAnimation(.easeInOut) {
+                                            ascendingFriends = true
+                                            friendsFilterActive = false
+                                        }
+                                    } label: {
+                                        if ascendingFriends == true {
+                                            Image(systemName:"checkmark")
+                                        }else{
+                                            Image("ABC.down")
+                                        }
                                         Text("Alphabetical (A-Z)")
                                     }
                                     Button() {
-                                        ascendingFriends = false
-                                        friendsFilterActive = true
-                                    }label:{
-                                        Image("ABC.up")
+                                        withAnimation(.easeInOut) {
+                                            ascendingFriends = false
+                                            friendsFilterActive = true
+                                        }
+                                    } label: {
+                                        if ascendingFriends == true {
+                                            Image("ABC.up")
+                                        }else{
+                                            Image(systemName:"checkmark")
+                                        }
                                         Text("Alphabetical (Z-A)")
                                         
                                     }
@@ -105,7 +118,7 @@ struct AddPlayersSheetView: View {
                             showAddPlayersSheet = false
                         }label:{
                             HStack{
-                                Text(profile.name ?? "").foregroundColor(.primary)
+                                Text(profile.name ?? "Unknown")
                                 Spacer()
                                 if let data = profile.imageData,
                                    let uiImage = UIImage(data: data) {
@@ -115,7 +128,9 @@ struct AddPlayersSheetView: View {
                                 }
                                 
                             }
-                        }.buttonStyle(.plain)
+                        }.disabled(alreadyAdded.contains(where: { $0.id == profile.id }))
+                            .foregroundColor(alreadyAdded.contains(where: { $0.id == profile.id }) ? .secondary : .primary)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                         
                     }
                 }
@@ -128,17 +143,31 @@ struct AddPlayersSheetView: View {
                             if sortedPlayers.count != 1 {
                                 Menu {
                                     Button() {
-                                        ascendingPlayers = true
-                                        playersFilterActive = false
-                                    }label:{
-                                        Image("ABC.down")
+                                        withAnimation(.easeInOut) {
+                                            ascendingPlayers = true
+                                            playersFilterActive = false
+                                        }
+                                    } label: {
+                                        if ascendingPlayers == true {Image(systemName:"checkmark")
+                                            
+                                        }else{
+                                            Image("ABC.down")
+                                        }
                                         Text("Alphabetical (A-Z)")
                                     }
                                     Button() {
-                                        ascendingPlayers = false
-                                        playersFilterActive = true
-                                    }label:{
-                                        Image("ABC.up")
+                                        withAnimation(.easeInOut) {
+                                            ascendingPlayers = false
+                                            playersFilterActive = true
+                                        }
+                                    } label: {
+                                        if ascendingPlayers == true {
+                                            
+                                            Image("ABC.up")
+                                            
+                                        }else{
+                                            Image(systemName:"checkmark")
+                                        }
                                         Text("Alphabetical (Z-A)")
                                         
                                     }
@@ -158,7 +187,7 @@ struct AddPlayersSheetView: View {
                             showAddPlayersSheet = false
                         }label:{
                             HStack{
-                                Text(profile.name ?? "").foregroundColor(.primary)
+                                Text(profile.name ?? "Unknown")
                                 Spacer()
                                 if let data = profile.imageData,
                                    let uiImage = UIImage(data: data) {
@@ -168,6 +197,9 @@ struct AddPlayersSheetView: View {
                                 }
                             }
                         }
+                        .disabled(alreadyAdded.contains(where: { $0.id == profile.id }))
+                        .foregroundColor(alreadyAdded.contains(where: { $0.id == profile.id }) ? .secondary : .primary)
+                        .transition(.move(edge: .top).combined(with: .opacity))
                         
                         
                     }
@@ -180,32 +212,11 @@ struct AddPlayersSheetView: View {
                 
             }
             .listSectionSpacing(0)
+            .animation(.easeInOut, value: ascendingFriends)
+            .animation(.easeInOut, value: ascendingPlayers)
+            .animation(.easeInOut, value: searchText)
             .navigationTitle("Add Players")
             .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge:.bottom){
-                HStack(spacing: 12) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundStyle(.secondary)
-                    TextField("Search players by name", text: $searchText)
-                        .textInputAutocapitalization(.words)
-                        .disableAutocorrection(true)
-                    if !searchText.isEmpty {
-                        Button {
-                            withAnimation { searchText = "" }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(.secondary)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Clear search")
-                    }
-                }
-                .padding(.vertical, 15)
-                .padding(.horizontal,15)
-                .glassEffect(.regular.interactive())
-                .padding(.horizontal,10)
-                .padding(.bottom,10)
-            }
             .toolbar{
                                 ToolbarItem(placement:.cancellationAction){
                     Button("Cancel",systemImage:"xmark"){
@@ -213,15 +224,13 @@ struct AddPlayersSheetView: View {
                     }
                 }
             }
-        }.onAppear{
-            
-        }
+        }.searchable(text: $searchText) 
         
     }
 }
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfile),showGuest:true)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfile),alreadyAdded:[],showGuest:true)
 }
 

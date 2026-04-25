@@ -240,8 +240,8 @@ struct StatsView: View {
                             }
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease.circle")
-                                .font(.system(size: 20)).foregroundColor(filterActive == true ? Color.accent : Color.primary)
-                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.leading,10).padding(.bottom,10)
+                                .font(.system(size: 22)).foregroundColor(filterActive == true ? Color.accent : Color.primary)
+                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
                         Spacer()
                         Menu{
                             Button(){
@@ -269,8 +269,8 @@ struct StatsView: View {
                             Image("person.badge.edit")
                                 .font(.system(size: 20)).foregroundColor( Color.primary)
                             Text("Edit comparison").foregroundColor(Color.primary)
-                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,10).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:.constant(exampleProfile),showGuest:false).presentationDetents([.medium,.large])
+                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet) {
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:.constant(exampleProfile),alreadyAdded: [],showGuest:false).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)
@@ -278,6 +278,8 @@ struct StatsView: View {
                 }
                
             }
+        }.refreshable {
+            
         }.onAppear {
             selectedImage = dataToPhoto(data:userImageData)
         }
