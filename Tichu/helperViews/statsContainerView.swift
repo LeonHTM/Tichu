@@ -148,7 +148,7 @@ struct playerStats {
     var bomber: Int
     
     //return value of Struct
-    func value(for stat: playerStat) -> Double {
+    func getStat(for stat: playerStat) -> Double {
         switch stat {
         case .elo: return Double(elo)
         case .winnerPercentage: return Double(winnerPercentage)
@@ -183,7 +183,7 @@ func makeItems(
 ) -> [(key: String, value: Double)] {
 
     let mapped = compareList.map {
-        (key: $0.key, value: $0.value.value(for: stat))
+        (key: $0.key, value: $0.value.getStat(for: stat))
     }
 
     switch sortBy {
