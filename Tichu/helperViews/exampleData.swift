@@ -7,10 +7,12 @@
 
 import SwiftUI
 
-var exampleStatsDic: [String: playerStats] = [:]
+
+
+var exampleStatsDicEmpty: [String: playerStats] = [:]
 
 //Example of userData in a Dictionary
-var exampleStatsDichuh: [String: playerStats] = [
+var exampleStatsDic: [String: playerStats] = [
     "Leon": playerStats(
         elo: 780,
         winnerPercentage: 62,
@@ -81,3 +83,25 @@ var exampleStatsDichuh: [String: playerStats] = [
         bomber: 0
     )
 ]
+
+
+
+
+
+var exampleProfiles: [Profile] = [
+    Profile(name: "Leon", imageData: UIImage(named: "pfp_leon")!.jpegData(compressionQuality: 1)!,isFriend:true),
+    Profile(name: "Sorin", imageData: UIImage(named: "pfp_sorin")!.jpegData(compressionQuality: 1)!,isFriend:true),
+    Profile(name: "Jo", imageData: UIImage(named: "pfp_jo")!.jpegData(compressionQuality: 1)!,isFriend:true),
+    Profile(name: "Luis", imageData: UIImage(named: "pfp_luis")!.jpegData(compressionQuality: 1)!,isFriend:true),
+    Profile(name: "Alpha", imageData: UIImage(named: "pfp_alpha")!.jpegData(compressionQuality: 1)!,isFriend: false),
+    Profile(name: "Beta", imageData: UIImage(named: "pfp_beta")!.jpegData(compressionQuality: 1)!,isFriend: false),
+    Profile(name: "Gamma", imageData: UIImage(named: "pfp_gamma")!.jpegData(compressionQuality: 1)!,isFriend: false),
+    Profile(name: "Delta", imageData: UIImage(named: "pfp_delta")!.jpegData(compressionQuality: 1)!,isFriend: false)
+]
+
+var exampleProfile: Profile = Profile(name: "Alpha", imageData: UIImage(named: "pfp_alpha")!.jpegData(compressionQuality: 1)!,isFriend: false)
+
+var emptyProfile: Profile = Profile(name: nil, imageData: nil, isFriend: false)
+
+var guestProfile: Profile = Profile(name: "Guest", imageData: nil, isFriend: false)
+
