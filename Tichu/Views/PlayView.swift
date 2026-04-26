@@ -32,9 +32,9 @@ struct PlayView: View {
     @State private var player3Image: UIImage?
     @State private var player4Image: UIImage?
     
-    @State private var player2: Profile = emptyProfile
-    @State private var player3: Profile  = emptyProfile
-    @State private var player4: Profile  = emptyProfile
+    @State private var player2: profile = emptyProfile
+    @State private var player3: profile  = emptyProfile
+    @State private var player4: profile  = emptyProfile
     
     @State private var showAddPlayersSheet2:Bool = false
     @State private var showAddPlayersSheet3:Bool = false

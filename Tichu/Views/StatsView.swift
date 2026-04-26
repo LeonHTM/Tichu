@@ -27,8 +27,15 @@ struct StatsView: View {
     @State private var selectedImage: UIImage?
     @State private var timeTags: [String] = ["All Time","Year","Month","Week","Today"]
     @State private var selectedTags: [String] = []
-    @State private var sortStat: playerStats.playerStat = .elo
+    @State private var sortStat: profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .nameDown
+    
+    @State private var compareList: [profile] = exampleProfilesReduced
+    @State private var addPlayer: profile = emptyProfile
+    @State private var refreshID = UUID()
+    
+  
+   
     
     //Computed Vars
     var filterActive: Bool {sortBy != .nameDown}
@@ -52,7 +59,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userElo,
                         percentage: .constant(false),
-                        items: makeItems(from: exampleStatsDic, stat: .elo, sortBy: sortBy)
+                        stat:.elo,
+                        items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
                         
                     )
 
@@ -64,7 +72,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userWinner,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .winnerPercentage, sortBy: sortBy)
+                        stat:.winnerPercentage ,
+                        items:makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Tichumaster"),
@@ -74,7 +83,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userTichuMaster,
                         percentage: .constant(false),
-                        items:makeItems(from: exampleStatsDic, stat: .tichuMaster, sortBy: sortBy)
+                        stat:.tichuMaster,
+                        items:makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Visionary"),
@@ -84,7 +94,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userVisionary,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .visionary, sortBy: sortBy)
+                        stat:.visionary,
+                        items:makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
                     )
 
                     statsContainerView(
@@ -95,7 +106,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userAddict,
                         percentage: .constant(false),
-                        items:makeItems(from: exampleStatsDic, stat: .addict, sortBy: sortBy)
+                        stat: .addict,
+                        items:makeItems(from: compareList, stat: .addict, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Teamplayer"),
@@ -105,7 +117,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userTeamplayer,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .teamplayer, sortBy: sortBy)
+                        stat:.teamplayer,
+                        items:makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Announcer"),
@@ -115,7 +128,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userAnnouncer,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .announcer, sortBy: sortBy)
+                        stat:.announcer,
+                        items:makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Saboteur"),
@@ -125,7 +139,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userSaboteur,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .saboteur, sortBy: sortBy)
+                        stat:.saboteur,
+                        items:makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Gambler"),
@@ -135,7 +150,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userGambler,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .gambler, sortBy: sortBy)
+                        stat:.gambler,
+                        items:makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
                     )
                     statsContainerView(
                         title: .constant("Big Gambler"),
@@ -145,7 +161,8 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userBigGambler,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .bigGambler, sortBy: sortBy)
+                        stat:.bigGambler,
+                        items:makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
                     )
                     
                     statsContainerView(
@@ -156,10 +173,14 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userBomber,
                         percentage: .constant(true),
-                        items:makeItems(from: exampleStatsDic, stat: .bomber, sortBy: sortBy)
+                        stat:.bomber,
+                        items:makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
                     )
                 }
                 .padding()
+            }
+            .refreshable {
+                
             }
             
             .navigationTitle("Statistics")
@@ -252,25 +273,25 @@ struct StatsView: View {
                                 Image(systemName:"person.badge.plus")
                                 Text("Add player to compare")
                             }
-                            if !makeItems(from: exampleStatsDic, stat: .winnerPercentage, sortBy: .nameDown).isEmpty{
+                            if !makeItems(from: compareList, stat: .winnerPercentage, sortBy: .nameDown).isEmpty{
                                 Divider()
                             }
-                            ForEach(makeItems(from: exampleStatsDic, stat: .winnerPercentage, sortBy: .nameDown), id: \.0) { item in
+                            ForEach(makeItems(from: compareList, stat: .winnerPercentage, sortBy: .nameDown), id: \.name) { item in
                                 Button {
                                     DispatchQueue.main.async {
                                         // action
                                     }
                                 } label: {
                                     Image("person.badge.remove")
-                                    Text("Remove \(item.0)")
+                                    Text("Remove \(item.name ?? "Unknown")")
                                 }
                             }
                         } label: {
                             Image("person.badge.edit")
                                 .font(.system(size: 20)).foregroundColor( Color.primary)
                             Text("Edit comparison").foregroundColor(Color.primary)
-                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:.constant(exampleProfile),alreadyAdded: [],showGuest:false).presentationDetents([.medium,.large])
+                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet,onDismiss:{compareList.append(addPlayer)}) {
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)
@@ -278,8 +299,6 @@ struct StatsView: View {
                 }
                
             }
-        }.refreshable {
-            
         }.onAppear {
             selectedImage = dataToPhoto(data:userImageData)
         }
