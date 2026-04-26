@@ -10,8 +10,8 @@ import SwiftUI
 struct AddPlayersSheetView: View {
     //Open/Close Sheet
     @Binding var showAddPlayersSheet:Bool
-    @Binding var addPlayer: Profile
-    var alreadyAdded: [Profile]
+    @Binding var addPlayer: profile
+    var alreadyAdded: [profile]
     var showGuest: Bool
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
@@ -24,7 +24,7 @@ struct AddPlayersSheetView: View {
         
         NavigationStack{
             
-            let sortedFriends: [Profile] = exampleProfiles
+            let sortedFriends: [profile] = exampleProfiles
                 .filter { $0.isFriend }
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
@@ -38,7 +38,7 @@ struct AddPlayersSheetView: View {
                     return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
                 }
 
-            let sortedPlayers: [Profile] = exampleProfiles
+            let sortedPlayers: [profile] = exampleProfiles
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
                     let r = rhs.name ?? ""
@@ -107,7 +107,7 @@ struct AddPlayersSheetView: View {
                             }
                             
                         }.padding(.top,20)
-                    }.listRowBackground(Color.clear)
+                    }.listRowBackground(Color.clear).padding(.top,showGuest==true ? 0 : -60)
                 }
                 
                 
@@ -231,6 +231,6 @@ struct AddPlayersSheetView: View {
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfile),alreadyAdded:[],showGuest:true)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:true)
 }
 
