@@ -90,7 +90,7 @@ struct ProfileView: View {
                         }
                             
                         
-                        Text("Elo: \(userElo)").foregroundStyle(.gray)
+                        Text("Ranking: \(userElo)").foregroundStyle(.gray)
                     }
                     Spacer()
                 }

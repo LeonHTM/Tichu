@@ -30,10 +30,9 @@ struct StatsView: View {
     @State private var sortStat: profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .nameDown
     
-    @State private var compareList: [profile] = exampleProfilesReduced
+    @State private var compareList: [profile] = []
     @State private var addPlayer: profile = emptyProfile
-    @State private var refreshID = UUID()
-    
+
   
    
     
@@ -63,6 +62,7 @@ struct StatsView: View {
                         items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
                         
                     )
+                    .transition(.opacity.combined(with: .scale))
 
                     statsContainerView(
                         title: .constant("Winner"),
@@ -75,6 +75,7 @@ struct StatsView: View {
                         stat:.winnerPercentage ,
                         items:makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Tichumaster"),
                         description: .constant("Points from Tichu per Round"),
@@ -86,6 +87,7 @@ struct StatsView: View {
                         stat:.tichuMaster,
                         items:makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Visionary"),
                         description: .constant("Tichu announced when finished first"),
@@ -97,6 +99,7 @@ struct StatsView: View {
                         stat:.visionary,
                         items:makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
 
                     statsContainerView(
                         title: .constant("Addict"),
@@ -109,6 +112,7 @@ struct StatsView: View {
                         stat: .addict,
                         items:makeItems(from: compareList, stat: .addict, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Teamplayer"),
                         description: .constant("Double Win Rate"),
@@ -120,6 +124,7 @@ struct StatsView: View {
                         stat:.teamplayer,
                         items:makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Announcer"),
                         description: .constant("Big and Small Tichus announced per round"),
@@ -131,6 +136,7 @@ struct StatsView: View {
                         stat:.announcer,
                         items:makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Saboteur"),
                         description: .constant("Tichu prevented ratio"),
@@ -142,6 +148,7 @@ struct StatsView: View {
                         stat:.saboteur,
                         items:makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Gambler"),
                         description: .constant("Tichu success ratio"),
@@ -153,6 +160,7 @@ struct StatsView: View {
                         stat:.gambler,
                         items:makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Big Gambler"),
                         description: .constant("Big Tichu success ratio"),
@@ -164,6 +172,7 @@ struct StatsView: View {
                         stat:.bigGambler,
                         items:makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                     
                     statsContainerView(
                         title: .constant("Bomber"),
@@ -176,7 +185,9 @@ struct StatsView: View {
                         stat:.bomber,
                         items:makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
                     )
+                    .transition(.opacity.combined(with: .scale))
                 }
+                .animation(.easeInOut, value: compareList.map { $0.id })
                 .padding()
             }
             .refreshable {
@@ -271,26 +282,43 @@ struct StatsView: View {
                                 }
                             }label:{
                                 Image(systemName:"person.badge.plus")
-                                Text("Add player to compare")
+                                Text("Add Player to compare")
                             }
-                            if !makeItems(from: compareList, stat: .winnerPercentage, sortBy: .nameDown).isEmpty{
+                            if !compareList.isEmpty{
                                 Divider()
                             }
-                            ForEach(makeItems(from: compareList, stat: .winnerPercentage, sortBy: .nameDown), id: \.name) { item in
+                            ForEach(compareList, id: \.id) { item in
                                 Button {
-                                    DispatchQueue.main.async {
-                                        // action
+                                    withAnimation(.easeInOut) {
+                                        compareList.removeAll { $0.id == item.id }
                                     }
                                 } label: {
                                     Image("person.badge.remove")
                                     Text("Remove \(item.name ?? "Unknown")")
                                 }
                             }
+                            if compareList.count > 1{
+                                Divider()
+                                Button(){
+                                    DispatchQueue.main.async {
+                                        compareList = []
+                                    }
+                            }label:{
+                                Image(systemName:"minus.circle")
+                                Text("Remove All Players")
+                            }
+                            }
                         } label: {
                             Image("person.badge.edit")
                                 .font(.system(size: 20)).foregroundColor( Color.primary)
                             Text("Edit comparison").foregroundColor(Color.primary)
-                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet,onDismiss:{compareList.append(addPlayer)}) {
+                        }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet, onDismiss: {
+                            withAnimation(.easeInOut) {
+                                if !compareList.contains(where: { $0.id == addPlayer.id }) {
+                                    compareList.append(addPlayer)
+                                }
+                            }
+                        }) {
                             AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false).presentationDetents([.medium,.large])
                             
                         }
@@ -309,3 +337,4 @@ struct StatsView: View {
 #Preview {
     StatsView()
 }
+
