@@ -67,7 +67,7 @@ struct statsContainerView: View {
             VStack(alignment: .leading, spacing: 8) {
                 
                 //For loop over all indices, id:value itssself,index is index
-                ForEach(Array(items.enumerated()), id: \.element.name) { index, item in
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     let itemValue = item.getStat(for: stat)
 
                     VStack(spacing: 0) {

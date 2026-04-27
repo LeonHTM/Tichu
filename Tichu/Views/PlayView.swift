@@ -58,7 +58,7 @@ struct PlayView: View {
                             VStack(alignment:.leading){
                                 Text(userName)
                                     .fontWeight(.bold)
-                                Text("Elo: \(userElo)")
+                                Text("Ranking: \(userElo)")
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 16))
                             }
@@ -71,9 +71,16 @@ struct PlayView: View {
                                 VStack(alignment:.leading){
                                     
                                     Text(name2).fontWeight(.bold)
-                                    Text("Elo: \(player2Elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
+                                    if let elo = player2.elo {
+                                        Text("Ranking: \(elo)")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }else{
+                                        Text("Download Tichu App to get ranked")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }
+                                 
                                     
                                 }
                                 Spacer()
@@ -143,9 +150,15 @@ struct PlayView: View {
                                 VStack(alignment:.leading){
                                     
                                     Text(name3).fontWeight(.bold)
-                                    Text("Elo: \(player3Elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
+                                    if let elo = player3.elo {
+                                        Text("Ranking: \(elo)")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }else{
+                                        Text("Download Tichu App to get ranked")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }
                                     
                                 }
                                 Spacer()
@@ -186,9 +199,15 @@ struct PlayView: View {
                                 VStack(alignment:.leading){
                                     
                                     Text(name4).fontWeight(.bold)
-                                    Text("Elo: \(player4Elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
+                                    if let elo = player4.elo {
+                                        Text("Ranking: \(elo)")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }else{
+                                        Text("Download Tichu App to get ranked")
+                                            .foregroundStyle(.secondary)
+                                            .font(.system(size: 16))
+                                    }
                                     
                                 }
                                 Spacer()
