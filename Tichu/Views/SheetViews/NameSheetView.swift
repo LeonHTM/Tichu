@@ -22,7 +22,7 @@ struct NameSheetView: View {
     @State private var newName: String = ""
     
     // MARK: - Validation
-    
+    //Länge 20 weil sonst Statsview nicht merh so gut aussieht
     private var isLengthValid: Bool {
         let count = newName.count
         return count >= 3 && count <= 20

@@ -40,8 +40,13 @@ struct PlayView: View {
     @State private var showAddPlayersSheet3:Bool = false
     @State private var showAddPlayersSheet4:Bool = false
     
+    @State private var showEditRoundsSheet: Bool = false
+    @State private var showAddRoundSheet: Bool = false
+    
+    @State private var currentGame: tichuGame = exampleGame
+    
     private var isGameReady:Bool{
-        player2.name != nil && player3.name != nil && player4.name != nil
+        player2.id != emptyProfile.id && player3.id != emptyProfile.id && player4.id != emptyProfile.id
     }
     
     var body: some View {
@@ -257,9 +262,16 @@ struct PlayView: View {
                         Text("S")
                     .font(.system(size: 120, weight: .bold))
                     .offset(x:-15,y:3)
-                    }.foregroundStyle(.secondary)
-                        .allowsHitTesting(false)
-                }
+                    }
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.red, Color.green],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .allowsHitTesting(false)
+                }.background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
                 .padding(.top,-40)
                 .navigationTitle("Play")
@@ -274,18 +286,24 @@ struct PlayView: View {
                 
                 
             }
+        }.refreshable {
+            
         }.safeAreaInset(edge:.bottom){
             if isGameReady == true{
                 GlassEffectContainer{
                     HStack{
                         Button(){
-                            
+                            showEditRoundsSheet = true
                         }label:{
                             Image(systemName: "list.bullet.badge.ellipsis")
                                 .font(.system(size: 20)).foregroundColor(.primary)
                                 .frame(width: 29, height: 29)
                                 .clipShape(Circle())
                         }.padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
+                            .sheet(isPresented: $showEditRoundsSheet) {
+                                EditRoundsSheetView(showEditRoundsSheet: $showEditRoundsSheet,currentGame:$currentGame).presentationDetents([.medium,.large])
+                                
+                            }
                         Spacer()
                         Button(){
                             
@@ -300,8 +318,6 @@ struct PlayView: View {
             }
         }.onAppear{
             userImage = dataToPhoto(data:userImageData)
-        }.refreshable {
-            
         }
     }
        
