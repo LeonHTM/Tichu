@@ -58,6 +58,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userElo,
                         percentage: .constant(false),
+                        inTop:0.025,
                         stat:.elo,
                         items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
                         
@@ -72,6 +73,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userWinner,
                         percentage: .constant(true),
+                        inTop:0.1,
                         stat:.winnerPercentage ,
                         items:makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
                     )
@@ -84,6 +86,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userTichuMaster,
                         percentage: .constant(false),
+                        inTop:0.75,
                         stat:.tichuMaster,
                         items:makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
                     )
@@ -96,6 +99,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userVisionary,
                         percentage: .constant(true),
+                        inTop:0.025,
                         stat:.visionary,
                         items:makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
                     )
@@ -109,6 +113,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userAddict,
                         percentage: .constant(false),
+                        inTop:0.9,
                         stat: .addict,
                         items:makeItems(from: compareList, stat: .addict, sortBy: sortBy)
                     )
@@ -121,6 +126,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userTeamplayer,
                         percentage: .constant(true),
+                        inTop:0.06,
                         stat:.teamplayer,
                         items:makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
                     )
@@ -133,6 +139,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userAnnouncer,
                         percentage: .constant(true),
+                        inTop:0.76,
                         stat:.announcer,
                         items:makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
                     )
@@ -145,6 +152,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userSaboteur,
                         percentage: .constant(true),
+                        inTop:0.87,
                         stat:.saboteur,
                         items:makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
                     )
@@ -157,6 +165,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userGambler,
                         percentage: .constant(true),
+                        inTop:0.9,
                         stat:.gambler,
                         items:makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
                     )
@@ -169,6 +178,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userBigGambler,
                         percentage: .constant(true),
+                        inTop:0.1,
                         stat:.bigGambler,
                         items:makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
                     )
@@ -182,6 +192,7 @@ struct StatsView: View {
                         counterRight: .constant(500),
                         value: $userBomber,
                         percentage: .constant(true),
+                        inTop:0.9,
                         stat:.bomber,
                         items:makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
                     )
@@ -314,7 +325,7 @@ struct StatsView: View {
                             Text("Edit comparison").foregroundColor(Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                             withAnimation(.easeInOut) {
-                                if !compareList.contains(where: { $0.id == addPlayer.id }) {
+                                if !compareList.contains(where: { $0.id == addPlayer.id }) && addPlayer.id != emptyProfile.id{
                                     compareList.append(addPlayer)
                                 }
                             }

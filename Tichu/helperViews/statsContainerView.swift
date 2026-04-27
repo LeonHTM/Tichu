@@ -16,6 +16,7 @@ struct statsContainerView: View {
     @Binding var counterRight: Int
     @Binding var value: Double
     @Binding var percentage: Bool
+    var inTop: Double
     var stat: profile.playerStat
     //Computed Vars
     var items: [profile]
@@ -58,7 +59,7 @@ struct statsContainerView: View {
                 }
                 /*Text("\(counterLeft)/\(counterRight)").font(.footnote).foregroundStyle(.gray.opacity(0.75))*/
             }
-            Text(description).padding(.horizontal,10)
+            Text(description).font(.system(size:16)).multilineTextAlignment(.leading).padding(.top,10).padding(.horizontal,10)
             if !items.isEmpty{
                 Divider().padding(.horizontal, 10)
             }
@@ -73,21 +74,25 @@ struct statsContainerView: View {
                     VStack(spacing: 0) {
                         HStack {
                             if Int(itemValue) > Int(value) {
-                                Image(systemName: "chevron.up.2")
-                                    .resizable()
-                                    .frame(width: 12, height: 12)
-
-                                Text(item.name ?? "")
-                                    .fontWeight(.semibold)
-                                    .font(.system(size: 14))
-                                    .padding(.bottom, 3)
+                                HStack{
+                                    Image(systemName: "chevron.up.2")
+                                        .resizable()
+                                        .frame(width: 12, height: 12)
+                                    
+                                    Text(item.name ?? "")
+                                        //.fontWeight(.semibold)
+                                        .font(.system(size: 14))
+                                        .padding(.bottom, 3)
+                                }.lineLimit(.max)
+                                
+                                    
 
                             } else if Int(itemValue) == Int(value) {
                                 Image(systemName: "equal")
                                     .offset(x: -1)
 
                                 Text(item.name ?? "")
-                                    .fontWeight(.semibold)
+                                    //.fontWeight(.semibold)
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
                                     .offset(x: -2)
@@ -98,9 +103,10 @@ struct statsContainerView: View {
                                     .frame(width: 12, height: 12)
 
                                 Text(item.name ?? "")
-                                    .fontWeight(.semibold)
+                                    //.fontWeight(.semibold)
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
+                                    
                             }
 
                             Spacer()
@@ -119,8 +125,21 @@ struct statsContainerView: View {
             .padding(.bottom, 10)
         }
             .frame(width: 165)
-            .frame(minHeight:150,alignment:.topLeading)
+            .frame(minHeight:140,alignment:.topLeading)
+            .overlay{
+                if inTop <= 0.05 {
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.accentColor, lineWidth: 1)
+                }else if inTop <= 0.075{
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.silver, lineWidth: 1)
+                }else if inTop <= 0.1{
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.bronce, lineWidth: 1)
+                }
+                }
             .glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:20))
+            
     }
 }
 
