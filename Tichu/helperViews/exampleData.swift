@@ -120,14 +120,6 @@ let exampleProfiles: [profile] = [
 ]
 
 
-
-
-
-
-
-
-
-
 let exampleProfilesReduced: [profile] = [
 
     profile(
@@ -273,129 +265,168 @@ let exampleJo: profile = profile(
 
 
 
-
-
-
-
-let emptyProfile: profile = profile(name: nil, imageData: nil, isFriend: false)
-
 let guestProfile: profile = profile(name: "Guest", imageData: nil, isFriend: false)
 
+let exampleTeam1 = Team(list: [exampleLuis, exampleJo])
+let exampleTeam2 = Team(list: [exampleSorin, exampleLeon])
+
+// MARK: - Round 1
+let exampleRound1 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    player1Bombs: 0,
+    player2Bombs: 0,
+    player3Bombs: 0,
+    player4Bombs: 0,
+
+    tichuPointsTeam1: 50,
+    tichuPointsTeam2: 50,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 2
+let exampleRound2 = Round(
+    first: exampleLeon,
+    second: exampleSorin,
+    third: exampleLuis,
+    fourth: exampleJo,
+
+    player1Bombs: 0,
+    player2Bombs: 0,
+    player3Bombs: 1,
+    player4Bombs: 1,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 0,
+    roundPointsTeam2: 100,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: true,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 3
+let exampleRound3 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    player1Bombs: 0,
+    player2Bombs: 0,
+    player3Bombs: 0,
+    player4Bombs: 0,
+
+    tichuPointsTeam1: -25,
+    tichuPointsTeam2: 125,
+
+    roundPointsTeam1: 0,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 4
+let exampleRound4 = Round(
+    first: exampleJo,
+    second: exampleLuis,
+    third: exampleSorin,
+    fourth: exampleLeon,
+
+    player1Bombs: 0,
+    player2Bombs: 0,
+    player3Bombs: 0,
+    player4Bombs: 0,
+
+    tichuPointsTeam1: 75,
+    tichuPointsTeam2: 25,
+
+    roundPointsTeam1: 200,
+    roundPointsTeam2: -200,
+
+    doubleWinTeam1: true,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [exampleJo, exampleSorin],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 5
+let exampleRound5 = Round(
+    first: exampleLeon,
+    second: exampleSorin,
+    third: exampleLuis,
+    fourth: exampleJo,
+
+    player1Bombs: 1,
+    player2Bombs: 1,
+    player3Bombs: 1,
+    player4Bombs: 1,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 0,
+    roundPointsTeam2: 300,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: true,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [exampleLeon],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Game
 let exampleGame = tichuGame(
     player1: exampleLuis,
     player2: exampleJo,
     player3: exampleSorin,
     player4: exampleLeon,
-    rounds: [
-        //Luis angesagt und geschafft 50/50
-        round(
-            first:exampleLuis,
-            second:exampleSorin,
-            third:exampleLeon,
-            fourth:exampleJo,
-            player1Bombs:0,
-            player2Bombs:0,
-            player3Bombs:0,
-            player4Bombs:0,
-            tichuPointsTeam1: 50,
-            tichuPointsTeam2:50,
-            roundPointsTeam1: 100,
-            roundPointsTeam2: 0,
-            doubleWinTeam1:false,
-            doubleWinTeam2: false,
-            hasAnnouncedTichu: [exampleLuis],
-            hasAnnouncedBigTichu: [],
-            hasAnnouncedPingu: []
-            
-            
-        ),
-        //Leon & Sorin Doppelsieg mit zwei Bomben
-        round(
-            first:exampleLeon,
-            second:exampleSorin,
-            third:exampleLuis,
-            fourth:exampleJo,
-            player1Bombs:0,
-            player2Bombs:0,
-            player3Bombs:1,
-            player4Bombs:1,
-            tichuPointsTeam1: 0,
-            tichuPointsTeam2:100,
-            roundPointsTeam1: 0,
-            roundPointsTeam2: 100,
-            doubleWinTeam1:false,
-            doubleWinTeam2: true,
-            hasAnnouncedTichu: [],
-            hasAnnouncedBigTichu: [],
-            hasAnnouncedPingu: []
-            
-            
-        ),
-        //-25,125
-        round(
-            first:exampleLuis,
-            second:exampleSorin,
-            third:exampleLeon,
-            fourth:exampleJo,
-            player1Bombs:0,
-            player2Bombs:0,
-            player3Bombs:0,
-            player4Bombs:0,
-            tichuPointsTeam1: -25,
-            tichuPointsTeam2:125,
-            roundPointsTeam1: 0,
-            roundPointsTeam2: 0,
-            doubleWinTeam1:false,
-            doubleWinTeam2: false,
-            hasAnnouncedTichu: [],
-            hasAnnouncedBigTichu: [],
-            hasAnnouncedPingu: [],
-            
-            
-        ),
-        //Sorin und Jo beide Biggie
-        round(
-            first:exampleJo,
-            second:exampleSorin,
-            third:exampleLuis,
-            fourth:exampleLeon,
-            player1Bombs:0,
-            player2Bombs:0,
-            player3Bombs:0,
-            player4Bombs:0,
-            tichuPointsTeam1: 75,
-            tichuPointsTeam2:25,
-            roundPointsTeam1: 200,
-            roundPointsTeam2: -200,
-            doubleWinTeam1:true,
-            doubleWinTeam2: false,
-            hasAnnouncedTichu: [],
-            hasAnnouncedBigTichu: [exampleJo,exampleSorin],
-            hasAnnouncedPingu: [],
-       
-            
-        ),
-        round(
-            //Biggie Doppelsieg Leon&Sorin
-            first:exampleLeon,
-            second:exampleSorin,
-            third:exampleLuis,
-            fourth:exampleJo,
-            player1Bombs:1,
-            player2Bombs:1,
-            player3Bombs:1,
-            player4Bombs:1,
-            tichuPointsTeam1: 0,
-            tichuPointsTeam2:100,
-            roundPointsTeam1: 0,
-            roundPointsTeam2: 300,
-            doubleWinTeam1:false,
-            doubleWinTeam2: true,
-            hasAnnouncedTichu: [],
-            hasAnnouncedBigTichu: [exampleLeon],
-            hasAnnouncedPingu: [],
-            
-        )
+
+    Rounds: [
+        exampleRound1,
+        exampleRound2,
+        exampleRound3,
+        exampleRound4,
+        exampleRound5
     ]
-    
 )

@@ -15,15 +15,6 @@ struct ProfileView: View {
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("userElo") var userElo: Int = 1000
     
-    @AppStorage("testPic1") private var testPic1Data: Data?
-    @AppStorage("testPic2") private var testPic2Data: Data?
-    @AppStorage("testPic3") private var testPic3Data: Data?
-    @AppStorage("testPic4") private var testPic4Data: Data?
-    
-    @AppStorage("testPic5") private var testPic5Data: Data?
-    @AppStorage("testPic6") private var testPic6Data: Data?
-    @AppStorage("testPic7") private var testPic7Data: Data?
-    @AppStorage("testPic8") private var testPic8Data: Data?
      
     //Vars
     //Photo Logic

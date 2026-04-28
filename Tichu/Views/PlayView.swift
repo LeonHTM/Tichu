@@ -9,22 +9,11 @@ import SwiftUI
 
 struct PlayView: View {
     //Storage Usernames
+    @State private var userProfile = profile()
     @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("player2Name") var player2Name: String = "Add Player 2"
-    @AppStorage("player3Name") var player3Name: String = "Add Player 3"
-    @AppStorage("player4Name") var player4Name: String = "Add Player 4"
-    
-    //Sotrages Images
-    @AppStorage("userImageData") private var userImageData: Data?
-    @AppStorage("player2ImageData") private var player2ImageData: Data?
-    @AppStorage("player3ImageData") private var player3ImageData: Data?
-    @AppStorage("player4ImageData") private var player4ImageData: Data?
-    
-    //Storage Elos
     @AppStorage("userElo") var userElo: Int = 1000
-    @AppStorage("player2Elo") var player2Elo: Int = -69420
-    @AppStorage("player3Elo") var player3Elo: Int = -69420
-    @AppStorage("player4Elo") var player4Elo: Int = -69420
+    @AppStorage("userImageData") private var userImageData: Data?
+    
     
     //Vars
     @State private var userImage: UIImage?
@@ -32,9 +21,9 @@ struct PlayView: View {
     @State private var player3Image: UIImage?
     @State private var player4Image: UIImage?
     
-    @State private var player2: profile = emptyProfile
-    @State private var player3: profile  = emptyProfile
-    @State private var player4: profile  = emptyProfile
+    @State private var player2 = profile()
+    @State private var player3 = profile()
+    @State private var player4 = profile()
     
     @State private var showAddPlayersSheet2:Bool = false
     @State private var showAddPlayersSheet3:Bool = false
@@ -43,10 +32,14 @@ struct PlayView: View {
     @State private var showEditRoundsSheet: Bool = false
     @State private var showAddRoundSheet: Bool = false
     
-    @State private var currentGame: tichuGame = exampleGame
+    @State private var team1 = Team()
+    @State private var team2 = Team()
     
+    @State private var currentGame = tichuGame()
+    @State private var currentRound =  Round()
+        
     private var isGameReady:Bool{
-        player2.id != emptyProfile.id && player3.id != emptyProfile.id && player4.id != emptyProfile.id
+        player2.name != nil && player3.name != nil && player4.name != nil
     }
     
     var body: some View {
@@ -61,9 +54,9 @@ struct PlayView: View {
                     Section{
                         HStack{
                             VStack(alignment:.leading){
-                                Text(userName)
+                                Text(userProfile.name ?? "Unknown")
                                     .fontWeight(.bold)
-                                Text("Ranking: \(userElo)")
+                                Text("Ranking: \(userProfile.elo ?? -69420)")
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 16))
                             }
@@ -252,6 +245,19 @@ struct PlayView: View {
                         }
                     }
                     
+                }.onChange(of: isGameReady) {
+                    
+                    // Build teams
+                    if let _ = player2.name {
+                        team1 = Team(list: [userProfile, player2])
+                    }
+                    if let _ = player3.name, let _ = player4.name {
+                        team2 = Team(list: [player3, player4])
+                    }
+                    currentRound.team1 = team1
+                    currentRound.team2 = team2
+                    currentGame.team1 = team1
+                    currentGame.team2 = team2
                 }
                 .scrollContentBackground(.hidden)
                 .background(alignment: .center) {
@@ -264,11 +270,14 @@ struct PlayView: View {
                     .offset(x:-15,y:3)
                     }
                     .foregroundStyle(
+                        Color.secondary
+                        /*
                         LinearGradient(
+                            
                             colors: [Color.red, Color.green],
                             startPoint: .top,
                             endPoint: .bottom
-                        )
+                        )*/
                     )
                     .allowsHitTesting(false)
                 }.background(Color(uiColor: .systemGroupedBackground))
@@ -292,18 +301,21 @@ struct PlayView: View {
             if isGameReady == true{
                 GlassEffectContainer{
                     HStack{
-                        Button(){
-                            showEditRoundsSheet = true
-                        }label:{
-                            Image(systemName: "list.bullet.badge.ellipsis")
-                                .font(.system(size: 20)).foregroundColor(.primary)
-                                .frame(width: 29, height: 29)
-                                .clipShape(Circle())
-                        }.padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
-                            .sheet(isPresented: $showEditRoundsSheet) {
-                                EditRoundsSheetView(showEditRoundsSheet: $showEditRoundsSheet,currentGame:$currentGame).presentationDetents([.medium,.large])
-                                
-                            }
+                        if currentGame.Rounds.count > 0 {
+                            Button(){
+                                showEditRoundsSheet = true
+                            }label:{
+                                Image(systemName: "list.bullet.badge.ellipsis")
+                                    .font(.system(size: 20)).foregroundColor(.primary)
+                                    .frame(width: 29, height: 29)
+                                    .clipShape(Circle())
+                            }.padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
+                                .sheet(isPresented: $showEditRoundsSheet) {
+                                    EditRoundsSheetView(showEditRoundsSheet: $showEditRoundsSheet,currentGame:$currentGame).presentationDetents([.medium,.large])
+                                    
+                                }
+                            
+                        }
                         Spacer()
                         Button(){
                             
@@ -317,7 +329,10 @@ struct PlayView: View {
                 }
             }
         }.onAppear{
-            userImage = dataToPhoto(data:userImageData)
+            userProfile.name = userName
+            userProfile.elo = userElo
+            userProfile.imageData = userImageData
+            userImage = dataToPhoto(data:userProfile.imageData)
         }
     }
        

@@ -107,7 +107,8 @@ struct AddPlayersSheetView: View {
                             }
                             
                         }.padding(.top,20)
-                    }.listRowBackground(Color.clear).padding(.top,showGuest==true ? 0 : -60)
+                    }.listRowBackground(Color.clear)
+                        
                 }
                 
                 
@@ -210,7 +211,7 @@ struct AddPlayersSheetView: View {
                 
                 
                 
-            }
+            }.padding(.top,showGuest==true ? 0 : -45)
             .listSectionSpacing(0)
             .animation(.easeInOut, value: ascendingFriends)
             .animation(.easeInOut, value: ascendingPlayers)
@@ -231,6 +232,6 @@ struct AddPlayersSheetView: View {
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:true)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false)
 }
 
