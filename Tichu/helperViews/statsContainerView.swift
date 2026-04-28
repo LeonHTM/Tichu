@@ -127,6 +127,7 @@ struct statsContainerView: View {
             .frame(width: 165)
             .frame(minHeight:140,alignment:.topLeading)
             .overlay{
+                /*
                 if inTop <= 0.05 {
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.accentColor, lineWidth: 1)
@@ -136,7 +137,7 @@ struct statsContainerView: View {
                 }else if inTop <= 0.1{
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(Color.bronce, lineWidth: 1)
-                }
+                }*/
                 }
             .glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:20))
             

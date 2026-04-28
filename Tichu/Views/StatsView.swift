@@ -31,7 +31,7 @@ struct StatsView: View {
     @State private var sortBy: sortBy.sortBy = .nameDown
     
     @State private var compareList: [profile] = []
-    @State private var addPlayer: profile = emptyProfile
+    @State private var addPlayer = profile()
 
   
    
@@ -133,7 +133,7 @@ struct StatsView: View {
                     .transition(.opacity.combined(with: .scale))
                     statsContainerView(
                         title: .constant("Announcer"),
-                        description: .constant("Big and Small Tichus announced per round"),
+                        description: .constant("Big and Small Tichus announced per Round"),
                         image: .constant("megaphone"),
                         counterLeft: .constant(1),
                         counterRight: .constant(500),
@@ -186,7 +186,7 @@ struct StatsView: View {
                     
                     statsContainerView(
                         title: .constant("Bomber"),
-                        description: .constant("Bombs per round ratio"),
+                        description: .constant("Bombs per Round ratio"),
                         image: .constant("flame"),
                         counterLeft: .constant(1),
                         counterRight: .constant(500),
@@ -325,7 +325,7 @@ struct StatsView: View {
                             Text("Edit comparison").foregroundColor(Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                             withAnimation(.easeInOut) {
-                                if !compareList.contains(where: { $0.id == addPlayer.id }) && addPlayer.id != emptyProfile.id{
+                                if !compareList.contains(where: { $0.id == addPlayer.id }) && addPlayer.name != nil{
                                     compareList.append(addPlayer)
                                 }
                             }
