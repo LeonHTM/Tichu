@@ -31,13 +31,13 @@ struct statsContainerView: View {
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(.accent)
+                    .foregroundColor(.accentColor)
                 }else{
                     Image(systemName:image
                     )
                     .resizable()
                     .frame(width: 20, height: 20)
-                    .foregroundStyle(.accent)
+                    .foregroundColor(.accentColor)
                     .scaledToFit()
                 }
                 

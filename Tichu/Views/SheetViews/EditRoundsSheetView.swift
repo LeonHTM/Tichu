@@ -87,15 +87,16 @@ struct EditRoundsSheetView: View {
                                 .padding(10)
 
                             Spacer()
-
-                            VStack {
-                                Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)")
-                            }
-
-                            Text("vs")
-
-                            VStack {
-                                Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)")
+                            if hasExpanded == false{
+                                VStack {
+                                    Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)")
+                                }
+                                
+                                Text("vs")
+                                
+                                VStack {
+                                    Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)")
+                                }
                             }
                         }
 
@@ -105,80 +106,201 @@ struct EditRoundsSheetView: View {
                             HStack(alignment: .top) {
 
                                 VStack(alignment: .leading) {
-
+                                    
                                     // MARK: TEAM 1
                                     HStack {
                                         Text("Team 1").fontWeight(.bold)
                                         Spacer()
-                                        Image(systemName: currentRound.doubleWinTeam1 ? "checkmark" : "")
-                                            .foregroundStyle(.green)
-                                        Text(currentRound.doubleWinTeam1 ? "Double Win" : "")
-                                            .foregroundStyle(.green)
+                                        Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
-
-                                    VStack(alignment: .leading, spacing: 10) {
-
-                                        ForEach(sortedTeam1, id: \.id) { player in
-
-                                            let place = placement(player: player, in: currentRound)
-
-                                            HStack {
-
-                                                Text("\(place).")
-                                                    .fontWeight(.bold)
-
-                                                Text(player.name ?? "Unknown")
-
-                                                Spacer()
-
-                                                let tichu = currentRound.hasAnnouncedTichu.contains(player)
-                                                let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
-                                                let pingu = currentRound.hasAnnouncedPingu.contains(player)
-
-                                                let isFirst = currentRound.first?.id == player.id
-                                                
-                                                if player.id == pointsPlayerTeam1?.id {
-                                                    if !currentRound.doubleWinTeam1 && !currentRound.doubleWinTeam2{
-                                                        Text("\(currentRound.tichuPointsTeam1)")
-                                                    }
-                                                }
-
+                                    
+                                    HStack{
+                                        VStack(alignment: .leading, spacing: 10) {
                                             
-
-                                                    if tichu && isFirst {
+                                            ForEach(sortedTeam1, id: \.id) { player in
+                                                
+                                                let place = placement(player: player, in: currentRound)
+                                                
+                                                //DUDE HOW STUPID IS THIS CODE
+                                                let isFirstIsPlayer2 = (currentRound.first?.id == currentGame.player2?.id)
+                                                let isFirstIsPlayer1 = (currentRound.first?.id == currentGame.player1?.id)
+                                                
+                                                let isSecondIsPlayer1 = (currentRound.second?.id == currentGame.player1?.id)
+                                                let isSecondIsPlayer2 = (currentRound.second?.id == currentGame.player2?.id)
+                                                
+                                                
+                                                
+                                                let placeColor: Color = (place == 1 && isSecondIsPlayer1 || place == 1 && isSecondIsPlayer2 || place == 2 && isFirstIsPlayer1 || place == 2 && isFirstIsPlayer2) ? .green : .primary
+                                                
+                                                HStack {
+                                                    
+                                                    Text("\(place).")
+                                                        .fontWeight(.bold)
+                                                        .foregroundStyle(placeColor)
+                                                    
+                                                    Text(player.name ?? "Unknown")
+                                                    
+                                                    Spacer()
+                                                }
+                                            }
+                                        }.padding()
+                                        
+                                            let tichu1 = currentRound.hasAnnouncedTichu.contains(currentGame.player1 ?? profile())
+                                            let bigTichu1 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player1  ?? profile())
+                                            let pingu1 = currentRound.hasAnnouncedPingu.contains(currentGame.player1  ?? profile())
+                                            
+                                            let isFirst1 = currentRound.first?.id == currentGame.player1?.id  ?? profile().id
+                                            
+                                            
+                                            let tichu2 = currentRound.hasAnnouncedTichu.contains(currentGame.player2 ?? profile())
+                                            let bigTichu2 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player2  ?? profile())
+                                            let pingu2 = currentRound.hasAnnouncedPingu.contains(currentGame.player2  ?? profile())
+                                            
+                                            let isFirst2 = currentRound.first?.id == currentGame.player2?.id  ?? profile().id
+                                            
+                                            VStack(alignment:.leading,spacing:10){
+                                                
+                                                if tichu1 && isFirst1 {
+                                                    HStack{
                                                         Image(systemName:"checkmark")
                                                             .foregroundStyle(.green)
                                                         Text("Tichu").foregroundStyle(.green)
-                                                    } else if bigTichu && isFirst {
+                                                    }
+                                                    
+                                                        if !tichu2 && !bigTichu2 && !pingu2 {
+                                                            Text("")
+                                                        }
+                                                    
+                                                } else if bigTichu1 && isFirst1 {
+                                                    HStack{
                                                         Image(systemName:"checkmark")
                                                             .foregroundStyle(.green)
                                                         Text("Big Tichu").foregroundStyle(.green)
-                                                    } else if pingu && isFirst {
+                                                    }
+                                                    
+                                                        if !tichu2 && !bigTichu2 && !pingu2 {
+                                                            Text("")
+                                                        }
+                                                    
+                                                } else if pingu1 && isFirst1 {
+                                                    HStack{
                                                         Image(systemName:"checkmark")
                                                             .foregroundStyle(.green)
                                                         Text("Pingu").foregroundStyle(.green)
-                                                    } else if tichu && !isFirst{
+                                                    }
+                                                    if !tichu2 && !bigTichu2 && !pingu2 {
+                                                        Text("")
+                                                    }
+                                                } else if tichu1 && !isFirst1{
+                                                    HStack{
                                                         Image(systemName:"xmark")
                                                             .foregroundStyle(.red)
                                                         Text("Tichu").foregroundStyle(.red)
-                                                    } else if bigTichu && !isFirst {
-                                                        Image(systemName:"xmark")
-                                                            .foregroundStyle(.red)
-                                                        Text("Big Tichu").foregroundStyle(.red)
-                                                    } else if pingu && !isFirst {
+                                                    }
+                                                    if !tichu2 && !bigTichu2 && !pingu2 {
+                                                        Text("")
+                                                    }
+                                                } else if bigTichu1 && !isFirst1 {
+                                                    HStack{
                                                         Image(systemName:"xmark")
                                                             .foregroundStyle(.red)
                                                         Text("Big Tichu").foregroundStyle(.red)
                                                     }
-
-                                            
+                                                        if !isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                            Text("")
+                                                        }
+                                                    
+                                                    
+                                                } else if pingu1 && !isFirst1 {
+                                                    HStack{
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Big Tichu").foregroundStyle(.red)
+                                                    }
+                                                    if !tichu2 && !bigTichu2 && !pingu2 {
+                                                        Text("")
+                                                    }
+                                                }
                                                 
+                                                
+                                                
+                                                if tichu2 && isFirst2 {
+                                                    HStack{
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Tichu").foregroundStyle(.green)
+                                                        if !tichu1 && !bigTichu1 && !pingu1 {
+                                                            Text("")
+                                                        }
+                                                    }
+                                                } else if bigTichu2 && isFirst2 {
+                                                    HStack{
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Big Tichu").foregroundStyle(.green)
+                                                    }
+                                                    if !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                } else if pingu2 && isFirst2 {
+                                                    HStack{
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Pingu").foregroundStyle(.green)
+                                                    }
+                                                    if !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                } else if tichu2 && !isFirst2{
+                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                    HStack{
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Tichu").foregroundStyle(.red)
+                                                    }
+                                                    if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                } else if bigTichu2 && !isFirst2 {
+                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                    HStack{
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Big Tichu").foregroundStyle(.red)
+                                                        
+                                                    }
+                                                    if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                } else if pingu2 && !isFirst2{
+                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    }
+                                                    HStack{
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Big Tichu").foregroundStyle(.red)
+                                                    }
+                                                    if !isFirst1 && tichu1 && !bigTichu1 && !pingu1 {
+                                                        Text("")
+                                                    
+                                                    }
+                                                }
                                             }
-                                        }
-                                    }
+                                            
+                                            
+                                            
+                                            
+                                        
+                                    
                                     .padding()
+                                }
                                     .background(
                                         RoundedRectangle(cornerRadius: 20)
                                             .fill(Color(uiColor: .systemGroupedBackground))
@@ -188,73 +310,188 @@ struct EditRoundsSheetView: View {
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
                                         Spacer()
-                                        Image(systemName: currentRound.doubleWinTeam2 ? "checkmark" : "")
-                                            .foregroundStyle(.green)
-                                        Text(currentRound.doubleWinTeam2 ? "Double Win" : "")
-                                            .foregroundStyle(.green)
+                                        
+    
+                                        Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
-
-                                    VStack(alignment: .leading, spacing: 10) {
-
-                                        ForEach(sortedTeam2, id: \.id) { player in
-
-                                            let place = placement(player: player, in: currentRound)
-
-                                            HStack {
-
-                                                Text("\(place).")
-                                                    .fontWeight(.bold)
-
-                                                Text(player.name ?? "Unknown")
-
-                                                Spacer()
-
-                                                let tichu = currentRound.hasAnnouncedTichu.contains(player)
-                                                let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
-                                                let pingu = currentRound.hasAnnouncedPingu.contains(player)
-
-                                                let isFirst = currentRound.first?.id == player.id
+                                    HStack{
+                                        VStack(alignment: .leading, spacing: 10) {
+                                            
+                                            ForEach(Array(sortedTeam2.enumerated()), id: \.element.id) { index, player in
                                                 
-                                                if player.id == pointsPlayerTeam2?.id {
-                                                    if !currentRound.doubleWinTeam2 && !currentRound.doubleWinTeam1 {
-                                                        Text("\(currentRound.tichuPointsTeam2)")
-                                                    }
+                                                let place = placement(player: player, in: currentRound)
+                                                
+                                                let isFirstIsPlayer4 = (currentRound.first?.id == currentGame.player4?.id)
+                                                let isFirstIsPlayer3 = (currentRound.first?.id == currentGame.player3?.id)
+                                                
+                                                let isSecondIsPlayer3 = (currentRound.second?.id == currentGame.player3?.id)
+                                                let isSecondIsPlayer4 = (currentRound.second?.id == currentGame.player4?.id)
+                                                
+        
+                                                let placeColor: Color = (place == 1 && isSecondIsPlayer4 || place == 1 && isSecondIsPlayer3 || place == 2 && isFirstIsPlayer3 || place == 2 && isFirstIsPlayer4) ? .green : .primary
+                                                
+                                                
+                                                HStack {
+                                                    
+                                                    Text("\(place).")
+                                                        .fontWeight(.bold)
+                                                        .foregroundStyle(placeColor)
+                                                    
+                                                    Text(player.name ?? "Unknown")
+                                                    
+                                                    Spacer()
                                                 }
-
-                                                if tichu && isFirst {
+                                                
+                                                // Only add Spacer if it's NOT the last element
+                                                if index != sortedTeam2.count - 1 {
+                                                    
+                                                }
+                                            }
+                                            
+                                        }
+                                        .padding()
+                                        let tichu3 = currentRound.hasAnnouncedTichu.contains(currentGame.player3 ?? profile())
+                                        let bigTichu3 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player3  ?? profile())
+                                        let pingu3 = currentRound.hasAnnouncedPingu.contains(currentGame.player3  ?? profile())
+                                        
+                                        let isFirst3 = currentRound.first?.id == currentGame.player3?.id  ?? profile().id
+                                        
+                                        
+                                        let tichu4 = currentRound.hasAnnouncedTichu.contains(currentGame.player4 ?? profile())
+                                        let bigTichu4 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player4  ?? profile())
+                                        let pingu4 = currentRound.hasAnnouncedPingu.contains(currentGame.player4  ?? profile())
+                                        
+                                        let isFirst4 = currentRound.first?.id == currentGame.player4?.id  ?? profile().id
+                                    
+                                        VStack(alignment:.leading,spacing:11){
+                                             
+                                            if tichu3 && isFirst3 {
+                                                HStack{
                                                     Image(systemName:"checkmark")
                                                         .foregroundStyle(.green)
                                                     Text("Tichu").foregroundStyle(.green)
-                                                } else if bigTichu && isFirst {
+                                                }
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
+                                            } else if bigTichu3 && isFirst3 {
+                                                HStack{
                                                     Image(systemName:"checkmark")
                                                         .foregroundStyle(.green)
                                                     Text("Big Tichu").foregroundStyle(.green)
-                                                } else if pingu && isFirst {
+                                                    }
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
+                                            } else if pingu3 && isFirst3 {
+                                                HStack{
                                                     Image(systemName:"checkmark")
                                                         .foregroundStyle(.green)
                                                     Text("Pingu").foregroundStyle(.green)
-                                                } else if tichu && !isFirst{
+                                                }
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
+                                            } else if tichu3 && !isFirst3{
+                                                HStack{
                                                     Image(systemName:"xmark")
                                                         .foregroundStyle(.red)
                                                     Text("Tichu").foregroundStyle(.red)
-                                                } else if bigTichu && !isFirst {
-                                                    Image(systemName:"xmark")
-                                                        .foregroundStyle(.red)
-                                                    Text("Big Tichu").foregroundStyle(.red)
-                                                } else if pingu && !isFirst {
+                                                }
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
+                                            } else if bigTichu3 && !isFirst3 {
+                                                HStack{
                                                     Image(systemName:"xmark")
                                                         .foregroundStyle(.red)
                                                     Text("Big Tichu").foregroundStyle(.red)
                                                 }
-
-                                  
-                                                
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
+                                               
+                                            } else if pingu3 && !isFirst3 {
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Big Tichu").foregroundStyle(.red)
+                                                }
+                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                    Text("")
+                                                }
                                             }
-                                        }
+                                            
+                                            /*if currentRound.doubleWinTeam2 {
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Double Win")
+                                                        .foregroundStyle(.green)
+                                                }
+                                            }*/
+                                            
+                                            if tichu4 && isFirst4 {
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Tichu").foregroundStyle(.green)
+                                                }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            } else if bigTichu4 && isFirst4 {
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Big Tichu").foregroundStyle(.green)
+                                                    }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            } else if pingu4 && isFirst4 {
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Pingu").foregroundStyle(.green)
+                                                }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            } else if tichu4 && !isFirst4{
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Tichu").foregroundStyle(.red)
+                                                }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            } else if bigTichu4 && !isFirst4 {
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Big Tichu").foregroundStyle(.red)
+                                                   
+                                                }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            } else if pingu4 && !isFirst4 {
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Big Tichu").foregroundStyle(.red)
+                                                }
+                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                    Text("")
+                                                }
+                                            }
+                                        }.padding(.trailing)
+                                        
                                     }
-                                    .padding()
                                     .background(
                                         RoundedRectangle(cornerRadius: 20)
                                             .fill(Color(uiColor: .systemGroupedBackground))
@@ -297,5 +534,3 @@ struct EditRoundsSheetView: View {
         currentGame: .constant(exampleGame)
     )
 }
-
-

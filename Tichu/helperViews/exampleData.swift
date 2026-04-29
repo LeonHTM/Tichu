@@ -385,9 +385,64 @@ let exampleRound4 = Round(
     team1: exampleTeam1,
     team2: exampleTeam2
 )
+let exampleRound5 = Round(
+    first: exampleLuis,
+    second: exampleJo,
+    third: exampleSorin,
+    fourth: exampleLeon,
+
+    player1Bombs: 0,
+    player2Bombs: 0,
+    player3Bombs: 0,
+    player4Bombs: 0,
+
+    tichuPointsTeam1: 100,
+    tichuPointsTeam2: 0,
+
+    roundPointsTeam1: 300,
+    roundPointsTeam2: -200,
+
+    doubleWinTeam1: true,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [exampleJo, exampleSorin],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
 
 // MARK: - Round 5
-let exampleRound5 = Round(
+let exampleRound6 = Round(
+    first: exampleLeon,
+    second: exampleSorin,
+    third: exampleLuis,
+    fourth: exampleJo,
+
+    player1Bombs: 1,
+    player2Bombs: 1,
+    player3Bombs: 1,
+    player4Bombs: 1,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 0,
+    roundPointsTeam2: 100,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: true,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [exampleLeon,exampleSorin],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+let exampleRound7 = Round(
     first: exampleLeon,
     second: exampleSorin,
     third: exampleLuis,
@@ -427,6 +482,8 @@ let exampleGame = tichuGame(
         exampleRound2,
         exampleRound3,
         exampleRound4,
-        exampleRound5
+        exampleRound5,
+        exampleRound6,
+        exampleRound7
     ]
 )
