@@ -369,10 +369,10 @@ let exampleRound4 = Round(
     player3Bombs: 0,
     player4Bombs: 0,
 
-    tichuPointsTeam1: 75,
-    tichuPointsTeam2: 25,
+    tichuPointsTeam1: 100,
+    tichuPointsTeam2: 0,
 
-    roundPointsTeam1: 200,
+    roundPointsTeam1: 300,
     roundPointsTeam2: -200,
 
     doubleWinTeam1: true,

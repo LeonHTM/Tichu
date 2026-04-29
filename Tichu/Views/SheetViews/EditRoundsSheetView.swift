@@ -13,7 +13,7 @@ struct EditRoundsSheetView: View {
 
     @State private var expandedRows: Set<Int> = []
 
-    // MARK: - Placement logic
+  
 
     private func placement(player: profile, in round: Round) -> Int {
         if round.first?.id == player.id { return 1 }
@@ -29,10 +29,23 @@ struct EditRoundsSheetView: View {
         }
     }
 
+    private func hasAnyAnnouncement(_ player: profile, in round: Round) -> Bool {
+        round.hasAnnouncedTichu.contains(player)
+        || round.hasAnnouncedBigTichu.contains(player)
+        || round.hasAnnouncedPingu.contains(player)
+    }
+
+    private func pointsPlayer(in team: [profile], round: Round) -> profile? {
+        // Prefer player without announcement
+        if let player = team.first(where: { !hasAnyAnnouncement($0, in: round) }) {
+            return player
+        }
+        // fallback: first player
+        return team.first
+    }
+
     var body: some View {
-
         NavigationStack {
-
             List {
 
                 ForEach(currentGame.Rounds.indices, id: \.self) { index in
@@ -50,9 +63,12 @@ struct EditRoundsSheetView: View {
                         in: currentRound
                     )
 
+                    let pointsPlayerTeam1 = pointsPlayer(in: sortedTeam1, round: currentRound)
+                    let pointsPlayerTeam2 = pointsPlayer(in: sortedTeam2, round: currentRound)
+
                     VStack {
 
-                       
+                        // MARK: Header
                         HStack {
 
                             Button {
@@ -68,19 +84,18 @@ struct EditRoundsSheetView: View {
                             Text("Round \(index + 1)")
                                 .fontWeight(.bold)
                                 .font(.system(size: 20))
+                                .padding(10)
 
                             Spacer()
 
                             VStack {
-                                Text("\(currentRound.tichuPointsTeam1)")
-                                Text("\(currentRound.roundPointsTeam1)")
+                                Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)")
                             }
 
                             Text("vs")
 
                             VStack {
-                                Text("\(currentRound.tichuPointsTeam2)")
-                                Text("\(currentRound.roundPointsTeam2)")
+                                Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)")
                             }
                         }
 
@@ -91,10 +106,17 @@ struct EditRoundsSheetView: View {
 
                                 VStack(alignment: .leading) {
 
-                                    // TEAM 1
-                                    Text("Team 1")
-                                        .fontWeight(.bold)
-                                        .padding()
+                                    // MARK: TEAM 1
+                                    HStack {
+                                        Text("Team 1").fontWeight(.bold)
+                                        Spacer()
+                                        Image(systemName: currentRound.doubleWinTeam1 ? "checkmark" : "")
+                                            .foregroundStyle(.green)
+                                        Text(currentRound.doubleWinTeam1 ? "Double Win" : "")
+                                            .foregroundStyle(.green)
+                                    }
+                                    .padding(.top)
+                                    .padding(.horizontal)
 
                                     VStack(alignment: .leading, spacing: 10) {
 
@@ -106,15 +128,53 @@ struct EditRoundsSheetView: View {
 
                                                 Text("\(place).")
                                                     .fontWeight(.bold)
-                                                    .foregroundColor(
-                                                        place == 1 ? .accentColor :
-                                                        place == 2 ? .silver :
-                                                        place == 3 ? .bronce :
-                                                        .primary
-                                                    )
 
                                                 Text(player.name ?? "Unknown")
+
                                                 Spacer()
+
+                                                let tichu = currentRound.hasAnnouncedTichu.contains(player)
+                                                let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
+                                                let pingu = currentRound.hasAnnouncedPingu.contains(player)
+
+                                                let isFirst = currentRound.first?.id == player.id
+                                                
+                                                if player.id == pointsPlayerTeam1?.id {
+                                                    if !currentRound.doubleWinTeam1 && !currentRound.doubleWinTeam2{
+                                                        Text("\(currentRound.tichuPointsTeam1)")
+                                                    }
+                                                }
+
+                                            
+
+                                                    if tichu && isFirst {
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Tichu").foregroundStyle(.green)
+                                                    } else if bigTichu && isFirst {
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Big Tichu").foregroundStyle(.green)
+                                                    } else if pingu && isFirst {
+                                                        Image(systemName:"checkmark")
+                                                            .foregroundStyle(.green)
+                                                        Text("Pingu").foregroundStyle(.green)
+                                                    } else if tichu && !isFirst{
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Tichu").foregroundStyle(.red)
+                                                    } else if bigTichu && !isFirst {
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Big Tichu").foregroundStyle(.red)
+                                                    } else if pingu && !isFirst {
+                                                        Image(systemName:"xmark")
+                                                            .foregroundStyle(.red)
+                                                        Text("Big Tichu").foregroundStyle(.red)
+                                                    }
+
+                                            
+                                                
                                             }
                                         }
                                     }
@@ -124,10 +184,17 @@ struct EditRoundsSheetView: View {
                                             .fill(Color(uiColor: .systemGroupedBackground))
                                     )
 
-                                    // TEAM 2
-                                    Text("Team 2")
-                                        .fontWeight(.bold)
-                                        .padding()
+                                    // MARK: TEAM 2
+                                    HStack {
+                                        Text("Team 2").fontWeight(.bold)
+                                        Spacer()
+                                        Image(systemName: currentRound.doubleWinTeam2 ? "checkmark" : "")
+                                            .foregroundStyle(.green)
+                                        Text(currentRound.doubleWinTeam2 ? "Double Win" : "")
+                                            .foregroundStyle(.green)
+                                    }
+                                    .padding(.top)
+                                    .padding(.horizontal)
 
                                     VStack(alignment: .leading, spacing: 10) {
 
@@ -139,15 +206,51 @@ struct EditRoundsSheetView: View {
 
                                                 Text("\(place).")
                                                     .fontWeight(.bold)
-                                                    .foregroundColor(
-                                                        place == 1 ? .accentColor :
-                                                        place == 2 ? .silver :
-                                                        place == 3 ? .bronce :
-                                                        .green
-                                                    )
 
                                                 Text(player.name ?? "Unknown")
+
                                                 Spacer()
+
+                                                let tichu = currentRound.hasAnnouncedTichu.contains(player)
+                                                let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
+                                                let pingu = currentRound.hasAnnouncedPingu.contains(player)
+
+                                                let isFirst = currentRound.first?.id == player.id
+                                                
+                                                if player.id == pointsPlayerTeam2?.id {
+                                                    if !currentRound.doubleWinTeam2 && !currentRound.doubleWinTeam1 {
+                                                        Text("\(currentRound.tichuPointsTeam2)")
+                                                    }
+                                                }
+
+                                                if tichu && isFirst {
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Tichu").foregroundStyle(.green)
+                                                } else if bigTichu && isFirst {
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Big Tichu").foregroundStyle(.green)
+                                                } else if pingu && isFirst {
+                                                    Image(systemName:"checkmark")
+                                                        .foregroundStyle(.green)
+                                                    Text("Pingu").foregroundStyle(.green)
+                                                } else if tichu && !isFirst{
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Tichu").foregroundStyle(.red)
+                                                } else if bigTichu && !isFirst {
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Big Tichu").foregroundStyle(.red)
+                                                } else if pingu && !isFirst {
+                                                    Image(systemName:"xmark")
+                                                        .foregroundStyle(.red)
+                                                    Text("Big Tichu").foregroundStyle(.red)
+                                                }
+
+                                  
+                                                
                                             }
                                         }
                                     }
@@ -167,16 +270,20 @@ struct EditRoundsSheetView: View {
                     currentGame.Rounds.remove(atOffsets: indexSet)
                 }
             }
+
             .navigationTitle("Edit game")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar{ ToolbarItem(placement:.cancellationAction){
-                Button("Cancel",systemImage:"xmark"){
-                    showEditRoundsSheet = false
+
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", systemImage: "xmark") {
+                        showEditRoundsSheet = false
+                    }
                 }
-            }
-                ToolbarItem(placement:.confirmationAction)
-                { Button("Done", systemImage: "checkmark")
-                    { showEditRoundsSheet = false
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done", systemImage: "checkmark") {
+                        showEditRoundsSheet = false
                     }
                 }
             }
@@ -185,6 +292,10 @@ struct EditRoundsSheetView: View {
 }
 
 #Preview {
-    EditRoundsSheetView(showEditRoundsSheet: .constant(true),
-                        currentGame:.constant(exampleGame))
+    EditRoundsSheetView(
+        showEditRoundsSheet: .constant(true),
+        currentGame: .constant(exampleGame)
+    )
 }
+
+
