@@ -167,11 +167,12 @@ struct Round: Identifiable {
         precondition(Set(allAnnouncements.map { $0.id }).count == allAnnouncements.count, "A player can only announce either a Tichu or Big Tichu or Pingu")
 
         // Double win checks only when corresponding Team and finishing players are present
-        if doubleWinTeam1, let team1 {
+        if doubleWinTeam1, let team1{
             if let f = first, let s = second {
                 let team1PlayerIDs = Set(team1.list.map { $0.id })
                 precondition(team1PlayerIDs.contains(f.id) && team1PlayerIDs.contains(s.id), "doubleWinTeam1 can only be true if first and second are both in team1")
             }
+            
         }
 
         if doubleWinTeam2, let team2 {
@@ -179,7 +180,11 @@ struct Round: Identifiable {
                 let team2PlayerIDs = Set(team2.list.map { $0.id })
                 precondition(team2PlayerIDs.contains(f.id) && team2PlayerIDs.contains(s.id), "doubleWinTeam2 can only be true if first and second are both in team2")
             }
+            
+         
         }
+        
+
 
         self.first = first
         self.second = second
