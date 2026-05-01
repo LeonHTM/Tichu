@@ -279,7 +279,9 @@ let exampleJo: profile = profile(
 
 
 
-let guestProfile: profile = profile(name: "Guest", imageData: nil, isFriend: false)
+let guest2Profile: profile = profile(name: "Guest 2", imageData: nil, isFriend: false)
+let guest3Profile: profile = profile(name: "Guest 3", imageData: nil, isFriend: false)
+let guest4Profile: profile = profile(name: "Guest 4", imageData: nil, isFriend: false)
 
 let exampleTeam1 = Team(list: [exampleLuis, exampleJo])
 let exampleTeam2 = Team(list: [exampleSorin, exampleLeon])

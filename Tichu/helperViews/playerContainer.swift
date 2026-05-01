@@ -7,45 +7,82 @@
 
 import SwiftUI
 
+enum CanAnnounce: Equatable {
+    case none
+    case tichu
+    case bigTichu
+    case pingu
+}
+
 struct playerContainer: View {
-    @Binding var hasAnnounced: canAnnounce
+    var player: profile
+    @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
+    @Environment(\.colorScheme) var colorScheme
+    
     
     
     var body: some View {
         GlassEffectContainer{
             VStack(alignment:.leading){
-                Text("Sorin").fontWeight(.bold)
+                Text(player.name ?? "Unknown").fontWeight(.bold)
                 HStack{
                     Button{
-                        hasAnnounced = tichu
+                        DispatchQueue.main.async {
+                            if hasAnnounced == .tichu {
+                                hasAnnounced = .none
+                            }else{
+                                hasAnnounced = .tichu
+                            }
+                        }
+                        
                     }label:{
                         Text("Tichu").foregroundColor(.primary)
-                    }.padding(10).glassEffect(hasAnnouncedTichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
+                    }.padding(10).glassEffect(hasAnnounced == .tichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                     Button{
-                        
+                        if hasAnnounced == .bigTichu {
+                            hasAnnounced = .none
+                        } else {
+                            hasAnnounced = .bigTichu
+                        }
                     }label:{
                         //Deutsch : Gr. Tichu
                         Text("Big Tichu").foregroundColor(.primary)
-                    }.padding(10).glassEffect(.regular.interactive())
+                    }.padding(10).glassEffect(hasAnnounced == .bigTichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
                 HStack{
                     Button{
-                        
+                        if hasAnnounced == .pingu {
+                            hasAnnounced = .none
+                        } else {
+                            hasAnnounced = .pingu
+                        }
                     }label:{
                         Text("Pingu").foregroundColor(.primary)
-                    }.padding(10).glassEffect(.regular.interactive())
+                    }.padding(10).glassEffect(hasAnnounced == .pingu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                     Button{
-                        
+                        if bombNumber < 3{
+                            bombNumber+=1
+                    
+                        }else{
+                            bombNumber = 0
+                        }
                     }label:{
-                        Text("Bombs: 0").foregroundColor(.primary)
-                    }.padding(10).glassEffect(.regular.interactive())
+                        Text("Bombs: \(bombNumber)").foregroundColor(.primary)
+                    }.padding(10).glassEffect(bombNumber > 0 ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
-            }.padding(10).background(.gray.opacity(0.175), in: .rect(cornerRadius: 24))
+            }.padding(10)/*.background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))*/
         }
     }
 }
 
 #Preview {
-    playerContainer(hasAnnounced: .constant(.canAnnounce.tichu),bombNumber: .constant(0))
+    struct PreviewWrapper: View {
+        @State var hasAnnounced: CanAnnounce = .none
+        @State var bombNumber: Int = 0
+        var body: some View {
+            playerContainer(player: exampleSorin,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber)
+        }
+    }
+    return PreviewWrapper()
 }

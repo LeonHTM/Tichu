@@ -5,238 +5,179 @@
 //  Created by Leon on 27.04.2026.
 //
 
-
-
-
-//MOCKUP UI
 import SwiftUI
 
 struct AddRoundSheetView: View {
     
-    @State private var tichuTags: [String] = ["Tichu","Big Tichu","Pingu",]
-    @State private var selectedTags: [String] = []
-    @State private var tichuPointsTeam1: Double = 0
-    
+    @State private var hasAnnouncedPlayer1: CanAnnounce = .none
+    @State private var hasAnnouncedPlayer2: CanAnnounce = .none
+    @State private var hasAnnouncedPlayer3: CanAnnounce = .none
+    @State private var hasAnnouncedPlayer4: CanAnnounce = .none
+    @State private var players: [profile?] = []
     @Binding var showAddRoundsSheet: Bool
+    @Binding var currentGame: tichuGame
+    @Binding var currentRound: Round
+    @Environment(\.colorScheme) var colorScheme
     
-    var tichuPointsTeam2: Double{
-        100 - tichuPointsTeam1
+    func move(from source: IndexSet, to destination: Int) {
+        players.move(fromOffsets: source, toOffset: destination)
     }
+    
+    // MARK: - Team logic
+    private func isTeam1(_ player: profile?) -> Bool {
+        guard let player else { return false }
+        return player.id == currentGame.player1?.id || player.id == currentGame.player2?.id
+    }
+    
+    private func isTeam2(_ player: profile?) -> Bool {
+        guard let player else { return false }
+        return player.id == currentGame.player3?.id || player.id == currentGame.player4?.id
+    }
+    
+   
+    private func isGolden(index: Int) -> Bool {
+        guard index < 2 else { return false }
+        guard players.count >= 2 else { return false }
+        
+        let first = players[0]
+        let second = players[1]
+        
+        if let first, let second {
+            let sameTeam = (isTeam1(first) && isTeam1(second)) ||
+                          (isTeam2(first) && isTeam2(second))
+            return sameTeam
+        }
+        return false
+    }
+    
     var body: some View {
-        NavigationStack{
-            VStack{
-                HStack{
-                    GlassEffectContainer{
-                        VStack(alignment:.leading){
-                            Text("Team 1").font(.title2).fontWeight(.bold).padding(.leading,10)
-                            Text("Leon").font(.title3).padding(.leading,12)
-                            HStack{
-                                Button{
-                                    
-                                }label:{
-                                    Text("t").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                                Button{
-                                    
-                                }label:{
-                                    //Deutsch : Gr. Tichu
-                                    Text("T").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                                Button{
-                                    
-                                }label:{
-                                    Text("P").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
+        NavigationStack {
+            ScrollView {
+                VStack {
+                    HStack {
+                        GlassEffectContainer {
+                            VStack(alignment: .leading) {
+                                Text("Team 1")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                VStack {
+                                    playerContainer(player: currentGame.player1 ?? profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.player1Bombs)
+                                    playerContainer(player: currentGame.player2 ?? profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.player2Bombs)
+                                }
+                                .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
-                            HStack{
-                                
-                                Button{
-                                    
-                                }label:{
-                                    Text("Bombs: 0").foregroundColor(.primary)
-                                }.padding(.vertical,10).padding(.horizontal,16).glassEffect(.regular.interactive())
-                            }
-                            VStack(alignment:.leading){
-                            Text("Sorin").font(.title3).padding(.leading,12)
-                            HStack{
-                                Button{
-                                    
-                                }label:{
-                                    Text("Tichu").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                                Button{
-                                    
-                                }label:{
-                                    //Deutsch : Gr. Tichu
-                                    Text("Big Tichu").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                            }
-                            HStack{
-                                Button{
-                                    
-                                }label:{
-                                    Text("Pingu").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                                Button{
-                                    
-                                }label:{
-                                    Text("Bombs: 0").foregroundColor(.primary)
-                                }.padding(10).glassEffect(.regular.interactive())
-                            }
-                            }.padding(10).background(.gray.opacity(0.175), in: .rect(cornerRadius: 24))
                         }
-                    }
-                    Divider().padding(.horizontal,5)
-                    GlassEffectContainer{
-                    VStack(alignment:.leading){
-                        Text("Team 2").font(.title2).fontWeight(.bold).padding(.leading,10)
-                        VStack(alignment:.leading){
-                        Text("Luis").font(.title3).padding(.leading,12)
-                        HStack{
-                            Button{
-                                
-                            }label:{
-                                Text("Tichu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                            Button{
-                                
-                            }label:{
-                                //Deutsch : Gr. Tichu
-                                Text("Big Tichu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                        }
-                        HStack{
-                            Button{
-                                
-                            }label:{
-                                Text("Pingu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                            Button{
-                                
-                            }label:{
-                                Text("Bombs: 0").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                        }
-                        }.padding(10).background(.gray.opacity(0.175), in: .rect(cornerRadius: 24))
-                        Text("Jo").font(.title3).padding(.leading,12)
-                        HStack{
-                            Button{
-                                
-                            }label:{
-                                Text("Tichu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                            Button{
-                                
-                            }label:{
-                                //Deutsch : Gr. Tichu
-                                Text("Big Tichu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                        }
-                        HStack{
-                            Button{
-                                
-                            }label:{
-                                Text("Pingu").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                            Button{
-                                
-                            }label:{
-                                Text("Bombs: 0").foregroundColor(.primary)
-                            }.padding(10).glassEffect(.regular.interactive())
-                        }
-                    }
-                }
-                }.zIndex(3)
-                List{
-                    HStack{
-                        Text("1.").fontWeight(.bold)
-                        Text("Sorin")
-                    }
-                    HStack{
-                        Text("2.").fontWeight(.bold)
-                        Text("Leon")
-                        Spacer()
-                        Menu{
-                            Button{
-                                
-                            }label:{
-                                Image(systemName:"exclamationmark.circle")
-                                Text("Tichu")
-                            }
-                            Button{
-                                
-                            }label:{
-                                Image("exclamationmark.2.circle")
-                                Text("Big Tichu")
-                            }
-                            Button{
-                                
-                            }label:{
-                                Image("exclamationmark.3.circle")
-                                Text("Pingu")
-                            }
-                        }label:{
-                            Text("Announcement").foregroundColor(.primary)
-                            
-                        }.padding(.trailing,10)
-                        Image(systemName:"line.3.horizontal")
                         
+                        VStack(alignment: .leading) {
+                            Text("Team 2")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            VStack {
+                                playerContainer(player: currentGame.player3 ?? profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.player3Bombs)
+                                playerContainer(player: currentGame.player4 ?? profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.player4Bombs)
+                            }
+                            .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
+                        }
                     }
-                    HStack{
-                        Text("3.").fontWeight(.bold)
-                        Text("Jo")
+                    
+                    HStack {
+                        Text("Placement")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .padding(.leading, 20)
+                        Spacer()
                     }
-                    HStack{
-                        Text("4.").fontWeight(.bold)
-                        Text("Luis")
+                    
+                    List {
+                        ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
+                            let golden = isGolden(index: index)
+                            HStack {
+                                Text("\(index + 1).")
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(golden ? Color.accentColor : Color.primary)
+                                
+                                Text(player?.name ?? "Unknown")
+                                Spacer()
+                            }
+                        }
+                        .onMove(perform: move)
                     }
-              
-                }.listSectionSpacing(0).padding(.top,-32).zIndex(2).scrollDisabled(true)
-                HStack{
-                    VStack(alignment:.leading){
-                        Text("Points").font(.title2).fontWeight(.bold)
-                        Slider(
-                                    value: $tichuPointsTeam1,
-                                    in: -25...125,
-                                    
-                                )
-                        Text("+ 25 from Tichu")
-                        Text("+ 100 from Announcing")
-                    }.padding(.horizontal)
-                    Divider()
-                    VStack(alignment:.leading){
-                        Text("Points").font(.title2).fontWeight(.bold)
-                        Slider(
-                                    value: $tichuPointsTeam1,
-                                    in: -25...125,
-                                    
-                                )
-                        Text("+ 25 from Tichu")
-                        Text("+ 100 from Announcing")
-                    }.padding(.horizontal)
-                }.zIndex(0).padding(.vertical,10)
-            }.navigationTitle("Add Round")
+                    .environment(\.editMode, .constant(.active))
+                    .listRowBackground(Color.green)
+                    .frame(height: 250)
+                    .scrollDisabled(true)
+                    .padding(.top, -40)
+                    
+                    VStack {
+                        HStack {
+                            Text("Points")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                        }
+                        VStack(alignment: .leading) {
+                            HStack {
+                                Text("\(currentRound.tichuPointsTeam1)")
+                                Spacer()
+                                Text("\(currentRound.tichuPointsTeam2)")
+                            }
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            
+                            Slider(
+                                value: Binding(
+                                    get: { Double(currentRound.tichuPointsTeam1) },
+                                    set: {
+                                        currentRound.tichuPointsTeam1 = Int($0)
+                                        currentRound.tichuPointsTeam2 = 100 - Int($0)
+                                    }
+                                ),
+                                in: -25.0...125.0,
+                                step: 5
+                            )
+                            .padding(.horizontal, 30)
+                        }
+                        .padding(10)
+                        .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
+                        .padding(.trailing, 15)
+                    }
+                    .padding(.leading, 20)
+                    .padding(.top, -10)
+                }
+                .navigationTitle("Add Round")
                 .navigationBarTitleDisplayMode(.inline)
-
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", systemImage: "xmark") {
                             showAddRoundsSheet = false
                         }
                     }
-
+                    
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done", systemImage: "checkmark") {
                             showAddRoundsSheet = false
                         }
                     }
                 }
-            
+            }
+            .background(Color(uiColor: .systemGroupedBackground))
+            .onAppear {
+                players = [
+                    currentGame.player1,
+                    currentGame.player2,
+                    currentGame.player3,
+                    currentGame.player4
+                ]
+            }
         }
-        
-        }
+    }
 }
 
 #Preview {
-    AddRoundSheetView(showAddRoundsSheet: .constant(true))
+    AddRoundSheetView(
+        showAddRoundsSheet: .constant(true),
+        currentGame: .constant(exampleGame),
+        currentRound: .constant(Round())
+    )
 }
+

@@ -13,17 +13,9 @@ struct PlayView: View {
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("userImageData") private var userImageData: Data?
-    
-    
-    //Vars
     @State private var userImage: UIImage?
-    @State private var player2Image: UIImage?
-    @State private var player3Image: UIImage?
-    @State private var player4Image: UIImage?
-    
-    @State private var player2 = profile()
-    @State private var player3 = profile()
-    @State private var player4 = profile()
+
+
     
     @State private var showAddPlayersSheet2:Bool = false
     @State private var showAddPlayersSheet3:Bool = false
@@ -37,9 +29,10 @@ struct PlayView: View {
     
     @State private var currentGame = tichuGame()
     @State private var currentRound =  Round()
+    @FocusState private var targetFieldFocused: Bool
         
     private var isGameReady:Bool{
-        player2.name != nil && player3.name != nil && player4.name != nil
+        currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
     }
     
     var body: some View {
@@ -47,10 +40,26 @@ struct PlayView: View {
             NavigationStack{
                 
                 List{
-                    Section{Text("Team 1")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        .listRowBackground(Color.clear)}
+                    Section{
+                        HStack{
+                            Text("Team 1")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                            Spacer()
+                            if !isGameReady{
+                                Text("Target:").multilineTextAlignment(.trailing).foregroundStyle(.secondary)
+                                TextField("",value: $currentGame.target, format: .number)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(width: 60)
+                                    .foregroundStyle(.secondary)
+                                    .keyboardType(.numberPad)
+                                    .focused($targetFieldFocused)
+                                    .submitLabel(.done)
+                                    .onSubmit { targetFieldFocused = false }
+                            }
+                        }
+                        .listRowBackground(Color.clear)
+                    }.padding(.top,65)
                     Section{
                         HStack{
                             VStack(alignment:.leading){
@@ -63,13 +72,13 @@ struct PlayView: View {
                             Spacer()
                             profileImage(selectedImage: userImage, size: 44)
                         }
-                        if let name2 = player2.name {
+                        if let name2 = currentGame.player2?.name  {
                             
                             HStack{
                                 VStack(alignment:.leading){
                                     
                                     Text(name2).fontWeight(.bold)
-                                    if let elo = player2.elo {
+                                    if let elo = currentGame.player2?.elo {
                                         Text("Ranking: \(elo)")
                                             .foregroundStyle(.secondary)
                                             .font(.system(size: 16))
@@ -82,7 +91,7 @@ struct PlayView: View {
                                     
                                 }
                                 Spacer()
-                                if let data = player2.imageData,
+                                if let data = currentGame.player2?.imageData,
                                    let uiImage = UIImage(data: data) {
                                     profileImage(selectedImage: uiImage, size: 44)
                                 } else {
@@ -104,7 +113,17 @@ struct PlayView: View {
                                     .fontWeight(.bold).foregroundColor(.primary)
                                     .padding(.vertical,10.6)
                                     .sheet(isPresented: $showAddPlayersSheet2) {
-                                        AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet2,addPlayer:$player2,alreadyAdded:[player3,player4],showGuest:true).presentationDetents([.medium,.large])
+                                        AddPlayersSheetView(
+                                            showAddPlayersSheet: $showAddPlayersSheet2,
+                                            addPlayer: $currentGame.player2,
+                                            alreadyAdded: [
+                                                currentGame.player3,
+                                                currentGame.player4
+                                            ].compactMap { $0 },
+                                            showGuest: true,
+                                            guestIndex: 2
+                                        )
+                                        .presentationDetents([.medium, .large])
                                         
                                     }
                                     
@@ -142,13 +161,13 @@ struct PlayView: View {
                             .fontWeight(.bold)
                         .listRowBackground(Color.clear)}
                     Section{
-                        if let name3 = player3.name  {
+                        if let name3 = currentGame.player3?.name  {
                             
                             HStack{
                                 VStack(alignment:.leading){
                                     
                                     Text(name3).fontWeight(.bold)
-                                    if let elo = player3.elo {
+                                    if let elo = currentGame.player3?.elo {
                                         Text("Ranking: \(elo)")
                                             .foregroundStyle(.secondary)
                                             .font(.system(size: 16))
@@ -160,7 +179,7 @@ struct PlayView: View {
                                     
                                 }
                                 Spacer()
-                                if let data = player3.imageData,
+                                if let data = currentGame.player3?.imageData,
                                    let uiImage = UIImage(data: data) {
                                     profileImage(selectedImage: uiImage, size: 44)
                                 } else {
@@ -182,7 +201,18 @@ struct PlayView: View {
                                     
                                     
                                 }.fontWeight(.bold).foregroundColor(.primary).padding(.vertical,10.6).sheet(isPresented: $showAddPlayersSheet3) {
-                                    AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet3,addPlayer:$player3,alreadyAdded:[player2,player4],showGuest:true).presentationDetents([.medium,.large])
+                                    AddPlayersSheetView(
+                                        showAddPlayersSheet: $showAddPlayersSheet3,
+                                        addPlayer: $currentGame.player3,
+                                        alreadyAdded: [
+                                            currentGame.player2,
+                                            currentGame.player4
+                                        ].compactMap { $0 },
+                                        showGuest: true,
+                                        guestIndex:3
+                                    )
+                                    .presentationDetents([.medium, .large])
+                                    
                                     
                                 }
                                 
@@ -191,13 +221,13 @@ struct PlayView: View {
                             }
                             
                         }
-                        if let name4 = player4.name {
+                        if let name4 = currentGame.player4?.name {
                             
                             HStack{
                                 VStack(alignment:.leading){
                                     
                                     Text(name4).fontWeight(.bold)
-                                    if let elo = player4.elo {
+                                    if let elo = currentGame.player4?.elo {
                                         Text("Ranking: \(elo)")
                                             .foregroundStyle(.secondary)
                                             .font(.system(size: 16))
@@ -209,7 +239,7 @@ struct PlayView: View {
                                     
                                 }
                                 Spacer()
-                                if let data = player4.imageData,
+                                if let data = currentGame.player4?.imageData,
                                    let uiImage = UIImage(data: data) {
                                     profileImage(selectedImage: uiImage, size: 44)
                                 } else {
@@ -230,7 +260,17 @@ struct PlayView: View {
                                     }
                                     .fontWeight(.bold).foregroundColor(.primary)
                                     .sheet(isPresented: $showAddPlayersSheet4) {
-                                        AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet4,addPlayer:$player4,alreadyAdded:[player2,player3],showGuest:true).presentationDetents([.medium,.large])
+                                        AddPlayersSheetView(
+                                            showAddPlayersSheet: $showAddPlayersSheet4,
+                                            addPlayer: $currentGame.player4,
+                                            alreadyAdded: [
+                                                currentGame.player2,
+                                                currentGame.player3
+                                            ].compactMap { $0 },
+                                            showGuest: true,
+                                            guestIndex: 4
+                                        )
+                                        .presentationDetents([.medium, .large])
                                         
                                     }
                                     
@@ -248,11 +288,11 @@ struct PlayView: View {
                 }.onChange(of: isGameReady) {
                     
                     // Build teams
-                    if let _ = player2.name {
-                        team1 = Team(list: [userProfile, player2])
+                    if let _ = currentGame.player2?.name {
+                        team1 = Team(list: [userProfile, currentGame.player2!])
                     }
-                    if let _ = player3.name, let _ = player4.name {
-                        team2 = Team(list: [player3, player4])
+                    if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
+                        team2 = Team(list: [currentGame.player3!, currentGame.player4!])
                     }
                     currentRound.team1 = team1
                     currentRound.team2 = team2
@@ -280,9 +320,9 @@ struct PlayView: View {
                         )*/
                     )
                     .allowsHitTesting(false)
-                }.background(Color(uiColor: .systemGroupedBackground))
+                }.edgesIgnoringSafeArea(.all).background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
-                .padding(.top,-40)
+                //.padding(.top,-40)
                 .navigationTitle("Play")
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar{
@@ -291,6 +331,12 @@ struct PlayView: View {
                         
                     }.sharedBackgroundVisibility(.hidden)
                     
+                }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { targetFieldFocused = false }
+                    }
                 }
                 
                 
@@ -325,7 +371,7 @@ struct PlayView: View {
                                 .font(.system(size: 20)).foregroundColor(.primary)
                             Text("Add Round").foregroundColor(.primary)
                         }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet) {
-                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet)
+                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,currentGame: $currentGame,currentRound: $currentRound)
                             
                         }
 
@@ -337,6 +383,7 @@ struct PlayView: View {
             userProfile.elo = userElo
             userProfile.imageData = userImageData
             userImage = dataToPhoto(data:userProfile.imageData)
+            currentGame.player1 = userProfile
         }
     }
        
@@ -352,6 +399,7 @@ struct PlayView: View {
         }
         
            
+    
     
 
 

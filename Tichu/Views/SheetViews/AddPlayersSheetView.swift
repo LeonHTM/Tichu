@@ -10,9 +10,10 @@ import SwiftUI
 struct AddPlayersSheetView: View {
     //Open/Close Sheet
     @Binding var showAddPlayersSheet:Bool
-    @Binding var addPlayer: profile
+    @Binding var addPlayer: profile?
     var alreadyAdded: [profile]
     var showGuest: Bool
+    var guestIndex: Int
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
     @State private var ascendingFriends: Bool = true
@@ -56,7 +57,13 @@ struct AddPlayersSheetView: View {
                     Section{
                         HStack{
                             Button("Guest"){
-                                addPlayer = guestProfile
+                                if guestIndex == 2{
+                                    addPlayer = guest2Profile
+                                }else if guestIndex == 3{
+                                    addPlayer = guest3Profile
+                                }else{
+                                    addPlayer = guest4Profile
+                                }
                                 showAddPlayersSheet = false
                             }.foregroundColor(.primary)
                             Spacer()
@@ -232,6 +239,6 @@ struct AddPlayersSheetView: View {
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false,guestIndex:2)
 }
 

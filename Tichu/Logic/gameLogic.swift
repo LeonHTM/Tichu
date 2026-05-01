@@ -18,9 +18,9 @@ struct Team: Identifiable, Equatable {
         self.list = list
     }
 
-    static func == (lhs: Team, rhs: Team) -> Bool {
+    /*static func == (lhs: Team, rhs: Team) -> Bool {
         return lhs.list[0].id == rhs.list[0].id && lhs.list[1].id == rhs.list[1].id
-    }
+    }*/
 }
 
 
@@ -39,7 +39,7 @@ struct tichuGame: Identifiable {
     var player4: profile?
     var currentPointsTeam2: Int
     
-    var gameGoal: Int
+    var target: Int
     var Rounds: [Round]
     var winner: Team?
 
@@ -49,14 +49,14 @@ struct tichuGame: Identifiable {
         player3: profile? = nil,
         player4: profile? = nil,
         Rounds: [Round] = [],
-        gameGoal: Int = 1000
+        target: Int = 1000
     ) {
         self.player1 = player1
         self.player2 = player2
         self.player3 = player3
         self.player4 = player4
         
-        self.gameGoal = gameGoal
+        self.target = target
 
         // Build teams only when both players are present
         if let p1 = player1, let p2 = player2 {

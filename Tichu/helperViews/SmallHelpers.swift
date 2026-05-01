@@ -25,12 +25,4 @@ func requirementRow(
     .foregroundStyle(isValid ? .green : .red)
 }
 
-struct canAnnounce{
-    enum canAnnounce {
-        case nothing
-        case tichu
-        case bigTichu
-        case Pingu
-    }
-}
 

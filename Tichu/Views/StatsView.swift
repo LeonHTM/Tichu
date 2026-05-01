@@ -33,7 +33,7 @@ struct StatsView: View {
     @State private var sortBy: sortBy.sortBy = .valueDown
     
     @State private var compareList: [profile] = []
-    @State private var addPlayer = profile()
+    @State private var addPlayer: profile? = nil
 
   
    
@@ -249,6 +249,7 @@ struct StatsView: View {
             .safeAreaInset(edge: .bottom) {
                 GlassEffectContainer{
                     HStack{
+                        if compareList.count > 1{
                         Menu {
                             Button() {
                                 DispatchQueue.main.async {
@@ -309,6 +310,7 @@ struct StatsView: View {
                             Image(systemName: "line.3.horizontal.decrease.circle")
                                 .font(.system(size: 22)).foregroundColor(filterActive == true ? Color.accent : Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
+                    }
                         Spacer()
                         Menu{
                             Button(){
@@ -349,12 +351,12 @@ struct StatsView: View {
                             Text("Edit comparison").foregroundColor(Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                             withAnimation(.easeInOut) {
-                                if !compareList.contains(where: { $0.id == addPlayer.id }) && addPlayer.name != nil{
-                                    compareList.append(addPlayer)
+                                if !compareList.contains(where: { $0.id == addPlayer?.id ?? profile().id }) && addPlayer?.name ?? profile().name != nil{
+                                    compareList.append(addPlayer ?? profile())
                                 }
                             }
                         }) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false).presentationDetents([.medium,.large])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false,guestIndex:2).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)
