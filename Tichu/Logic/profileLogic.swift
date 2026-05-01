@@ -24,7 +24,9 @@ struct profile: Identifiable, Equatable, Codable {
     var saboteur: Int
     var gambler: Int
     var bigGambler: Int
+    var pinguGambler: Int
     var bomber: Int
+    
 
     enum playerStat {
         case elo
@@ -37,6 +39,7 @@ struct profile: Identifiable, Equatable, Codable {
         case saboteur
         case gambler
         case bigGambler
+        case pinguGambler
         case bomber
     }
 
@@ -55,6 +58,7 @@ struct profile: Identifiable, Equatable, Codable {
         saboteur: Int = 0,
         gambler: Int = 0,
         bigGambler: Int = 0,
+        pinguGambler: Int = 0,
         bomber: Int = 0
     ) {
         self.id = id
@@ -71,6 +75,7 @@ struct profile: Identifiable, Equatable, Codable {
         self.saboteur = saboteur
         self.gambler = gambler
         self.bigGambler = bigGambler
+        self.pinguGambler = pinguGambler
         self.bomber = bomber
     }
 
@@ -105,6 +110,9 @@ struct profile: Identifiable, Equatable, Codable {
 
         case .bigGambler:
             return Double(bigGambler)
+            
+        case .pinguGambler:
+            return Double(pinguGambler)
 
         case .bomber:
             return Double(bomber)

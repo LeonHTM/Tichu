@@ -25,7 +25,7 @@ struct statsContainerView: View {
         
         VStack(){
             HStack{
-                if image == "exclamationmark.2.circle" || image == "bomb"{
+                if image == "exclamationmark.2.circle" || image == "bomb" || image == "exclamationmark.3.circle" {
                     Image(image
                     )
                     .renderingMode(.template)
@@ -139,7 +139,7 @@ struct statsContainerView: View {
                         .stroke(Color.bronce, lineWidth: 1)
                 }*/
                 }
-            .glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:20))
+            .glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24))
             
     }
 }
@@ -158,6 +158,8 @@ struct sortBy{
         case nameDown
     }
 }
+
+
 
 
 

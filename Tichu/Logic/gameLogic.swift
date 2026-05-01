@@ -38,7 +38,8 @@ struct tichuGame: Identifiable {
     var player3: profile?
     var player4: profile?
     var currentPointsTeam2: Int
-
+    
+    var gameGoal: Int
     var Rounds: [Round]
     var winner: Team?
 
@@ -47,12 +48,15 @@ struct tichuGame: Identifiable {
         player2: profile? = nil,
         player3: profile? = nil,
         player4: profile? = nil,
-        Rounds: [Round] = []
+        Rounds: [Round] = [],
+        gameGoal: Int = 1000
     ) {
         self.player1 = player1
         self.player2 = player2
         self.player3 = player3
         self.player4 = player4
+        
+        self.gameGoal = gameGoal
 
         // Build teams only when both players are present
         if let p1 = player1, let p2 = player2 {

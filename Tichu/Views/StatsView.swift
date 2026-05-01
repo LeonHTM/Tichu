@@ -20,7 +20,9 @@ struct StatsView: View {
     @AppStorage("userSaboteur") var userSaboteur: Double = 0
     @AppStorage("userGambler") var userGambler: Double = 0
     @AppStorage("userBigGambler") var userBigGambler: Double = 0
+    @AppStorage("pinguGambler") var userPinguGambler: Double = 0
     @AppStorage("userBomber") var userBomber: Double = 0
+   
     
     //Vars
     @State private var showAddPlayersSheet: Bool = false
@@ -28,7 +30,7 @@ struct StatsView: View {
     @State private var timeTags: [String] = ["All Time","Year","Month","Week","Today"]
     @State private var selectedTags: [String] = []
     @State private var sortStat: profile.playerStat = .elo
-    @State private var sortBy: sortBy.sortBy = .nameDown
+    @State private var sortBy: sortBy.sortBy = .valueDown
     
     @State private var compareList: [profile] = []
     @State private var addPlayer = profile()
@@ -37,7 +39,7 @@ struct StatsView: View {
    
     
     //Computed Vars
-    var filterActive: Bool {sortBy != .nameDown}
+    var filterActive: Bool {sortBy != .valueDown}
 
     var body: some View {
         NavigationStack {
@@ -183,6 +185,28 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
+                    
+                    statsContainerView(
+                        title: .constant("Pingu Gambler"),
+                        description: .constant("Pingu success ratio"),
+                        image: .constant("exclamationmark.3.circle"),
+                        counterLeft: .constant(1),
+                        counterRight: .constant(500),
+                        value: $userPinguGambler,
+                        percentage: .constant(true),
+                        inTop:0.1,
+                        stat:.bigGambler,
+                        items:makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy)
+                    )
+                    .transition(.opacity.combined(with: .scale))
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
                     
                     statsContainerView(
                         title: .constant("Bomber"),

@@ -39,6 +39,8 @@ struct ChipsView<Content: View, Tag: Hashable>: View {
     }
 }
 
+
+
 fileprivate struct CustomChipLayout: Layout{
     var spacing: CGFloat
     
@@ -98,6 +100,19 @@ func ChipView(_ tag: String, isSelected: Bool) -> some View {
             if isSelected{
                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.white)
             }
+        }
+        .padding(12)
+        .glassEffect(isSelected ? .regular.tint(.accentColor).interactive() :.regular.interactive())
+        
+}
+
+
+@ViewBuilder
+func ChipView2(_ tag: String, isSelected: Bool) -> some View {
+    
+        HStack(spacing: 10){
+            Text(tag).font(.callout)
+                .foregroundStyle(isSelected ? .white : .primary)
         }
         .padding(12)
         .glassEffect(isSelected ? .regular.tint(.accentColor).interactive() :.regular.interactive())

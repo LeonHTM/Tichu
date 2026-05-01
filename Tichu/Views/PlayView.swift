@@ -318,13 +318,17 @@ struct PlayView: View {
                         }
                         Spacer()
                         Button(){
-                            
+                            showAddRoundSheet = true
                         }label:{
                             
                             Image(systemName: "plus")
                                 .font(.system(size: 20)).foregroundColor(.primary)
                             Text("Add Round").foregroundColor(.primary)
-                        }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10)
+                        }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet) {
+                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet)
+                            
+                        }
+
                     }
                 }
             }

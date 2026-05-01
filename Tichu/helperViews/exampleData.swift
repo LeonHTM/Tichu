@@ -19,7 +19,7 @@ let exampleProfiles: [profile] = [
 
     profile(
         name: "Beta",
-        imageData: UIImage(named: "pfp_Beta")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -31,12 +31,13 @@ let exampleProfiles: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:12,
         bomber: 1
     ),
     
     profile(
         name: "Delta",
-        imageData: UIImage(named: "pfp_Delta")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -48,12 +49,13 @@ let exampleProfiles: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:0,
         bomber: 1
     ),
     
     profile(
         name: "Alpha",
-        imageData: UIImage(named: "pfp_Alpha")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -65,12 +67,13 @@ let exampleProfiles: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:11,
         bomber: 1
     ),
     
     profile(
         name: "gamma",
-        imageData: UIImage(named: "pfp_Gamma")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -82,11 +85,12 @@ let exampleProfiles: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:83,
         bomber: 1
     ),
     profile(
         name: "Maximilian SuperGau",
-        imageData: UIImage(named: "pfp_Max")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Max")?.jpegData(compressionQuality: 1),
         isFriend: true,
         elo: 2500,
         winnerPercentage: 95,
@@ -98,23 +102,25 @@ let exampleProfiles: [profile] = [
         saboteur: 55,
         gambler: 1,
         bigGambler: 99,
+        pinguGambler:12,
         bomber: 92
     ),
     profile(
         name: "Sonja Penner",
-        imageData: UIImage(named: "pfp_Max")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Sonja")?.jpegData(compressionQuality: 1),
         isFriend: true,
-        elo: 2500000,
-        winnerPercentage: 905,
-        tichuMaster: 450.2,
-        visionary: 920,
-        addict: 15403,
-        teamplayer: 550,
-        announcer: 704,
-        saboteur: 550,
-        gambler: 902,
-        bigGambler: 909,
-        bomber: 100
+        elo: 2500,
+        winnerPercentage: 31,
+        tichuMaster: 21.293811,
+        visionary: 47,
+        addict: 1,
+        teamplayer: 45,
+        announcer: 23,
+        saboteur: 56,
+        gambler: 78,
+        bigGambler: 78,
+        pinguGambler:11,
+        bomber: 10
     )
     
 ]
@@ -124,7 +130,7 @@ let exampleProfilesReduced: [profile] = [
 
     profile(
         name: "Beta",
-        imageData: UIImage(named: "pfp_Beta")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -136,12 +142,13 @@ let exampleProfilesReduced: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:12,
         bomber: 1
     ),
     
     profile(
         name: "Delta",
-        imageData: UIImage(named: "pfp_Delta")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -153,12 +160,13 @@ let exampleProfilesReduced: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:66,
         bomber: 1
     ),
     
     profile(
         name: "Alpha",
-        imageData: UIImage(named: "pfp_Alpha")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -170,12 +178,13 @@ let exampleProfilesReduced: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:33,
         bomber: 1
     ),
     
     profile(
         name: "gamma",
-        imageData: UIImage(named: "pfp_Gamma")!.jpegData(compressionQuality: 1)!,
+        imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
         isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
@@ -187,6 +196,7 @@ let exampleProfilesReduced: [profile] = [
         saboteur: 3,
         gambler: 7,
         bigGambler: 2,
+        pinguGambler:82,
         bomber: 1
     )
    
@@ -196,7 +206,7 @@ let exampleProfilesReduced: [profile] = [
 
 let exampleLeon: profile = profile(
     name: "Leon",
-    imageData: UIImage(named: "pfp_Leon")!.jpegData(compressionQuality: 1)!,
+    imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
     isFriend: true,
     elo: 887,
     winnerPercentage: 31,
@@ -208,12 +218,13 @@ let exampleLeon: profile = profile(
     saboteur: 27,
     gambler: 71,
     bigGambler: 63,
+    pinguGambler:91,
     bomber: 5
 )
 
 let exampleLuis: profile = profile(
     name: "Luis",
-    imageData: UIImage(named: "pfp_Luis")!.jpegData(compressionQuality: 1)!,
+    imageData: UIImage(named: "pfp_Luis")?.jpegData(compressionQuality: 1),
     isFriend: true,
     elo: 983,
     winnerPercentage: 61,
@@ -225,12 +236,13 @@ let exampleLuis: profile = profile(
     saboteur: 27,
     gambler: 74,
     bigGambler: 63,
+    pinguGambler:100,
     bomber: 3
 )
 
 let exampleSorin: profile = profile(
     name: "Sorin",
-    imageData: UIImage(named: "pfp_Sorin")!.jpegData(compressionQuality: 1)!,
+    imageData: UIImage(named: "pfp_Sorin")?.jpegData(compressionQuality: 1),
     isFriend: true,
     elo: 983,
     winnerPercentage: 58,
@@ -242,12 +254,13 @@ let exampleSorin: profile = profile(
     saboteur: 33,
     gambler: 86,
     bigGambler: 58,
+    pinguGambler:69,
     bomber: 4
 )
 
 let exampleJo: profile = profile(
     name: "Jo",
-    imageData: UIImage(named: "pfp_Jo")!.jpegData(compressionQuality: 1)!,
+    imageData: UIImage(named: "pfp_Jo")?.jpegData(compressionQuality: 1),
     isFriend: true,
     elo: 1016,
     winnerPercentage: 49,
@@ -259,6 +272,7 @@ let exampleJo: profile = profile(
     saboteur: 30,
     gambler: 73,
     bigGambler: 57,
+    pinguGambler:75,
     bomber: 3
 )
 
@@ -399,7 +413,7 @@ let exampleRound5 = Round(
     tichuPointsTeam1: 100,
     tichuPointsTeam2: 0,
 
-    roundPointsTeam1: 300,
+    roundPointsTeam1: -200,
     roundPointsTeam2: -200,
 
     doubleWinTeam1: true,
@@ -487,3 +501,4 @@ let exampleGame = tichuGame(
         exampleRound7
     ]
 )
+

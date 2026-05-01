@@ -12,6 +12,7 @@ struct EditRoundsSheetView: View {
     @Binding var currentGame: tichuGame
 
     @State private var expandedRows: Set<Int> = []
+    @State private var showDeleteGameAlert: Bool = false
     @Environment(\.colorScheme) var colorScheme
   
 
@@ -29,20 +30,6 @@ struct EditRoundsSheetView: View {
         }
     }
 
-    private func hasAnyAnnouncement(_ player: profile, in round: Round) -> Bool {
-        round.hasAnnouncedTichu.contains(player)
-        || round.hasAnnouncedBigTichu.contains(player)
-        || round.hasAnnouncedPingu.contains(player)
-    }
-
-    private func pointsPlayer(in team: [profile], round: Round) -> profile? {
-        // Prefer player without announcement
-        if let player = team.first(where: { !hasAnyAnnouncement($0, in: round) }) {
-            return player
-        }
-        // fallback: first player
-        return team.first
-    }
 
     var body: some View {
         NavigationStack {
@@ -538,13 +525,29 @@ struct EditRoundsSheetView: View {
                                 Spacer()
                             }.transition(.opacity)
                         }
+                    }.swipeActions(edge:.trailing){
+                        Button(role:.destructive){
+                            currentGame.Rounds.remove(at:index)
+                        }label:{
+                            VStack{
+                                Image(systemName:"trash")
+                                Text("Delete")
+                            }
+                        }
+                        Button(){
+                            //Edit Action
+                        }label:{
+                            VStack{
+                                Image(systemName:"pencil")
+                                Text("Edit")
+                            }
+                        }.tint(.accentColor)
                     }
                 }
-                .onDelete { indexSet in
-                    currentGame.Rounds.remove(atOffsets: indexSet)
-                }
+                
+                
             }
-            .animation(.easeInOut(duration: 0.25), value: expandedRows)
+            .animation(.easeInOut(duration: 0.1), value: expandedRows)
 
             .navigationTitle("Edit game")
             .navigationBarTitleDisplayMode(.inline)
@@ -562,6 +565,23 @@ struct EditRoundsSheetView: View {
                     }
                 }
             }
+        }.safeAreaInset(edge:.bottom){
+            Button{
+                showDeleteGameAlert = true
+            }label:{
+                HStack{
+                    Image(systemName:"trash")
+                    Text("Delete Game")
+                }.foregroundColor(.primary).padding().glassEffect(.regular.interactive()).alert("Delete this Game?", isPresented: $showDeleteGameAlert, actions: {
+                    Button(role: .destructive) {
+                        currentGame = tichuGame()
+                        } label: {
+                            Text("Delete")
+                        }
+                        }, message: {
+                            Text("This Game will be deleted")
+                        })
+            }.padding(.bottom,10)
         }
     }
 }

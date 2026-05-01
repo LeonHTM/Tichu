@@ -13,7 +13,7 @@ struct TestView: View {
     var body: some View {
         NavigationStack {
             ChipsView(tags: tags) { tag, isSelected in
-                ChipView(tag, isSelected: isSelected)
+                ChipView2(tag, isSelected: isSelected)
             } didChangeSelection: { selection in
                print(selection)
             }
