@@ -184,8 +184,8 @@ struct AddRoundSheetView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                 VStack {
-                                    playerContainer(player: currentGame.player1 ?? profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.player1Bombs)
-                                    playerContainer(player: currentGame.player2 ?? profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.player2Bombs)
+                                    playerContainer(player: currentGame.player1 ?? profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs)
+                                    playerContainer(player: currentGame.player2 ?? profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs)
                                 }
                                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
@@ -196,8 +196,8 @@ struct AddRoundSheetView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             VStack {
-                                playerContainer(player: currentGame.player3 ?? profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.player3Bombs)
-                                playerContainer(player: currentGame.player4 ?? profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.player4Bombs)
+                                playerContainer(player: currentGame.player3 ?? profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs)
+                                playerContainer(player: currentGame.player4 ?? profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs)
                             }
                             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                         }

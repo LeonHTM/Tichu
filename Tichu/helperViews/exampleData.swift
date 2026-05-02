@@ -293,10 +293,10 @@ let exampleRound1 = Round(
     third: exampleLeon,
     fourth: exampleJo,
 
-    player1Bombs: 0,
-    player2Bombs: 0,
-    player3Bombs: 0,
-    player4Bombs: 0,
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
 
     tichuPointsTeam1: 50,
     tichuPointsTeam2: 50,
@@ -322,10 +322,10 @@ let exampleRound2 = Round(
     third: exampleLuis,
     fourth: exampleJo,
 
-    player1Bombs: 0,
-    player2Bombs: 0,
-    player3Bombs: 1,
-    player4Bombs: 1,
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 1,
+    fourthBombs: 1,
 
     tichuPointsTeam1: 0,
     tichuPointsTeam2: 100,
@@ -351,10 +351,10 @@ let exampleRound3 = Round(
     third: exampleLeon,
     fourth: exampleJo,
 
-    player1Bombs: 0,
-    player2Bombs: 0,
-    player3Bombs: 0,
-    player4Bombs: 0,
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
 
     tichuPointsTeam1: -25,
     tichuPointsTeam2: 125,
@@ -380,10 +380,10 @@ let exampleRound4 = Round(
     third: exampleSorin,
     fourth: exampleLeon,
 
-    player1Bombs: 0,
-    player2Bombs: 0,
-    player3Bombs: 0,
-    player4Bombs: 0,
+    firstBombs: 1,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 1,
 
     tichuPointsTeam1: 100,
     tichuPointsTeam2: 0,
@@ -407,10 +407,10 @@ let exampleRound5 = Round(
     third: exampleSorin,
     fourth: exampleLeon,
 
-    player1Bombs: 0,
-    player2Bombs: 0,
-    player3Bombs: 0,
-    player4Bombs: 0,
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
 
     tichuPointsTeam1: 100,
     tichuPointsTeam2: 0,
@@ -436,10 +436,10 @@ let exampleRound6 = Round(
     third: exampleLuis,
     fourth: exampleJo,
 
-    player1Bombs: 1,
-    player2Bombs: 1,
-    player3Bombs: 1,
-    player4Bombs: 1,
+    firstBombs: 2,
+    secondBombs: 1,
+    thirdBombs: 2,
+    fourthBombs: 3,
 
     tichuPointsTeam1: 0,
     tichuPointsTeam2: 100,
@@ -464,10 +464,10 @@ let exampleRound7 = Round(
     third: exampleLuis,
     fourth: exampleJo,
 
-    player1Bombs: 1,
-    player2Bombs: 1,
-    player3Bombs: 1,
-    player4Bombs: 1,
+    firstBombs: 3,
+    secondBombs: 0,
+    thirdBombs: 2,
+    fourthBombs: 0,
 
     tichuPointsTeam1: 0,
     tichuPointsTeam2: 100,

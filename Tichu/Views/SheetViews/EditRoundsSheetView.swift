@@ -30,6 +30,20 @@ struct EditRoundsSheetView: View {
             placement(player: $0, in: round) < placement(player: $1, in: round)
         }
     }
+    
+    private func bombCounter(player:profile, round: Round) -> Int{
+        if player.id == round.first?.id {
+            return round.firstBombs
+        }else if player.id == round.second?.id{
+            return round.secondBombs
+        }else if player.id == round.second?.id{
+            return round.thirdBombs
+        }else if player.id == round.second?.id{
+            return round.fourthBombs
+        }else {
+            return 999
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -67,13 +81,13 @@ struct EditRoundsSheetView: View {
                                 if !hasExpanded {
                                     VStack {
                                         Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)")
-                                    }
+                                    }.fontWeight(.bold)
 
-                                    Text("vs")
+                                    Text("vs").fontWeight(.bold)
 
                                     VStack {
                                         Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)")
-                                    }
+                                    }.fontWeight(.bold)
                                 }
                             }
 
@@ -115,43 +129,57 @@ struct EditRoundsSheetView: View {
                                                     Text(player.name ?? "Unknown")
 
                                                     Spacer()
-
+                                                    let bomb = bombCounter(player:player,round:currentRound)
+                                                    
                                                     if tichu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Tichu")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if bigTichu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Big Tichu")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Pingu1")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if tichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Tichu")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if bigTichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Big Tichu")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Pingu1")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
+                                                    }
+                                                    HStack{
+                                                        if bomb == 1{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("1").font(.system(size: 12)).offset(x:37,y:7)
+                                                        } else if bomb == 2{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("2").font(.system(size: 12)).offset(x:37,y:7)
+                                                            
+                                                        }else if bomb == 3{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("3").font(.system(size: 12)).offset(x:37,y:7)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -192,43 +220,58 @@ struct EditRoundsSheetView: View {
                                                     Text(player.name ?? "Unknown")
 
                                                     Spacer()
+                                                    
+                                                    let bomb = bombCounter(player:player,round:currentRound)
 
                                                     if tichu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Tichu")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if bigTichu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Big Tichu")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && isFirst {
                                                         HStack {
                                                             Image(systemName: "checkmark")
                                                             Text("Pingu1")
                                                         }.foregroundStyle(.green)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if tichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Tichu")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if bigTichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Big Tichu")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
                                                             Text("Pingu1")
                                                         }.foregroundStyle(.red)
-                                                            .opacity(colorScheme == .dark ? 0.66 : 1)
+                                                            .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
+                                                    }
+                                                    HStack{
+                                                        if bomb == 1{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("1").font(.system(size: 12)).offset(x:37,y:7)
+                                                        } else if bomb == 2{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("2").font(.system(size: 12)).offset(x:37,y:7)
+                                                            
+                                                        }else if bomb == 3{
+                                                            Image(systemName:"flame").offset(x:47)
+                                                            Text("3").font(.system(size: 12)).offset(x:37,y:7)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -255,7 +298,7 @@ struct EditRoundsSheetView: View {
                                     currentGame.Rounds.remove(at: index)
                                 } else {
                                     showDeleteGameAlert = true
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.075) {
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                         showOffSet = true
                                     }
                                 }

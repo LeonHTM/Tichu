@@ -113,10 +113,10 @@ struct Round: Identifiable {
     var team1: Team?
     var team2: Team?
 
-    var player1Bombs: Int
-    var player2Bombs: Int
-    var player3Bombs: Int
-    var player4Bombs: Int
+    var firstBombs: Int
+    var secondBombs: Int
+    var thirdBombs: Int
+    var fourthBombs: Int
 
     var tichuPointsTeam1: Int
     var tichuPointsTeam2: Int
@@ -136,10 +136,10 @@ struct Round: Identifiable {
         second: profile? = nil,
         third: profile? = nil,
         fourth: profile? = nil,
-        player1Bombs: Int = 0,
-        player2Bombs: Int = 0,
-        player3Bombs: Int = 0,
-        player4Bombs: Int = 0,
+        firstBombs: Int = 0,
+        secondBombs: Int = 0,
+        thirdBombs: Int = 0,
+        fourthBombs: Int = 0,
         tichuPointsTeam1: Int = 50,
         tichuPointsTeam2: Int = 50,
         roundPointsTeam1: Int = 0,
@@ -161,7 +161,7 @@ struct Round: Identifiable {
         }
 
         // Max 3 bombs per player (always applies)
-        precondition(player1Bombs <= 3 && player2Bombs <= 3 && player3Bombs <= 3 && player4Bombs <= 3, "Max 3 bombs per player")
+        precondition(firstBombs <= 3 && secondBombs <= 3 && thirdBombs <= 3 && fourthBombs <= 3, "Max 3 bombs per player")
 
         // Tichu points must sum to 100 only if both sides are non-zero-sum configured; with defaults we enforce 50/50
         precondition(tichuPointsTeam1 + tichuPointsTeam2 == 100, "Team points must sum to 100")
@@ -195,10 +195,10 @@ struct Round: Identifiable {
         self.third = third
         self.fourth = fourth
 
-        self.player1Bombs = player1Bombs
-        self.player2Bombs = player2Bombs
-        self.player3Bombs = player3Bombs
-        self.player4Bombs = player4Bombs
+        self.firstBombs = firstBombs
+        self.secondBombs = secondBombs
+        self.thirdBombs = fourthBombs
+        self.fourthBombs = fourthBombs
 
         self.tichuPointsTeam1 = tichuPointsTeam1
         self.tichuPointsTeam2 = tichuPointsTeam2
