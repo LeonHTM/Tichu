@@ -19,6 +19,37 @@ struct AddRoundSheetView: View {
     @Binding var currentRound: Round
     @Environment(\.colorScheme) var colorScheme
     
+    private var displayTeam1Points: Int {
+        if hasDoubleWinTeam1 {
+            return 100
+        }
+        if hasDoubleWinTeam2 {
+            return 0
+        }
+        return currentRound.tichuPointsTeam1
+    }
+
+    private var displayTeam2Points: Int {
+        if hasDoubleWinTeam2 {
+            return 100
+        }
+        if hasDoubleWinTeam1 {
+            return 0
+        }
+        return currentRound.tichuPointsTeam2
+    }
+    
+    private func applyDoubleWin() {
+        if hasDoubleWinTeam1 {
+            currentRound.tichuPointsTeam1 = 100
+            currentRound.tichuPointsTeam2 = 0
+        } else if hasDoubleWinTeam2 {
+            currentRound.tichuPointsTeam1 = 0
+            currentRound.tichuPointsTeam2 = 100
+        }
+    }
+   
+    
     func move(from source: IndexSet, to destination: Int) {
         players.move(fromOffsets: source, toOffset: destination)
     }
@@ -50,8 +81,102 @@ struct AddRoundSheetView: View {
         return false
     }
     
+    func announcement(for player: profile?) -> CanAnnounce {
+        guard let player else { return .none }
+
+        if currentRound.hasAnnouncedBigTichu.contains(where: { $0.id == player.id }) {
+            return .bigTichu
+        }
+
+        if currentRound.hasAnnouncedTichu.contains(where: { $0.id == player.id }) {
+            return .tichu
+        }
+
+        if currentRound.hasAnnouncedPingu.contains(where: { $0.id == player.id }) {
+            return .pingu
+        }
+
+        return .none
+    }
+    
+    func saveRound(){
+        currentRound.first = players[0]
+        currentRound.second = players[1]
+        currentRound.third = players[2]
+        currentRound.fourth = players[3]
+        
+        if hasAnnouncedPlayer1 == .tichu{
+            currentRound.hasAnnouncedTichu.append(currentGame.player1!)
+        }else if hasAnnouncedPlayer1 == .bigTichu{
+            currentRound.hasAnnouncedBigTichu.append(currentGame.player1!)
+        }else if hasAnnouncedPlayer1 == .pingu{
+            currentRound.hasAnnouncedPingu.append(currentGame.player1!)
+        }
+        
+        if hasAnnouncedPlayer2 == .tichu{
+            currentRound.hasAnnouncedTichu.append(currentGame.player2!)
+        }else if hasAnnouncedPlayer2 == .bigTichu{
+            currentRound.hasAnnouncedBigTichu.append(currentGame.player2!)
+        }else if hasAnnouncedPlayer2 == .pingu{
+            currentRound.hasAnnouncedPingu.append(currentGame.player2!)
+        }
+        
+        if hasAnnouncedPlayer3 == .tichu{
+            currentRound.hasAnnouncedTichu.append(currentGame.player3!)
+        }else if hasAnnouncedPlayer3 == .bigTichu{
+            currentRound.hasAnnouncedBigTichu.append(currentGame.player3!)
+        }else if hasAnnouncedPlayer3 == .pingu{
+            currentRound.hasAnnouncedPingu.append(currentGame.player3!)
+        }
+        
+        if hasAnnouncedPlayer4 == .tichu{
+            currentRound.hasAnnouncedTichu.append(currentGame.player4!)
+        }else if hasAnnouncedPlayer4 == .bigTichu{
+            currentRound.hasAnnouncedBigTichu.append(currentGame.player4!)
+        }else if hasAnnouncedPlayer4 == .pingu{
+            currentRound.hasAnnouncedPingu.append(currentGame.player4!)
+        }
+        
+        applyDoubleWin()
+        currentGame.addRound(addedRound: currentRound)
+        currentRound = Round()
+        
+        
+    }
+    
+    
+    
+    private var hasDoubleWinTeam1: Bool {
+        guard
+            players.count >= 2,
+            let first = players[0],
+            let second = players[1],
+            let team1 = currentGame.team1
+        else {
+            return false
+        }
+
+        return team1.list.contains(where: { $0.id == first.id }) &&
+               team1.list.contains(where: { $0.id == second.id })
+    }
+
+    private var hasDoubleWinTeam2: Bool {
+        guard
+            players.count >= 2,
+            let first = players[0],
+            let second = players[1],
+            let team2 = currentGame.team2
+        else {
+            return false
+        }
+
+        return team2.list.contains(where: { $0.id == first.id }) &&
+               team2.list.contains(where: { $0.id == second.id })
+    }
+    
     var body: some View {
         NavigationStack {
+            
             ScrollView {
                 VStack {
                     HStack {
@@ -86,11 +211,14 @@ struct AddRoundSheetView: View {
                             .fontWeight(.bold)
                             .padding(.leading, 20)
                         Spacer()
-                    }
+                    }.zIndex(1 )
                     
                     List {
                         ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
                             let golden = isGolden(index: index)
+                            
+        
+                            
                             HStack {
                                 Text("\(index + 1).")
                                     .fontWeight(.bold)
@@ -107,34 +235,56 @@ struct AddRoundSheetView: View {
                     .frame(height: 250)
                     .scrollDisabled(true)
                     .padding(.top, -40)
+                    .zIndex(0)
                     
                     VStack {
                         HStack {
-                            Text("Points")
+                            Text("Points 1")
                                 .font(.title2)
                                 .fontWeight(.bold)
                             Spacer()
-                        }
+                            Text("Points 2").font(.title2)
+                                .fontWeight(.bold)
+                        }.padding(.trailing,20)
                         VStack(alignment: .leading) {
                             HStack {
-                                Text("\(currentRound.tichuPointsTeam1)")
+                                
+                                Text("\(displayTeam1Points)").font(.title2)
+                                    .fontWeight(.bold)
+                                
+                                if hasDoubleWinTeam1 || hasDoubleWinTeam2 {
+                                    Spacer()
+                                    Text("Double Win!").foregroundStyle(Color.accentColor)
+                                    
+                                }
                                 Spacer()
-                                Text("\(currentRound.tichuPointsTeam2)")
+                                
+                           
+                                Text("\(displayTeam2Points)").font(.title2)
+                                    .fontWeight(.bold)
                             }
-                            .font(.title2)
-                            .fontWeight(.bold)
+                            
                             
                             Slider(
                                 value: Binding(
-                                    get: { Double(currentRound.tichuPointsTeam1) },
-                                    set: {
-                                        currentRound.tichuPointsTeam1 = Int($0)
-                                        currentRound.tichuPointsTeam2 = 100 - Int($0)
+                                    get: {
+                                        if hasDoubleWinTeam1 {
+                                            return 100
+                                        }else if hasDoubleWinTeam2{
+                                            return 0
+                                        }
+                                        return Double(currentRound.tichuPointsTeam1)
+                                    },
+                                    set: { newValue in
+                                        guard !hasDoubleWinTeam1 else { return }
+                                        currentRound.tichuPointsTeam1 = Int(newValue)
+                                        currentRound.tichuPointsTeam2 = 100 - Int(newValue)
                                     }
                                 ),
-                                in: -25.0...125.0,
+                                in: -25...125,
                                 step: 5
                             )
+                            .disabled(hasDoubleWinTeam1 || hasDoubleWinTeam2)
                             .padding(.horizontal, 30)
                         }
                         .padding(10)
@@ -155,6 +305,7 @@ struct AddRoundSheetView: View {
                     
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done", systemImage: "checkmark") {
+                            saveRound()
                             showAddRoundsSheet = false
                         }
                     }
@@ -164,10 +315,16 @@ struct AddRoundSheetView: View {
             .onAppear {
                 players = [
                     currentGame.player1,
-                    currentGame.player2,
                     currentGame.player3,
+                    currentGame.player2,
                     currentGame.player4
                 ]
+
+            
+                hasAnnouncedPlayer1 = announcement(for: currentGame.player1)
+                hasAnnouncedPlayer2 = announcement(for: currentGame.player2)
+                hasAnnouncedPlayer3 = announcement(for: currentGame.player3)
+                hasAnnouncedPlayer4 = announcement(for: currentGame.player4)
             }
         }
     }
@@ -177,7 +334,7 @@ struct AddRoundSheetView: View {
     AddRoundSheetView(
         showAddRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame),
-        currentRound: .constant(Round())
+        currentRound: .constant(exampleRound6)
     )
 }
 

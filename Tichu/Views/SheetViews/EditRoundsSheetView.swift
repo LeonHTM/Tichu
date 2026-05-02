@@ -13,6 +13,8 @@ struct EditRoundsSheetView: View {
 
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
+    @State private var showAddRoundSheet: Bool = false
+    @State private var showOffSet: Bool = false
     @Environment(\.colorScheme) var colorScheme
   
 
@@ -33,30 +35,31 @@ struct EditRoundsSheetView: View {
 
     var body: some View {
         NavigationStack {
+            if showOffSet == false{
             List {
-
+                
                 ForEach(currentGame.Rounds.indices, id: \.self) { index in
-
+                    
                     let currentRound = currentGame.Rounds[index]
                     let hasExpanded = expandedRows.contains(index)
-
+                    
                     let sortedTeam1 = sortedTeam(
                         team: currentGame.team1 ?? Team(list: []),
                         in: currentRound
                     )
-
+                    
                     let sortedTeam2 = sortedTeam(
                         team: currentGame.team2 ?? Team(list: []),
                         in: currentRound
                     )
-
                     
-
+                    
+                    
                     VStack {
-
+                        
                         // MARK: Header
                         HStack {
-
+                            
                             Button {
                                 withAnimation(.easeInOut(duration: 0.25)) {
                                     if hasExpanded {
@@ -68,12 +71,12 @@ struct EditRoundsSheetView: View {
                             } label: {
                                 Image(systemName: hasExpanded ? "chevron.down" : "chevron.right")
                             }
-
+                            
                             Text("Round \(index + 1)")
                                 .fontWeight(.bold)
                                 .font(.system(size: 20))
                                 .padding(10)
-
+                            
                             Spacer()
                             if hasExpanded == false{
                                 VStack {
@@ -87,12 +90,12 @@ struct EditRoundsSheetView: View {
                                 }.transition(.opacity)
                             }
                         }
-
+                        
                         // MARK: Expanded
                         if hasExpanded {
-
+                            
                             HStack(alignment: .top) {
-
+                                
                                 VStack(alignment: .leading) {
                                     
                                     // MARK: TEAM 1
@@ -135,189 +138,189 @@ struct EditRoundsSheetView: View {
                                             }
                                         }.padding()
                                         
-                                            let tichu1 = currentRound.hasAnnouncedTichu.contains(currentGame.player1 ?? profile())
-                                            let bigTichu1 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player1  ?? profile())
-                                            let pingu1 = currentRound.hasAnnouncedPingu.contains(currentGame.player1  ?? profile())
+                                        let tichu1 = currentRound.hasAnnouncedTichu.contains(currentGame.player1 ?? profile())
+                                        let bigTichu1 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player1  ?? profile())
+                                        let pingu1 = currentRound.hasAnnouncedPingu.contains(currentGame.player1  ?? profile())
+                                        
+                                        let isFirst1 = currentRound.first?.id == currentGame.player1?.id  ?? profile().id
+                                        
+                                        
+                                        let tichu2 = currentRound.hasAnnouncedTichu.contains(currentGame.player2 ?? profile())
+                                        let bigTichu2 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player2  ?? profile())
+                                        let pingu2 = currentRound.hasAnnouncedPingu.contains(currentGame.player2  ?? profile())
+                                        
+                                        let isFirst2 = currentRound.first?.id == currentGame.player2?.id  ?? profile().id
+                                        
+                                        VStack(alignment:.leading,spacing:10){
                                             
-                                            let isFirst1 = currentRound.first?.id == currentGame.player1?.id  ?? profile().id
-                                            
-                                            
-                                            let tichu2 = currentRound.hasAnnouncedTichu.contains(currentGame.player2 ?? profile())
-                                            let bigTichu2 = currentRound.hasAnnouncedBigTichu.contains(currentGame.player2  ?? profile())
-                                            let pingu2 = currentRound.hasAnnouncedPingu.contains(currentGame.player2  ?? profile())
-                                            
-                                            let isFirst2 = currentRound.first?.id == currentGame.player2?.id  ?? profile().id
-                                            
-                                            VStack(alignment:.leading,spacing:10){
+                                            if tichu1 && isFirst1 {
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                    
+                                                    Text("Tichu")
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
                                                 
-                                                if tichu1 && isFirst1 {
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                            
-                                                        Text("Tichu")
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                
+                                            } else if bigTichu1 && isFirst1 {
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
                                                     
-                                                        if !tichu2 && !bigTichu2 && !pingu2 {
-                                                            Text(" ")
-                                                        }
-                                                    
-                                                } else if bigTichu1 && isFirst1 {
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                         
-                                                        Text("Big Tichu")
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    
-                                                        if !tichu2 && !bigTichu2 && !pingu2 {
-                                                            Text(" ")
-                                                        }
-                                                    
-                                                } else if pingu1 && isFirst1 {
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                        Text("Pingu")
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                } else if tichu1 && !isFirst1{
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Tichu")
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                } else if bigTichu1 && !isFirst1 {
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Big Tichu")
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                        if !isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                            Text(" ")
-                                                        }
-                                                    
-                                                    
-                                                } else if pingu1 && !isFirst1 {
-                                                    if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Big Tichu")
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !tichu2 && !bigTichu2 && !pingu2 {
-                                                        Text(" ")
-                                                    }
+                                                    Text("Big Tichu")
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                
+                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                
+                                            } else if pingu1 && isFirst1 {
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                    Text("Pingu")
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                            } else if tichu1 && !isFirst1{
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Tichu")
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                            } else if bigTichu1 && !isFirst1 {
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Big Tichu")
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
                                                 }
                                                 
                                                 
-                                                
-                                                if tichu2 && isFirst2 {
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                        Text("Tichu")
-                                                    } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                        if !tichu1 && !bigTichu1 && !pingu1 {
-                                                            Text(" ")
-                                                        }
-                                                    
-                                                } else if bigTichu2 && isFirst2 {
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                        Text("Big Tichu")
-                                                    } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                } else if pingu2 && isFirst2 {
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"checkmark")
-                                                        Text("Pingu").foregroundStyle(.green)
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                } else if tichu2 && !isFirst2{
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Tichu")
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                } else if bigTichu2 && !isFirst2 {
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Big Tichu")
-                                                        
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                } else if pingu2 && !isFirst2{
-                                                    if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    }
-                                                    HStack{
-                                                        Image(systemName:"xmark")
-                                                        Text("Big Tichu")
-                                                    }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                    if !isFirst1 && tichu1 && !bigTichu1 && !pingu1 {
-                                                        Text(" ")
-                                                    
-                                                    }
+                                            } else if pingu1 && !isFirst1 {
+                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Pingu")
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                    Text(" ")
                                                 }
                                             }
                                             
                                             
                                             
-                                            
+                                            if tichu2 && isFirst2 {
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                    Text("Tichu")
+                                                } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                
+                                            } else if bigTichu2 && isFirst2 {
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                    Text("Big Tichu")
+                                                } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                            } else if pingu2 && isFirst2 {
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"checkmark")
+                                                    Text("Pingu").foregroundStyle(.green)
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                            } else if tichu2 && !isFirst2{
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Tichu")
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                            } else if bigTichu2 && !isFirst2 {
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Big Tichu")
+                                                    
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                            } else if pingu2 && !isFirst2{
+                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                }
+                                                HStack{
+                                                    Image(systemName:"xmark")
+                                                    Text("Big Tichu")
+                                                }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                if !isFirst1 && tichu1 && !bigTichu1 && !pingu1 {
+                                                    Text(" ")
+                                                    
+                                                }
+                                            }
+                                        }
                                         
-                                    
-                                    .padding()
-                                }
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        .padding()
+                                    }
                                     .background(
                                         RoundedRectangle(cornerRadius: 20)
                                             .fill(Color(uiColor: .systemGroupedBackground))
                                     )
-
+                                    
                                     // MARK: TEAM 2
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
                                         Spacer()
                                         
-    
+                                        
                                         Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
                                     }
                                     .padding(.top)
@@ -335,7 +338,7 @@ struct EditRoundsSheetView: View {
                                                 let isSecondIsPlayer3 = (currentRound.second?.id == currentGame.player3?.id)
                                                 let isSecondIsPlayer4 = (currentRound.second?.id == currentGame.player4?.id)
                                                 
-        
+                                                
                                                 let placeColor: Color = (place == 1 && isSecondIsPlayer4 || place == 1 && isSecondIsPlayer3 || place == 2 && isFirstIsPlayer3 || place == 2 && isFirstIsPlayer4) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
                                                 
                                                 
@@ -370,9 +373,9 @@ struct EditRoundsSheetView: View {
                                         let pingu4 = currentRound.hasAnnouncedPingu.contains(currentGame.player4  ?? profile())
                                         
                                         let isFirst4 = currentRound.first?.id == currentGame.player4?.id  ?? profile().id
-                                    
+                                        
                                         VStack(alignment:.leading,spacing:11){
-                                             
+                                            
                                             if tichu3 && isFirst3 {
                                                 if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
                                                     Text(" ")
@@ -391,7 +394,7 @@ struct EditRoundsSheetView: View {
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Big Tichu")
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
                                                 if !tichu4 && !bigTichu4 && !pingu4 {
                                                     Text(" ")
                                                 }
@@ -401,7 +404,7 @@ struct EditRoundsSheetView: View {
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
-                                                        
+                                                    
                                                     Text("Pingu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
                                                 if !tichu4 && !bigTichu4 && !pingu4 {
@@ -429,7 +432,7 @@ struct EditRoundsSheetView: View {
                                                 if !tichu4 && !bigTichu4 && !pingu4 {
                                                     Text(" ")
                                                 }
-                                               
+                                                
                                             } else if pingu3 && !isFirst3 {
                                                 if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
                                                     Text(" ")
@@ -443,7 +446,7 @@ struct EditRoundsSheetView: View {
                                                 }
                                             }
                                             
-                                           
+                                            
                                             
                                             if tichu4 && isFirst4 {
                                                 if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
@@ -463,7 +466,7 @@ struct EditRoundsSheetView: View {
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Big Tichu")
-                                                    }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
+                                                }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
                                                 if !tichu3 && !bigTichu3 && !pingu3 {
                                                     Text(" ")
                                                 }
@@ -520,14 +523,25 @@ struct EditRoundsSheetView: View {
                                         RoundedRectangle(cornerRadius: 20)
                                             .fill(Color(uiColor: .systemGroupedBackground))
                                     )
+                                }.sheet(isPresented: $showAddRoundSheet) {
+                                    AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,currentGame: $currentGame,currentRound: .constant(currentRound))
+                                    
                                 }
-
+                                
                                 Spacer()
                             }.transition(.opacity)
                         }
                     }.swipeActions(edge:.trailing){
                         Button(role:.destructive){
-                            currentGame.Rounds.remove(at:index)
+                            if currentGame.Rounds.count > 1{
+                                currentGame.Rounds.remove(at:index)
+                            }else{
+                                showDeleteGameAlert = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.075) {
+                                    showOffSet = true
+                                }
+                                
+                            }
                         }label:{
                             VStack{
                                 Image(systemName:"trash")
@@ -535,7 +549,9 @@ struct EditRoundsSheetView: View {
                             }
                         }
                         Button(){
-                            //Edit Action
+                            showAddRoundSheet = true
+                         
+                            
                         }label:{
                             VStack{
                                 Image(systemName:"pencil")
@@ -548,20 +564,35 @@ struct EditRoundsSheetView: View {
                 
             }
             .animation(.easeInOut(duration: 0.1), value: expandedRows)
-
+            
             .navigationTitle("Edit game")
             .navigationBarTitleDisplayMode(.inline)
-
+            
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", systemImage: "xmark") {
                         showEditRoundsSheet = false
                     }
                 }
-
+                
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done", systemImage: "checkmark") {
                         showEditRoundsSheet = false
+                    }
+                }
+            }
+            }else{
+                Text(" ").navigationTitle("Edit game").navigationBarTitleDisplayMode(.inline).toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", systemImage: "xmark") {
+                            showEditRoundsSheet = false
+                        }
+                    }
+                    
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done", systemImage: "checkmark") {
+                            showEditRoundsSheet = false
+                        }
                     }
                 }
             }
@@ -572,17 +603,29 @@ struct EditRoundsSheetView: View {
                 HStack{
                     Image(systemName:"trash")
                     Text("Delete Game")
-                }.foregroundColor(.primary).padding().glassEffect(.regular.interactive()).alert("Delete this Game?", isPresented: $showDeleteGameAlert, actions: {
-                    Button(role: .destructive) {
-                        currentGame = tichuGame()
-                        } label: {
-                            Text("Delete")
-                        }
-                        }, message: {
-                            Text("This Game will be deleted")
-                        })
+                }.foregroundColor(.primary).padding().glassEffect(.regular.interactive())
             }.padding(.bottom,10)
-        }
+        }.alert("Delete this Game?", isPresented: $showDeleteGameAlert, actions: {
+            
+            Button(role: .cancel){
+                showDeleteGameAlert = false
+                showOffSet = false
+            }label:{
+                Text("Cancel")
+            }
+            Button(role: .destructive) {
+                showEditRoundsSheet = false
+                showOffSet = false
+                DispatchQueue.main.async {
+                    currentGame = tichuGame()
+                }
+               
+                } label: {
+                    Text("Delete")
+                }
+                }, message: {
+                    Text("This Game will be deleted")
+                })
     }
 }
 

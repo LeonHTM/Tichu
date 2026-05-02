@@ -318,7 +318,15 @@ struct PlayView: View {
                             startPoint: .top,
                             endPoint: .bottom
                         )*/
-                    )
+                    ).onChange(of: isGameReady) {
+                        
+                        userProfile.name = userName
+                        userProfile.elo = userElo
+                        userProfile.imageData = userImageData
+                        userImage = dataToPhoto(data: userProfile.imageData)
+                        currentGame.player1 = userProfile
+                    
+                }
                     .allowsHitTesting(false)
                 }.edgesIgnoringSafeArea(.all).background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
@@ -374,7 +382,7 @@ struct PlayView: View {
                             AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,currentGame: $currentGame,currentRound: $currentRound)
                             
                         }
-
+                        
                     }
                 }
             }
@@ -382,8 +390,8 @@ struct PlayView: View {
             userProfile.name = userName
             userProfile.elo = userElo
             userProfile.imageData = userImageData
-            userImage = dataToPhoto(data:userProfile.imageData)
-            currentGame.player1 = userProfile
+            userImage = dataToPhoto(data: userProfile.imageData)
+   
         }
     }
        
