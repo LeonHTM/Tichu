@@ -415,7 +415,7 @@ let exampleRound5 = Round(
     tichuPointsTeam1: 100,
     tichuPointsTeam2: 0,
 
-    roundPointsTeam1: -200,
+    roundPointsTeam1: -100,
     roundPointsTeam2: -200,
 
     doubleWinTeam1: true,

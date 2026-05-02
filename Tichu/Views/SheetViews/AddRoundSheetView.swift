@@ -18,6 +18,7 @@ struct AddRoundSheetView: View {
     @Binding var currentGame: tichuGame
     @Binding var currentRound: Round
     @Environment(\.colorScheme) var colorScheme
+    var editMode: Bool
     
     private var displayTeam1Points: Int {
         if hasDoubleWinTeam1 {
@@ -99,49 +100,46 @@ struct AddRoundSheetView: View {
         return .none
     }
     
+    
+    func updateAnnouncement(
+        player: profile,
+        state: CanAnnounce
+    ) {
+        currentRound.hasAnnouncedTichu.removeAll { $0.id == player.id }
+        currentRound.hasAnnouncedBigTichu.removeAll { $0.id == player.id }
+        currentRound.hasAnnouncedPingu.removeAll { $0.id == player.id }
+
+        switch state {
+        case .tichu:
+            currentRound.hasAnnouncedTichu.append(player)
+
+        case .bigTichu:
+            currentRound.hasAnnouncedBigTichu.append(player)
+
+        case .pingu:
+            currentRound.hasAnnouncedPingu.append(player)
+
+        case .none:
+            break
+        }
+    }
+    
     func saveRound(){
         currentRound.first = players[0]
         currentRound.second = players[1]
         currentRound.third = players[2]
         currentRound.fourth = players[3]
         
-        if hasAnnouncedPlayer1 == .tichu{
-            currentRound.hasAnnouncedTichu.append(currentGame.player1!)
-        }else if hasAnnouncedPlayer1 == .bigTichu{
-            currentRound.hasAnnouncedBigTichu.append(currentGame.player1!)
-        }else if hasAnnouncedPlayer1 == .pingu{
-            currentRound.hasAnnouncedPingu.append(currentGame.player1!)
-        }
-        
-        if hasAnnouncedPlayer2 == .tichu{
-            currentRound.hasAnnouncedTichu.append(currentGame.player2!)
-        }else if hasAnnouncedPlayer2 == .bigTichu{
-            currentRound.hasAnnouncedBigTichu.append(currentGame.player2!)
-        }else if hasAnnouncedPlayer2 == .pingu{
-            currentRound.hasAnnouncedPingu.append(currentGame.player2!)
-        }
-        
-        if hasAnnouncedPlayer3 == .tichu{
-            currentRound.hasAnnouncedTichu.append(currentGame.player3!)
-        }else if hasAnnouncedPlayer3 == .bigTichu{
-            currentRound.hasAnnouncedBigTichu.append(currentGame.player3!)
-        }else if hasAnnouncedPlayer3 == .pingu{
-            currentRound.hasAnnouncedPingu.append(currentGame.player3!)
-        }
-        
-        if hasAnnouncedPlayer4 == .tichu{
-            currentRound.hasAnnouncedTichu.append(currentGame.player4!)
-        }else if hasAnnouncedPlayer4 == .bigTichu{
-            currentRound.hasAnnouncedBigTichu.append(currentGame.player4!)
-        }else if hasAnnouncedPlayer4 == .pingu{
-            currentRound.hasAnnouncedPingu.append(currentGame.player4!)
-        }
+        updateAnnouncement(player: currentGame.player1!, state: hasAnnouncedPlayer1)
+        updateAnnouncement(player: currentGame.player2!, state: hasAnnouncedPlayer2)
+        updateAnnouncement(player: currentGame.player3!, state: hasAnnouncedPlayer3)
+        updateAnnouncement(player: currentGame.player4!, state: hasAnnouncedPlayer4)
         
         applyDoubleWin()
-        currentGame.addRound(addedRound: currentRound)
-        currentRound = Round()
-        
-        
+        if !editMode {
+            currentGame.addRound(addedRound: currentRound)
+            currentRound = Round()
+        }
     }
     
     
@@ -294,7 +292,7 @@ struct AddRoundSheetView: View {
                     .padding(.leading, 20)
                     .padding(.top, -10)
                 }
-                .navigationTitle("Add Round")
+                .navigationTitle(editMode == true ? "Edit Round" :"Add Round")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -313,12 +311,21 @@ struct AddRoundSheetView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .onAppear {
-                players = [
-                    currentGame.player1,
-                    currentGame.player3,
-                    currentGame.player2,
-                    currentGame.player4
-                ]
+                if editMode {
+                    players = [
+                        currentRound.first,
+                        currentRound.second,
+                        currentRound.third,
+                        currentRound.fourth,
+                    ]
+                }else{
+                    players = [
+                        currentGame.player1,
+                        currentGame.player3,
+                        currentGame.player2,
+                        currentGame.player4
+                    ]
+                }
 
             
                 hasAnnouncedPlayer1 = announcement(for: currentGame.player1)
@@ -334,7 +341,8 @@ struct AddRoundSheetView: View {
     AddRoundSheetView(
         showAddRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame),
-        currentRound: .constant(exampleRound6)
+        currentRound: .constant(exampleRound6),
+        editMode: false
     )
 }
 
