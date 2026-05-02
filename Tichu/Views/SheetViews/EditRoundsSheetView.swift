@@ -31,6 +31,49 @@ struct EditRoundsSheetView: View {
             placement(player: $0, in: round) < placement(player: $1, in: round)
         }
     }
+    
+    enum PartnerComparison {
+        case higher
+        case lower
+        case equal
+    }
+    
+    private func partnerRankComparison(
+        for player: profile,
+        in round: Round
+    ) -> PartnerComparison? {
+        
+        guard
+            let team1 = currentGame.team1?.list,
+            let team2 = currentGame.team2?.list
+        else {
+            return nil
+        }
+
+        // find partner
+        let partner: profile?
+
+        if team1.contains(where: { $0.id == player.id }) {
+            partner = team1.first(where: { $0.id != player.id })
+        } else if team2.contains(where: { $0.id == player.id }) {
+            partner = team2.first(where: { $0.id != player.id })
+        } else {
+            return nil
+        }
+
+        guard let partner else { return nil }
+
+        let playerPlace = placement(player: player, in: round)
+        let partnerPlace = placement(player: partner, in: round)
+
+        if partnerPlace < playerPlace {
+            return .higher   // partner did better
+        } else if partnerPlace > playerPlace {
+            return .lower    // partner did worse
+        } else {
+            return .equal
+        }
+    }
 
 
     var body: some View {
@@ -152,9 +195,12 @@ struct EditRoundsSheetView: View {
                                         let isFirst2 = currentRound.first?.id == currentGame.player2?.id  ?? profile().id
                                         
                                         VStack(alignment:.leading,spacing:10){
+                                            let comparison1 = partnerRankComparison(for: currentGame.player1!, in: currentRound)
+                                            
                                             
                                             if tichu1 && isFirst1 {
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
@@ -162,13 +208,11 @@ struct EditRoundsSheetView: View {
                                                     
                                                     Text("Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                
-                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
-                                                
                                             } else if bigTichu1 && isFirst1 {
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
@@ -177,107 +221,108 @@ struct EditRoundsSheetView: View {
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
                                                 
-                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
                                                 
                                             } else if pingu1 && isFirst1 {
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Pingu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if tichu1 && !isFirst1{
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if bigTichu1 && !isFirst1 {
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
                                                 
                                                 
                                             } else if pingu1 && !isFirst1 {
-                                                if isFirst2 && !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Pingu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu2 && !bigTichu2 && !pingu2 {
+                                                if comparison1 == .lower {
                                                     Text(" ")
                                                 }
                                             }
                                             
+                                            let comparison2 = partnerRankComparison(for: currentGame.player2!, in: currentRound)
                                             
                                             
                                             if tichu2 && isFirst2 {
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Tichu")
                                                 } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
                                                 }
                                                 
                                             } else if bigTichu2 && isFirst2 {
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Big Tichu")
                                                 } .foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if pingu2 && isFirst2 {
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Pingu").foregroundStyle(.green)
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if tichu2 && !isFirst2{
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if bigTichu2 && !isFirst2 {
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
@@ -285,20 +330,19 @@ struct EditRoundsSheetView: View {
                                                     Text("Big Tichu")
                                                     
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
                                                 }
                                             } else if pingu2 && !isFirst2{
-                                                if isFirst1 && !tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .higher {
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !isFirst1 && tichu1 && !bigTichu1 && !pingu1 {
+                                                if comparison2 == .lower {
                                                     Text(" ")
-                                                    
                                                 }
                                             }
                                         }
@@ -376,30 +420,32 @@ struct EditRoundsSheetView: View {
                                         
                                         VStack(alignment:.leading,spacing:11){
                                             
+                                            let comparison3 = partnerRankComparison(for: currentGame.player3!, in: currentRound)
+                                            
                                             if tichu3 && isFirst3 {
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if bigTichu3 && isFirst3 {
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if pingu3 && isFirst3 {
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
@@ -407,71 +453,72 @@ struct EditRoundsSheetView: View {
                                                     
                                                     Text("Pingu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if tichu3 && !isFirst3{
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if bigTichu3 && !isFirst3 {
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                                 
                                             } else if pingu3 && !isFirst3 {
-                                                if isFirst4 && !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Pingu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu4 && !bigTichu4 && !pingu4 {
+                                                if comparison3 == .lower{
                                                     Text(" ")
                                                 }
                                             }
                                             
                                             
+                                            let comparison4 = partnerRankComparison(for: currentGame.player4!, in: currentRound)
                                             
                                             if tichu4 && isFirst4 {
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if bigTichu4 && isFirst4 {
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"checkmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if pingu4 && isFirst4 {
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
@@ -479,40 +526,40 @@ struct EditRoundsSheetView: View {
                                                         .foregroundStyle(.green)
                                                     Text("Pingu").foregroundStyle(.green)
                                                 }.foregroundStyle(.green).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if tichu4 && !isFirst4{
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if bigTichu4 && !isFirst4 {
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Big Tichu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             } else if pingu4 && !isFirst4 {
-                                                if isFirst3 && !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .higher{
                                                     Text(" ")
                                                 }
                                                 HStack{
                                                     Image(systemName:"xmark")
                                                     Text("Pingu")
                                                 }.foregroundStyle(.red).opacity(colorScheme == .dark ? 0.66 : 1)
-                                                if !tichu3 && !bigTichu3 && !pingu3 {
+                                                if comparison4 == .lower{
                                                     Text(" ")
                                                 }
                                             }
