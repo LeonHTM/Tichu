@@ -255,7 +255,7 @@ struct EditRoundsSheetView: View {
                                                     } else if bigTichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
-                                                            Text("\(bomb)Big Tichu")
+                                                            Text("Big Tichu")
                                                         }.foregroundStyle(.red)
                                                             .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && !isFirst {

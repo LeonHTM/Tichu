@@ -303,6 +303,7 @@ struct  gameOverViewListView: View {
                             Button(role: .destructive) {
                                 if currentGame.Rounds.count > 1 {
                                     currentGame.Rounds.remove(at: index)
+                                    currentGame.reCount()
                                 } else {
                                     showDeleteGameAlert = true
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {

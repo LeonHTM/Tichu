@@ -43,12 +43,16 @@ struct GameOverViewSheetView: View {
     func renderShareImage() -> UIImage? {
 
         let shareView = GameSummaryShareView(
-            currentGame: currentGame
+            currentGame: currentGame,
+            accentCo: .accent
         )
+        .tint(Color.accentColor)
+        .environment(\.colorScheme, colorScheme)
 
         let renderer = ImageRenderer(
             content: shareView
         )
+        renderer.colorMode = .nonLinear
 
         renderer.proposedSize = ProposedViewSize(
             width: 500,
@@ -92,7 +96,7 @@ struct GameOverViewSheetView: View {
                             GameOverViewChartView(
                                 currentGame: $currentGame
                             )
-                            .frame(width: 350, height: 250)
+                            .frame(width: 350)
 
                             Spacer()
                         }
@@ -103,7 +107,7 @@ struct GameOverViewSheetView: View {
                             showEditRoundsSheet: .constant(true),
                             currentGame: $currentGame
                         )
-                        .padding(.bottom, -100)
+                        .padding(.bottom, -50)
 
                     default:
                         EmptyView()
@@ -153,16 +157,18 @@ struct GameOverViewSheetView: View {
             }
 
             .safeAreaInset(edge: .bottom) {
-
+                GlassEffectContainer{
                 HStack {
-
-                    // SHARE BUTTON
-
+                    
+                    
+                    
                     Button {
-                        shareImage()
-
+                        DispatchQueue.main.async{
+                            shareImage()
+                        }
+                        
                     } label: {
-
+                        
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 22))
                             .frame(width: 29, height: 29)
@@ -171,37 +177,37 @@ struct GameOverViewSheetView: View {
                     .padding(10)
                     .foregroundColor(.primary)
                     .glassEffect(.regular.interactive())
-
+                    
+                    
                     Spacer()
-
-                    Text("Team 1:")
-                        .fontWeight(.bold)
-                        .font(.title3)
-
-                    Text("\(currentGame.currentPointsTeam1)")
-                        .fontWeight(.bold)
-                        .font(.title3)
-
+                    
+                    HStack{
+                        
+                        Text("\(currentGame.currentPointsTeam1)")
+                            .fontWeight(.bold)
+                            .font(.title3)
+                        
+                        
+                        Text("vs").fontWeight(.bold)
+                            .font(.title3)
+                        
+                        
+                        Text("\(currentGame.currentPointsTeam2)")
+                            .fontWeight(.bold)
+                            .font(.title3)
+                        
+                    }.padding(13).glassEffect(.regular.tint(.accent).interactive())
                     Spacer()
-
-                    Text("Team 2:")
-                        .fontWeight(.bold)
-                        .font(.title3)
-
-                    Text("\(currentGame.currentPointsTeam2)")
-                        .fontWeight(.bold)
-                        .font(.title3)
-
-                    Spacer()
-
-                    // DELETE BUTTON
-
+                    
+                    
+                    
+                    
                     Button {
-
+                        
                         showDeleteGameAlert = true
-
+                        
                     } label: {
-
+                        
                         Image(systemName: "trash")
                             .font(.system(size: 22))
                             .frame(width: 29, height: 29)
@@ -213,6 +219,7 @@ struct GameOverViewSheetView: View {
                 }
                 .padding(.bottom, 10)
                 .padding(.horizontal, 20)
+            }
             }
 
             .navigationTitle("\(gameWinner()) won!")
@@ -278,7 +285,7 @@ extension UIImage: Identifiable {
     public var id: ObjectIdentifier { ObjectIdentifier(self) }
 }
 
-// MARK: - SHARE VIEW
+
 
 
 

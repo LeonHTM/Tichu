@@ -11,6 +11,7 @@ import SwiftUI
 struct GameSummaryShareView: View {
     @Environment(\.colorScheme) var colorScheme
     let currentGame: tichuGame
+    let accentCo :Color
     
     func gameWinner() -> String {
         if currentGame.currentPointsTeam1 >= currentGame.target ||
@@ -153,7 +154,7 @@ struct GameSummaryShareView: View {
                     Text("Team 1:").fontWeight(.bold)
                     Text("\(currentGame.team1?.list[0].name ?? "Unknnown")").font(.title).fontWeight(.bold)
                     Text("\(currentGame.team1?.list[1].name ?? "Unknown")").font(.title).fontWeight(.bold)
-                }.foregroundColor(.accentColor)
+                }.foregroundStyle(accentCo)
                 Spacer()
                 VStack{
                     Text("Team 2:").fontWeight(.bold)
@@ -173,18 +174,18 @@ struct GameSummaryShareView: View {
                     
                     Text("Team 1")
                         .font(.headline)
-                        .foregroundColor(.accentColor)
+                        .foregroundStyle(accentCo)
                     
                     Text("\(currentGame.currentPointsTeam1)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .foregroundColor(.accentColor)
+                        .foregroundStyle(accentCo)
                 }
                 
                 Spacer()
                 VStack{
                     Text("Target: \(currentGame.target)").fontWeight(.bold)
-                    Text("Winner: \(gameWinner())").fontWeight(.bold).foregroundColor(gameWinner() == "Team 1" ? Color.accentColor : Color.primary)
+                    Text("Winner: \(gameWinner())").fontWeight(.bold).foregroundStyle(gameWinner() == "Team 1" ? accentCo : Color.primary)
                 }
                 Spacer()
                 
@@ -201,7 +202,7 @@ struct GameSummaryShareView: View {
             
             Text("Details").fontWeight(.bold).font(.title)
             HStack{
-                Text("Team 1").padding(.trailing,23).foregroundColor(.accentColor)
+                Text("Team 1").padding(.trailing,23).foregroundStyle(accentCo)
                 Text("Rounds:").fontWeight(.bold)
                 Text("Team 2").padding(.leading,20)
             }
@@ -261,7 +262,7 @@ struct GameSummaryShareView: View {
             }
             
             
-        }.frame(width: 500).background(.background)
+        }.frame(width: 500).background(colorScheme == .dark ? Color.black : Color.white)
     }
     
         
@@ -272,5 +273,5 @@ struct GameSummaryShareView: View {
 
 
 #Preview {
-    GameSummaryShareView(currentGame:exampleGame)
+    GameSummaryShareView(currentGame:exampleGame,accentCo:.accent)
 }
