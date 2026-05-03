@@ -436,7 +436,7 @@ let exampleRound6 = Round(
     third: exampleLuis,
     fourth: exampleJo,
 
-    firstBombs: 2,
+    firstBombs: 1,
     secondBombs: 1,
     thirdBombs: 2,
     fourthBombs: 3,
@@ -492,6 +492,8 @@ let exampleGame = tichuGame(
     player2: exampleJo,
     player3: exampleSorin,
     player4: exampleLeon,
+    
+    
 
     Rounds: [
         exampleRound1,
@@ -501,6 +503,7 @@ let exampleGame = tichuGame(
         exampleRound5,
         exampleRound6,
         exampleRound7
-    ]
+    ],
+    target:500,
 )
 

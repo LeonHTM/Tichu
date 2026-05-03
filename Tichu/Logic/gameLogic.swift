@@ -99,6 +99,15 @@ struct tichuGame: Identifiable {
             currentPointsTeam2 += r.tichuPointsTeam2 + r.roundPointsTeam2
         }
     }
+    
+    mutating func reCount(){
+        self.currentPointsTeam1 = 0
+        self.currentPointsTeam2 = 0
+        for round in self.Rounds{
+            self.currentPointsTeam1 += (round.tichuPointsTeam1+round.roundPointsTeam1)
+            self.currentPointsTeam2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
+        }
+    }
 }
 
 

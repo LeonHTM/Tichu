@@ -134,7 +134,9 @@ struct AddRoundSheetView: View {
         updateAnnouncement(player: currentGame.player2!, state: hasAnnouncedPlayer2)
         updateAnnouncement(player: currentGame.player3!, state: hasAnnouncedPlayer3)
         updateAnnouncement(player: currentGame.player4!, state: hasAnnouncedPlayer4)
-        
+        if editMode{
+            currentGame.reCount()
+        }
         applyDoubleWin()
         if !editMode {
             currentGame.addRound(addedRound: currentRound)

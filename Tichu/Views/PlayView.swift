@@ -14,8 +14,8 @@ struct PlayView: View {
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("userImageData") private var userImageData: Data?
     @State private var userImage: UIImage?
-
-
+    
+    
     
     @State private var showAddPlayersSheet2:Bool = false
     @State private var showAddPlayersSheet3:Bool = false
@@ -27,12 +27,32 @@ struct PlayView: View {
     @State private var team1 = Team()
     @State private var team2 = Team()
     
-    @State private var currentGame = tichuGame()
+    @State private var currentGame:tichuGame = exampleGame
     @State private var currentRound =  Round()
     @FocusState private var targetFieldFocused: Bool
+    @State private var showGameOverSheet = false
+    
+    
+    
+    var gameDone:Bool{
+        if currentGame.currentPointsTeam1 >= currentGame.target || currentGame.currentPointsTeam2 >= currentGame.target{
+            if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2{
+                return true
+            }else if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1{
+                return true
+            }
+            
+        }
+        return false
+        
+    }
         
     private var isGameReady:Bool{
         currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
+    }
+    
+    func checkGameOver() {
+        showGameOverSheet = gameDone
     }
     
     var body: some View {
@@ -56,6 +76,11 @@ struct PlayView: View {
                                     .focused($targetFieldFocused)
                                     .submitLabel(.done)
                                     .onSubmit { targetFieldFocused = false }
+                            }
+                            if isGameReady{
+                                Text("\(currentGame.currentPointsTeam1)").font(.title2)
+                                    .fontWeight(.bold)
+                                    
                             }
                         }
                         .listRowBackground(Color.clear)
@@ -156,10 +181,18 @@ struct PlayView: View {
                         Spacer()
                     }.listRowBackground(Color.clear)
                     
-                    Section{Text("Team 2")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                        .listRowBackground(Color.clear)}
+                    Section{
+                        HStack{
+                            Text("Team 2")
+                                
+                            Spacer()
+                            if isGameReady{
+                                Text("\(currentGame.currentPointsTeam2)")
+                            }
+                        }
+                    }.font(.title2)
+                        .fontWeight(.bold)
+                        .listRowBackground(Color.clear)
                     Section{
                         if let name3 = currentGame.player3?.name  {
                             
@@ -298,6 +331,15 @@ struct PlayView: View {
                     currentRound.team2 = team2
                     currentGame.team1 = team1
                     currentGame.team2 = team2
+                }.onChange(of: currentGame.currentPointsTeam1) {
+                    checkGameOver()
+                }
+
+                .onChange(of: currentGame.currentPointsTeam2) {
+                    checkGameOver()
+                }.sheet(isPresented: $showGameOverSheet) {
+                    GameOverViewSheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame).presentationDetents([.medium])
+                    
                 }
                 .scrollContentBackground(.hidden)
                 .background(alignment: .center) {
@@ -369,6 +411,19 @@ struct PlayView: View {
                                     
                                 }
                             
+                        }else if currentGame.Rounds.count == 0{
+                            Button {
+                                currentGame = tichuGame()
+                            } label: {
+                                HStack {
+                                    Image(systemName: "trash")
+                                    Text("Delete Game")
+                                }
+                                .foregroundColor(.primary)
+                                .padding(13)
+                                .glassEffect(.regular.interactive())
+                            }
+                            .padding(.bottom, 10).padding(.leading,20)
                         }
                         Spacer()
                         Button(){
@@ -391,6 +446,7 @@ struct PlayView: View {
             userProfile.elo = userElo
             userProfile.imageData = userImageData
             userImage = dataToPhoto(data: userProfile.imageData)
+            currentGame.reCount()
    
         }
     }

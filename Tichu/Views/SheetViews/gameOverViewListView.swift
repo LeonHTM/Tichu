@@ -1,13 +1,15 @@
 //
-//  EditRoundsSheetView.swift
+//  gameOverViewListView.swift
 //  Tichu
 //
-//  Created by Leon on 27.04.2026.
+//  Created by Leon on 02.05.2026.
 //
+
+
 
 import SwiftUI
 
-struct EditRoundsSheetView: View {
+struct  gameOverViewListView: View {
     @Binding var showEditRoundsSheet: Bool
     
     @Binding var currentGame: tichuGame
@@ -54,12 +56,12 @@ struct EditRoundsSheetView: View {
                 
                 List {
                  
-                    ForEach(Array($currentGameCopy.Rounds), id: \.id) { $currentRound in
-                        let index = currentGameCopy.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
+                    ForEach(Array($currentGame.Rounds), id: \.id) { $currentRound in
+                        let index = currentGame.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
                         let hasExpanded = expandedRows.contains(index)
 
-                        let sortedTeam1 = sortedTeam(team: currentGameCopy.team1 ?? Team(list: []), in: currentRound)
-                        let sortedTeam2 = sortedTeam(team: currentGameCopy.team2 ?? Team(list: []), in: currentRound)
+                        let sortedTeam1 = sortedTeam(team: currentGame.team1 ?? Team(list: []), in: currentRound)
+                        let sortedTeam2 = sortedTeam(team: currentGame.team2 ?? Team(list: []), in: currentRound)
 
                         VStack {
 
@@ -115,10 +117,10 @@ struct EditRoundsSheetView: View {
                                                 let place = placement(player: player, in: currentRound)
                                                 let isFirst = currentRound.first?.id == player.id
 
-                                                let isFirstIsPlayer2 = (currentRound.first?.id == currentGameCopy.player2?.id)
-                                                let isFirstIsPlayer1 = (currentRound.first?.id == currentGameCopy.player1?.id)
-                                                let isSecondIsPlayer1 = (currentRound.second?.id == currentGameCopy.player1?.id)
-                                                let isSecondIsPlayer2 = (currentRound.second?.id == currentGameCopy.player2?.id)
+                                                let isFirstIsPlayer2 = (currentRound.first?.id == currentGame.player2?.id)
+                                                let isFirstIsPlayer1 = (currentRound.first?.id == currentGame.player1?.id)
+                                                let isSecondIsPlayer1 = (currentRound.second?.id == currentGame.player1?.id)
+                                                let isSecondIsPlayer2 = (currentRound.second?.id == currentGame.player2?.id)
 
                                                 let placeColor: Color = (place == 1 && isSecondIsPlayer1 || place == 1 && isSecondIsPlayer2 || place == 2 && isFirstIsPlayer1 || place == 2 && isFirstIsPlayer2) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
 
@@ -206,10 +208,10 @@ struct EditRoundsSheetView: View {
                                                 let place = placement(player: player, in: currentRound)
                                                 let isFirst = currentRound.first?.id == player.id
 
-                                                let isFirstIsPlayer4 = (currentRound.first?.id == currentGameCopy.player4?.id)
-                                                let isFirstIsPlayer3 = (currentRound.first?.id == currentGameCopy.player3?.id)
-                                                let isSecondIsPlayer3 = (currentRound.second?.id == currentGameCopy.player3?.id)
-                                                let isSecondIsPlayer4 = (currentRound.second?.id == currentGameCopy.player4?.id)
+                                                let isFirstIsPlayer4 = (currentRound.first?.id == currentGame.player4?.id)
+                                                let isFirstIsPlayer3 = (currentRound.first?.id == currentGame.player3?.id)
+                                                let isSecondIsPlayer3 = (currentRound.second?.id == currentGame.player3?.id)
+                                                let isSecondIsPlayer4 = (currentRound.second?.id == currentGame.player4?.id)
 
                                                 let placeColor: Color = (place == 1 && isSecondIsPlayer4 || place == 1 && isSecondIsPlayer3 || place == 2 && isFirstIsPlayer3 || place == 2 && isFirstIsPlayer4) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
 
@@ -255,7 +257,7 @@ struct EditRoundsSheetView: View {
                                                     } else if bigTichu && !isFirst {
                                                         HStack {
                                                             Image(systemName: "xmark")
-                                                            Text("\(bomb)Big Tichu")
+                                                            Text("Big Tichu")
                                                         }.foregroundStyle(.red)
                                                             .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                     } else if pingu && !isFirst {
@@ -290,7 +292,7 @@ struct EditRoundsSheetView: View {
                                 .sheet(isPresented: $showAddRoundSheet) {
                                     AddRoundSheetView(
                                         showAddRoundsSheet: $showAddRoundSheet,
-                                        currentGame: $currentGameCopy,
+                                        currentGame: $currentGame,
                                         currentRound: $currentRound,
                                         editMode: true
                                     )
@@ -299,9 +301,8 @@ struct EditRoundsSheetView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
-                                if currentGameCopy.Rounds.count > 1 {
-                                    currentGameCopy.Rounds.remove(at: index)
-                                    currentGameCopy.reCount()
+                                if currentGame.Rounds.count > 1 {
+                                    currentGame.Rounds.remove(at: index)
                                 } else {
                                     showDeleteGameAlert = true
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -322,24 +323,7 @@ struct EditRoundsSheetView: View {
                     }
                 }
                 .listSectionSpacing(0)
-                .animation(.easeInOut(duration: 0.1), value: expandedRows)
-                .navigationTitle("Edit Round")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                                    ToolbarItem(placement: .cancellationAction) {
-                                        Button("Cancel", systemImage: "xmark") {
-                                            showEditRoundsSheet = false
-                                        }
-                                    }
-                                    
-                                    ToolbarItem(placement: .confirmationAction) {
-                                        Button("Done", systemImage: "checkmark") {
-                                            currentGame = currentGameCopy
-                                            showEditRoundsSheet = false
-                                        }
-                                    }
-                                
-                            }
+               
             } else {
                 Text(" ")
                     .navigationTitle("Edit game")
@@ -357,31 +341,7 @@ struct EditRoundsSheetView: View {
                         }
                     }
             }
-        }.onAppear{
-            currentGameCopy = currentGame
-        }
-        .safeAreaInset(edge: .bottom) {
-            Button {
-                showDeleteGameAlert = true
-            } label: {
-                HStack {
-                    Image(systemName: "trash")
-                    Text("Delete Game")
-                }
-                .foregroundColor(.primary)
-                .padding()
-                .glassEffect(.regular.interactive())
-            }
-            .padding(.bottom, 10)
-        }
-        .safeAreaInset(edge: .top) {
-            HStack{
-                Text("Team 1:")
-                Text("\(currentGameCopy.currentPointsTeam1)")
-                Spacer()
-                Text("Team 2:")
-                Text("\(currentGameCopy.currentPointsTeam2)")
-            }.fontWeight(.bold).font(.title2).padding(.horizontal,30).padding(.top, 65)
+            Spacer()
         }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
@@ -402,7 +362,7 @@ struct EditRoundsSheetView: View {
 }
 
 #Preview {
-    EditRoundsSheetView(
+    gameOverViewListView(
         showEditRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame)
     )
