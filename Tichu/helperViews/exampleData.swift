@@ -497,12 +497,12 @@ let exampleGame = tichuGame(
 
     Rounds: [
         exampleRound1,
-        exampleRound2,
+        /*exampleRound2,
         exampleRound3,
         exampleRound4,
         exampleRound5,
         exampleRound6,
-        exampleRound7
+        exampleRound7*/
     ],
     target:500,
 )

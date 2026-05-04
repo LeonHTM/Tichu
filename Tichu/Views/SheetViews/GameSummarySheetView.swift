@@ -1,5 +1,5 @@
 //
-//  GameOverViewSheetView.swift
+//  GameSummarySheetView.swift
 //  Tichu
 //
 //  Created by Leon on 02.05.2026.
@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 
-struct GameOverViewSheetView: View {
+struct GameSummarySheetView: View {
 
     @Binding var showGameOverViewSheetView: Bool
     @State private var selectedTab: Int = 0
@@ -93,7 +93,7 @@ struct GameOverViewSheetView: View {
 
                         VStack {
                             
-                            GameOverViewChartView(
+                            GameSummaryChartView(
                                 currentGame: $currentGame
                             )
                             .frame(width: 350)
@@ -103,7 +103,7 @@ struct GameOverViewSheetView: View {
 
                     case 1:
 
-                        gameOverViewListView(
+                        GameSummaryListView(
                             showEditRoundsSheet: .constant(true),
                             currentGame: $currentGame
                         )
@@ -222,7 +222,7 @@ struct GameOverViewSheetView: View {
             }
             }
 
-            .navigationTitle("\(gameWinner()) won!")
+            .navigationTitle("\(gameWinner()) won! \(currentGame.winner)")
             .navigationBarTitleDisplayMode(.inline)
 
             .toolbar {
@@ -291,7 +291,7 @@ extension UIImage: Identifiable {
 
 #Preview {
 
-    GameOverViewSheetView(
+    GameSummarySheetView(
         showGameOverViewSheetView: .constant(true),
         currentGame: .constant(exampleGame)
     )

@@ -108,6 +108,7 @@ struct tichuGame: Identifiable {
             self.currentPointsTeam2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
         }
     }
+    
 }
 
 
@@ -227,3 +228,24 @@ struct Round: Identifiable {
     }
 }
 
+func checkGameOver(currentGame: inout tichuGame, showGameOverSheet: inout Bool, gameDone: Bool,currentRound:Round) {
+    let winner = gameWinner(currentGame: currentGame, currentRound: currentRound)
+    currentGame.winner = winner
+    showGameOverSheet = gameDone
+  
+}
+
+func gameWinner(currentGame: tichuGame, currentRound: Round) -> Team? {
+    
+    if currentGame.currentPointsTeam1 >= currentGame.target &&
+        currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2 {
+        return currentRound.team1
+    }
+    
+    if currentGame.currentPointsTeam2 >= currentGame.target &&
+        currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1 {
+        return currentRound.team2
+    }
+     
+    return nil
+}

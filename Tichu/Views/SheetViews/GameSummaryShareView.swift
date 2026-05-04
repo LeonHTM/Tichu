@@ -164,7 +164,7 @@ struct GameSummaryShareView: View {
                 
             }.padding(.horizontal,30)
             
-            GameOverViewChartView(
+            GameSummaryChartView(
                 currentGame: .constant(currentGame)
             )
             .frame(height: 250)

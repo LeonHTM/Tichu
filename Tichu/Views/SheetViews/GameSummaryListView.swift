@@ -1,13 +1,15 @@
 //
-//  EditRoundsSheetView.swift
+//  gameOverViewListView.swift
 //  Tichu
 //
-//  Created by Leon on 27.04.2026.
+//  Created by Leon on 02.05.2026.
 //
+
+
 
 import SwiftUI
 
-struct EditRoundsSheetView: View {
+struct  GameSummaryListView: View {
     @Binding var showEditRoundsSheet: Bool
     
     @Binding var currentGame: tichuGame
@@ -56,6 +58,19 @@ struct EditRoundsSheetView: View {
                 if newValue { expandedRows.insert(index) } else { expandedRows.remove(index) }
             }
         )
+    }
+    
+    var gameDone:Bool{
+        if currentGame.currentPointsTeam1 >= currentGame.target || currentGame.currentPointsTeam2 >= currentGame.target{
+            if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2{
+                return true
+            }else if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1{
+                return true
+            }
+            
+        }
+        return false
+        
     }
 
     var body: some View {
@@ -263,7 +278,7 @@ struct EditRoundsSheetView: View {
                                 }
 
                                 Spacer()
-                            }.padding(.top,-20).padding(.leading,-20).padding(.trailing,5)
+                            }.padding(.leading,-20).padding(.trailing,5)
                             
                         } label: {
                             HStack {
@@ -316,7 +331,10 @@ struct EditRoundsSheetView: View {
                         }
                     }
                 }
-                .sheet(isPresented: $showAddRoundSheet) {
+                .sheet(isPresented: $showAddRoundSheet, onDismiss:{
+                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showEditRoundsSheet, gameDone:gameDone,currentRound:currentRound)
+                    print(currentGame.winner)
+                }) {
                    
                          let roundBinding = Binding<Round>(
                             get: { currentGameCopy.Rounds[editingRoundIndex] },
@@ -328,76 +346,25 @@ struct EditRoundsSheetView: View {
                             currentGame: $currentGameCopy,
                             currentRound: roundBinding,
                             editMode: true
-                        )
+                        ) 
                     
                 }
                 .listSectionSpacing(0)
                 .animation(.spring(duration:0.25),value:expandedRows)
                 .animation(.easeInOut(duration:0.25),value:showList)
-                //.animation(.easeInOut(duration: 0.25), value: expandedRows)
-                .navigationTitle("Edit Game")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                                    ToolbarItem(placement: .cancellationAction) {
-                                        Button("Cancel", systemImage: "xmark") {
-                                            showEditRoundsSheet = false
-                                        }
-                                    }
-                                    
-                                    ToolbarItem(placement: .confirmationAction) {
-                                        Button("Done", systemImage: "checkmark") {
-                                            currentGame = currentGameCopy
-                                            showEditRoundsSheet = false
-                                        }
-                                    }
-                                
-                            }
+  
+                
             }
                 
             else {
                 Text(" ")
                     
-                    .navigationTitle("Edit Game")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .cancellationAction) {
-                            Button("Cancel", systemImage: "xmark") {
-                                showEditRoundsSheet = false
-                            }
-                        }
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done", systemImage: "checkmark") {
-                                showEditRoundsSheet = false
-                            }
-                        }
-                    }
+                    
             }
         }.onAppear{
             currentGameCopy = currentGame
         }
-        .safeAreaInset(edge: .bottom) {
-            Button {
-                showDeleteGameAlert = true
-            } label: {
-                HStack {
-                    Image(systemName: "trash")
-                    Text("Delete Game")
-                }
-                .foregroundColor(.primary)
-                .padding()
-                .glassEffect(.regular.interactive())
-            }
-            .padding(.bottom, 10)
-        }
-        .safeAreaInset(edge: .top) {
-            HStack{
-                Text("Team 1:")
-                Text("\(currentGameCopy.currentPointsTeam1)")
-                Spacer()
-                Text("Team 2:")
-                Text("\(currentGameCopy.currentPointsTeam2)")
-            }.fontWeight(.bold).font(.title2).padding(.horizontal,30).padding(.top, 65).padding(.bottom,20)
-        }
+       
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
                 showDeleteGameAlert = false
@@ -417,7 +384,7 @@ struct EditRoundsSheetView: View {
 }
 
 #Preview {
-    EditRoundsSheetView(
+    GameSummaryListView(
         showEditRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame)
     )

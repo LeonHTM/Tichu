@@ -1,5 +1,5 @@
 //
-//  GameOverViewChartView.swift
+// GameSummaryChartView.swift
 //  Tichu
 //
 //  Created by Leon on 02.05.2026.
@@ -15,7 +15,7 @@ struct ScorePoint: Identifiable {
     let team: String
 }
 
-struct GameOverViewChartView: View {
+struct GameSummaryChartView: View {
     @Binding var currentGame: tichuGame
   
 
@@ -108,5 +108,5 @@ struct GameOverViewChartView: View {
 }
 
 #Preview {
-    GameOverViewChartView(currentGame: .constant(exampleGame))
+    GameSummaryChartView(currentGame: .constant(exampleGame))
 }

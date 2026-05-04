@@ -120,7 +120,7 @@ struct statsContainerView: View {
                         }
                     }
                 }
-            }
+            }.animation(.easeInOut, value: items)
             .padding(.horizontal, 10)
             .padding(.bottom, 10)
         }

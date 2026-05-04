@@ -27,12 +27,19 @@ struct PlayView: View {
     @State private var team1 = Team()
     @State private var team2 = Team()
     
-    @State private var currentGame:tichuGame = exampleGame
+    @State private var currentGame = tichuGame()
+    
     @State private var currentRound =  Round()
     @FocusState private var targetFieldFocused: Bool
     @State private var showGameOverSheet = false
     
     
+    
+    
+        
+    private var isGameReady:Bool{
+        currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
+    }
     
     var gameDone:Bool{
         if currentGame.currentPointsTeam1 >= currentGame.target || currentGame.currentPointsTeam2 >= currentGame.target{
@@ -46,14 +53,7 @@ struct PlayView: View {
         return false
         
     }
-        
-    private var isGameReady:Bool{
-        currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
-    }
     
-    func checkGameOver() {
-        showGameOverSheet = gameDone
-    }
     
     var body: some View {
         ZStack{
@@ -82,7 +82,7 @@ struct PlayView: View {
                                     .fontWeight(.bold)
                                     
                             }
-                        }
+                        } 
                         .listRowBackground(Color.clear)
                     }.padding(.top,65)
                     Section{
@@ -332,13 +332,13 @@ struct PlayView: View {
                     currentGame.team1 = team1
                     currentGame.team2 = team2
                 }.onChange(of: currentGame.currentPointsTeam1) {
-                    checkGameOver()
+                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showGameOverSheet, gameDone:gameDone,currentRound:currentRound)
                 }
 
                 .onChange(of: currentGame.currentPointsTeam2) {
-                    checkGameOver()
+                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showGameOverSheet, gameDone:gameDone,currentRound:currentRound)
                 }.sheet(isPresented: $showGameOverSheet) {
-                    GameOverViewSheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame).presentationDetents([.medium])
+                    GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame).presentationDetents([.medium])
                     
                 }
                 .scrollContentBackground(.hidden)
