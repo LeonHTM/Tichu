@@ -504,6 +504,199 @@ let exampleGame = tichuGame(
         exampleRound6,
         exampleRound7
     ],
-    target:500,
+    target:1000,
+)
+
+// MARK: - Round 10
+let exampleRound10 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 11
+let exampleRound11 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 25,
+    tichuPointsTeam2: 75,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+let exampleRound12 = Round(
+    first: exampleSorin,
+    second: exampleJo,
+    third: exampleLeon,
+    fourth: exampleLuis,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 125,
+    tichuPointsTeam2: -25,
+
+    roundPointsTeam1: -200,
+    roundPointsTeam2: -200,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [],
+    hasAnnouncedBigTichu: [exampleLuis,exampleLeon],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+
+// MARK: - Round 13
+let exampleRound13 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+// MARK: - Round 14
+let exampleRound14 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 0,
+    tichuPointsTeam2: 100,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+// MARK: - Round 15
+let exampleRound15 = Round(
+    first: exampleLuis,
+    second: exampleSorin,
+    third: exampleLeon,
+    fourth: exampleJo,
+
+    firstBombs: 0,
+    secondBombs: 0,
+    thirdBombs: 0,
+    fourthBombs: 0,
+
+    tichuPointsTeam1: 50,
+    tichuPointsTeam2: 50,
+
+    roundPointsTeam1: 100,
+    roundPointsTeam2: 0,
+
+    doubleWinTeam1: false,
+    doubleWinTeam2: false,
+
+    hasAnnouncedTichu: [exampleLuis],
+    hasAnnouncedBigTichu: [],
+    hasAnnouncedPingu: [],
+
+    team1: exampleTeam1,
+    team2: exampleTeam2
+)
+
+
+let exampleGame2 = tichuGame(
+    player1: exampleLuis,
+    player2: exampleJo,
+    player3: exampleSorin,
+    player4: exampleLeon,
+    
+    
+
+    Rounds: [
+        exampleRound10,
+        exampleRound11,
+        exampleRound12,
+        exampleRound13,
+        exampleRound14,
+        exampleRound15
+    ],
+    target:250,
 )
 

@@ -40,6 +40,7 @@ struct tichuGame: Identifiable {
     
     var target: Int
     var Rounds: [Round]
+    var winRounds: [Round]
     var winner: Team?
 
     init(
@@ -48,6 +49,7 @@ struct tichuGame: Identifiable {
         player3: profile? = nil,
         player4: profile? = nil,
         Rounds: [Round] = [],
+        winRounds: [Round] = [],
         target: Int = 1000
     ) {
         self.player1 = player1
@@ -71,6 +73,7 @@ struct tichuGame: Identifiable {
         }
 
         self.Rounds = Rounds
+        self.winRounds = winRounds
         self.currentPointsTeam1 = 0
         self.currentPointsTeam2 = 0
     }
@@ -100,22 +103,53 @@ struct tichuGame: Identifiable {
     }
     
     mutating func reCount(){
+        // Reset state
         self.currentPointsTeam1 = 0
         self.currentPointsTeam2 = 0
-        for round in self.Rounds{
-            self.currentPointsTeam1 += (round.tichuPointsTeam1+round.roundPointsTeam1)
-            self.currentPointsTeam2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
+        self.winner = nil
+        self.winRounds.removeAll()
+
+        // Helper to evaluate the "still OK" condition (game not finished yet)
+        func conditionIsTrue(_ t1: Int, _ t2: Int, _ target: Int) -> Bool {
+            // Condition is true while neither side has reached target with a lead
+            return !((t1 >= target && t1 > t2) || (t2 >= target && t2 > t1))
         }
-        if self.currentPointsTeam1 >= self.target &&
-            self.currentPointsTeam1 > self.currentPointsTeam2 {
-            self.winner = self.team1
+
+        var stillTrue = true
+
+        for round in self.Rounds {
+            // Apply this round's points
+            self.currentPointsTeam1 += (round.tichuPointsTeam1 + round.roundPointsTeam1)
+            self.currentPointsTeam2 += (round.tichuPointsTeam2 + round.roundPointsTeam2)
+
+            // Always append the current round once we process it
+            self.winRounds.append(round)
+
+            // Evaluate condition after applying this round
+            let cond = conditionIsTrue(self.currentPointsTeam1, self.currentPointsTeam2, self.target)
+
+            if stillTrue && !cond {
+                // This is the first round where the condition turns false.
+                // We've already appended it, now determine winner and stop.
+                if self.currentPointsTeam1 >= self.target && self.currentPointsTeam1 > self.currentPointsTeam2 {
+                    self.winner = self.team1
+                } else if self.currentPointsTeam2 >= self.target && self.currentPointsTeam2 > self.currentPointsTeam1 {
+                    self.winner = self.team2
+                }
+                break
+            }
+
+            stillTrue = cond
         }
-        if self.currentPointsTeam2 >= self.target &&
-            self.currentPointsTeam2 > self.currentPointsTeam1 {
-            self.winner = self.team2
+
+        // If the loop finished without breaking, check if a winner exists based on totals.
+        if self.winner == nil {
+            if self.currentPointsTeam1 >= self.target && self.currentPointsTeam1 > self.currentPointsTeam2 {
+                self.winner = self.team1
+            } else if self.currentPointsTeam2 >= self.target && self.currentPointsTeam2 > self.currentPointsTeam1 {
+                self.winner = self.team2
+            }
         }
-        
-        
     }
     
     
@@ -238,6 +272,4 @@ struct Round: Identifiable {
         self.team2 = team2
     }
 }
-
-
 

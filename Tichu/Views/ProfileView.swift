@@ -69,15 +69,7 @@ struct ProfileView: View {
                             Text(userName)
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                            /*Button(){
-                                showNameSheet = true
-                            }label:{
-                                Image(systemName:"pencil").foregroundColor(.gray)
-                                    .font(.system(size:25))
-                            }.sheet(isPresented: $showNameSheet) {
-                                NameSheetView(showNameSheet: $showNameSheet).presentationDetents([.medium])
-                                
-                            }*/
+                         
                         }
                             
                         

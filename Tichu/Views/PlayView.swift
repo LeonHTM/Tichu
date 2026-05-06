@@ -22,6 +22,7 @@ struct PlayView: View {
     
     @State private var showEditRoundsSheet: Bool = false
     @State private var showAddRoundSheet: Bool = false
+    @State private var showDebugSheetView: Bool = false
     
     @State private var team1 = Team()
     @State private var team2 = Team()
@@ -344,13 +345,7 @@ struct PlayView: View {
                     }
                     .foregroundStyle(
                         Color.secondary
-                        /*
-                        LinearGradient(
-                            
-                            colors: [Color.red, Color.green],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )*/
+                      
                     ).onChange(of: isGameReady) {
                         
                         userProfile.name = userName
@@ -359,14 +354,20 @@ struct PlayView: View {
                         userImage = dataToPhoto(data: userProfile.imageData)
                         currentGame.player1 = userProfile
                     
-                }
+                    }
                     .allowsHitTesting(false)
                 }.edgesIgnoringSafeArea(.all).background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
-                //.padding(.top,-40)
                 .navigationTitle("Play")
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar{
+                    ToolbarItem(){
+                        Button{
+                            showDebugSheetView = true
+                        }label:{
+                            Image(systemName:"ant")
+                        }
+                    }
                     ToolbarItem(placement:.topBarTrailing){
                         profileImage(selectedImage: userImage, size: 44)
                         
@@ -384,6 +385,8 @@ struct PlayView: View {
             }
         }.refreshable {
             
+        }.sheet(isPresented: $showDebugSheetView){
+            DebugSheetView(currentGame:$currentGame,showDebugSheetView: $showDebugSheetView)
         }.safeAreaInset(edge:.bottom){
             if isGameReady == true{
                 GlassEffectContainer{
@@ -417,6 +420,8 @@ struct PlayView: View {
                             .padding(.bottom, 10).padding(.leading,20)
                         }
                         Spacer()
+                      
+                        Spacer()
                         Button(){
                             showAddRoundSheet = true
                         }label:{
@@ -425,7 +430,12 @@ struct PlayView: View {
                                 .font(.system(size: 20)).foregroundColor(.primary)
                             Text("Add Round").foregroundColor(.primary)
                         }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet) {
-                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,currentGame: $currentGame,currentRound: $currentRound,editMode:false)
+                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,
+                                              currentGame: $currentGame,
+                                              currentRound: $currentRound,
+                                              editMode:false,
+                                              roundIndex: nil)
+                                
                             
                         }
                         

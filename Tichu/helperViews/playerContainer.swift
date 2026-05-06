@@ -71,7 +71,7 @@ struct playerContainer: View {
                         Text("Bombs: \(bombNumber)").foregroundColor(.primary)
                     }.padding(10).glassEffect(bombNumber > 0 ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
-            }.padding(10)/*.background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))*/
+            }.padding(10)
         }
     }
 }

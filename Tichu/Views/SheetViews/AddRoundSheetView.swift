@@ -19,6 +19,7 @@ struct AddRoundSheetView: View {
     @Binding var currentRound: Round
     @Environment(\.colorScheme) var colorScheme
     var editMode: Bool
+    let roundIndex: Int?
     
     private var displayTeam1Points: Int {
         if hasDoubleWinTeam1 {
@@ -294,7 +295,7 @@ struct AddRoundSheetView: View {
                     .padding(.leading, 20)
                     .padding(.top, -10)
                 }
-                .navigationTitle(editMode == true ? "Edit Round" :"Add Round")
+                .navigationTitle(editMode == true ? "Edit Round \(roundIndex ?? -69420)" :"Add Round")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -344,7 +345,8 @@ struct AddRoundSheetView: View {
         showAddRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame),
         currentRound: .constant(exampleRound6),
-        editMode: false
+        editMode: false,
+        roundIndex: nil
     )
 }
 

@@ -43,8 +43,8 @@ struct GameSummaryChartView: View {
 
     // MARK: - Chart Data
     private var chartData: [ScorePoint] {
-        let team1Points = cumulativePoints(team: currentGame.team1!)
-        let team2Points = cumulativePoints(team: currentGame.team2!)
+        let team1Points = cumulativePoints(team: currentGame.team1 ?? Team())
+        let team2Points = cumulativePoints(team: currentGame.team2 ?? Team())
 
         let team1Data = team1Points.enumerated().map {
             ScorePoint(round: $0.offset, value: $0.element, team: "Team 1")

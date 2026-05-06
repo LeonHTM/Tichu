@@ -57,7 +57,7 @@ struct statsContainerView: View {
                 }else{
                     Text("\(Int(value))%").font(.title3).fontWeight(.bold)
                 }
-                /*Text("\(counterLeft)/\(counterRight)").font(.footnote).foregroundStyle(.gray.opacity(0.75))*/
+                
             }
             Text(description).font(.system(size:16)).multilineTextAlignment(.leading).padding(.top,10).padding(.horizontal,10)
             if !items.isEmpty{

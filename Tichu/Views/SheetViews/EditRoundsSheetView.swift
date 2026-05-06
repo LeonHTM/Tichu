@@ -18,8 +18,8 @@ struct EditRoundsSheetView: View {
     @State private var showAddRoundSheet: Bool = false
     @State private var showList: Bool = false
     @State private var editingRoundIndex: Int = 0
-    @State private var idx: Int = 0
     @Environment(\.colorScheme) var colorScheme
+
 
     private func placement(player: profile, in round: Round) -> Int {
         if round.first?.id == player.id { return 1 }
@@ -49,10 +49,11 @@ struct EditRoundsSheetView: View {
         }
     }
     
-    private func bindingForExpanded(row index: Int) -> Binding<Bool> {
+    private func bindingForExpanded(row index: Int, disabled: Bool = false) -> Binding<Bool> {
         Binding(
             get: { expandedRows.contains(index) },
             set: { newValue in
+                guard !disabled else { return }
                 if newValue { expandedRows.insert(index) } else { expandedRows.remove(index) }
             }
         )
@@ -68,11 +69,13 @@ struct EditRoundsSheetView: View {
                     ForEach(Array($currentGameCopy.Rounds), id: \.id) { $currentRound in
                         let index = currentGameCopy.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
                         let hasExpanded = expandedRows.contains(index)
-
+                        let isWinningRound = currentGameCopy.winRounds.contains { $0.id == currentRound.id }
+                        let isLocked = !isWinningRound
+                        
                         let sortedTeam1 = sortedTeam(team: currentGameCopy.team1 ?? Team(list: []), in: currentRound)
                         let sortedTeam2 = sortedTeam(team: currentGameCopy.team2 ?? Team(list: []), in: currentRound)
                         
-                        DisclosureGroup(isExpanded: bindingForExpanded(row: index)) {
+                        DisclosureGroup(isExpanded: bindingForExpanded(row: index, disabled: isLocked)) {
                             HStack(alignment: .top) {
 
                                 VStack(alignment: .leading) {
@@ -287,32 +290,31 @@ struct EditRoundsSheetView: View {
                                 }
                             }
                         }
+                        .opacity(isLocked ? 0.5 : 1.0)
                         .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                if currentGameCopy.Rounds.count > 1 {
-                                    currentGameCopy.Rounds.remove(at: index)
-                                    currentGameCopy.reCount()
-                                } else {
-                                    showDeleteGameAlert = true
-                                    
+                            if !isLocked{
+                                Button(role: .destructive) {
+                                    if currentGameCopy.Rounds.count > 1 {
+                                        currentGameCopy.Rounds.remove(at: index)
+                                        currentGameCopy.reCount()
+                                    } else {
+                                        showDeleteGameAlert = true
+                                        
                                         showList = true
-                                    
+                                        
+                                    }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                                
+                                Button {
+                                    editingRoundIndex = index
+                                    showAddRoundSheet = true
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.accentColor)
                             }
-
-                            Button {
-                                editingRoundIndex = index
-                                print(editingRoundIndex)
-                                
-                                
-                                
-                                showAddRoundSheet = true
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            .tint(.accentColor)
                         }
                     }
                 }
@@ -327,7 +329,8 @@ struct EditRoundsSheetView: View {
                             showAddRoundsSheet: $showAddRoundSheet,
                             currentGame: $currentGameCopy,
                             currentRound: roundBinding,
-                            editMode: true
+                            editMode: true,
+                            roundIndex: (editingRoundIndex+1)
                         )
                     
                 }
@@ -423,3 +426,4 @@ struct EditRoundsSheetView: View {
         currentGame: .constant(exampleGame)
     )
 }
+
