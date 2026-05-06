@@ -16,7 +16,6 @@ struct PlayView: View {
     @State private var userImage: UIImage?
     
     
-    
     @State private var showAddPlayersSheet2:Bool = false
     @State private var showAddPlayersSheet3:Bool = false
     @State private var showAddPlayersSheet4:Bool = false
@@ -33,27 +32,16 @@ struct PlayView: View {
     @FocusState private var targetFieldFocused: Bool
     @State private var showGameOverSheet = false
     
-    
-    
-    
         
     private var isGameReady:Bool{
         currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
     }
     
-    var gameDone:Bool{
-        if currentGame.currentPointsTeam1 >= currentGame.target || currentGame.currentPointsTeam2 >= currentGame.target{
-            if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2{
-                return true
-            }else if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1{
-                return true
-            }
-            
-        }
-        return false
-        
+    var gameDone :Bool{
+        return currentGame.winner != nil
     }
     
+
     
     var body: some View {
         ZStack{
@@ -66,6 +54,7 @@ struct PlayView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             Spacer()
+                           
                             if !isGameReady{
                                 Text("Target:").multilineTextAlignment(.trailing).foregroundStyle(.secondary)
                                 TextField("",value: $currentGame.target, format: .number)
@@ -322,22 +311,24 @@ struct PlayView: View {
                     
                     // Build teams
                     if let _ = currentGame.player2?.name {
-                        team1 = Team(list: [userProfile, currentGame.player2!])
+                        team1 = Team(list: [userProfile, currentGame.player2!],name: "Team 1")
                     }
                     if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
-                        team2 = Team(list: [currentGame.player3!, currentGame.player4!])
+                        team2 = Team(list: [currentGame.player3!, currentGame.player4!], name: "Team 2")
                     }
                     currentRound.team1 = team1
                     currentRound.team2 = team2
                     currentGame.team1 = team1
                     currentGame.team2 = team2
-                }.onChange(of: currentGame.currentPointsTeam1) {
-                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showGameOverSheet, gameDone:gameDone,currentRound:currentRound)
                 }
-
-                .onChange(of: currentGame.currentPointsTeam2) {
-                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showGameOverSheet, gameDone:gameDone,currentRound:currentRound)
-                }.sheet(isPresented: $showGameOverSheet) {
+                .onChange(of:gameDone){
+                    if gameDone == true{
+                        showGameOverSheet = true
+                    }else if gameDone == false{
+                        showGameOverSheet = false
+                    }
+                }
+                .sheet(isPresented: $showGameOverSheet) {
                     GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame).presentationDetents([.medium])
                     
                 }

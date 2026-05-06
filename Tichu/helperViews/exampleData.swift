@@ -283,8 +283,8 @@ let guest2Profile: profile = profile(name: "Guest 2", imageData: nil, isFriend: 
 let guest3Profile: profile = profile(name: "Guest 3", imageData: nil, isFriend: false)
 let guest4Profile: profile = profile(name: "Guest 4", imageData: nil, isFriend: false)
 
-let exampleTeam1 = Team(list: [exampleLuis, exampleJo])
-let exampleTeam2 = Team(list: [exampleSorin, exampleLeon])
+let exampleTeam1 = Team(list: [exampleLuis, exampleJo],name:"Team 1")
+let exampleTeam2 = Team(list: [exampleSorin, exampleLeon],name:"Team 2")
 
 // MARK: - Round 1
 let exampleRound1 = Round(
@@ -497,12 +497,12 @@ let exampleGame = tichuGame(
 
     Rounds: [
         exampleRound1,
-        /*exampleRound2,
+        exampleRound2,
         exampleRound3,
         exampleRound4,
         exampleRound5,
         exampleRound6,
-        exampleRound7*/
+        exampleRound7
     ],
     target:500,
 )

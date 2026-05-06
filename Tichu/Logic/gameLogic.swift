@@ -10,17 +10,16 @@ import SwiftUI
 
 struct Team: Identifiable, Equatable {
     let id = UUID()
+    let name: String
     var list: [profile]
 
-    init(list: [profile] = []) {
+    init(list: [profile] = [],name:String = "Unknown Team") {
         //If provided, must be exactly two
         precondition(list.isEmpty || list.count == 2, "If provided, exactly 2 profiles allowed")
         self.list = list
+        self.name = name
     }
 
-    /*static func == (lhs: Team, rhs: Team) -> Bool {
-        return lhs.list[0].id == rhs.list[0].id && lhs.list[1].id == rhs.list[1].id
-    }*/
 }
 
 
@@ -60,13 +59,13 @@ struct tichuGame: Identifiable {
 
         // Build teams only when both players are present
         if let p1 = player1, let p2 = player2 {
-            self.team1 = Team(list: [p1, p2])
+            self.team1 = Team(list: [p1, p2],name:"Team 1")
         } else {
             self.team1 = nil
         }
 
         if let p3 = player3, let p4 = player4 {
-            self.team2 = Team(list: [p3, p4])
+            self.team2 = Team(list: [p3, p4],name:"Team 2")
         } else {
             self.team2 = nil
         }
@@ -107,7 +106,19 @@ struct tichuGame: Identifiable {
             self.currentPointsTeam1 += (round.tichuPointsTeam1+round.roundPointsTeam1)
             self.currentPointsTeam2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
         }
+        if self.currentPointsTeam1 >= self.target &&
+            self.currentPointsTeam1 > self.currentPointsTeam2 {
+            self.winner = self.team1
+        }
+        if self.currentPointsTeam2 >= self.target &&
+            self.currentPointsTeam2 > self.currentPointsTeam1 {
+            self.winner = self.team2
+        }
+        
+        
     }
+    
+    
     
 }
 
@@ -228,24 +239,5 @@ struct Round: Identifiable {
     }
 }
 
-func checkGameOver(currentGame: inout tichuGame, showGameOverSheet: inout Bool, gameDone: Bool,currentRound:Round) {
-    let winner = gameWinner(currentGame: currentGame, currentRound: currentRound)
-    currentGame.winner = winner
-    showGameOverSheet = gameDone
-  
-}
 
-func gameWinner(currentGame: tichuGame, currentRound: Round) -> Team? {
-    
-    if currentGame.currentPointsTeam1 >= currentGame.target &&
-        currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2 {
-        return currentRound.team1
-    }
-    
-    if currentGame.currentPointsTeam2 >= currentGame.target &&
-        currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1 {
-        return currentRound.team2
-    }
-     
-    return nil
-}
+

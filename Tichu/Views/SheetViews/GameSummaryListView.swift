@@ -10,10 +10,10 @@
 import SwiftUI
 
 struct  GameSummaryListView: View {
-    @Binding var showEditRoundsSheet: Bool
+    @Binding var showGameSummarySheetView: Bool
     
     @Binding var currentGame: tichuGame
-    @State private var currentGameCopy: tichuGame = tichuGame()
+
     @State private var currentRound = Round()
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
@@ -72,6 +72,7 @@ struct  GameSummaryListView: View {
         return false
         
     }
+    
 
     var body: some View {
         NavigationStack {
@@ -80,12 +81,12 @@ struct  GameSummaryListView: View {
                 
                 List {
                  
-                    ForEach(Array($currentGameCopy.Rounds), id: \.id) { $currentRound in
-                        let index = currentGameCopy.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
+                    ForEach(Array($currentGame.Rounds), id: \.id) { $currentRound in
+                        let index = currentGame.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
                         let hasExpanded = expandedRows.contains(index)
 
-                        let sortedTeam1 = sortedTeam(team: currentGameCopy.team1 ?? Team(list: []), in: currentRound)
-                        let sortedTeam2 = sortedTeam(team: currentGameCopy.team2 ?? Team(list: []), in: currentRound)
+                        let sortedTeam1 = sortedTeam(team: currentGame.team1 ?? Team(list: []), in: currentRound)
+                        let sortedTeam2 = sortedTeam(team: currentGame.team2 ?? Team(list: []), in: currentRound)
                         
                         DisclosureGroup(isExpanded: bindingForExpanded(row: index)) {
                             HStack(alignment: .top) {
@@ -107,10 +108,10 @@ struct  GameSummaryListView: View {
                                             let place = placement(player: player, in: currentRound)
                                             let isFirst = currentRound.first?.id == player.id
 
-                                            let isFirstIsPlayer2 = (currentRound.first?.id == currentGameCopy.player2?.id)
-                                            let isFirstIsPlayer1 = (currentRound.first?.id == currentGameCopy.player1?.id)
-                                            let isSecondIsPlayer1 = (currentRound.second?.id == currentGameCopy.player1?.id)
-                                            let isSecondIsPlayer2 = (currentRound.second?.id == currentGameCopy.player2?.id)
+                                            let isFirstIsPlayer2 = (currentRound.first?.id == currentGame.player2?.id)
+                                            let isFirstIsPlayer1 = (currentRound.first?.id == currentGame.player1?.id)
+                                            let isSecondIsPlayer1 = (currentRound.second?.id == currentGame.player1?.id)
+                                            let isSecondIsPlayer2 = (currentRound.second?.id == currentGame.player2?.id)
 
                                             let placeColor: Color = (place == 1 && isSecondIsPlayer1 || place == 1 && isSecondIsPlayer2 || place == 2 && isFirstIsPlayer1 || place == 2 && isFirstIsPlayer2) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
 
@@ -198,10 +199,10 @@ struct  GameSummaryListView: View {
                                             let place = placement(player: player, in: currentRound)
                                             let isFirst = currentRound.first?.id == player.id
 
-                                            let isFirstIsPlayer4 = (currentRound.first?.id == currentGameCopy.player4?.id)
-                                            let isFirstIsPlayer3 = (currentRound.first?.id == currentGameCopy.player3?.id)
-                                            let isSecondIsPlayer3 = (currentRound.second?.id == currentGameCopy.player3?.id)
-                                            let isSecondIsPlayer4 = (currentRound.second?.id == currentGameCopy.player4?.id)
+                                            let isFirstIsPlayer4 = (currentRound.first?.id == currentGame.player4?.id)
+                                            let isFirstIsPlayer3 = (currentRound.first?.id == currentGame.player3?.id)
+                                            let isSecondIsPlayer3 = (currentRound.second?.id == currentGame.player3?.id)
+                                            let isSecondIsPlayer4 = (currentRound.second?.id == currentGame.player4?.id)
 
                                             let placeColor: Color = (place == 1 && isSecondIsPlayer4 || place == 1 && isSecondIsPlayer3 || place == 2 && isFirstIsPlayer3 || place == 2 && isFirstIsPlayer4) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
 
@@ -304,9 +305,10 @@ struct  GameSummaryListView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
-                                if currentGameCopy.Rounds.count > 1 {
-                                    currentGameCopy.Rounds.remove(at: index)
-                                    currentGameCopy.reCount()
+                                if currentGame.Rounds.count > 1 {
+                                    currentGame.Rounds.remove(at: index)
+                                    currentGame.reCount()
+                                    
                                 } else {
                                     showDeleteGameAlert = true
                                     
@@ -332,18 +334,19 @@ struct  GameSummaryListView: View {
                     }
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss:{
-                    checkGameOver(currentGame: &currentGame,showGameOverSheet: &showEditRoundsSheet, gameDone:gameDone,currentRound:currentRound)
-                    print(currentGame.winner)
+                
+                  
+                   
                 }) {
                    
                          let roundBinding = Binding<Round>(
-                            get: { currentGameCopy.Rounds[editingRoundIndex] },
-                            set: { currentGameCopy.Rounds[editingRoundIndex] = $0 }
+                            get: { currentGame.Rounds[editingRoundIndex] },
+                            set: { currentGame.Rounds[editingRoundIndex] = $0 }
                         )
                         
                         AddRoundSheetView(
                             showAddRoundsSheet: $showAddRoundSheet,
-                            currentGame: $currentGameCopy,
+                            currentGame: $currentGame,
                             currentRound: roundBinding,
                             editMode: true
                         ) 
@@ -361,17 +364,14 @@ struct  GameSummaryListView: View {
                     
                     
             }
-        }.onAppear{
-            currentGameCopy = currentGame
         }
-       
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
                 showDeleteGameAlert = false
                 showList = false
             }
             Button("Delete", role: .destructive) {
-                showEditRoundsSheet = false
+                showGameSummarySheetView = false
                 showList = false
                 DispatchQueue.main.async {
                     currentGame = tichuGame()
@@ -385,7 +385,7 @@ struct  GameSummaryListView: View {
 
 #Preview {
     GameSummaryListView(
-        showEditRoundsSheet: .constant(true),
+        showGameSummarySheetView: .constant(true),
         currentGame: .constant(exampleGame)
     )
 }

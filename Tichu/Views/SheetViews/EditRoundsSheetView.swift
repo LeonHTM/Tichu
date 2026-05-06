@@ -347,6 +347,7 @@ struct EditRoundsSheetView: View {
                                     ToolbarItem(placement: .confirmationAction) {
                                         Button("Done", systemImage: "checkmark") {
                                             currentGame = currentGameCopy
+                                            currentGame.reCount()
                                             showEditRoundsSheet = false
                                         }
                                     }

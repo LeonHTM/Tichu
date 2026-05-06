@@ -104,7 +104,7 @@ struct GameSummarySheetView: View {
                     case 1:
 
                         GameSummaryListView(
-                            showEditRoundsSheet: .constant(true),
+                            showGameSummarySheetView: $showGameOverViewSheetView,
                             currentGame: $currentGame
                         )
                         .padding(.bottom, -50)
@@ -222,7 +222,7 @@ struct GameSummarySheetView: View {
             }
             }
 
-            .navigationTitle("\(gameWinner()) won! \(currentGame.winner)")
+            .navigationTitle("\(currentGame.winner?.name ?? "Unknown") won!")
             .navigationBarTitleDisplayMode(.inline)
 
             .toolbar {
