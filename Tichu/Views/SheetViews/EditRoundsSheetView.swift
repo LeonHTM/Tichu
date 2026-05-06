@@ -308,8 +308,13 @@ struct EditRoundsSheetView: View {
                                 }
                             if !isLocked{
                                 Button {
+                                    
                                     editingRoundIndex = index
+                             
+                          
                                     showAddRoundSheet = true
+                                    
+                                    
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }
@@ -336,10 +341,10 @@ struct EditRoundsSheetView: View {
                             currentGame: $currentGameCopy,
                             currentRound: roundBinding,
                             editMode: true,
-                            roundIndex: (editingRoundIndex+1)
+                            roundIndex: editingRoundIndex+1
                         )
                     
-                }
+                }.id(editingRoundIndex)
                 .zIndex(0)
                 .listSectionSpacing(0)
                 .animation(.spring(duration:0.25),value:expandedRows)

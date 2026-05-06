@@ -354,10 +354,10 @@ struct  GameSummaryListView: View {
                             currentGame: $currentGame,
                             currentRound: roundBinding,
                             editMode: true,
-                            roundIndex: editingRoundIndex
+                            roundIndex: editingRoundIndex+1
                         )
                     
-                }
+                }.id(editingRoundIndex)
                 .listSectionSpacing(0)
                 .animation(.spring(duration:0.25),value:expandedRows)
                 .animation(.easeInOut(duration:0.25),value:showList)
