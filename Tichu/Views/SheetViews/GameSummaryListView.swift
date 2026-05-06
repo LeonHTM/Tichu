@@ -308,7 +308,7 @@ struct  GameSummaryListView: View {
                         }
                         .opacity(isLocked ? 0.5 : 1.0)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            if !isLocked {
+                            
                                 Button(role: .destructive) {
                                     if currentGame.Rounds.count > 1 {
                                         currentGame.Rounds.remove(at: index)
@@ -320,7 +320,7 @@ struct  GameSummaryListView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-
+                            if !isLocked {
                                 Button {
                                     editingRoundIndex = index
                                     showAddRoundSheet = true
@@ -330,6 +330,12 @@ struct  GameSummaryListView: View {
                                 .tint(.accentColor)
                             }
                         }
+                    }
+                    if currentGame.Rounds.count != currentGame.winRounds.count{
+                        Section{
+                            Text("\(currentGame.Rounds.count - currentGame.winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that \(currentGame.winner?.name ?? "Unknown") already won after Round \(currentGame.winRounds.count).")
+                        }.listRowBackground(Color.clear).foregroundStyle(.secondary)
+                        
                     }
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss:{

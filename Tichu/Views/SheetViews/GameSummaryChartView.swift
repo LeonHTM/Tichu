@@ -26,13 +26,13 @@ struct GameSummaryChartView: View {
         var counter2 = 0
         if team == currentGame.team1 {
             list.append(counter1)
-            for round in currentGame.Rounds {
+            for round in currentGame.winRounds {
                 counter1 += (round.tichuPointsTeam1+round.roundPointsTeam1)
                 list.append(counter1)
             }
         } else {
             list.append(counter2)
-            for round in currentGame.Rounds {
+            for round in currentGame.winRounds {
                 counter2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
                 list.append(counter2)
             }

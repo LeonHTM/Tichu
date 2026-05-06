@@ -65,7 +65,7 @@ struct EditRoundsSheetView: View {
             if showList == false {
                 
                 List {
-                 
+                    
                     ForEach(Array($currentGameCopy.Rounds), id: \.id) { $currentRound in
                         let index = currentGameCopy.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
                         let hasExpanded = expandedRows.contains(index)
@@ -77,9 +77,9 @@ struct EditRoundsSheetView: View {
                         
                         DisclosureGroup(isExpanded: bindingForExpanded(row: index, disabled: isLocked)) {
                             HStack(alignment: .top) {
-
+                                
                                 VStack(alignment: .leading) {
-
+                                    
                                     HStack {
                                         Text("Team 1").fontWeight(.bold)
                                         Spacer()
@@ -88,34 +88,34 @@ struct EditRoundsSheetView: View {
                                     .padding(.top)
                                     .padding(.horizontal)
                                     
-
+                                    
                                     VStack(alignment: .leading, spacing: 10) {
                                         ForEach(sortedTeam1, id: \.id) { player in
-
+                                            
                                             let place = placement(player: player, in: currentRound)
                                             let isFirst = currentRound.first?.id == player.id
-
+                                            
                                             let isFirstIsPlayer2 = (currentRound.first?.id == currentGameCopy.player2?.id)
                                             let isFirstIsPlayer1 = (currentRound.first?.id == currentGameCopy.player1?.id)
                                             let isSecondIsPlayer1 = (currentRound.second?.id == currentGameCopy.player1?.id)
                                             let isSecondIsPlayer2 = (currentRound.second?.id == currentGameCopy.player2?.id)
-
+                                            
                                             let placeColor: Color = (place == 1 && isSecondIsPlayer1 || place == 1 && isSecondIsPlayer2 || place == 2 && isFirstIsPlayer1 || place == 2 && isFirstIsPlayer2) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
-
+                                            
                                             let tichu = currentRound.hasAnnouncedTichu.contains(player)
                                             let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
                                             let pingu = currentRound.hasAnnouncedPingu.contains(player)
-
+                                            
                                             HStack {
                                                 Text("\(place).")
                                                     .fontWeight(.bold)
                                                     .foregroundStyle(placeColor)
-
+                                                
                                                 Text(player.name ?? "Unknown")
-
+                                                
                                                 Spacer()
                                                 let bomb = bombCounter(player:player,round:currentRound)
-
+                                                
                                                 if tichu && isFirst {
                                                     HStack {
                                                         Image(systemName: "checkmark")
@@ -160,7 +160,7 @@ struct EditRoundsSheetView: View {
                                                     } else if bomb == 2{
                                                         Image(systemName:"flame").offset(x:47)
                                                         Text("2").font(.system(size: 12)).offset(x:37,y:7)
-
+                                                        
                                                     }else if bomb == 3{
                                                         Image(systemName:"flame").offset(x:47)
                                                         Text("3").font(.system(size: 12)).offset(x:37,y:7)
@@ -171,7 +171,7 @@ struct EditRoundsSheetView: View {
                                     }
                                     .padding()
                                     .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemGroupedBackground)))
-
+                                    
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
                                         Spacer()
@@ -179,35 +179,35 @@ struct EditRoundsSheetView: View {
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
-
+                                    
                                     VStack(alignment: .leading, spacing: 10) {
                                         ForEach(sortedTeam2, id: \.id) { player in
-
+                                            
                                             let place = placement(player: player, in: currentRound)
                                             let isFirst = currentRound.first?.id == player.id
-
+                                            
                                             let isFirstIsPlayer4 = (currentRound.first?.id == currentGameCopy.player4?.id)
                                             let isFirstIsPlayer3 = (currentRound.first?.id == currentGameCopy.player3?.id)
                                             let isSecondIsPlayer3 = (currentRound.second?.id == currentGameCopy.player3?.id)
                                             let isSecondIsPlayer4 = (currentRound.second?.id == currentGameCopy.player4?.id)
-
+                                            
                                             let placeColor: Color = (place == 1 && isSecondIsPlayer4 || place == 1 && isSecondIsPlayer3 || place == 2 && isFirstIsPlayer3 || place == 2 && isFirstIsPlayer4) ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
-
+                                            
                                             let tichu = currentRound.hasAnnouncedTichu.contains(player)
                                             let bigTichu = currentRound.hasAnnouncedBigTichu.contains(player)
                                             let pingu = currentRound.hasAnnouncedPingu.contains(player)
-
+                                            
                                             HStack {
                                                 Text("\(place).")
                                                     .fontWeight(.bold)
                                                     .foregroundStyle(placeColor)
-
+                                                
                                                 Text(player.name ?? "Unknown")
-
+                                                
                                                 Spacer()
-
+                                                
                                                 let bomb = bombCounter(player:player,round:currentRound)
-
+                                                
                                                 if tichu && isFirst {
                                                     HStack {
                                                         Image(systemName: "checkmark")
@@ -252,7 +252,7 @@ struct EditRoundsSheetView: View {
                                                     } else if bomb == 2{
                                                         Image(systemName:"flame").offset(x:47)
                                                         Text("2").font(.system(size: 12)).offset(x:37,y:7)
-
+                                                        
                                                     }else if bomb == 3{
                                                         Image(systemName:"flame").offset(x:47)
                                                         Text("3").font(.system(size: 12)).offset(x:37,y:7)
@@ -264,7 +264,7 @@ struct EditRoundsSheetView: View {
                                     .padding()
                                     .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemGroupedBackground)))
                                 }
-
+                                
                                 Spacer()
                             }.padding(.top,-20).padding(.leading,-20).padding(.trailing,5)
                             
@@ -274,16 +274,16 @@ struct EditRoundsSheetView: View {
                                     .fontWeight(.bold)
                                     .font(.system(size: 20))
                                     .padding(10)
-
+                                
                                 Spacer()
-
+                                
                                 if !hasExpanded {
                                     VStack {
                                         Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)")
                                     }.fontWeight(.bold)
-
+                                    
                                     Text("vs").fontWeight(.bold)
-
+                                    
                                     VStack {
                                         Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)")
                                     }.fontWeight(.bold)
@@ -292,7 +292,7 @@ struct EditRoundsSheetView: View {
                         }
                         .opacity(isLocked ? 0.5 : 1.0)
                         .swipeActions(edge: .trailing) {
-                            if !isLocked{
+                           
                                 Button(role: .destructive) {
                                     if currentGameCopy.Rounds.count > 1 {
                                         currentGameCopy.Rounds.remove(at: index)
@@ -306,7 +306,7 @@ struct EditRoundsSheetView: View {
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-                                
+                            if !isLocked{
                                 Button {
                                     editingRoundIndex = index
                                     showAddRoundSheet = true
@@ -316,6 +316,12 @@ struct EditRoundsSheetView: View {
                                 .tint(.accentColor)
                             }
                         }
+                    }
+                    if currentGameCopy.Rounds.count != currentGameCopy.winRounds.count{
+                        Section{
+                            Text("\(currentGameCopy.Rounds.count - currentGameCopy.winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that \(currentGameCopy.winner?.name ?? "Unknown") already won after Round \(currentGameCopy.winRounds.count).")
+                        }.listRowBackground(Color.clear).foregroundStyle(.secondary)
+                        
                     }
                 }
                 .sheet(isPresented: $showAddRoundSheet) {
@@ -334,6 +340,7 @@ struct EditRoundsSheetView: View {
                         )
                     
                 }
+                .zIndex(0)
                 .listSectionSpacing(0)
                 .animation(.spring(duration:0.25),value:expandedRows)
                 .animation(.easeInOut(duration:0.25),value:showList)
@@ -376,6 +383,7 @@ struct EditRoundsSheetView: View {
                         }
                     }
             }
+            
         }.onAppear{
             currentGameCopy = currentGame
         }
