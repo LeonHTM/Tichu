@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct AddRoundSheetView: View {
-    
+    @AppStorage("dragMode") var dragMode: Bool = false
     @State private var hasAnnouncedPlayer1: CanAnnounce = .none
     @State private var hasAnnouncedPlayer2: CanAnnounce = .none
     @State private var hasAnnouncedPlayer3: CanAnnounce = .none
     @State private var hasAnnouncedPlayer4: CanAnnounce = .none
     @State private var players: [Profile?] = []
+    @State private var counter: Int = 0
     @Binding var showAddRoundsSheet: Bool
     @Binding var currentGame: tichuGame
     @Binding var currentRound: Round
     @Environment(\.colorScheme) var colorScheme
     var editMode: Bool
     let roundIndex: Int?
+    @State private var hasPushedList: [Bool] = [false,false,false,false]
+    @State private var rankingList:[Int] = [0,0,0,0]
     
     private var displayTeam1Points: Int {
         if hasDoubleWinTeam1 {
@@ -82,6 +85,7 @@ struct AddRoundSheetView: View {
         }
         return false
     }
+   
     
     func announcement(for player: Profile?) -> CanAnnounce {
         guard let player else { return .none }
@@ -213,30 +217,92 @@ struct AddRoundSheetView: View {
                             .padding(.leading, 20)
                         Spacer()
                     }.zIndex(1 )
-                    
-                    List {
-                        ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
-                            let golden = isGolden(index: index)
+                    if dragMode == true{
+                        List {
                             
-        
-                            
-                            HStack {
-                                Text("\(index + 1).")
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(golden ? Color.accentColor : Color.primary)
+                            ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
+                                let golden = isGolden(index: index)
                                 
-                                Text(player?.name ?? "Unknown")
-                                Spacer()
+                                
+                                
+                                HStack {
+                                    Text("\(index + 1).")
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(golden ? Color.accentColor : Color.primary)
+                                    
+                                    Text(player?.name ?? "Unknown")
+                                    Spacer()
+                                }
                             }
+                            .onMove(perform: move)
                         }
-                        .onMove(perform: move)
+                        .environment(\.editMode, .constant(.active))
+                     
+                        .frame(height: 250)
+                        .scrollDisabled(true)
+                        .padding(.top, -40)
+                        .zIndex(0)
+                    }else{
+                        List {
+                            
+                            ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
+                                let golden = isGolden(index: index)
+                                
+                                
+                                
+                                HStack {
+                                    Button{
+                                        if hasPushedList[index] == false{
+                                            counter += 1
+                                            rankingList[index] = counter
+                                            hasPushedList[index] = true
+                                            if rankingList.allSatisfy({ $0 != 0 }){
+
+                                                if let i1 = rankingList.firstIndex(of: 1) {
+                                                    currentRound.first = players[i1]
+                                                }
+
+                                                if let i2 = rankingList.firstIndex(of: 2) {
+                                                    currentRound.second = players[i2]
+                                                }
+
+                                                if let i3 = rankingList.firstIndex(of: 3) {
+                                                    currentRound.third = players[i3]
+                                                }
+
+                                                if let i4 = rankingList.firstIndex(of: 4) {
+                                                    currentRound.fourth = players[i4]
+                                                }
+                                            }
+                                        }else if hasPushedList[index] == true{
+                                            counter = 0
+                                            rankingList = [0,0,0,0]
+                                            hasPushedList = [false,false,false,false]
+                                            
+                                        }
+                                        
+                                        
+                                    }label:{
+                                        HStack{
+                                            Text("\(rankingList[index]).").foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.accentColor : Color.primary)
+                                                .fontWeight(.bold)
+                                                .foregroundStyle(golden ? Color.accentColor : Color.primary)
+                                            
+                                            Text(player?.name ?? "Unknown")
+                                            Spacer()
+                                        }
+                                    }.foregroundStyle(Color.primary)
+                                }
+                            }
+                     
+                        }
+            
+                   
+                        .frame(height: 250)
+                        .scrollDisabled(true)
+                        .padding(.top, -40)
+                        .zIndex(0)
                     }
-                    .environment(\.editMode, .constant(.active))
-                    .listRowBackground(Color.green)
-                    .frame(height: 250)
-                    .scrollDisabled(true)
-                    .padding(.top, -40)
-                    .zIndex(0)
                     
                     VStack {
                         HStack {
@@ -308,7 +374,7 @@ struct AddRoundSheetView: View {
                         Button("Done", systemImage: "checkmark") {
                             saveRound()
                             showAddRoundsSheet = false
-                        }
+                        }.disabled(dragMode == true ? false : !rankingList.allSatisfy({ $0 != 0 }))
                     }
                 }
             }

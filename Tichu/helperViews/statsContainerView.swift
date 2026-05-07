@@ -21,6 +21,7 @@ struct statsContainerView: View {
     //Computed Vars
     var items: [Profile]
     
+    
     var body: some View {
         
         VStack(){

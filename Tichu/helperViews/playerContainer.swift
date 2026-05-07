@@ -19,7 +19,7 @@ struct playerContainer: View {
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Environment(\.colorScheme) var colorScheme
-    
+    @AppStorage("allowPingus") var allowPingus: Bool = true
     
     
     var body: some View {
@@ -59,7 +59,7 @@ struct playerContainer: View {
                         }
                     }label:{
                         Text("Pingu").foregroundColor(.primary)
-                    }.padding(10).glassEffect(hasAnnounced == .pingu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
+                    }.padding(10).glassEffect(hasAnnounced == .pingu ? .regular.tint(.accentColor).interactive() : allowPingus == false ? .regular.tint(.secondary).interactive() : .regular.interactive()).disabled(allowPingus == false)
                     Button{
                         if bombNumber < 3{
                             bombNumber+=1
