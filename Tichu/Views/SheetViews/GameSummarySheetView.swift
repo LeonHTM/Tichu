@@ -21,7 +21,7 @@ struct GameSummarySheetView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.displayScale) private var displayScale
     var showRevancheButton: Bool
-    var allowEditing:Bool
+    var HistoryMode:Bool
 
     // MARK: - Winner
 
@@ -86,50 +86,58 @@ struct GameSummarySheetView: View {
         NavigationStack {
 
             ZStack(alignment: .top) {
-
-                Group {
-
-                    switch selectedTab {
-
-                    case 0:
-
-                        VStack {
+                if HistoryMode == true{
+                    GameSummaryListView(
+                        showGameSummarySheetView: $showGameOverViewSheetView,
+                        currentGame: $currentGame,
+                        allowEditing: !HistoryMode
+                    )
+                    .padding(.bottom, -50)
+                }else{
+                    Group {
+                        
+                        switch selectedTab {
                             
-                            GameSummaryChartView(
-                                currentGame: $currentGame
+                        case 0:
+                            
+                            VStack {
+                                
+                                GameSummaryChartView(
+                                    currentGame: $currentGame
+                                )
+                                .frame(width: 350)
+                                
+                                Spacer()
+                            }
+                            
+                        case 1:
+                            
+                            GameSummaryListView(
+                                showGameSummarySheetView: $showGameOverViewSheetView,
+                                currentGame: $currentGame,
+                                allowEditing: !HistoryMode
                             )
-                            .frame(width: 350)
-
-                            Spacer()
+                            .padding(.bottom, -50)
+                            
+                        default:
+                            EmptyView()
                         }
-
-                    case 1:
-
-                        GameSummaryListView(
-                            showGameSummarySheetView: $showGameOverViewSheetView,
-                            currentGame: $currentGame,
-                            allowEditing: allowEditing
-                        )
-                        .padding(.bottom, -50)
-
-                    default:
-                        EmptyView()
                     }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                .safeAreaInset(edge: .top) {
-
-                    Picker("View", selection: $selectedTab) {
-
-                        Text("Graph").tag(0)
-                        Text("List").tag(1)
-
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                    .safeAreaInset(edge: .top) {
+                        
+                        Picker("View", selection: $selectedTab) {
+                            
+                            Text("Graph").tag(0)
+                            Text("List").tag(1)
+                            
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.horizontal)
+                        .padding(.top, 8)
                     }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                }
+            }
             }
 
             .alert(
@@ -200,25 +208,29 @@ struct GameSummarySheetView: View {
                             .font(.title3)
                         
                     }.padding(13).glassEffect(.regular.tint(.accent).interactive())
-                    Spacer()
                     
                     
                     
                     
-                    Button {
-                        
-                        showDeleteGameAlert = true
-                        
-                    } label: {
-                        
-                        Image(systemName: "trash")
-                            .font(.system(size: 22))
-                            .frame(width: 29, height: 29)
-                            .clipShape(Circle())
+                    if HistoryMode == false{
+                        Spacer()
+                        Button {
+                            
+                            showDeleteGameAlert = true
+                            
+                        } label: {
+                            
+                            Image(systemName: "trash")
+                                .font(.system(size: 22))
+                                .frame(width: 29, height: 29)
+                                .clipShape(Circle())
+                        }
+                        .foregroundColor(.primary)
+                        .padding(10)
+                        .glassEffect(.regular.interactive())
                     }
-                    .foregroundColor(.primary)
-                    .padding(10)
-                    .glassEffect(.regular.interactive())
+                    
+                    
                 }
                 .padding(.bottom, 10)
                 .padding(.horizontal, 20)
@@ -301,7 +313,7 @@ extension UIImage: Identifiable {
         showGameOverViewSheetView: .constant(true),
         currentGame: .constant(exampleGame),
         showRevancheButton: true,
-        allowEditing: false
+        HistoryMode: true
     )
 }
 

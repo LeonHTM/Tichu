@@ -10,6 +10,8 @@ import SwiftUI
 struct DebugSheetView: View {
     @Binding var currentGame:tichuGame
     @Binding var showDebugSheetView:Bool
+    @Binding var exampleGameHistory: [tichuGame]
+    @AppStorage("selectedTab") private var selectedTab = 0
     
     var body: some View {
         NavigationStack{
@@ -42,6 +44,16 @@ struct DebugSheetView: View {
                     .frame(width: 60)
                     .foregroundStyle(.secondary)
                     .keyboardType(.numberPad)
+                Button{
+                    
+                    exampleGameHistory =  [exampleGame,exampleGame2,exampleGame3,exampleGame4,exampleGame5,exampleGame6]
+                  
+                    
+                   
+                    
+                }label:{
+                    Text("Load example history")
+                }
                    
             .navigationTitle(Text("Debug View"))
             .navigationBarTitleDisplayMode(.inline)
@@ -61,5 +73,5 @@ struct DebugSheetView: View {
 }
 
 #Preview {
-    DebugSheetView(currentGame:.constant(exampleGame),showDebugSheetView: .constant(true))
+    DebugSheetView(currentGame:.constant(exampleGame),showDebugSheetView: .constant(true),exampleGameHistory: .constant([]))
 }

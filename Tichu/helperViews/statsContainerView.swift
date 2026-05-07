@@ -17,9 +17,9 @@ struct statsContainerView: View {
     @Binding var value: Double
     @Binding var percentage: Bool
     var inTop: Double
-    var stat: profile.playerStat
+    var stat: Profile.playerStat
     //Computed Vars
-    var items: [profile]
+    var items: [Profile]
     
     var body: some View {
         

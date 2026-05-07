@@ -2,78 +2,210 @@
 //  HistoryView.swift
 //  Tichu
 //
-//  Created by Leon on 21.04.2026.
-//
 
 import SwiftUI
 import Charts
 
 struct HistoryView: View {
-    //Storage
+
+    // Storage
     @AppStorage("userImageData") private var userImageData: Data?
-    //Vars
+    @AppStorage("selectedTab") private var selectedTab = 0
+
+    // State
     @State private var selectedImage: UIImage?
     @State private var currentGameE = tichuGame()
     @State private var gameHistory: [tichuGame] = exampleHistory
-    @State private var showGameSummarySheetView:Bool = false
+    @State private var showGameSummarySheetView: Bool = false
+    @State private var selectedGame: tichuGame = tichuGame()
+    @State private var showDebugSheetView: Bool = false
     
-    private func winner(player:profile)->Bool{
-        if currentGameE.winner!.list.contains(player){
-            return true
-        }
-        return false
-        
-    }
+
     var body: some View {
-        NavigationStack{
-            GlassEffectContainer{
-                ForEach(gameHistory, id: \.id){ currentGame in
-                    Button{
-                        showGameSummarySheetView = true
-                        currentGameE = currentGame
-                    }label:{
-                        HStack{
+        if gameHistory.count > 0 {
+            NavigationStack {
+            
+            GlassEffectContainer {
+                
+                GeometryReader { outerGeo in
+                    
+                    let rowHeight: CGFloat = 100
+                    let centerY = (outerGeo.size.height / 2 - 5)
+                    
+                    ScrollView(.vertical) {
+                        LazyVStack(spacing: 0) {
                             
-                           
-                            Text("\(currentGame.currentPointsTeam1) : \(currentGame.currentPointsTeam2)").fontWeight(.bold).font(.title2).padding(.horizontal,10)
-                            VStack(alignment:.leading){
+                            // top padding for centering
+                            Color.clear
+                                .frame(height: centerY - rowHeight / 2-13)
+                            
+                            ForEach(gameHistory, id: \.id) { currentGame in
                                 
-                                
-                                HStack{
-                                    Text("\(currentGame.team1?.list[0].name ?? "Unknown") & \(currentGame.team1?.list[1].name ?? "Unknown")")
-                                    Text("vs").fontWeight(.bold)
-                                    Text("\(currentGame.team2?.list[0].name ?? "Unknown") & \(currentGame.team2?.list [1].name ?? "Unknown")")
-                                }
-                                Text(currentGame.date, style: .date).fontWeight(.bold)
+                                GeometryReader { geo in
                                     
+                                    let midY = geo.frame(in: .scrollView).midY
+                                    let distance = abs(centerY - midY)
+                                    
+                                    let isCentered = distance < (rowHeight / 10)
+                                    let isSelected = selectedGame.id == currentGame.id
+                                    
+                                    // fade
+                                    let opacity = max(0.35, 1 - (distance / 600))
+                                    
+                                    
+                                    let scoreText = "\(currentGame.currentPointsTeam1) : \(currentGame.currentPointsTeam2)"
+                                    let team1Name0 = currentGame.team1?.list.indices.contains(0) == true ? currentGame.team1?.list[0].name ?? "Unknown" : "Unknown"
+                                    let team1Name1 = currentGame.team1?.list.indices.contains(1) == true ? currentGame.team1?.list[1].name ?? "Unknown" : "Unknown"
+                                    let team2Name0 = currentGame.team2?.list.indices.contains(0) == true ? currentGame.team2?.list[0].name ?? "Unknown" : "Unknown"
+                                    let team2Name1 = currentGame.team2?.list.indices.contains(1) == true ? currentGame.team2?.list[1].name ?? "Unknown" : "Unknown"
+                                    let matchupText = "\(team1Name0) & \(team1Name1)"
+                                    let opponentText = "\(team2Name0) & \(team2Name1)"
+                                    
+                                    Button {
+                                        showGameSummarySheetView = true
+                                        currentGameE = currentGame
+                                    } label: {
+                                        
+                                        HStack {
+                                            
+                                            Text(scoreText)
+                                                .fontWeight(.bold)
+                                                .font(.title2)
+                                                .padding(.horizontal, 10)
+                                            
+                                            VStack(alignment: .leading) {
+                                                
+                                                HStack {
+                                                    Text(matchupText)
+                                                    
+                                                    Text("vs")
+                                                        .fontWeight(.bold)
+                                                    
+                                                    Text(opponentText)
+                                                }
+                                                
+                                                Text(currentGame.date, style: .date)
+                                                    .fontWeight(.bold)
+                                            }
+                                            
+                                            Spacer()
+                                        }
+                                        .padding(10)
+                                        .padding(.vertical, 13)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color(uiColor: .tertiarySystemFill))
+                                        )
+                                        .foregroundColor(.primary)
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .stroke(isSelected || isCentered
+                                                        ? Color.accentColor
+                                                        : Color.clear,
+                                                        lineWidth: 2)
+                                        }
+                                        //.opacity(opacity)
+                                    }
+                                    .onChange(of: isCentered) { oldValue, newValue in
+                                        if newValue, selectedGame.id != currentGame.id {
+                                            selectedGame = currentGame
+                                        }
+                                    }
+                                    .sensoryFeedback(.selection, trigger: isSelected)
+                                    .onAppear {
+                                        
+                                        if selectedGame.id == exampleGame.id || selectedGame.id == UUID() {
+                                            
+                                            if isCentered {
+                                                selectedGame = currentGame
+                                            }
+                                        }
+                                    }
+                                }
+                                .padding(.horizontal, 10)
+                                .frame(height: rowHeight)
+                                .scrollTargetLayout()
                             }
-                            Spacer()
                             
-                        }.padding(10).glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24)).padding(.horizontal).foregroundColor(.primary)
+                            // bottom padding
+                            Color.clear
+                                .frame(height: centerY - rowHeight / 2+50)
+                        }
                     }
+                    .scrollTargetBehavior(.viewAligned)
                 }
-            }.sheet(isPresented: $showGameSummarySheetView){
-                GameSummarySheetView(
-                    showGameOverViewSheetView: $showGameSummarySheetView,
-                    currentGame:$currentGameE,
-                    showRevancheButton: false,
-                    allowEditing: false
-                )
-            }.onChange(of:showGameSummarySheetView){
-                currentGameE.reCount()
             }
             
+            .sheet(isPresented: $showGameSummarySheetView) {
+                GameSummarySheetView(
+                    showGameOverViewSheetView: $showGameSummarySheetView,
+                    currentGame: $currentGameE,
+                    showRevancheButton: false,
+                    HistoryMode: true
+                )
+            }
+            .onChange(of: showGameSummarySheetView) {
+                currentGameE.reCount()
+            }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
-            .toolbar{
-                ToolbarItem(placement:.topBarTrailing){
-                    profileImage(selectedImage: selectedImage, size: 44)
-                        
-                }.sharedBackgroundVisibility(.hidden)
-                    
+            
+            .toolbar {
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    ProfileImage(selectedImage: selectedImage, size: 44)
+                }
+                .sharedBackgroundVisibility(.hidden)
             }
-        }.onAppear {
-            selectedImage = dataToPhoto(data:userImageData)
+        }.safeAreaInset(edge: .top) {
+            
+            GameSummaryChartView(currentGame: $selectedGame ).frame(height:200).padding().glassEffect( .regular.tint(Color(uiColor: .tertiarySystemFill)).interactive(), in: .rect(cornerRadius: 20) ).padding(.top,50).padding(.horizontal,10).padding(.top,5)
+            
+            
+            
+        }
+        .onAppear {
+            for index in gameHistory.indices {
+                gameHistory[index].reCount()
+            }
+            selectedGame = gameHistory[0]
+            selectedImage = dataToPhoto(data: userImageData)
+            
+        }
+        }else{
+            NavigationStack{
+                VStack{
+                    Text("Your History of Tichu Games will appear here once you've played a game.").padding()
+                        .sheet(isPresented: $showDebugSheetView){
+                            DebugSheetView(currentGame:$selectedGame,showDebugSheetView: $showDebugSheetView,exampleGameHistory: $gameHistory)
+                        }
+                    Button{
+                        selectedTab = 0
+                    }label:{
+                        Text("Play Tichu")
+                    }.padding(13).glassEffect(.regular.interactive()).foregroundStyle(.primary)
+                }.toolbarTitleDisplayMode(.inlineLarge)
+                    .navigationTitle("History")
+                    
+                    .toolbar {
+                        ToolbarItem(){
+                            Button{
+                                showDebugSheetView = true
+                            }label:{
+                                Image(systemName:"ant")
+                            }
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ProfileImage(selectedImage: selectedImage, size: 44)
+                        }
+                        .sharedBackgroundVisibility(.hidden)
+                    }
+                    .onAppear {
+                        selectedImage = dataToPhoto(data: userImageData)
+                        
+                    }
+            }
+                
         }
     }
 }

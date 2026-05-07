@@ -12,7 +12,7 @@ import SwiftUI
 
 struct MainView: View {
     
-    @State private var selectedTab = 0
+    @AppStorage("selectedTab") private var selectedTab = 0
    
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -40,6 +40,8 @@ struct MainView: View {
                     Label("Profile", systemImage: "person")
                 }
                 .tag(3)
+        }.onAppear{
+            selectedTab = 0
         }
     }
 }

@@ -10,14 +10,14 @@ import SwiftUI
 
 
 
-let exampleProfiles: [profile] = [
+let exampleProfiles: [Profile] = [
     exampleLeon,
     exampleSorin,
     exampleJo,
     exampleLuis,
    
 
-    profile(
+    Profile(
         name: "Beta",
         imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -35,7 +35,7 @@ let exampleProfiles: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "Delta",
         imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -53,7 +53,7 @@ let exampleProfiles: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "Alpha",
         imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -71,7 +71,7 @@ let exampleProfiles: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "gamma",
         imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -88,7 +88,7 @@ let exampleProfiles: [profile] = [
         pinguGambler:83,
         bomber: 1
     ),
-    profile(
+    Profile(
         name: "Maximilian SuperGau",
         imageData: UIImage(named: "pfp_Max")?.jpegData(compressionQuality: 1),
         isFriend: true,
@@ -105,7 +105,7 @@ let exampleProfiles: [profile] = [
         pinguGambler:12,
         bomber: 92
     ),
-    profile(
+    Profile(
         name: "Sonja Penner",
         imageData: UIImage(named: "pfp_Sonja")?.jpegData(compressionQuality: 1),
         isFriend: true,
@@ -126,9 +126,9 @@ let exampleProfiles: [profile] = [
 ]
 
 
-let exampleProfilesReduced: [profile] = [
+let exampleProfilesReduced: [Profile] = [
 
-    profile(
+    Profile(
         name: "Beta",
         imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -146,7 +146,7 @@ let exampleProfilesReduced: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "Delta",
         imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -164,7 +164,7 @@ let exampleProfilesReduced: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "Alpha",
         imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -182,7 +182,7 @@ let exampleProfilesReduced: [profile] = [
         bomber: 1
     ),
     
-    profile(
+    Profile(
         name: "gamma",
         imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
         isFriend: false,
@@ -204,7 +204,7 @@ let exampleProfilesReduced: [profile] = [
 ]
 
 
-let exampleLeon: profile = profile(
+let exampleLeon: Profile = Profile(
     name: "Leon",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -222,7 +222,7 @@ let exampleLeon: profile = profile(
     bomber: 5
 )
 
-let exampleLuis: profile = profile(
+let exampleLuis: Profile = Profile(
     name: "Luis",
     imageData: UIImage(named: "pfp_Luis")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -240,7 +240,7 @@ let exampleLuis: profile = profile(
     bomber: 3
 )
 
-let exampleSorin: profile = profile(
+let exampleSorin: Profile = Profile(
     name: "Sorin",
     imageData: UIImage(named: "pfp_Sorin")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -258,7 +258,7 @@ let exampleSorin: profile = profile(
     bomber: 4
 )
 
-let exampleJo: profile = profile(
+let exampleJo: Profile = Profile(
     name: "Jo",
     imageData: UIImage(named: "pfp_Jo")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -279,9 +279,9 @@ let exampleJo: profile = profile(
 
 
 
-let guest2Profile: profile = profile(name: "Guest 2", imageData: nil, isFriend: false)
-let guest3Profile: profile = profile(name: "Guest 3", imageData: nil, isFriend: false)
-let guest4Profile: profile = profile(name: "Guest 4", imageData: nil, isFriend: false)
+let guest2Profile: Profile = Profile(name: "Guest 2", imageData: nil, isFriend: false)
+let guest3Profile: Profile = Profile(name: "Guest 3", imageData: nil, isFriend: false)
+let guest4Profile: Profile = Profile(name: "Guest 4", imageData: nil, isFriend: false)
 
 let exampleTeam1 = Team(list: [exampleLuis, exampleJo],name:"Team 1")
 let exampleTeam2 = Team(list: [exampleSorin, exampleLeon],name:"Team 2")
@@ -699,5 +699,80 @@ let exampleGame2 = tichuGame(
     ],
     target:250,
 )
+let exampleGame3 = tichuGame(
+    player1: exampleLuis,
+    player2: exampleJo,
+    player3: exampleSorin,
+    player4: exampleLeon,
+    
+    
 
-let exampleHistory:[tichuGame] = [exampleGame,exampleGame2]
+    Rounds: [
+        exampleRound10,
+        exampleRound11,
+        exampleRound12,
+        exampleRound13,
+        exampleRound14,
+        exampleRound15
+    ],
+    target:250,
+)
+let exampleGame4 = tichuGame(
+    player1: exampleLuis,
+    player2: exampleJo,
+    player3: exampleSorin,
+    player4: exampleLeon,
+    
+    
+
+    Rounds: [
+        exampleRound1,
+        exampleRound2,
+        exampleRound3,
+        exampleRound4,
+        exampleRound5,
+        exampleRound6,
+        exampleRound7
+    ],
+    target:500,
+)
+let exampleGame5 = tichuGame(
+    player1: exampleLuis,
+    player2: exampleJo,
+    player3: exampleSorin,
+    player4: exampleLeon,
+    
+    
+
+    Rounds: [
+        exampleRound1,
+        exampleRound2,
+        exampleRound3,
+        exampleRound4,
+        exampleRound5,
+        exampleRound6,
+        exampleRound7
+    ],
+    target:250,
+)
+let exampleGame6 = tichuGame(
+    player1: exampleLuis,
+    player2: exampleJo,
+    player3: exampleSorin,
+    player4: exampleLeon,
+    
+    
+
+    Rounds: [
+        exampleRound10,
+        exampleRound11,
+        exampleRound12,
+        exampleRound13,
+        exampleRound14,
+        exampleRound15
+    ],
+    target:250,
+)
+
+
+var exampleHistory:[tichuGame] = []

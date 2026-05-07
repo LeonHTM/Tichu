@@ -1,5 +1,5 @@
 //
-//  profileLogic.swift
+//  ProfileLogic.swift
 //  Tichu
 //
 //  Created by Leon on 25.04.2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct profile: Identifiable, Equatable, Codable {
+struct Profile: Identifiable, Equatable, Codable {
     let id: UUID
     var name: String?
     var imageData: Data?
@@ -119,17 +119,17 @@ struct profile: Identifiable, Equatable, Codable {
         }
     }
 
-    static func == (lhs: profile, rhs: profile) -> Bool {
+    static func == (lhs: Profile, rhs: Profile) -> Bool {
         lhs.id == rhs.id
     }
 }
 
 // MARK: - RawRepresentable
-extension profile: RawRepresentable {
+extension Profile: RawRepresentable {
 
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),
-              let value = try? JSONDecoder().decode(profile.self, from: data) else {
+              let value = try? JSONDecoder().decode(Profile.self, from: data) else {
             return nil
         }
 
@@ -141,12 +141,12 @@ extension profile: RawRepresentable {
         return String(data: data ?? Data(), encoding: .utf8) ?? ""
     }
 }
-        // Function to create sorted profile list for given DataSet, Stat and sortBy
+        // Function to create sorted Profile list for given DataSet, Stat and sortBy
         func makeItems(
-            from compareList: [profile],
-            stat: profile.playerStat,
+            from compareList: [Profile],
+            stat: Profile.playerStat,
             sortBy: sortBy.sortBy
-        ) -> [profile] {
+        ) -> [Profile] {
             
             switch sortBy {
                 

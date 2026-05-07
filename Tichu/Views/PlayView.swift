@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PlayView: View {
     //Storage Usernames
-    @State private var userProfile = profile()
+    @State private var userProfile = Profile()
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("userImageData") private var userImageData: Data?
@@ -102,7 +102,7 @@ struct PlayView: View {
                                     .font(.system(size: 16))
                             }
                             Spacer()
-                            profileImage(selectedImage: userImage, size: 44)
+                            ProfileImage(selectedImage: userImage, size: 44)
                         }
                         if let name2 = currentGame.player2?.name  {
                             
@@ -125,9 +125,9 @@ struct PlayView: View {
                                 Spacer()
                                 if let data = currentGame.player2?.imageData,
                                    let uiImage = UIImage(data: data) {
-                                    profileImage(selectedImage: uiImage, size: 44)
+                                    ProfileImage(selectedImage: uiImage, size: 44)
                                 } else {
-                                    profileImage(selectedImage: nil, size: 44)
+                                    ProfileImage(selectedImage: nil, size: 44)
                                 }
                                 
                             }
@@ -221,9 +221,9 @@ struct PlayView: View {
                                 Spacer()
                                 if let data = currentGame.player3?.imageData,
                                    let uiImage = UIImage(data: data) {
-                                    profileImage(selectedImage: uiImage, size: 44)
+                                    ProfileImage(selectedImage: uiImage, size: 44)
                                 } else {
-                                    profileImage(selectedImage: nil, size: 44)
+                                    ProfileImage(selectedImage: nil, size: 44)
                                 }
                                 
                             }
@@ -281,9 +281,9 @@ struct PlayView: View {
                                 Spacer()
                                 if let data = currentGame.player4?.imageData,
                                    let uiImage = UIImage(data: data) {
-                                    profileImage(selectedImage: uiImage, size: 44)
+                                    ProfileImage(selectedImage: uiImage, size: 44)
                                 } else {
-                                    profileImage(selectedImage: nil, size: 44)
+                                    ProfileImage(selectedImage: nil, size: 44)
                                 }
                                 
                             }
@@ -348,7 +348,7 @@ struct PlayView: View {
                 }
                 .sheet(isPresented: $showGameOverSheet) {
                     GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame,showRevancheButton:true
-                                         ,allowEditing:false).presentationDetents([.medium])
+                                         ,HistoryMode:false).presentationDetents([.medium])
                     
                 }
                 .scrollContentBackground(.hidden)
@@ -397,7 +397,7 @@ struct PlayView: View {
                         }
                     }
                     ToolbarItem(placement:.topBarTrailing){
-                        profileImage(selectedImage: userImage, size: 44)
+                        ProfileImage(selectedImage: userImage, size: 44)
                         
                     }.sharedBackgroundVisibility(.hidden)
                     
@@ -414,7 +414,7 @@ struct PlayView: View {
         }.refreshable {
             
         }.sheet(isPresented: $showDebugSheetView){
-            DebugSheetView(currentGame:$currentGame,showDebugSheetView: $showDebugSheetView)
+            DebugSheetView(currentGame:$currentGame,showDebugSheetView: $showDebugSheetView,exampleGameHistory:.constant([]))
         }.safeAreaInset(edge:.bottom){
             if isGameReady == true{
                 GlassEffectContainer{

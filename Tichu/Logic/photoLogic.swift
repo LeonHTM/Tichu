@@ -22,7 +22,7 @@ func dataToPhoto(data: Data?) -> UIImage? {
 
 //Render photo from UIImage + Fallback if no photo exists
 @ViewBuilder
-func profileImage(selectedImage: UIImage?, size: Int) -> some View {
+func ProfileImage(selectedImage: UIImage?, size: Int) -> some View {
     let size = CGFloat(size)
     if let selectedImage {
         Image(uiImage: selectedImage)

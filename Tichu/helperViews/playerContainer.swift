@@ -15,7 +15,7 @@ enum CanAnnounce: Equatable {
 }
 
 struct playerContainer: View {
-    var player: profile
+    var player: Profile
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Environment(\.colorScheme) var colorScheme

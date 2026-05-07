@@ -13,7 +13,7 @@ struct AddRoundSheetView: View {
     @State private var hasAnnouncedPlayer2: CanAnnounce = .none
     @State private var hasAnnouncedPlayer3: CanAnnounce = .none
     @State private var hasAnnouncedPlayer4: CanAnnounce = .none
-    @State private var players: [profile?] = []
+    @State private var players: [Profile?] = []
     @Binding var showAddRoundsSheet: Bool
     @Binding var currentGame: tichuGame
     @Binding var currentRound: Round
@@ -57,12 +57,12 @@ struct AddRoundSheetView: View {
     }
     
     // MARK: - Team logic
-    private func isTeam1(_ player: profile?) -> Bool {
+    private func isTeam1(_ player: Profile?) -> Bool {
         guard let player else { return false }
         return player.id == currentGame.player1?.id || player.id == currentGame.player2?.id
     }
     
-    private func isTeam2(_ player: profile?) -> Bool {
+    private func isTeam2(_ player: Profile?) -> Bool {
         guard let player else { return false }
         return player.id == currentGame.player3?.id || player.id == currentGame.player4?.id
     }
@@ -83,7 +83,7 @@ struct AddRoundSheetView: View {
         return false
     }
     
-    func announcement(for player: profile?) -> CanAnnounce {
+    func announcement(for player: Profile?) -> CanAnnounce {
         guard let player else { return .none }
 
         if currentRound.hasAnnouncedBigTichu.contains(where: { $0.id == player.id }) {
@@ -103,7 +103,7 @@ struct AddRoundSheetView: View {
     
     
     func updateAnnouncement(
-        player: profile,
+        player: Profile,
         state: CanAnnounce
     ) {
         currentRound.hasAnnouncedTichu.removeAll { $0.id == player.id }
@@ -187,8 +187,8 @@ struct AddRoundSheetView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                 VStack {
-                                    playerContainer(player: currentGame.player1 ?? profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs)
-                                    playerContainer(player: currentGame.player2 ?? profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs)
+                                    playerContainer(player: currentGame.player1 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs)
+                                    playerContainer(player: currentGame.player2 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs)
                                 }
                                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
@@ -199,8 +199,8 @@ struct AddRoundSheetView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             VStack {
-                                playerContainer(player: currentGame.player3 ?? profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs)
-                                playerContainer(player: currentGame.player4 ?? profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs)
+                                playerContainer(player: currentGame.player3 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs)
+                                playerContainer(player: currentGame.player4 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs)
                             }
                             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                         }

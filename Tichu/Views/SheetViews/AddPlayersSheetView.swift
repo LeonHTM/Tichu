@@ -10,8 +10,8 @@ import SwiftUI
 struct AddPlayersSheetView: View {
     //Open/Close Sheet
     @Binding var showAddPlayersSheet:Bool
-    @Binding var addPlayer: profile?
-    var alreadyAdded: [profile]
+    @Binding var addPlayer: Profile?
+    var alreadyAdded: [Profile]
     var showGuest: Bool
     var guestIndex: Int
     @State private var friendsFilterActive: Bool = false
@@ -25,30 +25,30 @@ struct AddPlayersSheetView: View {
         
         NavigationStack{
             
-            let sortedFriends: [profile] = exampleProfiles
+            let sortedFriends: [Profile] = exampleProfiles
                 .filter { $0.isFriend }
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
                     let r = rhs.name ?? ""
                     return ascendingFriends ? (l.localizedCaseInsensitiveCompare(r) == .orderedAscending) : (l.localizedCaseInsensitiveCompare(r) == .orderedDescending)
                 }
-                .filter { profile in
+                .filter { Profile in
                     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !query.isEmpty else { return true }
-                    let name = profile.name ?? ""
+                    let name = Profile.name ?? ""
                     return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
                 }
 
-            let sortedPlayers: [profile] = exampleProfiles
+            let sortedPlayers: [Profile] = exampleProfiles
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
                     let r = rhs.name ?? ""
                     return ascendingPlayers ? (l.localizedCaseInsensitiveCompare(r) == .orderedAscending) : (l.localizedCaseInsensitiveCompare(r) == .orderedDescending)
                 }
-                .filter { profile in
+                .filter { Profile in
                     let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !query.isEmpty else { return true }
-                    let name = profile.name ?? ""
+                    let name = Profile.name ?? ""
                     return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
                 }
             
@@ -67,7 +67,7 @@ struct AddPlayersSheetView: View {
                                 showAddPlayersSheet = false
                             }.foregroundColor(.primary)
                             Spacer()
-                            profileImage(selectedImage: nil, size: 44)
+                            ProfileImage(selectedImage: nil, size: 44)
                         }
                     }
                 }
@@ -120,24 +120,24 @@ struct AddPlayersSheetView: View {
                 
                 
                 Section(){
-                    ForEach(sortedFriends) { profile in
+                    ForEach(sortedFriends) { Profile in
                         Button(){
-                            addPlayer = profile
+                            addPlayer = Profile
                             showAddPlayersSheet = false
                         }label:{
                             HStack{
-                                Text(profile.name ?? "Unknown")
+                                Text(Profile.name ?? "Unknown")
                                 Spacer()
-                                if let data = profile.imageData,
+                                if let data = Profile.imageData,
                                    let uiImage = UIImage(data: data) {
-                                    profileImage(selectedImage: uiImage, size: 44)
+                                    ProfileImage(selectedImage: uiImage, size: 44)
                                 } else {
-                                    profileImage(selectedImage: nil, size: 44)
+                                    ProfileImage(selectedImage: nil, size: 44)
                                 }
                                 
                             }
-                        }.disabled(alreadyAdded.contains(where: { $0.id == profile.id }))
-                            .foregroundColor(alreadyAdded.contains(where: { $0.id == profile.id }) ? .secondary : .primary)
+                        }.disabled(alreadyAdded.contains(where: { $0.id == Profile.id }))
+                            .foregroundColor(alreadyAdded.contains(where: { $0.id == Profile.id }) ? .secondary : .primary)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         
                     }
@@ -189,24 +189,24 @@ struct AddPlayersSheetView: View {
                     }.listRowBackground(Color.clear)
                 }
                 
-                    ForEach(sortedPlayers) { profile in
+                    ForEach(sortedPlayers) { Profile in
                         Button(){
-                            addPlayer = profile
+                            addPlayer = Profile
                             showAddPlayersSheet = false
                         }label:{
                             HStack{
-                                Text(profile.name ?? "Unknown")
+                                Text(Profile.name ?? "Unknown")
                                 Spacer()
-                                if let data = profile.imageData,
+                                if let data = Profile.imageData,
                                    let uiImage = UIImage(data: data) {
-                                    profileImage(selectedImage: uiImage, size: 44)
+                                    ProfileImage(selectedImage: uiImage, size: 44)
                                 } else {
-                                    profileImage(selectedImage: nil, size: 44)
+                                    ProfileImage(selectedImage: nil, size: 44)
                                 }
                             }
                         }
-                        .disabled(alreadyAdded.contains(where: { $0.id == profile.id }))
-                        .foregroundColor(alreadyAdded.contains(where: { $0.id == profile.id }) ? .secondary : .primary)
+                        .disabled(alreadyAdded.contains(where: { $0.id == Profile.id }))
+                        .foregroundColor(alreadyAdded.contains(where: { $0.id == Profile.id }) ? .secondary : .primary)
                         .transition(.move(edge: .top).combined(with: .opacity))
                         
                         

@@ -11,11 +11,11 @@ import SwiftUI
 struct Team: Identifiable, Equatable {
     let id = UUID()
     let name: String
-    var list: [profile]
+    var list: [Profile]
 
-    init(list: [profile] = [],name:String = "Unknown Team") {
+    init(list: [Profile] = [],name:String = "Unknown Team") {
         //If provided, must be exactly two
-        precondition(list.isEmpty || list.count == 2, "If provided, exactly 2 profiles allowed")
+        precondition(list.isEmpty || list.count == 2, "If provided, exactly 2 Profiles allowed")
         self.list = list
         self.name = name
     }
@@ -29,14 +29,14 @@ struct tichuGame: Identifiable {
 
     // Team 1
     var team1: Team?
-    var player1: profile?
-    var player2: profile?
+    var player1: Profile?
+    var player2: Profile?
     var currentPointsTeam1: Int
 
     // Team 2
     var team2: Team?
-    var player3: profile?
-    var player4: profile?
+    var player3: Profile?
+    var player4: Profile?
     var currentPointsTeam2: Int
     
     var target: Int
@@ -45,10 +45,10 @@ struct tichuGame: Identifiable {
     var winner: Team?
 
     init(
-        player1: profile? = nil,
-        player2: profile? = nil,
-        player3: profile? = nil,
-        player4: profile? = nil,
+        player1: Profile? = nil,
+        player2: Profile? = nil,
+        player3: Profile? = nil,
+        player4: Profile? = nil,
         Rounds: [Round] = [],
         winRounds: [Round] = [],
         target: Int = 1000
@@ -162,10 +162,10 @@ struct tichuGame: Identifiable {
 
 struct Round: Identifiable {
     var id = UUID()
-    var first: profile?
-    var second: profile?
-    var third: profile?
-    var fourth: profile?
+    var first: Profile?
+    var second: Profile?
+    var third: Profile?
+    var fourth: Profile?
 
     var team1: Team?
     var team2: Team?
@@ -184,15 +184,15 @@ struct Round: Identifiable {
     var doubleWinTeam1: Bool
     var doubleWinTeam2: Bool
 
-    var hasAnnouncedTichu: [profile]
-    var hasAnnouncedBigTichu: [profile]
-    var hasAnnouncedPingu: [profile]
+    var hasAnnouncedTichu: [Profile]
+    var hasAnnouncedBigTichu: [Profile]
+    var hasAnnouncedPingu: [Profile]
 
     init(
-        first: profile? = nil,
-        second: profile? = nil,
-        third: profile? = nil,
-        fourth: profile? = nil,
+        first: Profile? = nil,
+        second: Profile? = nil,
+        third: Profile? = nil,
+        fourth: Profile? = nil,
         firstBombs: Int = 0,
         secondBombs: Int = 0,
         thirdBombs: Int = 0,
@@ -203,9 +203,9 @@ struct Round: Identifiable {
         roundPointsTeam2: Int = 0,
         doubleWinTeam1: Bool = false,
         doubleWinTeam2: Bool = false,
-        hasAnnouncedTichu: [profile] = [],
-        hasAnnouncedBigTichu: [profile] = [],
-        hasAnnouncedPingu: [profile] = [],
+        hasAnnouncedTichu: [Profile] = [],
+        hasAnnouncedBigTichu: [Profile] = [],
+        hasAnnouncedPingu: [Profile] = [],
         team1: Team? = nil,
         team2: Team? = nil
     ) {

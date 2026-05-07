@@ -34,7 +34,7 @@ struct ProfileView: View {
                     Spacer()
                     VStack{
                         ZStack{
-                            profileImage(selectedImage: selectedImage, size: 100)
+                            ProfileImage(selectedImage: selectedImage, size: 100)
                                 .shadow(radius: 10)
                             
                             PhotosPicker(selection: $pickerItem,

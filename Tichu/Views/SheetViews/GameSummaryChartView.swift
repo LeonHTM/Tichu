@@ -104,9 +104,17 @@ struct GameSummaryChartView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
+        
+        /*.chartYAxis {
+         AxisMarks(values: .stride(by: 50)) { _ in
+             AxisTick()
+             AxisValueLabel()
+             AxisGridLine()
+         }
+     }*/ //All fifty
     }
 }
 
 #Preview {
-    GameSummaryChartView(currentGame: .constant(exampleGame))
+    GameSummaryChartView(currentGame: .constant(exampleGame ))
 }

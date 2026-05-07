@@ -29,11 +29,11 @@ struct StatsView: View {
     @State private var selectedImage: UIImage?
     @State private var timeTags: [String] = ["All Time","Year","Month","Week","Today"]
     @State private var selectedTags: [String] = []
-    @State private var sortStat: profile.playerStat = .elo
+    @State private var sortStat: Profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .valueDown
     
-    @State private var compareList: [profile] = []
-    @State private var addPlayer: profile? = nil
+    @State private var compareList: [Profile] = []
+    @State private var addPlayer: Profile? = nil
 
   
    
@@ -233,7 +233,7 @@ struct StatsView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    profileImage(selectedImage: selectedImage, size: 44)
+                    ProfileImage(selectedImage: selectedImage, size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -351,8 +351,8 @@ struct StatsView: View {
                             Text("Edit comparison").foregroundColor(Color.primary)
                         }.labelStyle(.titleAndIcon).menuOrder(.fixed).padding(10).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                             withAnimation(.easeInOut) {
-                                if !compareList.contains(where: { $0.id == addPlayer?.id ?? profile().id }) && addPlayer?.name ?? profile().name != nil{
-                                    compareList.append(addPlayer ?? profile())
+                                if !compareList.contains(where: { $0.id == addPlayer?.id ?? Profile().id }) && addPlayer?.name ?? Profile().name != nil{
+                                    compareList.append(addPlayer ?? Profile())
                                 }
                             }
                         }) {

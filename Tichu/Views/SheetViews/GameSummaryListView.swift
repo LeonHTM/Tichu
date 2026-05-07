@@ -25,7 +25,7 @@ struct  GameSummaryListView: View {
     var allowEditing: Bool
     
 
-    private func placement(player: profile, in round: Round) -> Int {
+    private func placement(player: Profile, in round: Round) -> Int {
         if round.first?.id == player.id { return 1 }
         if round.second?.id == player.id { return 2 }
         if round.third?.id == player.id { return 3 }
@@ -33,13 +33,13 @@ struct  GameSummaryListView: View {
         return 999
     }
 
-    private func sortedTeam(team: Team, in round: Round) -> [profile] {
+    private func sortedTeam(team: Team, in round: Round) -> [Profile] {
         team.list.sorted {
             placement(player: $0, in: round) < placement(player: $1, in: round)
         }
     }
     
-    private func bombCounter(player:profile, round: Round) -> Int{
+    private func bombCounter(player:Profile, round: Round) -> Int{
         if player.id == round.first?.id {
             return round.firstBombs
         }else if player.id == round.second?.id{
