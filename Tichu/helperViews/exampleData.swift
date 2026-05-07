@@ -700,3 +700,4 @@ let exampleGame2 = tichuGame(
     target:250,
 )
 
+let exampleHistory:[tichuGame] = [exampleGame,exampleGame2]

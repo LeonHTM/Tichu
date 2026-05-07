@@ -25,6 +25,7 @@ struct Team: Identifiable, Equatable {
 
 struct tichuGame: Identifiable {
     let id = UUID()
+    let date: Date
 
     // Team 1
     var team1: Team?
@@ -58,6 +59,7 @@ struct tichuGame: Identifiable {
         self.player4 = player4
         
         self.target = target
+        self.date = Date()
 
         // Build teams only when both players are present
         if let p1 = player1, let p2 = player2 {

@@ -20,6 +20,8 @@ struct GameSummarySheetView: View {
 
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.displayScale) private var displayScale
+    var showRevancheButton: Bool
+    var allowEditing:Bool
 
     // MARK: - Winner
 
@@ -105,7 +107,8 @@ struct GameSummarySheetView: View {
 
                         GameSummaryListView(
                             showGameSummarySheetView: $showGameOverViewSheetView,
-                            currentGame: $currentGame
+                            currentGame: $currentGame,
+                            allowEditing: allowEditing
                         )
                         .padding(.bottom, -50)
 
@@ -226,46 +229,49 @@ struct GameSummarySheetView: View {
             .navigationBarTitleDisplayMode(.inline)
 
             .toolbar {
-
+                
                 ToolbarItem(placement: .cancellationAction) {
-
+                    
                     Button(role: .cancel) {
-
+                        
                         showGameOverViewSheetView = false
-
+                        
                         DispatchQueue.main.async {
                             currentGame = tichuGame()
                         }
-
+                        
                     } label: {
-
+                        
                         Image(systemName: "xmark")
                     }
                 }
-
-                ToolbarItem(placement: .confirmationAction) {
-
+                if showRevancheButton == true{
+                    
+                    
+                    ToolbarItem(placement: .confirmationAction) {
+                    
                     Button(role: .confirm) {
-
+                        
                         showGameOverViewSheetView = false
-
+                        
                         let p1 = currentGame.player1!
                         let p2 = currentGame.player2!
                         let p3 = currentGame.player3!
                         let p4 = currentGame.player4!
-
+                        
                         currentGame = tichuGame(
                             player1: p1,
                             player2: p2,
                             player3: p3,
                             player4: p4
                         )
-
+                        
                     } label: {
-
+                        
                         Text("Revanche")
                     }
                 }
+            }
             }
         }
     }
@@ -293,7 +299,9 @@ extension UIImage: Identifiable {
 
     GameSummarySheetView(
         showGameOverViewSheetView: .constant(true),
-        currentGame: .constant(exampleGame)
+        currentGame: .constant(exampleGame),
+        showRevancheButton: true,
+        allowEditing: false
     )
 }
 

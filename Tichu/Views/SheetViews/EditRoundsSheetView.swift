@@ -329,7 +329,9 @@ struct EditRoundsSheetView: View {
                         
                     }
                 }
-                .sheet(isPresented: $showAddRoundSheet) {
+                .sheet(isPresented: $showAddRoundSheet,onDismiss:{
+                    currentRound = Round()
+                }) {
                    
                          let roundBinding = Binding<Round>(
                             get: { currentGameCopy.Rounds[editingRoundIndex] },

@@ -22,6 +22,7 @@ struct  GameSummaryListView: View {
     @State private var editingRoundIndex: Int = 0
     @State private var idx: Int = 0
     @Environment(\.colorScheme) var colorScheme
+    var allowEditing: Bool
     
 
     private func placement(player: profile, in round: Round) -> Int {
@@ -308,18 +309,18 @@ struct  GameSummaryListView: View {
                         }
                         .opacity(isLocked ? 0.5 : 1.0)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            
+                            if allowEditing == true{
                                 Button(role: .destructive) {
-                                    if currentGame.Rounds.count > 1 {
-                                        currentGame.Rounds.remove(at: index)
-                                        currentGame.reCount()
-                                    } else {
-                                        showDeleteGameAlert = true
-                                        showList = true
-                                    }
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
+                                if currentGame.Rounds.count > 1 {
+                                    currentGame.Rounds.remove(at: index)
+                                    currentGame.reCount()
+                                } else {
+                                    showDeleteGameAlert = true
+                                    showList = true
                                 }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                             if !isLocked {
                                 Button {
                                     editingRoundIndex = index
@@ -329,6 +330,7 @@ struct  GameSummaryListView: View {
                                 }
                                 .tint(.accentColor)
                             }
+                        }
                         }
                     }
                     if currentGame.Rounds.count != currentGame.winRounds.count{
@@ -393,7 +395,8 @@ struct  GameSummaryListView: View {
 #Preview {
     GameSummaryListView(
         showGameSummarySheetView: .constant(true),
-        currentGame: .constant(exampleGame)
+        currentGame: .constant(exampleGame),
+        allowEditing:true
     )
 }
 

@@ -38,9 +38,21 @@ struct PlayView: View {
         currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
     }
     
-    var gameDone :Bool{
+    private var gameDone :Bool{
         return currentGame.winner != nil
     }
+    
+    private var isRated: Bool {
+            let players = [
+                currentGame.player1,
+                currentGame.player2,
+                currentGame.player3,
+                currentGame.player4
+            ].compactMap { $0 }
+
+          
+            return !players.contains { $0.elo == nil }
+        }
     
 
     
@@ -57,10 +69,15 @@ struct PlayView: View {
                             Spacer()
                            
                             if !isGameReady{
-                                Text("Target:").multilineTextAlignment(.trailing).foregroundStyle(.secondary)
+                                Text("Target:").multilineTextAlignment(.trailing).foregroundStyle(.secondary).offset(x:15)
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    
                                 TextField("",value: $currentGame.target, format: .number)
                                     .multilineTextAlignment(.trailing)
-                                    .frame(width: 60)
+                                    .frame(width: 70)
+                                    .font(.title2)
+                                    .fontWeight(.bold).offset(x:6)
                                     .foregroundStyle(.secondary)
                                     .keyboardType(.numberPad)
                                     .focused($targetFieldFocused)
@@ -330,19 +347,30 @@ struct PlayView: View {
                     }
                 }
                 .sheet(isPresented: $showGameOverSheet) {
-                    GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame).presentationDetents([.medium])
+                    GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame,showRevancheButton:true
+                                         ,allowEditing:false).presentationDetents([.medium])
                     
                 }
                 .scrollContentBackground(.hidden)
                 .background(alignment: .center) {
+                    VStack{
+                        
+                       
                     HStack{
-                Text("V")
-                    .font(.system(size: 120, weight: .bold))
-                    .offset(y:-3)
-                        Text("S")
-                    .font(.system(size: 120, weight: .bold))
-                    .offset(x:-15,y:3)
+                        
+                        
+                        Text("VS")
+                            .font(.system(size: 120, weight: .bold))
+                            //.offset(y:-3)
+                        //Text("S")
+                            .font(.system(size: 120, weight: .bold))
+                            //.offset(x:-15,y:3)
                     }
+                        HStack{
+                            Text(isRated ? "Rated" : "Unrated").fontWeight(.bold).font(.title2).offset(y:-15)
+                            Text(isGameReady ? " \(currentGame.target)" : " ").fontWeight(.bold).font(.title2).offset(y:-15)
+                        }
+                }
                     .foregroundStyle(
                         Color.secondary
                       
@@ -429,7 +457,9 @@ struct PlayView: View {
                             Image(systemName: "plus")
                                 .font(.system(size: 20)).foregroundColor(.primary)
                             Text("Add Round").foregroundColor(.primary)
-                        }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet) {
+                        }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet,onDismiss:{
+                            currentRound = Round()
+                        }) {
                             AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,
                                               currentGame: $currentGame,
                                               currentRound: $currentRound,
