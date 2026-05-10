@@ -85,6 +85,25 @@ struct AddRoundSheetView: View {
         }
         return false
     }
+    private func isGolden2(index: Int) -> Bool {
+        // Determine the indices of the players who have been marked as rank 1 and 2
+        guard let firstIndex = rankingList.firstIndex(of: 1),
+              let secondIndex = rankingList.firstIndex(of: 2) else {
+            return false
+        }
+        // Only highlight rows that correspond to rank 1 or rank 2
+        guard index == firstIndex || index == secondIndex else { return false }
+        
+        let first = players[firstIndex]
+        let second = players[secondIndex]
+        
+        if let first, let second {
+            let sameTeam = (isTeam1(first) && isTeam1(second)) ||
+                           (isTeam2(first) && isTeam2(second))
+            return sameTeam
+        }
+        return false
+    }
    
     
     func announcement(for player: Profile?) -> CanAnnounce {
@@ -191,8 +210,8 @@ struct AddRoundSheetView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                 VStack {
-                                    playerContainer(player: currentGame.player1 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs)
-                                    playerContainer(player: currentGame.player2 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs)
+                                    playerContainer(player: currentGame.player1 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs,currentGame:$currentGame)
+                                    playerContainer(player: currentGame.player2 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs,currentGame:$currentGame)
                                 }
                                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
@@ -203,8 +222,8 @@ struct AddRoundSheetView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             VStack {
-                                playerContainer(player: currentGame.player3 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs)
-                                playerContainer(player: currentGame.player4 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs)
+                                playerContainer(player: currentGame.player3 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs,currentGame:$currentGame)
+                                playerContainer(player: currentGame.player4 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs,currentGame:$currentGame)
                             }
                             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                         }
@@ -246,7 +265,7 @@ struct AddRoundSheetView: View {
                         List {
                             
                             ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
-                                let golden = isGolden(index: index)
+                                let golden = isGolden2(index: index)
                                 
                                 
                                 
@@ -390,8 +409,8 @@ struct AddRoundSheetView: View {
                 }else{
                     players = [
                         currentGame.player1,
-                        currentGame.player3,
                         currentGame.player2,
+                        currentGame.player3,
                         currentGame.player4
                     ]
                 }
@@ -415,4 +434,3 @@ struct AddRoundSheetView: View {
         roundIndex: nil
     )
 }
-

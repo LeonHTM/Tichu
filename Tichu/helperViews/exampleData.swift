@@ -488,6 +488,7 @@ let exampleRound7 = Round(
 
 // MARK: - Game
 let exampleGame = tichuGame(
+    allowPingus: false,
     player1: exampleLuis,
     player2: exampleJo,
     player3: exampleSorin,

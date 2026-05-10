@@ -104,7 +104,7 @@ struct HistoryView: View {
                                                         : Color.clear,
                                                         lineWidth: 2)
                                         }
-                                        //.opacity(opacity)
+                                        .opacity(opacity)
                                     }
                                     .onChange(of: isCentered) { oldValue, newValue in
                                         if newValue, selectedGame.id != currentGame.id {

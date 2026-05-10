@@ -39,12 +39,15 @@ struct tichuGame: Identifiable {
     var player4: Profile?
     var currentPointsTeam2: Int
     
+    var allowPingus: Bool
+    
     var target: Int
     var Rounds: [Round]
     var winRounds: [Round]
     var winner: Team?
 
     init(
+        allowPingus: Bool = true,
         player1: Profile? = nil,
         player2: Profile? = nil,
         player3: Profile? = nil,
@@ -78,6 +81,7 @@ struct tichuGame: Identifiable {
         self.winRounds = winRounds
         self.currentPointsTeam1 = 0
         self.currentPointsTeam2 = 0
+        self.allowPingus = allowPingus
     }
 
     mutating func addRound(addedRound: Round) {

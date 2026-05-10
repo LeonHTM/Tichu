@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 enum CanAnnounce: Equatable {
     case none
     case tichu
@@ -15,11 +16,14 @@ enum CanAnnounce: Equatable {
 }
 
 struct playerContainer: View {
+    
     var player: Profile
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
+    @Binding var currentGame: tichuGame
     @Environment(\.colorScheme) var colorScheme
-    @AppStorage("allowPingus") var allowPingus: Bool = true
+    
+   
     
     
     var body: some View {
@@ -59,7 +63,8 @@ struct playerContainer: View {
                         }
                     }label:{
                         Text("Pingu").foregroundColor(.primary)
-                    }.padding(10).glassEffect(hasAnnounced == .pingu ? .regular.tint(.accentColor).interactive() : allowPingus == false ? .regular.tint(.secondary).interactive() : .regular.interactive()).disabled(allowPingus == false)
+                    }.padding(10).glassEffect(hasAnnounced == .pingu ? .regular.tint(.accentColor).interactive() : currentGame.allowPingus == false ? .regular.tint(.secondary).interactive() : .regular.interactive()).disabled(currentGame.allowPingus == false)
+                        
                     Button{
                         if bombNumber < 3{
                             bombNumber+=1
@@ -81,7 +86,7 @@ struct playerContainer: View {
         @State var hasAnnounced: CanAnnounce = .none
         @State var bombNumber: Int = 0
         var body: some View {
-            playerContainer(player: exampleSorin,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber)
+            playerContainer(player: exampleSorin,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber,currentGame: .constant(exampleGame))
         }
     }
     return PreviewWrapper()

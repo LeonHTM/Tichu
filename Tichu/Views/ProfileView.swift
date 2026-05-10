@@ -14,7 +14,6 @@ struct ProfileView: View {
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("userElo") var userElo: Int = 1000
-    @AppStorage("allowPingus") var allowPingus: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
      
     //Vars
@@ -117,12 +116,7 @@ struct ProfileView: View {
                         
                 }
                 Section{
-                    HStack{
-                        Image("exclamationmark.3.circle").foregroundStyle(Color.accentColor)
-                        Toggle(isOn:$allowPingus){
-                            Text("Allow Pingus")
-                        }
-                    }
+                   
                     HStack{
                         Image("exclamationmark.3.circle").foregroundStyle(Color.accentColor)
                         Toggle(isOn:$dragMode){
