@@ -108,14 +108,14 @@ struct ProfileView: View {
                         .offset(x:-12)
                         .foregroundColor(.primary)
                         .sheet(isPresented: $showFriendsSheet) {
-                        FriendsSheetView(showFriendsSheet: $showFriendsSheet).presentationDetents([.medium])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showFriendsSheet,addPlayer:.constant(exampleLeon),alreadyAdded: [],showGuest:false,showPlayers:false,guestIndex:0).presentationDetents([.medium,.large])
                             
                         }
                     }
                     
                         
                 }
-                Section{
+                /*Section{
                    
                     HStack{
                         Image("exclamationmark.3.circle").foregroundStyle(Color.accentColor)
@@ -123,7 +123,7 @@ struct ProfileView: View {
                             Text("Drag-Mode")
                         }
                     }
-                }
+                }*/
                 
                 Section{
                     Button{

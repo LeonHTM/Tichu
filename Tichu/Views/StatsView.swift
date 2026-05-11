@@ -356,7 +356,7 @@ struct StatsView: View {
                                 }
                             }
                         }) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false,guestIndex:2).presentationDetents([.medium,.large])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false,showPlayers:true,guestIndex:2).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)

@@ -13,6 +13,7 @@ struct AddPlayersSheetView: View {
     @Binding var addPlayer: Profile?
     var alreadyAdded: [Profile]
     var showGuest: Bool
+    var showPlayers: Bool
     var guestIndex: Int
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
@@ -142,53 +143,53 @@ struct AddPlayersSheetView: View {
                         
                     }
                 }
-                    
-                if !sortedPlayers.isEmpty{
-                    Section(){
-                        HStack{
-                            Text("All Players").fontWeight(.bold)
-                            Spacer()
-                            if sortedPlayers.count != 1 {
-                                Menu {
-                                    Button() {
-                                        withAnimation(.easeInOut) {
-                                            ascendingPlayers = true
-                                            playersFilterActive = false
+                if showPlayers == true{
+                    if !sortedPlayers.isEmpty{
+                        Section(){
+                            HStack{
+                                Text("All Players").fontWeight(.bold)
+                                Spacer()
+                                if sortedPlayers.count != 1 {
+                                    Menu {
+                                        Button() {
+                                            withAnimation(.easeInOut) {
+                                                ascendingPlayers = true
+                                                playersFilterActive = false
+                                            }
+                                        } label: {
+                                            if ascendingPlayers == true {Image(systemName:"checkmark")
+                                                
+                                            }else{
+                                                Image("ABC.down")
+                                            }
+                                            Text("Alphabetical (A-Z)")
+                                        }
+                                        Button() {
+                                            withAnimation(.easeInOut) {
+                                                ascendingPlayers = false
+                                                playersFilterActive = true
+                                            }
+                                        } label: {
+                                            if ascendingPlayers == true {
+                                                
+                                                Image("ABC.up")
+                                                
+                                            }else{
+                                                Image(systemName:"checkmark")
+                                            }
+                                            Text("Alphabetical (Z-A)")
+                                            
                                         }
                                     } label: {
-                                        if ascendingPlayers == true {Image(systemName:"checkmark")
-                                            
-                                        }else{
-                                            Image("ABC.down")
-                                        }
-                                        Text("Alphabetical (A-Z)")
+                                        Image(systemName: "line.3.horizontal.decrease.circle")
+                                            .font(.system(size: 20))
                                     }
-                                    Button() {
-                                        withAnimation(.easeInOut) {
-                                            ascendingPlayers = false
-                                            playersFilterActive = true
-                                        }
-                                    } label: {
-                                        if ascendingPlayers == true {
-                                            
-                                            Image("ABC.up")
-                                            
-                                        }else{
-                                            Image(systemName:"checkmark")
-                                        }
-                                        Text("Alphabetical (Z-A)")
-                                        
-                                    }
-                                } label: {
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .font(.system(size: 20))
+                                    .foregroundColor(playersFilterActive ? .accentColor : .primary)
                                 }
-                                .foregroundColor(playersFilterActive ? .accentColor : .primary)
-                            }
-                        }.padding(.top,20)
-                    }.listRowBackground(Color.clear)
-                }
-                
+                            }.padding(.top,20)
+                        }.listRowBackground(Color.clear)
+                    }
+                    
                     ForEach(sortedPlayers) { Profile in
                         Button(){
                             addPlayer = Profile
@@ -211,6 +212,7 @@ struct AddPlayersSheetView: View {
                         
                         
                     }
+                }
                 
            
                     
@@ -239,6 +241,6 @@ struct AddPlayersSheetView: View {
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false,guestIndex:2)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false,showPlayers:false,guestIndex:2)
 }
 

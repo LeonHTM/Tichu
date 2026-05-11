@@ -149,10 +149,12 @@ struct AddRoundSheetView: View {
     }
     
     func saveRound(){
-        currentRound.first = players[0]
-        currentRound.second = players[1]
-        currentRound.third = players[2]
-        currentRound.fourth = players[3]
+        if dragMode == true{
+            currentRound.first = players[0]
+            currentRound.second = players[1]
+            currentRound.third = players[2]
+            currentRound.fourth = players[3]
+        }
         
         updateAnnouncement(player: currentGame.player1!, state: hasAnnouncedPlayer1)
         updateAnnouncement(player: currentGame.player2!, state: hasAnnouncedPlayer2)
@@ -169,9 +171,27 @@ struct AddRoundSheetView: View {
     }
     
     
+    // Build ranking list for all four players based on currentRound's placements
+    private func buildRankingList() -> [Int] {
+        // Ensure players array has 4 entries corresponding to currentGame players
+        let roundOrder: [Profile?] = [
+            currentRound.first,
+            currentRound.second,
+            currentRound.third,
+            currentRound.fourth
+        ]
+        // For each player in `players`, determine their rank by matching id in roundOrder
+        return players.map { player in
+            guard let player else { return 0 }
+            if let idx = roundOrder.firstIndex(where: { $0?.id == player.id }) {
+                return idx + 1 // ranks are 1-based
+            }
+            return 0 // not ranked yet
+        }
+    }
     
     private var hasDoubleWinTeam1: Bool {
-        guard
+        /*guard
             players.count >= 2,
             let first = players[0],
             let second = players[1],
@@ -181,11 +201,16 @@ struct AddRoundSheetView: View {
         }
 
         return team1.list.contains(where: { $0.id == first.id }) &&
-               team1.list.contains(where: { $0.id == second.id })
+               team1.list.contains(where: { $0.id == second.id })*/
+        
+        if (currentRound.first == currentGame.team1?.list[0] && currentRound.second == currentGame.team1?.list[1]) || (currentRound.first == currentGame.team1?.list[1] && currentRound.second == currentGame.team1?.list[0]){
+            return true
+        }
+        return false
     }
 
     private var hasDoubleWinTeam2: Bool {
-        guard
+        /*guard
             players.count >= 2,
             let first = players[0],
             let second = players[1],
@@ -195,7 +220,11 @@ struct AddRoundSheetView: View {
         }
 
         return team2.list.contains(where: { $0.id == first.id }) &&
-               team2.list.contains(where: { $0.id == second.id })
+               team2.list.contains(where: { $0.id == second.id })*/
+        if (currentRound.first == currentGame.team2?.list[0] && currentRound.second == currentGame.team2?.list[1]) || (currentRound.first == currentGame.team2?.list[1] && currentRound.second == currentGame.team2?.list[0]){
+            return true
+        }
+        return false
     }
     
     var body: some View {
@@ -209,9 +238,10 @@ struct AddRoundSheetView: View {
                                 Text("Team 1")
                                     .font(.title2)
                                     .fontWeight(.bold)
+                                    .foregroundStyle(Color.accentColor)
                                 VStack {
-                                    playerContainer(player: currentGame.player1 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs,currentGame:$currentGame)
-                                    playerContainer(player: currentGame.player2 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs,currentGame:$currentGame)
+                                    playerContainer(player: currentGame.player1 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs,currentGame:$currentGame)
+                                    playerContainer(player: currentGame.player2 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs,currentGame:$currentGame)
                                 }
                                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
@@ -222,8 +252,8 @@ struct AddRoundSheetView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             VStack {
-                                playerContainer(player: currentGame.player3 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs,currentGame:$currentGame)
-                                playerContainer(player: currentGame.player4 ?? Profile(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs,currentGame:$currentGame)
+                                playerContainer(player: currentGame.player3 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs,currentGame:$currentGame)
+                                playerContainer(player: currentGame.player4 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs,currentGame:$currentGame)
                             }
                             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                         }
@@ -297,15 +327,19 @@ struct AddRoundSheetView: View {
                                             counter = 0
                                             rankingList = [0,0,0,0]
                                             hasPushedList = [false,false,false,false]
+                                            currentRound.first = nil
+                                            currentRound.second = nil
+                                            currentRound.third = nil
+                                            currentRound.fourth = nil
                                             
                                         }
                                         
                                         
                                     }label:{
                                         HStack{
-                                            Text("\(rankingList[index]).").foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.accentColor : Color.primary)
+                                            Text("\(rankingList[index]).").foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
                                                 .fontWeight(.bold)
-                                                .foregroundStyle(golden ? Color.accentColor : Color.primary)
+                                                
                                             
                                             Text(player?.name ?? "Unknown")
                                             Spacer()
@@ -328,6 +362,7 @@ struct AddRoundSheetView: View {
                             Text("Points 1")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundStyle(Color.accentColor)
                             Spacer()
                             Text("Points 2").font(.title2)
                                 .fontWeight(.bold)
@@ -336,11 +371,11 @@ struct AddRoundSheetView: View {
                             HStack {
                                 
                                 Text("\(displayTeam1Points)").font(.title2)
-                                    .fontWeight(.bold)
+                                    .fontWeight(.bold).foregroundStyle(Color.accentColor)
                                 
                                 if hasDoubleWinTeam1 || hasDoubleWinTeam2 {
                                     Spacer()
-                                    Text("Double Win!").foregroundStyle(Color.accentColor)
+                                    Text("Double Win!").foregroundStyle(Color.green)
                                     
                                 }
                                 Spacer()
@@ -401,11 +436,14 @@ struct AddRoundSheetView: View {
             .onAppear {
                 if editMode {
                     players = [
-                        currentRound.first,
-                        currentRound.second,
-                        currentRound.third,
-                        currentRound.fourth,
+                        currentGame.player1,
+                        currentGame.player2,
+                        currentGame.player3,
+                        currentGame.player4,
                     ]
+                    hasPushedList = [true,true,true,true]
+                    rankingList = buildRankingList()
+                    counter = rankingList.filter { $0 != 0 }.count
                 }else{
                     players = [
                         currentGame.player1,
@@ -434,3 +472,4 @@ struct AddRoundSheetView: View {
         roundIndex: nil
     )
 }
+

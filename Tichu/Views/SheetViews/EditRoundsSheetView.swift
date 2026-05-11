@@ -81,9 +81,9 @@ struct EditRoundsSheetView: View {
                                 VStack(alignment: .leading) {
                                     
                                     HStack {
-                                        Text("Team 1").fontWeight(.bold)
+                                        Text("Team 1").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                         Spacer()
-                                        Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
+                                        Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
@@ -131,7 +131,7 @@ struct EditRoundsSheetView: View {
                                                 } else if pingu && isFirst {
                                                     HStack {
                                                         Image(systemName: "checkmark")
-                                                        Text("Pingu1")
+                                                        Text("Pingu")
                                                     }.foregroundStyle(.green)
                                                         .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                 } else if tichu && !isFirst {
@@ -149,7 +149,7 @@ struct EditRoundsSheetView: View {
                                                 } else if pingu && !isFirst {
                                                     HStack {
                                                         Image(systemName: "xmark")
-                                                        Text("Pingu1")
+                                                        Text("Pingu")
                                                     }.foregroundStyle(.red)
                                                         .opacity(colorScheme == .dark ? 0.66 : 1).offset(x: bomb > 0 ? 40 : 0)
                                                 }
@@ -410,8 +410,8 @@ struct EditRoundsSheetView: View {
         }
         .safeAreaInset(edge: .top) {
             HStack{
-                Text("Team 1:")
-                Text("\(currentGameCopy.currentPointsTeam1)")
+                Text("Team 1:").foregroundStyle(Color.accentColor)
+                Text("\(currentGameCopy.currentPointsTeam1)").foregroundStyle(Color.accentColor)
                 Spacer()
                 Text("Team 2:")
                 Text("\(currentGameCopy.currentPointsTeam2)")

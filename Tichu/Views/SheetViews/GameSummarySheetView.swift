@@ -197,6 +197,7 @@ struct GameSummarySheetView: View {
                         Text("\(currentGame.currentPointsTeam1)")
                             .fontWeight(.bold)
                             .font(.title3)
+                            .foregroundStyle(Color.accentColor)
                         
                         
                         Text("vs").fontWeight(.bold)
@@ -207,7 +208,7 @@ struct GameSummarySheetView: View {
                             .fontWeight(.bold)
                             .font(.title3)
                         
-                    }.padding(13).glassEffect(.regular.tint(.accent).interactive())
+                    }.padding(13).glassEffect(.regular.interactive())
                     
                     
                     

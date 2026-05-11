@@ -98,9 +98,9 @@ struct  GameSummaryListView: View {
                                 VStack(alignment: .leading) {
 
                                     HStack {
-                                        Text("Team 1").fontWeight(.bold)
+                                        Text("Team 1").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                         Spacer()
-                                        Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
+                                        Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)

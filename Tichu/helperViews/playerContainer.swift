@@ -18,6 +18,7 @@ enum CanAnnounce: Equatable {
 struct playerContainer: View {
     
     var player: Profile
+    var team: Team
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Binding var currentGame: tichuGame
@@ -29,7 +30,7 @@ struct playerContainer: View {
     var body: some View {
         GlassEffectContainer{
             VStack(alignment:.leading){
-                Text(player.name ?? "Unknown").fontWeight(.bold)
+                Text(player.name ?? "Unknown").fontWeight(.bold).foregroundStyle(team.name == "Team 1" ? Color.accentColor : Color.primary)
                 HStack{
                     Button{
                         DispatchQueue.main.async {
@@ -86,7 +87,7 @@ struct playerContainer: View {
         @State var hasAnnounced: CanAnnounce = .none
         @State var bombNumber: Int = 0
         var body: some View {
-            playerContainer(player: exampleSorin,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber,currentGame: .constant(exampleGame))
+            playerContainer(player: exampleSorin,team: exampleTeam1,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber,currentGame: .constant(exampleGame))
         }
     }
     return PreviewWrapper()

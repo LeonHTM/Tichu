@@ -66,6 +66,7 @@ struct PlayView: View {
                             Text("Team 1")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .foregroundStyle(Color.accentColor)
                             Spacer()
                            
                             if !isGameReady{
@@ -97,6 +98,7 @@ struct PlayView: View {
                             VStack(alignment:.leading){
                                 Text(userProfile.name ?? "Unknown")
                                     .fontWeight(.bold)
+                                    .foregroundStyle(Color.accentColor)
                                 Text("Ranking: \(userProfile.elo ?? -69420)")
                                     .foregroundStyle(.secondary)
                                     .font(.system(size: 16))
@@ -109,7 +111,7 @@ struct PlayView: View {
                             HStack{
                                 VStack(alignment:.leading){
                                     
-                                    Text(name2).fontWeight(.bold)
+                                    Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                                     if let elo = currentGame.player2?.elo {
                                         Text("Ranking: \(elo)")
                                             .foregroundStyle(.secondary)
@@ -153,6 +155,7 @@ struct PlayView: View {
                                                 currentGame.player4
                                             ].compactMap { $0 },
                                             showGuest: true,
+                                            showPlayers:true,
                                             guestIndex: 2
                                         )
                                         .presentationDetents([.medium, .large])
@@ -249,6 +252,7 @@ struct PlayView: View {
                                             currentGame.player4
                                         ].compactMap { $0 },
                                         showGuest: true,
+                                        showPlayers:true,
                                         guestIndex:3
                                     )
                                     .presentationDetents([.medium, .large])
@@ -308,6 +312,7 @@ struct PlayView: View {
                                                 currentGame.player3
                                             ].compactMap { $0 },
                                             showGuest: true,
+                                            showPlayers:true,
                                             guestIndex: 4
                                         )
                                         .presentationDetents([.medium, .large])
