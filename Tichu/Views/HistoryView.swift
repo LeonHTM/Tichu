@@ -153,7 +153,7 @@ struct HistoryView: View {
             .toolbar {
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(selectedImage: selectedImage, size: 44)
+                    ProfileImage(data: userImageData, size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -196,14 +196,11 @@ struct HistoryView: View {
                             }
                         }
                         ToolbarItem(placement: .topBarTrailing) {
-                            ProfileImage(selectedImage: selectedImage, size: 44)
+                            ProfileImage(data: userImageData, size: 44)
                         }
                         .sharedBackgroundVisibility(.hidden)
                     }
-                    .onAppear {
-                        selectedImage = dataToPhoto(data: userImageData)
-                        
-                    }
+                   
             }
                 
         }

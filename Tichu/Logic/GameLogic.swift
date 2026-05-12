@@ -279,3 +279,14 @@ struct Round: Identifiable {
     }
 }
 
+enum tichuGameTarget: Int, CaseIterable, Identifiable {
+    case xs = 250
+    case s = 500
+    case l = 750
+    case xl = 1000
+    case xxl = 2000
+    case xxxl = 5000
+    case xxxxl = 10000
+    
+    var id: Int { self.rawValue }
+}

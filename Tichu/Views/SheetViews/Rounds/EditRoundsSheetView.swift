@@ -293,28 +293,31 @@ struct EditRoundsSheetView: View {
                         .opacity(isLocked ? 0.5 : 1.0)
                         .swipeActions(edge: .trailing) {
                            
-                                Button(role: .destructive) {
-                                    if currentGameCopy.Rounds.count > 1 {
-                                        currentGameCopy.Rounds.remove(at: index)
-                                        currentGameCopy.reCount()
-                                    } else {
-                                        showDeleteGameAlert = true
-                                        
+                            Button(role: .destructive) {
+                                withAnimation(.easeInOut) {
+                                if currentGameCopy.Rounds.count > 1 {
+                                    currentGameCopy.Rounds.remove(at: index)
+                                    currentGameCopy.reCount()
+                                } else {
+                                    showDeleteGameAlert = true
+                                    DispatchQueue.main.async{
                                         showList = true
-                                        
                                     }
+                                    
+                                }
+                            }
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
                             if !isLocked{
                                 Button {
-                                    
-                                    editingRoundIndex = index
-                             
-                          
-                                    showAddRoundSheet = true
-                                    
-                                    
+                                    withAnimation(.easeInOut) {
+                                        editingRoundIndex = index
+                                        
+                                        
+                                        showAddRoundSheet = true
+                                        
+                                    }
                                 } label: {
                                     Label("Edit", systemImage: "pencil")
                                 }

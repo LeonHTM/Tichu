@@ -12,6 +12,7 @@ struct Profile: Identifiable, Equatable, Codable {
     var name: String?
     var imageData: Data?
     var isFriend: Bool
+    var dateAdded: Date?
 
     // Statistics
     var elo: Int?
@@ -41,6 +42,7 @@ struct Profile: Identifiable, Equatable, Codable {
         case bigGambler
         case pinguGambler
         case bomber
+        case dateAdded
     }
 
     init(
@@ -48,6 +50,7 @@ struct Profile: Identifiable, Equatable, Codable {
         name: String? = nil,
         imageData: Data? = nil,
         isFriend: Bool = false,
+        date: Date = Date(),
         elo: Int? = nil,
         winnerPercentage: Int = 50,
         tichuMaster: Double = 0,
@@ -77,6 +80,9 @@ struct Profile: Identifiable, Equatable, Codable {
         self.bigGambler = bigGambler
         self.pinguGambler = pinguGambler
         self.bomber = bomber
+        if self.isFriend == true{
+            self.dateAdded = date
+        }
     }
 
     func getStat(for stat: playerStat) -> Double {
@@ -116,6 +122,9 @@ struct Profile: Identifiable, Equatable, Codable {
 
         case .bomber:
             return Double(bomber)
+        case .dateAdded:
+            return dateAdded?.timeIntervalSince1970 ?? 0
+        
         }
     }
 

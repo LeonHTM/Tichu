@@ -147,10 +147,7 @@ struct StatsContainer: View {
     }
 }
 
-//PlayerStats Struct with playerstat var and value function
-struct playerStats {
-   
-}
+
 
 //Sortby enum inside its own class
 struct sortBy{

@@ -15,7 +15,8 @@ struct ProfileView: View {
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("dragMode") var dragMode: Bool = false
-     
+    @AppStorage("loggedIn") var loggedIn: Bool = true
+    @Environment(\.openURL) var openURL
     //Vars
     //Photo Logic
     @State private var selectedPlayer: Profile?
@@ -27,6 +28,8 @@ struct ProfileView: View {
     @State private var showFriendsSheet:Bool = false
     @State private var showPrivacyAlert: Bool = false
     @State private var showDeleteAlert: Bool = false
+    @State private var friendList: [Profile] = exampleFriends
+    @State private var requestedFriendsList: [Profile] = [exampleGring]
     
     var body: some View {
         NavigationStack{
@@ -35,7 +38,7 @@ struct ProfileView: View {
                     Spacer()
                     VStack{
                         ZStack{
-                            ProfileImage(selectedImage: selectedImage, size: 100)
+                            ProfileImage(data:userImageData, size: 100)
                                 .shadow(radius: 10)
                             
                             PhotosPicker(selection: $pickerItem,
@@ -74,7 +77,7 @@ struct ProfileView: View {
                         }
                             
                         
-                        Text("Ranking: \(userElo)").foregroundStyle(.gray)
+                        Text("Ranking: \(userElo)").foregroundStyle(.gray).fontWeight(.bold)
                     }
                     Spacer()
                 }
@@ -82,37 +85,62 @@ struct ProfileView: View {
                 
                 Section{
                     HStack{
-                        Image(systemName:"person").foregroundStyle(.accent)
-                        
-                        Button("Change Username"){
-                            
-                            showNameSheet = true
-                            
+                        Button{
+                            withAnimation(.easeInOut(duration: 0.285)) {
+                                showNameSheet = true
+                            }
+                        }label:{
+                            HStack{
+                                Label("Edit Username",systemImage:"person.fill").labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 17))
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .rotationEffect(.degrees(showNameSheet ? 90 : 0))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
                         .foregroundColor(.primary)
                         .sheet(isPresented: $showNameSheet) {
                             NameSheetView(showNameSheet: $showNameSheet).presentationDetents([.medium])
                             
-                        }
+                        }.animation(.easeInOut(duration: 0.285), value: showNameSheet)
                         
                     }
                     
-                
-                    HStack{
-                        Image(systemName:"person.3").foregroundStyle(.accent).offset(x:-6)
+        
                         
-                        Button("Manage Friendlist"){
-                            showFriendsSheet = true
+                        Button{
+                            withAnimation(.easeInOut(duration: 0.285)) {
+                                showFriendsSheet = true
+                            }
                             
+                        }label:{
+                            HStack{
+                                Label("Manage Friends",systemImage:"person.2.fill").labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 13))
+                                Spacer()
+                                if requestedFriendsList.count > 0{
+                                    
+                                    Text("\(requestedFriendsList.count)").foregroundStyle(.white).background{
+                                        
+                                        Circle()
+                                            .fill(Color.red)
+                                            .frame(width: 24, height: 24)
+                                        
+                                        
+                                    }.padding(.trailing)
+                                }
+                              
+                                Image(systemName:"chevron.right").foregroundStyle(.secondary)
+                                    .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
+                            }
                             
-                        }
-                        .offset(x:-12)
-                        .foregroundColor(.primary)
+                        }.foregroundStyle(Color.primary)
                         .sheet(isPresented: $showFriendsSheet) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showFriendsSheet,addPlayer:$selectedPlayer,alreadyAdded: [],showGuest:false,showPlayers:false,showFriends:true,guestIndex:0).presentationDetents([.medium,.large])
+                            EditFriendsSheetView(showFriendsSheet: $showFriendsSheet, friendsList: $friendList,requestedFriendsList: $requestedFriendsList).presentationDetents([.medium,.large])
                             
-                        }
-                    }
+                            
+                        }.animation(.easeInOut(duration: 0.285), value: showFriendsSheet)
+                        
+                    
                     
                         
                 }
@@ -126,63 +154,37 @@ struct ProfileView: View {
                     }
                 }*/
                 
+                
                 Section{
-                    Button{
-                        showDeleteAlert = true
-                    }label: {
-                        HStack{
-                            Image(systemName:"trash").foregroundStyle(.red)
-                            Text("Delete Account").foregroundColor(.primary)
-                        }
-                    }.alert("Do you really want to delete your Account?", isPresented: $showDeleteAlert, actions: {
-                        Button(role: .destructive) {
-                            } label: {
-                                Text("Delete")
-                            }
-                            }, message: {
-                                Text("All your data will be deleted and you won't have access to your Account anymore.")
-                            })
                     
-                    Button{
-                        print("Log Out")
-                    }label: {
-                        HStack{
-                            Image(systemName:"rectangle.portrait.and.arrow.right")
-                            Text("Switch Account").foregroundColor(.primary)
-                        }
-                    }
-                    Button{
-                        print("Log out")
-                    }label: {
-                        HStack{
-                            Image(systemName:"rectangle.portrait.and.arrow.right")
-                            Text("Log Out").foregroundColor(.primary)
-                        }
-                    }
                     
-                }
-                Section{
+                    
+                    
+                    
                     HStack{
-                        Image(systemName:"envelope").foregroundStyle(Color.accentColor)
-                            .offset(x:-2)
-                        Link("Contact", destination: URL(string: "mailto:straussl@student.ethz.ch")!).foregroundColor(.primary)
                         
-                    }
-                    
-                    
-                    
-                    
-                    HStack{
-                        Image(systemName:"lock.shield.fill")
-                            .foregroundStyle(.accent)
-                          
-                        Text("")
-                        Button("Privacy"){
-                            showPrivacyAlert = true
+        
+                        Button{
+                            withAnimation(.easeInOut(duration: 0.285)) {
+                                showPrivacyAlert = true
+                            }
+                        }label:{
+                            HStack{
+                                Label("Privacy", systemImage: "hand.raised.fill").labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 15))
+                                Spacer()
+                                Image(systemName:"chevron.right").foregroundStyle(.secondary)
+                                    .rotationEffect(.degrees(showPrivacyAlert ? 90 : 0))
+                                
+                               
+                            }
                         }
                         .foregroundColor(.primary)
                         .alert("Tichu App doesnt collect any Data!", isPresented: $showPrivacyAlert, actions: {
-                            Button(role: .close) {
+                            Button(role: .cancel) {
+                                withAnimation(.easeInOut(duration: 0.285)) {
+                                    showPrivacyAlert = false
+                                    print("Privacy alert dismissed")
+                                }
                             } label: {
                                 Text("Cool!")
                             }
@@ -190,17 +192,96 @@ struct ProfileView: View {
                             Text("We store only your Tichu Rounds and your Login data.")
                         })
                     }
-                    HStack{
-                        Image("github")
-                            .resizable()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(Color.accentColor)
-                            .offset(x:-2)
-                        Link("Source Code", destination: URL(string: "https://github.com/LeonHTM/Tichu")!).foregroundColor(.primary)
-                        
+                    Button{
+                        if let url = URL(string: "mailto:straussl@student.ethz.ch") {
+                            UIApplication.shared.open(url)
+                                    }
+                    }label:{
+                        HStack{
+                            Label("Contact",systemImage:"envelope.fill").labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 14))
+                          
+                        }.foregroundStyle(Color.primary)
                     }
+                    Button{
+                        if let url = URL(string: "https://github.com/LeonHTM/Tichu") {
+                                        UIApplication.shared.open(url)
+                                    }
+                    }label:{
+                        HStack{
+                            
+                            Label("Source Code",image:"github").labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 17))
+                            
+                        
+                        }
+                    }.foregroundStyle(.primary)
                 }
-                
+                Section{
+                    
+                    
+                    Button{
+                        withAnimation(.easeInOut(duration: 0.285)) {
+                            print("Log Out")
+                        }
+                    }label: {
+                        HStack{
+                            Label("Switch Account",systemImage:"rectangle.portrait.and.arrow.right.fill").labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
+                            Spacer()
+                            Image(systemName:"chevron.right").foregroundStyle(.secondary)
+                                .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
+                        }.foregroundStyle(Color.primary)
+                    }
+                    Button{
+                        withAnimation(.easeInOut(duration: 0.285)) {
+                            print("Log out")
+                        }
+                    }label: {
+                        HStack{
+                            Label("Log Out",systemImage:"rectangle.portrait.and.arrow.right.fill").labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
+                            Spacer()
+                            Image(systemName:"chevron.right").foregroundStyle(.secondary)
+                        }.foregroundColor(.primary)
+                    }
+                    
+                    
+                }
+                Section{
+                    Button{
+                        withAnimation(.easeInOut(duration: 0.285)) {
+                            showDeleteAlert = true
+                        }
+                    }label: {
+                        HStack{
+                            Label("Delete Account",systemImage:"trash.fill").labelStyle(ColorfulIconLabelStyle(color: .red, fontSize: 14)).foregroundStyle(Color.red)
+                            Spacer()
+                            Image(systemName:"chevron.right")
+                                .rotationEffect(.degrees(showDeleteAlert ? 90 : 0)).foregroundStyle(.secondary)
+                        }
+                    }.foregroundStyle(.secondary).alert("Do you really want to delete your Account?",
+                            isPresented: $showDeleteAlert,
+                            actions: {
+                        
+                        Button(role: .destructive) {
+                            // perform delete
+                            withAnimation(.easeInOut(duration: 0.285)) {
+                                showDeleteAlert = false
+                                loggedIn = false
+                                print("Alert dismissed")
+                            }
+                        } label: {
+                            Text("Delete")
+                        }
+
+                        Button(role: .cancel) {
+                            withAnimation(.easeInOut(duration: 0.285)) {
+                                showDeleteAlert = false
+                                print("Alert dismissed")
+                            }
+                        }
+
+                    }, message: {
+                        Text("All your data will be deleted and you won't have access to your Account anymore.")
+                    })
+                }
                 HStack{
                     Spacer()
                     VStack{
@@ -215,11 +296,7 @@ struct ProfileView: View {
             .padding(.top,-20)
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .onAppear {
-                selectedImage = dataToPhoto(data:userImageData)
-                
-                
-            }
+            
             
             
         }
@@ -232,3 +309,4 @@ struct ProfileView: View {
 #Preview {
     ProfileView()
 }
+

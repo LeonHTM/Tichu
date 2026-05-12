@@ -88,6 +88,7 @@ struct NameSheetView: View {
                 
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", systemImage: "xmark") {
+                        
                         showNameSheet = false
                     }
                 }

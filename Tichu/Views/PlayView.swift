@@ -54,7 +54,14 @@ struct PlayView: View {
             return !players.contains { $0.elo == nil }
         }
     
-
+    func loadUser(){
+        if currentGame.player1 == nil{
+            currentGame.player1 = Profile()
+            currentGame.player1!.name = userName
+            currentGame.player1!.elo = userElo
+            currentGame.player1!.imageData = userImageData
+        }
+    }
     
     var body: some View {
         ZStack{
@@ -69,22 +76,7 @@ struct PlayView: View {
                                 .foregroundStyle(Color.accentColor)
                             Spacer()
                            
-                            if !isGameReady{
-                                Text("Target:").multilineTextAlignment(.trailing).foregroundStyle(.secondary).offset(x:15)
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    
-                                TextField("",value: $currentGame.target, format: .number)
-                                    .multilineTextAlignment(.trailing)
-                                    .frame(width: 70)
-                                    .font(.title2)
-                                    .fontWeight(.bold).offset(x:6)
-                                    .foregroundStyle(.secondary)
-                                    .keyboardType(.numberPad)
-                                    .focused($targetFieldFocused)
-                                    .submitLabel(.done)
-                                    .onSubmit { targetFieldFocused = false }
-                            }
+                            
                             if isGameReady{
                                 Text("\(currentGame.currentPointsTeam1)").font(.title2)
                                     .fontWeight(.bold)
@@ -95,42 +87,43 @@ struct PlayView: View {
                     }.padding(.top,65)
                     Section{
                         HStack{
+                            ProfileImage(data: currentGame.player1?.imageData, size: 44)
                             VStack(alignment:.leading){
-                                Text(userProfile.name ?? "Unknown")
+                                
+                                Text(currentGame.player1?.name ?? "Unknown")
                                     .fontWeight(.bold)
                                     .foregroundStyle(Color.accentColor)
-                                Text("Ranking: \(userProfile.elo ?? -69420)")
-                                    .foregroundStyle(.secondary)
-                                    .font(.system(size: 16))
+                                
                             }
                             Spacer()
-                            ProfileImage(selectedImage: userImage, size: 44)
+                            Text("Ranking: \(currentGame.player1?.elo ?? -69420)")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 16))
+                            
                         }
                         if let name2 = currentGame.player2?.name  {
                             
                             HStack{
+                                ProfileImage(data: currentGame.player2?.imageData, size: 44)
                                 VStack(alignment:.leading){
-                                    
+                                   
                                     Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
-                                    if let elo = currentGame.player2?.elo {
-                                        Text("Ranking: \(elo)")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }else{
-                                        Text("Download Tichu App to get ranked")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }
+                                    
                                  
                                     
                                 }
                                 Spacer()
-                                if let data = currentGame.player2?.imageData,
-                                   let uiImage = UIImage(data: data) {
-                                    ProfileImage(selectedImage: uiImage, size: 44)
-                                } else {
-                                    ProfileImage(selectedImage: nil, size: 44)
+                                if let elo = currentGame.player2?.elo {
+                                    Text("Ranking: \(elo)")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
+                                }else{
+                                    Text("Download Tichu App to get ranked")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
                                 }
+                               
+                                
                                 
                             }
                         }else{
@@ -208,27 +201,25 @@ struct PlayView: View {
                         if let name3 = currentGame.player3?.name  {
                             
                             HStack{
+                                ProfileImage(data: currentGame.player3?.imageData, size: 44)
                                 VStack(alignment:.leading){
                                     
                                     Text(name3).fontWeight(.bold)
-                                    if let elo = currentGame.player3?.elo {
-                                        Text("Ranking: \(elo)")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }else{
-                                        Text("Download Tichu App to get ranked")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }
+                                    
                                     
                                 }
                                 Spacer()
-                                if let data = currentGame.player3?.imageData,
-                                   let uiImage = UIImage(data: data) {
-                                    ProfileImage(selectedImage: uiImage, size: 44)
-                                } else {
-                                    ProfileImage(selectedImage: nil, size: 44)
+                                if let elo = currentGame.player3?.elo {
+                                    Text("Ranking: \(elo)")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
+                                }else{
+                                    Text("Download Tichu App to get ranked")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
                                 }
+                             
+                                
                                 
                             }
                         }else{
@@ -270,27 +261,25 @@ struct PlayView: View {
                         if let name4 = currentGame.player4?.name {
                             
                             HStack{
+                                ProfileImage(data: currentGame.player4?.imageData, size: 44)
                                 VStack(alignment:.leading){
                                     
                                     Text(name4).fontWeight(.bold)
-                                    if let elo = currentGame.player4?.elo {
-                                        Text("Ranking: \(elo)")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }else{
-                                        Text("Download Tichu App to get ranked")
-                                            .foregroundStyle(.secondary)
-                                            .font(.system(size: 16))
-                                    }
+                                    
                                     
                                 }
                                 Spacer()
-                                if let data = currentGame.player4?.imageData,
-                                   let uiImage = UIImage(data: data) {
-                                    ProfileImage(selectedImage: uiImage, size: 44)
-                                } else {
-                                    ProfileImage(selectedImage: nil, size: 44)
+                                if let elo = currentGame.player4?.elo {
+                                    Text("Ranking: \(elo)")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
+                                }else{
+                                    Text("Download Tichu App to get ranked")
+                                        .foregroundStyle(.secondary)
+                                        .font(.system(size: 16))
                                 }
+                                
+                                
                                 
                             }
                         }else{
@@ -333,19 +322,24 @@ struct PlayView: View {
                         }
                     }
                     
-                }.onChange(of: isGameReady) {
+                }.id(userImageData).onChange(of: isGameReady) {
                     
                     // Build teams
                     if let _ = currentGame.player2?.name {
-                        team1 = Team(list: [userProfile, currentGame.player2!],name: "Team 1")
+                        team1 = Team(list: [currentGame.player1!, currentGame.player2!],name: "Team 1")
                     }
                     if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
                         team2 = Team(list: [currentGame.player3!, currentGame.player4!], name: "Team 2")
+                    }
+                    //If empty game loads up set user as Player 1
+                    if isGameReady == false{
+                        loadUser()
                     }
                     currentRound.team1 = team1
                     currentRound.team2 = team2
                     currentGame.team1 = team1
                     currentGame.team2 = team2
+                    
                 }
                 .onChange(of:gameDone){
                     if gameDone == true{
@@ -382,15 +376,7 @@ struct PlayView: View {
                     .foregroundStyle(
                         Color.secondary
                       
-                    ).onChange(of: isGameReady) {
-                        
-                        userProfile.name = userName
-                        userProfile.elo = userElo
-                        userProfile.imageData = userImageData
-                        userImage = dataToPhoto(data: userProfile.imageData)
-                        currentGame.player1 = userProfile
-                    
-                    }
+                    )
                     .allowsHitTesting(false)
                 }.edgesIgnoringSafeArea(.all).background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
@@ -405,7 +391,7 @@ struct PlayView: View {
                         }
                     }
                     ToolbarItem(placement:.topBarTrailing){
-                        ProfileImage(selectedImage: userImage, size: 44)
+                        ProfileImage(data: userImageData, size: 44)
                         
                     }.sharedBackgroundVisibility(.hidden)
                     
@@ -443,7 +429,9 @@ struct PlayView: View {
                             
                         }else if currentGame.Rounds.count == 0{
                             Button {
-                                currentGame = tichuGame()
+                                withAnimation(.easeInOut) {
+                                    currentGame = tichuGame()
+                                }
                             } label: {
                                 HStack {
                                     Image(systemName: "trash")
@@ -479,13 +467,35 @@ struct PlayView: View {
                         
                     }
                 }
+            }else{
+                HStack{
+                    Spacer()
+                    
+                    Menu{
+                        Picker("Game Target",selection:$currentGame.target){
+                            
+                            Text("250").tag(250)
+                            Text("500").tag(500)
+                            Text("1000").tag(1000)
+                            Text("2000").tag(2000)
+                            Text("10000").tag(10000)
+                            
+                        }
+                        
+                        Toggle(isOn: $currentGame.allowPingus) {
+                                Text("Allow Pingus")
+                            }
+                        
+                        
+                    }label:{
+                        Image(systemName:"gear").font(.system(size:24))
+                    }.foregroundStyle(.primary).padding(10).glassEffect(.regular.interactive(),in: Circle())
+                }.padding(.horizontal,20).padding(.bottom,10)
+                
+                    
             }
         }.onAppear{
-            userProfile.name = userName
-            userProfile.elo = userElo
-            userProfile.imageData = userImageData
-            userImage = dataToPhoto(data: userProfile.imageData)
-            currentGame.reCount()
+           loadUser()
    
         }
     }

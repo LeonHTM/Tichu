@@ -242,7 +242,7 @@ let exampleProfilesReduced: [Profile] = [
 var exampleGring: Profile = Profile(
     name: "MICHI GRINGNG",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
-    isFriend: true,
+    isFriend: false,
     elo: 887,
     winnerPercentage: 31,
     tichuMaster: 9.6,
@@ -829,3 +829,9 @@ let exampleGame6 = tichuGame(
 
 
 var exampleHistory:[tichuGame] = []
+
+let exampleFriends:[Profile]=[
+    exampleJo,
+    exampleSorin,
+    exampleLuis,
+]

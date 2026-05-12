@@ -234,7 +234,7 @@ struct StatsView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(selectedImage: selectedImage, size: 44)
+                    ProfileImage(data: userImageData, size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -365,8 +365,6 @@ struct StatsView: View {
                 }
                
             }
-        }.onAppear {
-            selectedImage = dataToPhoto(data:userImageData)
         }
         
     }

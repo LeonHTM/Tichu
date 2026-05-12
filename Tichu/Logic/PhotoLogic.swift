@@ -19,13 +19,13 @@ func dataToPhoto(data: Data?) -> UIImage? {
             
    
 
-
 //Render photo from UIImage + Fallback if no photo exists
 @ViewBuilder
-func ProfileImage(selectedImage: UIImage?, size: Int) -> some View {
+func ProfileImage(data: Data?, size: Int) -> some View {
+    
     let size = CGFloat(size)
-    if let selectedImage {
-        Image(uiImage: selectedImage)
+    if let data {
+        Image(uiImage: dataToPhoto(data: data)!)
             .resizable()
             .scaledToFill()
             .frame(width: size, height: size)
