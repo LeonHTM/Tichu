@@ -18,6 +18,7 @@ struct ProfileView: View {
      
     //Vars
     //Photo Logic
+    @State private var selectedPlayer: Profile?
     @State private var showPhotoSheet: Bool = false
     @State private var pickerItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
@@ -108,7 +109,7 @@ struct ProfileView: View {
                         .offset(x:-12)
                         .foregroundColor(.primary)
                         .sheet(isPresented: $showFriendsSheet) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showFriendsSheet,addPlayer:.constant(exampleLeon),alreadyAdded: [],showGuest:false,showPlayers:false,guestIndex:0).presentationDetents([.medium,.large])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showFriendsSheet,addPlayer:$selectedPlayer,alreadyAdded: [],showGuest:false,showPlayers:false,showFriends:true,guestIndex:0).presentationDetents([.medium,.large])
                             
                         }
                     }

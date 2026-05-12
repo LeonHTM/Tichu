@@ -11,6 +11,8 @@ struct HistoryView: View {
     // Storage
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("selectedTab") private var selectedTab = 0
+    @Environment(\.colorScheme) var colorScheme
+    
 
     // State
     @State private var selectedImage: UIImage?
@@ -92,10 +94,7 @@ struct HistoryView: View {
                                         }
                                         .padding(10)
                                         .padding(.vertical, 13)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .fill(Color(uiColor: .tertiarySystemFill))
-                                        )
+                                        .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                                         .foregroundColor(.primary)
                                         .overlay {
                                             RoundedRectangle(cornerRadius: 20)
@@ -132,6 +131,7 @@ struct HistoryView: View {
                                 .frame(height: centerY - rowHeight / 2+50)
                         }
                     }
+                    .background(Color(uiColor: .systemGroupedBackground))
                     .scrollTargetBehavior(.viewAligned)
                 }
             }
@@ -159,7 +159,7 @@ struct HistoryView: View {
             }
         }.safeAreaInset(edge: .top) {
             
-            GameSummaryChartView(currentGame: $selectedGame ).frame(height:200).padding().glassEffect( .regular.tint(Color(uiColor: .tertiarySystemFill)).interactive(), in: .rect(cornerRadius: 20) ).padding(.top,50).padding(.horizontal,10).padding(.top,5)
+            GameSummaryChartView(currentGame: $selectedGame ).frame(height:200).padding().glassEffect( .regular.tint(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white,).interactive(), in: .rect(cornerRadius: 20) ).padding(.top,50).padding(.horizontal,10).padding(.top,5)
             
             
             

@@ -7,7 +7,23 @@
 
 import SwiftUI
 
-
+var exampleTest: Profile = Profile(
+    name:"Test",
+    imageData: UIImage(named: "AppIcon")?.jpegData(compressionQuality: 1),
+    isFriend: false,
+    elo: 887,
+    winnerPercentage: 31,
+    tichuMaster: 9.6,
+    visionary: 68,
+    addict: 70,
+    teamplayer: 8,
+    announcer:20,
+    saboteur: 27,
+    gambler: 71,
+    bigGambler: 63,
+    pinguGambler:91,
+    bomber: 5
+)
 
 
 let exampleProfiles: [Profile] = [
@@ -15,6 +31,8 @@ let exampleProfiles: [Profile] = [
     exampleSorin,
     exampleJo,
     exampleLuis,
+    exampleTest,
+    
    
 
     Profile(
@@ -121,6 +139,23 @@ let exampleProfiles: [Profile] = [
         bigGambler: 78,
         pinguGambler:11,
         bomber: 10
+    ),
+    Profile(
+        name: "Auin Pennerin",
+        imageData: UIImage(named: "pfp_Sonja")?.jpegData(compressionQuality: 1),
+        isFriend: false,
+        elo: 500,
+        winnerPercentage: 98,
+        tichuMaster: 21.293811,
+        visionary: 47,
+        addict: 1,
+        teamplayer: 45,
+        announcer: 23,
+        saboteur: 56,
+        gambler: 78,
+        bigGambler: 78,
+        pinguGambler:11,
+        bomber: 10
     )
     
 ]
@@ -204,7 +239,25 @@ let exampleProfilesReduced: [Profile] = [
 ]
 
 
-let exampleLeon: Profile = Profile(
+var exampleGring: Profile = Profile(
+    name: "MICHI GRINGNG",
+    imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
+    isFriend: true,
+    elo: 887,
+    winnerPercentage: 31,
+    tichuMaster: 9.6,
+    visionary: 68,
+    addict: 70,
+    teamplayer: 8,
+    announcer: 22,
+    saboteur: 27,
+    gambler: 71,
+    bigGambler: 63,
+    pinguGambler:91,
+    bomber: 5
+)
+
+var exampleLeon: Profile = Profile(
     name: "Leon",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -222,7 +275,7 @@ let exampleLeon: Profile = Profile(
     bomber: 5
 )
 
-let exampleLuis: Profile = Profile(
+var exampleLuis: Profile = Profile(
     name: "Luis",
     imageData: UIImage(named: "pfp_Luis")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -240,7 +293,7 @@ let exampleLuis: Profile = Profile(
     bomber: 3
 )
 
-let exampleSorin: Profile = Profile(
+var exampleSorin: Profile = Profile(
     name: "Sorin",
     imageData: UIImage(named: "pfp_Sorin")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -258,7 +311,7 @@ let exampleSorin: Profile = Profile(
     bomber: 4
 )
 
-let exampleJo: Profile = Profile(
+var exampleJo: Profile = Profile(
     name: "Jo",
     imageData: UIImage(named: "pfp_Jo")?.jpegData(compressionQuality: 1),
     isFriend: true,
@@ -275,7 +328,6 @@ let exampleJo: Profile = Profile(
     pinguGambler:75,
     bomber: 3
 )
-
 
 
 

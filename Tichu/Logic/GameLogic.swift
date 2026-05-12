@@ -1,5 +1,5 @@
 //
-//  gameLogic.swift
+//  GameLogic.swift
 //  Tichu
 //
 //  Created by Leon on 27.04.2026.

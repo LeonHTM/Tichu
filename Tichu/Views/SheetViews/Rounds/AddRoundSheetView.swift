@@ -240,8 +240,8 @@ struct AddRoundSheetView: View {
                                     .fontWeight(.bold)
                                     .foregroundStyle(Color.accentColor)
                                 VStack {
-                                    playerContainer(player: currentGame.player1 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs,currentGame:$currentGame)
-                                    playerContainer(player: currentGame.player2 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs,currentGame:$currentGame)
+                                    PlayerContainer(player: currentGame.player1 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs,currentGame:$currentGame)
+                                    PlayerContainer(player: currentGame.player2 ?? Profile(),team:currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs,currentGame:$currentGame)
                                 }
                                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                             }
@@ -252,8 +252,8 @@ struct AddRoundSheetView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             VStack {
-                                playerContainer(player: currentGame.player3 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs,currentGame:$currentGame)
-                                playerContainer(player: currentGame.player4 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs,currentGame:$currentGame)
+                                PlayerContainer(player: currentGame.player3 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs,currentGame:$currentGame)
+                                PlayerContainer(player: currentGame.player4 ?? Profile(),team:currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs,currentGame:$currentGame)
                             }
                             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                         }

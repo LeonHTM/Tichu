@@ -1,5 +1,5 @@
 //
-//  playerContainer.swift
+//  PlayerContainer.swift
 //  Tichu
 //
 //  Created by Leon on 01.05.2026.
@@ -15,7 +15,7 @@ enum CanAnnounce: Equatable {
     case pingu
 }
 
-struct playerContainer: View {
+struct PlayerContainer: View {
     
     var player: Profile
     var team: Team
@@ -87,7 +87,7 @@ struct playerContainer: View {
         @State var hasAnnounced: CanAnnounce = .none
         @State var bombNumber: Int = 0
         var body: some View {
-            playerContainer(player: exampleSorin,team: exampleTeam1,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber,currentGame: .constant(exampleGame))
+            PlayerContainer(player: exampleSorin,team: exampleTeam1,hasAnnounced: $hasAnnounced, bombNumber: $bombNumber,currentGame: .constant(exampleGame))
         }
     }
     return PreviewWrapper()

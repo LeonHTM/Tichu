@@ -14,33 +14,45 @@ struct AddPlayersSheetView: View {
     var alreadyAdded: [Profile]
     var showGuest: Bool
     var showPlayers: Bool
+    var showFriends: Bool
     var guestIndex: Int
     @State private var friendsFilterActive: Bool = false
     @State private var playersFilterActive: Bool = false
     @State private var ascendingFriends: Bool = true
     @State private var ascendingPlayers: Bool = true
     @State private var searchText: String = ""
+    @State private var showAddPlayerSheet2: Bool = false
+    @State private var selectedPlayer: Profile?
+    @State private var profileList: [Profile] = exampleProfiles
     
+    private var sortedFriends: [Profile] {
+        profileList
+            .filter { $0.isFriend }
+            .sorted {
+                let l = $0.name ?? ""
+                let r = $1.name ?? ""
+
+                return ascendingFriends
+                    ? l.localizedCaseInsensitiveCompare(r) == .orderedAscending
+                    : l.localizedCaseInsensitiveCompare(r) == .orderedDescending
+            }
+            .filter {
+                let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+
+                guard !query.isEmpty else { return true }
+
+                return ($0.name ?? "")
+                    .range(of: query,
+                           options: [.caseInsensitive, .diacriticInsensitive]) != nil
+            }
+    }
     
     var body: some View {
         
         NavigationStack{
             
-            let sortedFriends: [Profile] = exampleProfiles
-                .filter { $0.isFriend }
-                .sorted { (lhs, rhs) in
-                    let l = lhs.name ?? ""
-                    let r = rhs.name ?? ""
-                    return ascendingFriends ? (l.localizedCaseInsensitiveCompare(r) == .orderedAscending) : (l.localizedCaseInsensitiveCompare(r) == .orderedDescending)
-                }
-                .filter { Profile in
-                    let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-                    guard !query.isEmpty else { return true }
-                    let name = Profile.name ?? ""
-                    return name.range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-                }
-
-            let sortedPlayers: [Profile] = exampleProfiles
+          
+            let sortedPlayers: [Profile] = profileList
                 .sorted { (lhs, rhs) in
                     let l = lhs.name ?? ""
                     let r = rhs.name ?? ""
@@ -72,75 +84,76 @@ struct AddPlayersSheetView: View {
                         }
                     }
                 }
-                
-                if !sortedFriends.isEmpty{
-                    Section(){
-                        HStack{
-                            Text("Friends").fontWeight(.bold)
-                            Spacer()
-                            if sortedFriends.count != 1 {
-                                Menu {
-                                    Button() {
-                                        withAnimation(.easeInOut) {
-                                            ascendingFriends = true
-                                            friendsFilterActive = false
-                                        }
-                                    } label: {
-                                        if ascendingFriends == true {
-                                            Image(systemName:"checkmark")
-                                        }else{
-                                            Image("ABC.down")
-                                        }
-                                        Text("Alphabetical (A-Z)")
-                                    }
-                                    Button() {
-                                        withAnimation(.easeInOut) {
-                                            ascendingFriends = false
-                                            friendsFilterActive = true
-                                        }
-                                    } label: {
-                                        if ascendingFriends == true {
-                                            Image("ABC.up")
-                                        }else{
-                                            Image(systemName:"checkmark")
-                                        }
-                                        Text("Alphabetical (Z-A)")
-                                        
-                                    }
-                                } label: {
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .font(.system(size: 20))
-                                }
-                                .foregroundColor(friendsFilterActive ? .accentColor : .primary)
-                            }
-                            
-                        }.padding(.top,20)
-                    }.listRowBackground(Color.clear)
-                        
-                }
-                
-                
-                Section(){
-                    ForEach(sortedFriends) { Profile in
-                        Button(){
-                            addPlayer = Profile
-                            showAddPlayersSheet = false
-                        }label:{
+                if showFriends == true{
+                    if !sortedFriends.isEmpty{
+                        Section(){
                             HStack{
-                                Text(Profile.name ?? "Unknown")
+                                Text("Friends").fontWeight(.bold)
                                 Spacer()
-                                if let data = Profile.imageData,
-                                   let uiImage = UIImage(data: data) {
-                                    ProfileImage(selectedImage: uiImage, size: 44)
-                                } else {
-                                    ProfileImage(selectedImage: nil, size: 44)
+                                if sortedFriends.count != 1 {
+                                    Menu {
+                                        Button() {
+                                            withAnimation(.easeInOut) {
+                                                ascendingFriends = true
+                                                friendsFilterActive = false
+                                            }
+                                        } label: {
+                                            if ascendingFriends == true {
+                                                Image(systemName:"checkmark")
+                                            }else{
+                                                Image("ABC.down")
+                                            }
+                                            Text("Alphabetical (A-Z)")
+                                        }
+                                        Button() {
+                                            withAnimation(.easeInOut) {
+                                                ascendingFriends = false
+                                                friendsFilterActive = true
+                                            }
+                                        } label: {
+                                            if ascendingFriends == true {
+                                                Image("ABC.up")
+                                            }else{
+                                                Image(systemName:"checkmark")
+                                            }
+                                            Text("Alphabetical (Z-A)")
+                                            
+                                        }
+                                    } label: {
+                                        Image(systemName: "line.3.horizontal.decrease.circle")
+                                            .font(.system(size: 20))
+                                    }
+                                    .foregroundColor(friendsFilterActive ? .accentColor : .primary)
                                 }
                                 
-                            }
-                        }.disabled(alreadyAdded.contains(where: { $0.id == Profile.id }))
-                            .foregroundColor(alreadyAdded.contains(where: { $0.id == Profile.id }) ? .secondary : .primary)
-                        .transition(.move(edge: .top).combined(with: .opacity))
+                            }.padding(.top,20)
+                        }.listRowBackground(Color.clear)
                         
+                    }
+                    
+                    
+                    Section(){
+                        ForEach(sortedFriends) { Profile in
+                            Button(){
+                                addPlayer = Profile
+                                showAddPlayersSheet = false
+                            }label:{
+                                HStack{
+                                    Text(Profile.name ?? "Unknown")
+                                    Spacer()
+                                    if let data = Profile.imageData,
+                                       let uiImage = UIImage(data: data) {
+                                        ProfileImage(selectedImage: uiImage, size: 44)
+                                    } else {
+                                        ProfileImage(selectedImage: nil, size: 44)
+                                    }
+                                    
+                                }
+                            }.disabled(alreadyAdded.contains(where: { $0.id == Profile.id }))
+                                .foregroundColor(alreadyAdded.contains(where: { $0.id == Profile.id }) ? .secondary : .primary)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                            
+                        }
                     }
                 }
                 if showPlayers == true{
@@ -192,8 +205,10 @@ struct AddPlayersSheetView: View {
                     
                     ForEach(sortedPlayers) { Profile in
                         Button(){
-                            addPlayer = Profile
-                            showAddPlayersSheet = false
+                            if showPlayers == true{
+                                addPlayer = Profile
+                                showAddPlayersSheet = false
+                            }
                         }label:{
                             HStack{
                                 Text(Profile.name ?? "Unknown")
@@ -214,18 +229,17 @@ struct AddPlayersSheetView: View {
                     }
                 }
                 
-           
-                    
-               
                 
-                
-                
-            }.padding(.top,showGuest==true ? 0 : -45)
+            }.searchable(text: $searchText)
+            .padding(.top,showGuest==true ? 0 : -45)
             .listSectionSpacing(0)
             .animation(.easeInOut, value: ascendingFriends)
             .animation(.easeInOut, value: ascendingPlayers)
             .animation(.easeInOut, value: searchText)
-            .navigationTitle("Add Players")
+            .navigationTitle(
+                showPlayers == true && showFriends == true ? "Add Players" :
+                    showFriends == false ? "Add Friend" :
+                             "Edit Friends")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                                 ToolbarItem(placement:.cancellationAction){
@@ -234,13 +248,14 @@ struct AddPlayersSheetView: View {
                     }
                 }
             }
-        }.searchable(text: $searchText) 
+            
+        }
         
     }
 }
 
 
 #Preview {
-    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false,showPlayers:false,guestIndex:2)
+    AddPlayersSheetView(showAddPlayersSheet: .constant(true),addPlayer:.constant(exampleProfiles[0]),alreadyAdded:[],showGuest:false,showPlayers:false,showFriends: true,guestIndex:2)
 }
 

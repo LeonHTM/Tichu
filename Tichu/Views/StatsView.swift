@@ -52,7 +52,7 @@ struct StatsView: View {
                     spacing: 15
                 ) {
 
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Rating"),
                         description: .constant("All time Elo Rating"),
                         image: .constant("chart.line.uptrend.xyaxis"),
@@ -67,7 +67,7 @@ struct StatsView: View {
                     )
                     .transition(.opacity.combined(with: .scale))
 
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Winner"),
                         description: .constant("Percentage of Games won"),
                         image: .constant("trophy"),
@@ -80,7 +80,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Tichumaster"),
                         description: .constant("Points from Tichu per Round"),
                         image: .constant("number"),
@@ -93,7 +93,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Visionary"),
                         description: .constant("Tichu announced when finished first"),
                         image: .constant("checkmark.circle"),
@@ -107,7 +107,7 @@ struct StatsView: View {
                     )
                     .transition(.opacity.combined(with: .scale))
 
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Addict"),
                         description: .constant("Games played"),
                         image: .constant("pill"),
@@ -120,7 +120,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .addict, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Teamplayer"),
                         description: .constant("Double Win Rate"),
                         image: .constant("hands.clap"),
@@ -133,7 +133,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Announcer"),
                         description: .constant("Big and Small Tichus announced per Round"),
                         image: .constant("megaphone"),
@@ -146,7 +146,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Saboteur"),
                         description: .constant("Tichu prevented ratio"),
                         image: .constant("xmark.circle"),
@@ -159,7 +159,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Gambler"),
                         description: .constant("Tichu success ratio"),
                         image: .constant("exclamationmark.circle"),
@@ -172,7 +172,7 @@ struct StatsView: View {
                         items:makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
                     )
                     .transition(.opacity.combined(with: .scale))
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Big Gambler"),
                         description: .constant("Big Tichu success ratio"),
                         image: .constant("exclamationmark.2.circle"),
@@ -186,7 +186,7 @@ struct StatsView: View {
                     )
                     .transition(.opacity.combined(with: .scale))
                     
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Pingu Gambler"),
                         description: .constant("Pingu success ratio"),
                         image: .constant("exclamationmark.3.circle"),
@@ -208,7 +208,7 @@ struct StatsView: View {
                     
                     
                     
-                    statsContainerView(
+                    StatsContainer(
                         title: .constant("Bomber"),
                         description: .constant("Bombs per Round ratio"),
                         image: .constant("flame"),
@@ -225,6 +225,7 @@ struct StatsView: View {
                 .animation(.easeInOut, value: compareList.map { $0.id })
                 .padding()
             }
+            .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {
                 
             }
@@ -356,7 +357,7 @@ struct StatsView: View {
                                 }
                             }
                         }) {
-                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false,showPlayers:true,guestIndex:2).presentationDetents([.medium,.large])
+                            AddPlayersSheetView(showAddPlayersSheet:  $showAddPlayersSheet,addPlayer:$addPlayer,alreadyAdded: compareList,showGuest:false,showPlayers:true,showFriends:true,guestIndex:2).presentationDetents([.medium,.large])
                             
                         }
                          //alternatively .buttonStyle(.glass)

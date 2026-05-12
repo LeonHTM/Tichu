@@ -1,5 +1,5 @@
 //
-// photoLogic.swift
+// PhotoLogic.swift
 //  Tichu
 //
 //  Created by Leon on 22.04.2026.

@@ -1,13 +1,13 @@
 //
-//  statsContainerView.swift
+//  StatsContainer.swift
 //  Tichu
 //
 //  Created by Leon on 24.04.2026.
 //
 
 import SwiftUI
-//StatsContainerView -> The class of Conatiners used in StatsView
-struct statsContainerView: View {
+//StatsContainer -> The class of Conatiners used in StatsView
+struct StatsContainer: View {
     //Bindings
     @Binding var title: String
     @Binding var description: String
@@ -18,6 +18,7 @@ struct statsContainerView: View {
     @Binding var percentage: Bool
     var inTop: Double
     var stat: Profile.playerStat
+    @Environment(\.colorScheme) var colorScheme
     //Computed Vars
     var items: [Profile]
     
@@ -140,7 +141,8 @@ struct statsContainerView: View {
                         .stroke(Color.bronce, lineWidth: 1)
                 }*/
                 }
-            .glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24))
+            .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
+            //.glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24))
             
     }
 }
@@ -166,7 +168,7 @@ struct sortBy{
 
 
 /*#Preview {
-    statsContainerView(
+    StatsContainer(
         title: .constant("Rating"),
         description: .constant("All Time Elo Rating"),
         image: .constant("exclamationmark.2.circle"),

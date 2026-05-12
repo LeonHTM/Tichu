@@ -156,6 +156,7 @@ struct PlayView: View {
                                             ].compactMap { $0 },
                                             showGuest: true,
                                             showPlayers:true,
+                                            showFriends:true,
                                             guestIndex: 2
                                         )
                                         .presentationDetents([.medium, .large])
@@ -253,6 +254,7 @@ struct PlayView: View {
                                         ].compactMap { $0 },
                                         showGuest: true,
                                         showPlayers:true,
+                                        showFriends:true,
                                         guestIndex:3
                                     )
                                     .presentationDetents([.medium, .large])
@@ -313,6 +315,7 @@ struct PlayView: View {
                                             ].compactMap { $0 },
                                             showGuest: true,
                                             showPlayers:true,
+                                            showFriends:true,
                                             guestIndex: 4
                                         )
                                         .presentationDetents([.medium, .large])
