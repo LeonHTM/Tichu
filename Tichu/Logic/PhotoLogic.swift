@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import UIKit
-//From stored data do UIImage
+//MARK: - From stored data do UIImage
 func dataToPhoto(data: Data?) -> UIImage? {
     if let data,
        let image = UIImage(data: data) {
@@ -17,9 +17,7 @@ func dataToPhoto(data: Data?) -> UIImage? {
     return nil
 }
             
-   
-
-//Render photo from UIImage + Fallback if no photo exists
+//MARK: - Render photo from UIImage + Fallback if no photo exists
 @ViewBuilder
 func ProfileImage(data: Data?, size: Int) -> some View {
     
@@ -40,4 +38,17 @@ func ProfileImage(data: Data?, size: Int) -> some View {
     }
 }
 
+// MARK: - Activity View Controller
+struct ActivityViewController: UIViewControllerRepresentable {
+    let activityItems: [Any]
 
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+extension UIImage: Identifiable {
+    public var id: ObjectIdentifier { ObjectIdentifier(self) }
+}

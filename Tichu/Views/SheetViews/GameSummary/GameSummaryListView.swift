@@ -82,6 +82,7 @@ struct  GameSummaryListView: View {
             if showList == false {
                 
                 List {
+                    
                  
                     ForEach(Array($currentGame.Rounds), id: \.id) { $currentRound in
                         let index = currentGame.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
@@ -339,6 +340,16 @@ struct  GameSummaryListView: View {
                         }.listRowBackground(Color.clear).foregroundStyle(.secondary)
                         
                     }
+                    if allowEditing == false{
+                        Section{
+                            HStack{
+                                Spacer()
+                                Text("Played on")
+                                Text(currentGame.date, style: .date)
+                                Spacer()
+                            }.foregroundStyle(Color.secondary)
+                        }.listRowBackground(Color.clear).fontWeight(.bold)
+                    }
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss:{
                 
@@ -396,7 +407,7 @@ struct  GameSummaryListView: View {
     GameSummaryListView(
         showGameSummarySheetView: .constant(true),
         currentGame: .constant(exampleGame),
-        allowEditing:true
+        allowEditing:false
     )
 }
 

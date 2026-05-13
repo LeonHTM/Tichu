@@ -8,393 +8,111 @@
 import SwiftUI
 
 struct PlayView: View {
-    //Storage Usernames
-    @State private var userProfile = Profile()
+
+    // MARK: - Storage
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("userImageData") private var userImageData: Data?
-    @State private var userImage: UIImage?
-    
-    
-    @State private var showAddPlayersSheet2:Bool = false
-    @State private var showAddPlayersSheet3:Bool = false
-    @State private var showAddPlayersSheet4:Bool = false
-    
+
+    // MARK: - State
+    @State private var showAddPlayersSheet2: Bool = false
+    @State private var showAddPlayersSheet3: Bool = false
+    @State private var showAddPlayersSheet4: Bool = false
     @State private var showEditRoundsSheet: Bool = false
     @State private var showAddRoundSheet: Bool = false
     @State private var showDebugSheetView: Bool = false
-    
+    @State private var showGameOverSheet: Bool = false
+
     @State private var team1 = Team()
     @State private var team2 = Team()
-    
     @State private var currentGame = tichuGame()
-    
-    @State private var currentRound =  Round()
+    @State private var currentRound = Round()
+
     @FocusState private var targetFieldFocused: Bool
-    @State private var showGameOverSheet = false
-    
-        
-    private var isGameReady:Bool{
+
+    // MARK: - Computed
+    private var isGameReady: Bool {
         currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
     }
-    
-    private var gameDone :Bool{
-        return currentGame.winner != nil
-    }
-    
-    private var isRated: Bool {
-            let players = [
-                currentGame.player1,
-                currentGame.player2,
-                currentGame.player3,
-                currentGame.player4
-            ].compactMap { $0 }
 
-          
-            return !players.contains { $0.elo == nil }
-        }
-    
-    func loadUser(){
-        if currentGame.player1 == nil{
+    private var gameDone: Bool {
+        currentGame.winner != nil
+    }
+
+    private var isRated: Bool {
+        let players = [
+            currentGame.player1,
+            currentGame.player2,
+            currentGame.player3,
+            currentGame.player4
+        ].compactMap { $0 }
+        return !players.contains { $0.elo == nil }
+    }
+
+    // MARK: - Methods
+    func loadUser() {
+        if currentGame.player1 == nil {
             currentGame.player1 = Profile()
             currentGame.player1!.name = userName
             currentGame.player1!.elo = userElo
             currentGame.player1!.imageData = userImageData
         }
     }
-    
+
+    // MARK: - Body
     var body: some View {
-        ZStack{
-            NavigationStack{
-                
-                List{
-                    Section{
-                        HStack{
-                            Text("Team 1")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.accentColor)
-                            Spacer()
-                           
-                            
-                            if isGameReady{
-                                Text("\(currentGame.currentPointsTeam1)").font(.title2)
-                                    .fontWeight(.bold)
-                                    
-                            }
-                        } 
-                        .listRowBackground(Color.clear)
-                    }.padding(.top,65)
-                    Section{
-                        HStack{
-                            ProfileImage(data: currentGame.player1?.imageData, size: 44)
-                            VStack(alignment:.leading){
-                                
-                                Text(currentGame.player1?.name ?? "Unknown")
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.accentColor)
-                                
-                            }
-                            Spacer()
-                            Text("Ranking: \(currentGame.player1?.elo ?? -69420)")
-                                .foregroundStyle(.secondary)
-                                .font(.system(size: 16))
-                            
-                        }
-                        if let name2 = currentGame.player2?.name  {
-                            
-                            HStack{
-                                ProfileImage(data: currentGame.player2?.imageData, size: 44)
-                                VStack(alignment:.leading){
-                                   
-                                    Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
-                                    
-                                 
-                                    
-                                }
-                                Spacer()
-                                if let elo = currentGame.player2?.elo {
-                                    Text("Ranking: \(elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }else{
-                                    Text("Download Tichu App to get ranked")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }
-                               
-                                
-                                
-                            }
-                        }else{
-                            HStack{
-                                Spacer()
-                                Image(systemName:"plus.circle.fill")
-                                
-                                VStack(alignment:.leading){
-                                    
-                                    
-                                    Button("Add Player 2"){
-                                        showAddPlayersSheet2 = true
-                                    }
-                                    .fontWeight(.bold).foregroundColor(.primary)
-                                    .padding(.vertical,10.6)
-                                    .sheet(isPresented: $showAddPlayersSheet2) {
-                                        AddPlayersSheetView(
-                                            showAddPlayersSheet: $showAddPlayersSheet2,
-                                            addPlayer: $currentGame.player2,
-                                            alreadyAdded: [
-                                                currentGame.player3,
-                                                currentGame.player4
-                                            ].compactMap { $0 },
-                                            showGuest: true,
-                                            showPlayers:true,
-                                            showFriends:true,
-                                            guestIndex: 2
-                                        )
-                                        .presentationDetents([.medium, .large])
-                                        
-                                    }
-                                    
-                                    
-                                    
-                                    
-                                }
-                                
-                                Spacer()
-                                
-                            }
-                            
-                        }
-                        
-                        
-                        
-                    }
-                    Section{
-                        Spacer()
-                    }.listRowBackground(Color.clear)
-                    Section{
-                        HStack{
-                            Spacer()
-                            
-                            Spacer()
-                            
-                        }.padding(.vertical,isGameReady ? 37 : 60)
-                    }.listRowBackground(Color.clear)
-                    Section{
-                        Spacer()
-                    }.listRowBackground(Color.clear)
-                    
-                    Section{
-                        HStack{
-                            Text("Team 2")
-                                
-                            Spacer()
-                            if isGameReady{
-                                Text("\(currentGame.currentPointsTeam2)")
-                            }
-                        }
-                    }.font(.title2)
-                        .fontWeight(.bold)
-                        .listRowBackground(Color.clear)
-                    Section{
-                        if let name3 = currentGame.player3?.name  {
-                            
-                            HStack{
-                                ProfileImage(data: currentGame.player3?.imageData, size: 44)
-                                VStack(alignment:.leading){
-                                    
-                                    Text(name3).fontWeight(.bold)
-                                    
-                                    
-                                }
-                                Spacer()
-                                if let elo = currentGame.player3?.elo {
-                                    Text("Ranking: \(elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }else{
-                                    Text("Download Tichu App to get ranked")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }
-                             
-                                
-                                
-                            }
-                        }else{
-                            HStack{
-                                Text("")
-                                Spacer()
-                                Image(systemName:"plus.circle.fill")
-                                
-                                VStack(alignment:.leading){
-                                    
-                                    
-                                    Button("Add Player 3"){showAddPlayersSheet3 = true}.fontWeight(.bold).foregroundColor(.primary)
-                                    
-                                    
-                                    
-                                }.fontWeight(.bold).foregroundColor(.primary).padding(.vertical,10.6).sheet(isPresented: $showAddPlayersSheet3) {
-                                    AddPlayersSheetView(
-                                        showAddPlayersSheet: $showAddPlayersSheet3,
-                                        addPlayer: $currentGame.player3,
-                                        alreadyAdded: [
-                                            currentGame.player2,
-                                            currentGame.player4
-                                        ].compactMap { $0 },
-                                        showGuest: true,
-                                        showPlayers:true,
-                                        showFriends:true,
-                                        guestIndex:3
-                                    )
-                                    .presentationDetents([.medium, .large])
-                                    
-                                    
-                                }
-                                
-                                Spacer()
-                                
-                            }
-                            
-                        }
-                        if let name4 = currentGame.player4?.name {
-                            
-                            HStack{
-                                ProfileImage(data: currentGame.player4?.imageData, size: 44)
-                                VStack(alignment:.leading){
-                                    
-                                    Text(name4).fontWeight(.bold)
-                                    
-                                    
-                                }
-                                Spacer()
-                                if let elo = currentGame.player4?.elo {
-                                    Text("Ranking: \(elo)")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }else{
-                                    Text("Download Tichu App to get ranked")
-                                        .foregroundStyle(.secondary)
-                                        .font(.system(size: 16))
-                                }
-                                
-                                
-                                
-                            }
-                        }else{
-                            HStack{
-                                Spacer()
-                                Image(systemName:"plus.circle.fill")
-                                
-                                VStack(alignment:.leading){
-                                    
-                                    
-                                    Button("Add Player 4"){
-                                        showAddPlayersSheet4 = true
-                                    }
-                                    .fontWeight(.bold).foregroundColor(.primary)
-                                    .sheet(isPresented: $showAddPlayersSheet4) {
-                                        AddPlayersSheetView(
-                                            showAddPlayersSheet: $showAddPlayersSheet4,
-                                            addPlayer: $currentGame.player4,
-                                            alreadyAdded: [
-                                                currentGame.player2,
-                                                currentGame.player3
-                                            ].compactMap { $0 },
-                                            showGuest: true,
-                                            showPlayers:true,
-                                            showFriends:true,
-                                            guestIndex: 4
-                                        )
-                                        .presentationDetents([.medium, .large])
-                                        
-                                    }
-                                    
-                                    
-                                    
-                                }.padding(.vertical,10.6)
-                                
-                                Spacer()
-                                
-                            }
-                            
-                        }
-                    }
-                    
-                }.id(userImageData).onChange(of: isGameReady) {
-                    
-                    // Build teams
+        ZStack {
+            NavigationStack {
+                List {
+                    team1Header
+                    team1Players
+                    centerSpacer
+                    team2Header
+                    team2Players
+                }
+                .id(userImageData)
+                .onChange(of: isGameReady) {
                     if let _ = currentGame.player2?.name {
-                        team1 = Team(list: [currentGame.player1!, currentGame.player2!],name: "Team 1")
+                        team1 = Team(list: [currentGame.player1!, currentGame.player2!], name: "Team 1")
                     }
                     if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
                         team2 = Team(list: [currentGame.player3!, currentGame.player4!], name: "Team 2")
                     }
-                    //If empty game loads up set user as Player 1
-                    if isGameReady == false{
-                        loadUser()
-                    }
+                    if isGameReady == false { loadUser() }
                     currentRound.team1 = team1
                     currentRound.team2 = team2
                     currentGame.team1 = team1
                     currentGame.team2 = team2
-                    
                 }
-                .onChange(of:gameDone){
-                    if gameDone == true{
-                        showGameOverSheet = true
-                    }else if gameDone == false{
-                        showGameOverSheet = false
-                    }
+                .onChange(of: gameDone) {
+                    showGameOverSheet = gameDone
                 }
                 .sheet(isPresented: $showGameOverSheet) {
-                    GameSummarySheetView(showGameOverViewSheetView: $showGameOverSheet,currentGame:$currentGame,showRevancheButton:true
-                                         ,HistoryMode:false).presentationDetents([.medium])
-                    
+                    GameSummarySheetView(
+                        showGameOverViewSheetView: $showGameOverSheet,
+                        currentGame: $currentGame,
+                        showRevancheButton: true,
+                        HistoryMode: false
+                    )
+                    .presentationDetents([.medium])
                 }
                 .scrollContentBackground(.hidden)
-                .background(alignment: .center) {
-                    VStack{
-                        
-                       
-                    HStack{
-                        
-                        
-                        Text("VS")
-                            .font(.system(size: 120, weight: .bold))
-                            //.offset(y:-3)
-                        //Text("S")
-                            .font(.system(size: 120, weight: .bold))
-                            //.offset(x:-15,y:3)
-                    }
-                        HStack{
-                            Text(isRated ? "Rated" : "Unrated").fontWeight(.bold).font(.title2).offset(y:-15)
-                            Text(isGameReady ? " \(currentGame.target)" : " ").fontWeight(.bold).font(.title2).offset(y:-15)
-                        }
-                }
-                    .foregroundStyle(
-                        Color.secondary
-                      
-                    )
-                    .allowsHitTesting(false)
-                }.edgesIgnoringSafeArea(.all).background(Color(uiColor: .systemGroupedBackground))
+                .background(alignment: .center) { vsBackground }
+                .edgesIgnoringSafeArea(.all)
+                .background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
                 .navigationTitle("Play")
                 .toolbarTitleDisplayMode(.inlineLarge)
-                .toolbar{
-                    ToolbarItem(){
-                        Button{
-                            showDebugSheetView = true
-                        }label:{
-                            Image(systemName:"ant")
+                .toolbar {
+                    ToolbarItem {
+                        Button { showDebugSheetView = true } label: {
+                            Image(systemName: "ant")
                         }
                     }
-                    ToolbarItem(placement:.topBarTrailing){
+                    ToolbarItem(placement: .topBarTrailing) {
                         ProfileImage(data: userImageData, size: 44)
-                        
-                    }.sharedBackgroundVisibility(.hidden)
-                    
+                    }
+                    .sharedBackgroundVisibility(.hidden)
                 }
                 .toolbar {
                     ToolbarItemGroup(placement: .keyboard) {
@@ -402,121 +120,301 @@ struct PlayView: View {
                         Button("Done") { targetFieldFocused = false }
                     }
                 }
-                
-                
             }
-        }.refreshable {
-            
-        }.sheet(isPresented: $showDebugSheetView){
-            DebugSheetView(currentGame:$currentGame,showDebugSheetView: $showDebugSheetView,exampleGameHistory:.constant([]))
-        }.safeAreaInset(edge:.bottom){
-            if isGameReady == true{
-                GlassEffectContainer{
-                    HStack{
-                        if currentGame.Rounds.count > 0 {
-                            Button(){
-                                showEditRoundsSheet = true
-                            }label:{
-                                Image(systemName: "list.bullet.badge.ellipsis")
-                                    .font(.system(size: 20)).foregroundColor(.primary)
-                                    .frame(width: 29, height: 29)
-                                    .clipShape(Circle())
-                            }.padding(10).glassEffect(.regular.interactive()).padding(.leading,20).padding(.bottom,10)
-                                .sheet(isPresented: $showEditRoundsSheet) {
-                                    EditRoundsSheetView(showEditRoundsSheet: $showEditRoundsSheet,currentGame:$currentGame).presentationDetents([.medium,.large])
-                                    
-                                }
-                            
-                        }else if currentGame.Rounds.count == 0{
-                            Button {
-                                withAnimation(.easeInOut) {
-                                    currentGame = tichuGame()
-                                }
-                            } label: {
-                                HStack {
-                                    Image(systemName: "trash")
-                                    Text("Delete Game")
-                                }
-                                .foregroundColor(.primary)
-                                .padding(13)
-                                .glassEffect(.regular.interactive())
-                            }
-                            .padding(.bottom, 10).padding(.leading,20)
-                        }
-                        Spacer()
-                      
-                        Spacer()
-                        Button(){
-                            showAddRoundSheet = true
-                        }label:{
-                            
-                            Image(systemName: "plus")
-                                .font(.system(size: 20)).foregroundColor(.primary)
-                            Text("Add Round").foregroundColor(.primary)
-                        }.padding(13).glassEffect(.regular.interactive()).padding(.trailing,20).padding(.bottom,10).sheet(isPresented: $showAddRoundSheet,onDismiss:{
-                            currentRound = Round()
-                        }) {
-                            AddRoundSheetView(showAddRoundsSheet: $showAddRoundSheet,
-                                              currentGame: $currentGame,
-                                              currentRound: $currentRound,
-                                              editMode:false,
-                                              roundIndex: nil)
-                                
-                            
-                        }
-                        
+        }
+        .sheet(isPresented: $showDebugSheetView) {
+            DebugSheetView(
+                currentGame: $currentGame,
+                showDebugSheetView: $showDebugSheetView,
+                exampleGameHistory: .constant([])
+            )
+        }
+        .safeAreaInset(edge: .bottom) {
+            if isGameReady {
+                gameReadyBottomBar
+            } else {
+                gameSettingsBottomBar
+            }
+        }
+        .onAppear { loadUser() }
+    }
+
+    // MARK: - Team 1 Header
+    private var team1Header: some View {
+        Section {
+            HStack {
+                Text("Team 1")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.accentColor)
+                Spacer()
+                if isGameReady {
+                    Text("\(currentGame.currentPointsTeam1)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+            }
+            .listRowBackground(Color.clear)
+        }
+        .padding(.top, 65)
+    }
+
+    // MARK: - Team 1 Players
+    private var team1Players: some View {
+        Section {
+            // Player 1 (always present)
+            HStack {
+                ProfileImage(data: currentGame.player1?.imageData, size: 44)
+                VStack(alignment: .leading) {
+                    Text(currentGame.player1?.name ?? "Unknown")
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.accentColor)
+                }
+                Spacer()
+                Text("Ranking: \(currentGame.player1?.elo ?? -69420)")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 16))
+            }
+
+            // Player 2
+            if let name2 = currentGame.player2?.name {
+                HStack {
+                    ProfileImage(data: currentGame.player2?.imageData, size: 44)
+                    Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                    Spacer()
+                    if let elo = currentGame.player2?.elo {
+                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                    } else {
+                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                     }
                 }
-            }else{
-                HStack{
-                    Spacer()
-                    
-                    Menu{
-                        Picker("Game Target",selection:$currentGame.target){
-                            
-                            Text("250").tag(250)
-                            Text("500").tag(500)
-                            Text("1000").tag(1000)
-                            Text("2000").tag(2000)
-                            Text("10000").tag(10000)
-                            
-                        }
-                        
-                        Toggle(isOn: $currentGame.allowPingus) {
-                                Text("Allow Pingus")
-                            }
-                        
-                        
-                    }label:{
-                        Image(systemName:"gear").font(.system(size:24))
-                    }.foregroundStyle(.primary).padding(10).glassEffect(.regular.interactive(),in: Circle())
-                }.padding(.horizontal,20).padding(.bottom,10)
-                
-                    
+            } else {
+                addPlayerRow(label: "Add Player 2", action: { showAddPlayersSheet2 = true })
+                    .sheet(isPresented: $showAddPlayersSheet2) {
+                        AddPlayersSheetView(
+                            showAddPlayersSheet: $showAddPlayersSheet2,
+                            addPlayer: $currentGame.player2,
+                            alreadyAdded: [currentGame.player3, currentGame.player4].compactMap { $0 },
+                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 2
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
             }
-        }.onAppear{
-           loadUser()
-   
         }
     }
-       
-       
- 
-        
-        
-                    
-                
-            
-            
-        
-        }
-        
-           
-    
-    
 
+    // MARK: - Center Spacer
+    private var centerSpacer: some View {
+        Group {
+            Section { Spacer() }.listRowBackground(Color.clear)
+            Section {
+                HStack { Spacer() }.padding(.vertical, 37)
+            }.listRowBackground(Color.clear)
+            Section { Spacer() }.listRowBackground(Color.clear)
+        }
+    }
+
+    // MARK: - Team 2 Header
+    private var team2Header: some View {
+        Section {
+            HStack {
+                Text("Team 2")
+                Spacer()
+                if isGameReady {
+                    Text("\(currentGame.currentPointsTeam2)")
+                }
+            }
+        }
+        .font(.title2)
+        .fontWeight(.bold)
+        .listRowBackground(Color.clear)
+    }
+
+    // MARK: - Team 2 Players
+    private var team2Players: some View {
+        Section {
+            // Player 3
+            if let name3 = currentGame.player3?.name {
+                HStack {
+                    ProfileImage(data: currentGame.player3?.imageData, size: 44)
+                    Text(name3).fontWeight(.bold)
+                    Spacer()
+                    if let elo = currentGame.player3?.elo {
+                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                    } else {
+                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                    }
+                }
+            } else {
+                addPlayerRow(label: "Add Player 3", action: { showAddPlayersSheet3 = true })
+                    .sheet(isPresented: $showAddPlayersSheet3) {
+                        AddPlayersSheetView(
+                            showAddPlayersSheet: $showAddPlayersSheet3,
+                            addPlayer: $currentGame.player3,
+                            alreadyAdded: [currentGame.player2, currentGame.player4].compactMap { $0 },
+                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 3
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
+            }
+
+            // Player 4
+            if let name4 = currentGame.player4?.name {
+                HStack {
+                    ProfileImage(data: currentGame.player4?.imageData, size: 44)
+                    Text(name4).fontWeight(.bold)
+                    Spacer()
+                    if let elo = currentGame.player4?.elo {
+                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                    } else {
+                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                    }
+                }
+            } else {
+                addPlayerRow(label: "Add Player 4", action: { showAddPlayersSheet4 = true })
+                    .sheet(isPresented: $showAddPlayersSheet4) {
+                        AddPlayersSheetView(
+                            showAddPlayersSheet: $showAddPlayersSheet4,
+                            addPlayer: $currentGame.player4,
+                            alreadyAdded: [currentGame.player2, currentGame.player3].compactMap { $0 },
+                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 4
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
+            }
+        }
+    }
+
+    // MARK: - Add Player Row
+    private func addPlayerRow(label: String, action: @escaping () -> Void) -> some View {
+        HStack {
+            Spacer()
+            Image(systemName: "plus.circle.fill")
+            Button(label, action: action)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+                .padding(.vertical, 10.6)
+            Spacer()
+        }
+    }
+
+    // MARK: - VS Background
+    private var vsBackground: some View {
+        VStack {
+            Text("VS")
+                .font(.system(size: 120, weight: .bold))
+            HStack {
+                Text(isRated ? "Rated" : "Unrated")
+                    .fontWeight(.bold)
+                    .font(.title2)
+                    .offset(y: -15)
+                Text(isGameReady ? " \(currentGame.target)" : " ")
+                    .fontWeight(.bold)
+                    .font(.title2)
+                    .offset(y: -15)
+            }
+        }
+        .foregroundStyle(Color.secondary)
+        .allowsHitTesting(false)
+    }
+
+    // MARK: - Game Ready Bottom Bar
+    private var gameReadyBottomBar: some View {
+        GlassEffectContainer {
+            HStack {
+                if currentGame.Rounds.count > 0 {
+                    Button {
+                        showEditRoundsSheet = true
+                    } label: {
+                        Image(systemName: "list.bullet.badge.ellipsis")
+                            .font(.system(size: 20))
+                            .foregroundColor(.primary)
+                            .frame(width: 29, height: 29)
+                            .clipShape(Circle())
+                    }
+                    .padding(10)
+                    .glassEffect(.regular.interactive())
+                    .padding(.leading, 20)
+                    .padding(.bottom, 10)
+                    .sheet(isPresented: $showEditRoundsSheet) {
+                        EditRoundsSheetView(
+                            showEditRoundsSheet: $showEditRoundsSheet,
+                            currentGame: $currentGame
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
+                } else {
+                    Button {
+                        withAnimation(.easeInOut) { currentGame = tichuGame() }
+                    } label: {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Delete Game")
+                        }
+                        .foregroundColor(.primary)
+                        .padding(13)
+                        .glassEffect(.regular.interactive())
+                    }
+                    .padding(.bottom, 10)
+                    .padding(.leading, 20)
+                }
+
+                Spacer()
+
+                Button {
+                    showAddRoundSheet = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                    Text("Add Round").foregroundColor(.primary)
+                }
+                .padding(13)
+                .glassEffect(.regular.interactive())
+                .padding(.trailing, 20)
+                .padding(.bottom, 10)
+                .sheet(isPresented: $showAddRoundSheet, onDismiss: {
+                    currentRound = Round()
+                }) {
+                    AddRoundSheetView(
+                        showAddRoundsSheet: $showAddRoundSheet,
+                        currentGame: $currentGame,
+                        currentRound: $currentRound,
+                        editMode: false,
+                        roundIndex: nil
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Game Settings Bottom Bar
+    private var gameSettingsBottomBar: some View {
+        HStack {
+            Spacer()
+            Menu {
+                Picker("Game Target", selection: $currentGame.target) {
+                    Text("250").tag(250)
+                    Text("500").tag(500)
+                    Text("1000").tag(1000)
+                    Text("2000").tag(2000)
+                    Text("10000").tag(10000)
+                }
+                Toggle(isOn: $currentGame.allowPingus) {
+                    Text("Allow Pingus")
+                }
+            } label: {
+                Image(systemName: "gear").font(.system(size: 24))
+            }
+            .foregroundStyle(.primary)
+            .padding(10)
+            .glassEffect(.regular.interactive(), in: Circle())
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 10)
+    }
+}
 
 #Preview {
     PlayView()
 }
-

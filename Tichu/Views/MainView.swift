@@ -17,9 +17,9 @@ struct MainView: View {
    
     var body: some View {
         if loggedIn == false{
-            withAnimation(.easeInOut(duration: 0.285)) {
+           
                 LoginView()
-            }
+            
         }else{
             TabView(selection: $selectedTab) {
                 

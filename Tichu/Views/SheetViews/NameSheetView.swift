@@ -10,7 +10,6 @@ import SwiftUI
 struct NameSheetView: View {
     
     // MARK: - Bindings
-    
     @Binding var showNameSheet: Bool
     
     // MARK: - Storage
@@ -18,7 +17,6 @@ struct NameSheetView: View {
     @AppStorage("userName") private var userName: String = ""
     
     // MARK: - State
-    
     @State private var newName: String = ""
     
     // MARK: - Validation
