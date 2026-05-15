@@ -63,6 +63,40 @@ class NetworkService: ObservableObject {
             print("fetchProfiles error: \(error)")
         }
     }
+    
+    func fetchProfilesSimple() async {
+        guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode([Profile].self, from: data)
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.profiles = decoded
+                }
+            }
+            await loadProfileImages()
+        } catch {
+            print("fetchProfilessimple error: \(error)")
+        }
+    }
+    
+    func fetchProfilesStats() async {
+        guard let url = URL(string: "\(baseURL)/profilesstats") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode([Profile].self, from: data)
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.profiles = decoded
+                }
+            }
+            await loadProfileImages()
+        } catch {
+            print("fetchProfilesstats error: \(error)")
+        }
+    }
 
     func createProfile(name: String, email: String) async {
         guard let url = URL(string: "\(baseURL)/add_profile") else { return }

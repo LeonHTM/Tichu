@@ -103,7 +103,6 @@ struct Profile: Identifiable, Equatable, Codable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(Int.self, forKey: .id)
         name = try c.decodeIfPresent(String.self, forKey: .name)
-        email = try c.decodeIfPresent(String.self, forKey: .email)
         profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
         dateAdded = try c.decodeIfPresent(Date.self, forKey: .dateAdded)
         elo = try c.decodeIfPresent(Int.self, forKey: .elo)
