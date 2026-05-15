@@ -187,7 +187,7 @@ struct ProfileView: View {
                     Label("Contact", systemImage: "envelope.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 14))
                 }
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.primary)
             }
 
             Button {
@@ -198,7 +198,7 @@ struct ProfileView: View {
                 Label("Source Code", image: "github")
                     .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 17))
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(Color.primary)
         }
     }
 
@@ -218,7 +218,7 @@ struct ProfileView: View {
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.primary)
             }
 
             Button {
