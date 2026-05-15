@@ -14,7 +14,15 @@ struct MainView: View {
     
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("loggedIn") private var loggedIn = false
+    @StateObject private var socket = SocketService.shared
    
+    private var isDisconnected: Binding<Bool> {
+        Binding(
+            get: { !socket.connected },
+            set: { _ in }
+        )
+    }
+    
     var body: some View {
         if loggedIn == false{
            
@@ -48,6 +56,12 @@ struct MainView: View {
                     .tag(3)
             }.onAppear{
                 selectedTab = 0
+            }.alert(isPresented: isDisconnected) {
+                Alert(
+                    title: Text("Connection Issue"),
+                    message: Text("Could not connect to server."),
+                    dismissButton: .default(Text("OK"))
+                )
             }
         }
     }
@@ -56,3 +70,4 @@ struct MainView: View {
 #Preview {
     MainView()
 }
+

@@ -15,6 +15,8 @@ struct HistoryView: View {
     @AppStorage("userImageData") private var userImageData: Data?
     @AppStorage("selectedTab") private var selectedTab = 0
     @Environment(\.colorScheme) var colorScheme
+    
+    @StateObject private var socket = SocketService.shared
 
     // MARK: - State
     @State private var currentGameE = tichuGame()
@@ -195,7 +197,7 @@ struct HistoryView: View {
             .toolbar {
                 ToolbarItem {
                     Button { showDebugSheetView = true } label: {
-                        Image(systemName: "ant")
+                        Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

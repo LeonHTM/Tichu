@@ -133,25 +133,9 @@ struct Profile: Identifiable, Equatable, Codable {
     }
 }
 
-// MARK: - RawRepresentable
-extension Profile: RawRepresentable {
 
-    public init?(rawValue: String) {
-        guard let data = rawValue.data(using: .utf8),
-              let value = try? JSONDecoder().decode(Profile.self, from: data) else {
-            return nil
-        }
-
-        self = value
-    }
-
-    var rawValue: String {
-        let data = try? JSONEncoder().encode(self)
-        return String(data: data ?? Data(), encoding: .utf8) ?? ""
-    }
-}
-        // Function to create sorted Profile list for given DataSet, Stat and sortBy
-        func makeItems(
+// Function to create sorted Profile list for given DataSet, Stat and sortBy
+func makeItems(
             from compareList: [Profile],
             stat: Profile.playerStat,
             sortBy: sortBy.sortBy

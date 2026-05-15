@@ -13,6 +13,8 @@ struct PlayView: View {
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("userImageData") private var userImageData: Data?
+    
+    @StateObject private var socket = SocketService.shared
 
     // MARK: - State
     @State private var showAddPlayersSheet2: Bool = false
@@ -106,7 +108,7 @@ struct PlayView: View {
                 .toolbar {
                     ToolbarItem {
                         Button { showDebugSheetView = true } label: {
-                            Image(systemName: "ant")
+                            Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
