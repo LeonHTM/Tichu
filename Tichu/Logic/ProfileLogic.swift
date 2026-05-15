@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct Profile: Identifiable, Equatable, Codable {
-    let id: UUID
+    var id: Int
     var name: String?
+    var email: String?
+    var profileImageUrl: String?
     var imageData: Data?
-    var isFriend: Bool
     var dateAdded: Date?
 
     // Statistics
@@ -27,7 +28,20 @@ struct Profile: Identifiable, Equatable, Codable {
     var bigGambler: Int
     var pinguGambler: Int
     var bomber: Int
-    
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, email
+        case profileImageUrl = "profile_image_url"
+        case dateAdded = "date_added"
+        case elo
+        case winnerPercentage = "winner_percentage"
+        case tichuMaster = "tichu_master"
+        case visionary, addict, teamplayer, announcer
+        case saboteur, gambler
+        case bigGambler = "big_gambler"
+        case pinguGambler = "pingu_gambler"
+        case bomber
+    }
 
     enum playerStat {
         case elo
@@ -45,11 +59,13 @@ struct Profile: Identifiable, Equatable, Codable {
         case dateAdded
     }
 
+    // Used when creating a new profile before server assigns an id
     init(
-        id: UUID = UUID(),
+        id: Int = 0,
         name: String? = nil,
+        email: String? = nil,
+        profileImageUrl: String? = nil,
         imageData: Data? = nil,
-        isFriend: Bool = false,
         date: Date = Date(),
         elo: Int? = nil,
         winnerPercentage: Int = 50,
@@ -66,8 +82,9 @@ struct Profile: Identifiable, Equatable, Codable {
     ) {
         self.id = id
         self.name = name
+        self.email = email
+        self.profileImageUrl = profileImageUrl
         self.imageData = imageData
-        self.isFriend = isFriend
         self.elo = elo
         self.winnerPercentage = winnerPercentage
         self.tichuMaster = tichuMaster
@@ -80,51 +97,46 @@ struct Profile: Identifiable, Equatable, Codable {
         self.bigGambler = bigGambler
         self.pinguGambler = pinguGambler
         self.bomber = bomber
-        if self.isFriend == true{
-            self.dateAdded = date
-        }
+    }
+    
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(Int.self, forKey: .id)
+        name = try c.decodeIfPresent(String.self, forKey: .name)
+        email = try c.decodeIfPresent(String.self, forKey: .email)
+        profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
+        dateAdded = try c.decodeIfPresent(Date.self, forKey: .dateAdded)
+        elo = try c.decodeIfPresent(Int.self, forKey: .elo)
+        winnerPercentage = try c.decodeIfPresent(Int.self, forKey: .winnerPercentage) ?? 50
+        tichuMaster = try c.decodeIfPresent(Double.self, forKey: .tichuMaster) ?? 0
+        visionary = try c.decodeIfPresent(Int.self, forKey: .visionary) ?? 0
+        addict = try c.decodeIfPresent(Int.self, forKey: .addict) ?? 0
+        teamplayer = try c.decodeIfPresent(Int.self, forKey: .teamplayer) ?? 0
+        announcer = try c.decodeIfPresent(Int.self, forKey: .announcer) ?? 0
+        saboteur = try c.decodeIfPresent(Int.self, forKey: .saboteur) ?? 0
+        gambler = try c.decodeIfPresent(Int.self, forKey: .gambler) ?? 0
+        bigGambler = try c.decodeIfPresent(Int.self, forKey: .bigGambler) ?? 0
+        pinguGambler = try c.decodeIfPresent(Int.self, forKey: .pinguGambler) ?? 0
+        bomber = try c.decodeIfPresent(Int.self, forKey: .bomber) ?? 0
+        // These are local only, never from server
+        imageData = nil
     }
 
     func getStat(for stat: playerStat) -> Double {
         switch stat {
-        case .elo:
-            return Double(elo ?? 0)
-
-        case .winnerPercentage:
-            return Double(winnerPercentage)
-
-        case .tichuMaster:
-            return tichuMaster
-
-        case .visionary:
-            return Double(visionary)
-
-        case .addict:
-            return Double(addict)
-
-        case .teamplayer:
-            return Double(teamplayer)
-
-        case .announcer:
-            return Double(announcer)
-
-        case .saboteur:
-            return Double(saboteur)
-
-        case .gambler:
-            return Double(gambler)
-
-        case .bigGambler:
-            return Double(bigGambler)
-            
-        case .pinguGambler:
-            return Double(pinguGambler)
-
-        case .bomber:
-            return Double(bomber)
-        case .dateAdded:
-            return dateAdded?.timeIntervalSince1970 ?? 0
-        
+        case .elo: return Double(elo ?? 0)
+        case .winnerPercentage: return Double(winnerPercentage)
+        case .tichuMaster: return tichuMaster
+        case .visionary: return Double(visionary)
+        case .addict: return Double(addict)
+        case .teamplayer: return Double(teamplayer)
+        case .announcer: return Double(announcer)
+        case .saboteur: return Double(saboteur)
+        case .gambler: return Double(gambler)
+        case .bigGambler: return Double(bigGambler)
+        case .pinguGambler: return Double(pinguGambler)
+        case .bomber: return Double(bomber)
+        case .dateAdded: return dateAdded?.timeIntervalSince1970 ?? 0
         }
     }
 
@@ -140,24 +152,24 @@ func makeItems(
             stat: Profile.playerStat,
             sortBy: sortBy.sortBy
         ) -> [Profile] {
-            
+
             switch sortBy {
-                
+
             case .valueUp:
                 return compareList.sorted {
                     $0.getStat(for: stat) < $1.getStat(for: stat)
                 }
-                
+
             case .valueDown:
                 return compareList.sorted {
                     $0.getStat(for: stat) > $1.getStat(for: stat)
                 }
-                
+
             case .nameUp:
                 return compareList.sorted {
                     ($0.name ?? "").lowercased() > ($1.name ?? "").lowercased()
                 }
-                
+
             case .nameDown:
                 return compareList.sorted {
                     ($0.name ?? "").lowercased() < ($1.name ?? "").lowercased()

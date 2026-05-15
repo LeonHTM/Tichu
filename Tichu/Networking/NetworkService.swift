@@ -1,0 +1,258 @@
+//
+//  NetworkService.swift
+//  Tichu
+//
+//  Created by Leon on 15.05.2026.
+//
+
+import Foundation
+import Combine
+import SwiftUI
+
+class NetworkService: ObservableObject {
+    static let shared = NetworkService()
+
+    let baseURL = "http://192.168.1.84:5001"
+
+    @Published var profiles: [Profile] = []
+    @Published var profileImages: [Int: Data] = [:]
+
+    @Published var friends: [Profile] = []
+
+    @Published var friendRequestProfiles: [Profile] = []
+    @Published var friendRequestImages: [Int: Data] = [:]
+    
+    @Published var friendRequests: [(id: Int, senderId: Int)] = []
+
+    private init() {}
+
+    // MARK: - Profiles
+
+    func loadProfileImages() async {
+        let snapshot = await MainActor.run { profiles }
+
+        for profile in snapshot {
+            guard let urlString = profile.profileImageUrl,
+                  let filename = urlString.components(separatedBy: "/").last,
+                  let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
+
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                await MainActor.run {
+                    self.profileImages[profile.id] = data
+                }
+            } catch {
+                print("loadProfileImages error for profile \(profile.id): \(error)")
+            }
+        }
+    }
+
+    func fetchProfiles() async {
+        guard let url = URL(string: "\(baseURL)/profiles") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let decoded = try JSONDecoder().decode([Profile].self, from: data)
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.profiles = decoded
+                }
+            }
+            await loadProfileImages()
+        } catch {
+            print("fetchProfiles error: \(error)")
+        }
+    }
+
+    func createProfile(name: String, email: String) async {
+        guard let url = URL(string: "\(baseURL)/add_profile") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "name": name,
+            "email": email
+        ])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let created = try JSONDecoder().decode(Profile.self, from: data)
+            await MainActor.run {
+                self.profiles.append(created)
+            }
+        } catch {
+            print("createProfile error: \(error)")
+        }
+    }
+
+    func deleteProfile(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/delete_profile/\(profileId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        do {
+            try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                self.profiles.removeAll { $0.id == profileId }
+            }
+        } catch {
+            print("deleteProfile error: \(error)")
+        }
+    }
+
+    // MARK: - Friends
+
+    func fetchFriends(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/friends/\(profileId)/") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let fetchedFriends = try JSONDecoder().decode([Profile].self, from: data)
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.friends = fetchedFriends
+                }
+            }
+        } catch {
+            print("fetchFriends error: \(error)")
+        }
+    }
+
+    func addFriend(profileId: Int, friendId: Int) async {
+        guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        do {
+            try await URLSession.shared.data(for: request)
+        } catch {
+            print("addFriend error: \(error)")
+        }
+    }
+
+    func removeFriend(profileId: Int, friendId: Int) async {
+        guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+
+        do {
+            try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                self.friends.removeAll { $0.id == friendId }
+            }
+        } catch {
+            print("removeFriend error: \(error)")
+        }
+    }
+
+    func sendFriendRequest(senderId: Int, receiverId: Int) async {
+        guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        do {
+            try await URLSession.shared.data(for: request)
+        } catch {
+            print("sendFriendRequest error: \(error)")
+        }
+    }
+
+    func respondToFriendRequest(requestId: Int, action: String) async {
+        guard let url = URL(string: "\(baseURL)/manage_requests/\(requestId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": action])
+
+        do {
+            try await URLSession.shared.data(for: request)
+        } catch {
+            print("respondToFriendRequest error: \(error)")
+        }
+    }
+
+    // MARK: - Profile Image
+
+    func uploadProfileImage(profileId: Int, imageData: Data) async {
+        guard let url = URL(string: "\(baseURL)/add_image/\(profileId)/") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        var body = Data()
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"image\"; filename=\"profile_\(profileId).jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        do {
+            try await URLSession.shared.data(for: request)
+        } catch {
+            print("uploadProfileImage error: \(error)")
+        }
+    }
+
+    func fetchProfileImage(profileId: Int, filename: String) async -> Data? {
+        guard let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            return data
+        } catch {
+            print("fetchProfileImage error: \(error)")
+            return nil
+        }
+    }
+
+    // MARK: - Friend Requests
+
+    func fetchFriendRequests(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/requests/\(profileId)/") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            let parsed = raw.compactMap { dict -> (id: Int, senderId: Int)? in
+                guard let id = dict["id"] as? Int,
+                      let senderId = dict["sender_id"] as? Int else { return nil }
+                return (id: id, senderId: senderId)
+            }
+
+            let senderIds = parsed.map { $0.senderId }
+
+            await MainActor.run {
+                self.friendRequests = parsed
+                self.friendRequestProfiles = self.profiles.filter { senderIds.contains($0.id) }
+            }
+
+            let snapshot = await MainActor.run { friendRequestProfiles }
+            for profile in snapshot {
+                guard let urlString = profile.profileImageUrl,
+                      let filename = urlString.components(separatedBy: "/").last,
+                      let imageUrl = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
+                do {
+                    let (imageData, _) = try await URLSession.shared.data(from: imageUrl)
+                    await MainActor.run {
+                        self.friendRequestImages[profile.id] = imageData
+                    }
+                } catch {
+                    print("fetchFriendRequestImages error for profile \(profile.id): \(error)")
+                }
+            }
+        } catch {
+            print("fetchFriendRequests error: \(error)")
+        }
+    }
+}

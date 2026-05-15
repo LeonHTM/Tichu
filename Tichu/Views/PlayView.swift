@@ -15,6 +15,7 @@ struct PlayView: View {
     @AppStorage("userImageData") private var userImageData: Data?
     
     @StateObject private var socket = SocketService.shared
+    @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
     @State private var showAddPlayersSheet2: Bool = false
@@ -166,7 +167,8 @@ struct PlayView: View {
         Section {
             // Player 1 (always present)
             HStack {
-                ProfileImage(data: currentGame.player1?.imageData, size: 44)
+                ProfileImage(data: network.profileImages[currentGame.player1?.id  ?? -1], size: 44)
+                //ProfileImage(data: currentGame.player1?.imageData, size: 44)
                 VStack(alignment: .leading) {
                     Text(currentGame.player1?.name ?? "Unknown")
                         .fontWeight(.bold)
@@ -181,7 +183,7 @@ struct PlayView: View {
             // Player 2
             if let name2 = currentGame.player2?.name {
                 HStack {
-                    ProfileImage(data: currentGame.player2?.imageData, size: 44)
+                    ProfileImage(data: network.profileImages[currentGame.player2?.id  ?? -1], size: 44)
                     Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     Spacer()
                     if let elo = currentGame.player2?.elo {
@@ -238,7 +240,7 @@ struct PlayView: View {
             // Player 3
             if let name3 = currentGame.player3?.name {
                 HStack {
-                    ProfileImage(data: currentGame.player3?.imageData, size: 44)
+                    ProfileImage(data: network.profileImages[currentGame.player3?.id  ?? -1], size: 44)
                     Text(name3).fontWeight(.bold)
                     Spacer()
                     if let elo = currentGame.player3?.elo {
@@ -263,7 +265,7 @@ struct PlayView: View {
             // Player 4
             if let name4 = currentGame.player4?.name {
                 HStack {
-                    ProfileImage(data: currentGame.player4?.imageData, size: 44)
+                    ProfileImage(data: network.profileImages[currentGame.player4?.id  ?? -1], size: 44)
                     Text(name4).fontWeight(.bold)
                     Spacer()
                     if let elo = currentGame.player4?.elo {

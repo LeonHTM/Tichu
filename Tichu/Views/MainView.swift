@@ -15,6 +15,7 @@ struct MainView: View {
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("loggedIn") private var loggedIn = false
     @StateObject private var socket = SocketService.shared
+    @ObservedObject private var network = NetworkService.shared
    
     private var isDisconnected: Binding<Bool> {
         Binding(
@@ -54,6 +55,10 @@ struct MainView: View {
                         Label("Profile", systemImage: "person")
                     }
                     .tag(3)
+            }.task {
+                await network.fetchProfiles()
+                await network.fetchFriends(profileId:3)
+                await network.fetchFriendRequests(profileId:3)
             }.onAppear{
                 selectedTab = 0
             }.alert(isPresented: isDisconnected) {

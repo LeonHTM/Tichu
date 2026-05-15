@@ -7,7 +7,8 @@
 
 import Foundation
 import SocketIO
-internal import Combine
+import Combine
+import SwiftUI
 
 final class SocketService: ObservableObject {
 
@@ -74,32 +75,61 @@ final class SocketService: ObservableObject {
 
         // PROFILE CREATED
         socket.on("profile_created") { data, ack in
-            print("profile_created")
-            print(data)
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                  let profile = try? JSONDecoder().decode(Profile.self, from: jsonData) else {
+                print("profile_created: failed to parse \(data)")
+                return
+            }
+            DispatchQueue.main.async {
+                if !NetworkService.shared.profiles.contains(where: { $0.id == profile.id }) {
+                    withAnimation(.easeInOut){
+                        NetworkService.shared.profiles.append(profile)
+                    }
+                }
+            }
         }
 
         // PROFILE DELETED
         socket.on("profile_deleted") { data, ack in
-            print("profile_deleted")
-            print(data)
+            guard let dict = data[0] as? [String: Any],
+                  let id = dict["id"] as? Int else {
+                print("profile_deleted: failed to parse \(data)")
+                return
+            }
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut){
+                    NetworkService.shared.profiles.removeAll { $0.id == id }
+                }
+            }
         }
 
-        // FRIEND REQUEST
+        // FRIEND REQUEST SENT
         socket.on("friend_request_sent") { data, ack in
-            print("friend_request_sent")
-            print(data)
+            print("friend_request_sent: \(data)")
+        }
+
+        // FRIEND REQUEST UPDATED
+        socket.on("friend_request_updated") { data, ack in
+            print("friend_request_updated: \(data)")
         }
 
         // FRIENDSHIP ADDED
         socket.on("friendship_added") { data, ack in
-            print("friendship_added")
-            print(data)
+            print("friendship_added: \(data)")
+        }
+
+        // FRIENDSHIP REMOVED
+        socket.on("friendship_removed") { data, ack in
+            print("friendship_removed: \(data)")
         }
 
         // IMAGE UPDATED
         socket.on("profile_image_updated") { data, ack in
-            print("profile_image_updated")
-            print(data)
+
+            Task {
+                await NetworkService.shared.fetchProfiles()
+            }
         }
     }
 

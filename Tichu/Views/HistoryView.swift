@@ -17,6 +17,7 @@ struct HistoryView: View {
     @Environment(\.colorScheme) var colorScheme
     
     @StateObject private var socket = SocketService.shared
+    @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
     @State private var currentGameE = tichuGame()

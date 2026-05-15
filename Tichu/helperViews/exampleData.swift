@@ -10,7 +10,6 @@ import SwiftUI
 var exampleTest: Profile = Profile(
     name:"Test",
     imageData: UIImage(named: "AppIcon")?.jpegData(compressionQuality: 1),
-    isFriend: false,
     elo: 887,
     winnerPercentage: 31,
     tichuMaster: 9.6,
@@ -38,7 +37,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Beta",
         imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -56,7 +54,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Delta",
         imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -74,7 +71,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Alpha",
         imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -92,7 +88,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "gamma",
         imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -109,7 +104,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Maximilian SuperGau",
         imageData: UIImage(named: "pfp_Max")?.jpegData(compressionQuality: 1),
-        isFriend: true,
         elo: 2500,
         winnerPercentage: 95,
         tichuMaster: 45.2,
@@ -126,7 +120,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Sonja Penner",
         imageData: UIImage(named: "pfp_Sonja")?.jpegData(compressionQuality: 1),
-        isFriend: true,
         elo: 2500,
         winnerPercentage: 31,
         tichuMaster: 21.293811,
@@ -143,7 +136,6 @@ let exampleProfiles: [Profile] = [
     Profile(
         name: "Auin Pennerin",
         imageData: UIImage(named: "pfp_Sonja")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 500,
         winnerPercentage: 98,
         tichuMaster: 21.293811,
@@ -166,7 +158,6 @@ let exampleProfilesReduced: [Profile] = [
     Profile(
         name: "Beta",
         imageData: UIImage(named: "pfp_Beta")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -184,7 +175,6 @@ let exampleProfilesReduced: [Profile] = [
     Profile(
         name: "Delta",
         imageData: UIImage(named: "pfp_Delta")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -202,7 +192,6 @@ let exampleProfilesReduced: [Profile] = [
     Profile(
         name: "Alpha",
         imageData: UIImage(named: "pfp_Alpha")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -220,7 +209,6 @@ let exampleProfilesReduced: [Profile] = [
     Profile(
         name: "gamma",
         imageData: UIImage(named: "pfp_Gamma")?.jpegData(compressionQuality: 1),
-        isFriend: false,
         elo: 1000,
         winnerPercentage: 55,
         tichuMaster: 3.2,
@@ -242,7 +230,6 @@ let exampleProfilesReduced: [Profile] = [
 var exampleGring: Profile = Profile(
     name: "MICHI GRINGNG",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
-    isFriend: false,
     elo: 887,
     winnerPercentage: 31,
     tichuMaster: 9.6,
@@ -260,7 +247,6 @@ var exampleGring: Profile = Profile(
 var exampleLeon: Profile = Profile(
     name: "Leon",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
-    isFriend: true,
     elo: 887,
     winnerPercentage: 31,
     tichuMaster: 9.6,
@@ -278,7 +264,6 @@ var exampleLeon: Profile = Profile(
 var exampleLuis: Profile = Profile(
     name: "Luis",
     imageData: UIImage(named: "pfp_Luis")?.jpegData(compressionQuality: 1),
-    isFriend: true,
     elo: 983,
     winnerPercentage: 61,
     tichuMaster: 16.7,
@@ -296,7 +281,6 @@ var exampleLuis: Profile = Profile(
 var exampleSorin: Profile = Profile(
     name: "Sorin",
     imageData: UIImage(named: "pfp_Sorin")?.jpegData(compressionQuality: 1),
-    isFriend: true,
     elo: 983,
     winnerPercentage: 58,
     tichuMaster: 12.3,
@@ -314,7 +298,6 @@ var exampleSorin: Profile = Profile(
 var exampleJo: Profile = Profile(
     name: "Jo",
     imageData: UIImage(named: "pfp_Jo")?.jpegData(compressionQuality: 1),
-    isFriend: true,
     elo: 1016,
     winnerPercentage: 49,
     tichuMaster: 7.8,
@@ -331,9 +314,9 @@ var exampleJo: Profile = Profile(
 
 
 
-let guest2Profile: Profile = Profile(name: "Guest 2", imageData: nil, isFriend: false)
-let guest3Profile: Profile = Profile(name: "Guest 3", imageData: nil, isFriend: false)
-let guest4Profile: Profile = Profile(name: "Guest 4", imageData: nil, isFriend: false)
+let guest2Profile: Profile = Profile(name: "Guest 2", imageData: nil)
+let guest3Profile: Profile = Profile(name: "Guest 3", imageData: nil)
+let guest4Profile: Profile = Profile(name: "Guest 4", imageData: nil)
 
 let exampleTeam1 = Team(list: [exampleLuis, exampleJo],name:"Team 1")
 let exampleTeam2 = Team(list: [exampleSorin, exampleLeon],name:"Team 2")

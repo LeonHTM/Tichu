@@ -1,5 +1,5 @@
 //
-//  FriendsSheetView.swift
+//  AdPlayersSheetView.swift
 //  Tichu
 //
 //  Created by Leon on 23.04.2026.
@@ -19,8 +19,9 @@ struct AddPlayersSheetView: View {
     var guestIndex: Int
 
     // MARK: - State
+    @ObservedObject private var network = NetworkService.shared
+    
     @State private var searchText: String = ""
-    @State private var profileList: [Profile] = exampleProfiles
     @State private var sortByFriends: sortBy.sortBy = .nameDown
     @State private var sortByPlayers: sortBy.sortBy = .nameDown
 
@@ -34,7 +35,7 @@ struct AddPlayersSheetView: View {
 
     var sortedFriends: [Profile] {
         makeItems(
-            from: profileList.filter { $0.isFriend }.filter {
+            from: network.friends.filter {
                 guard !query.isEmpty else { return true }
                 return ($0.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
@@ -45,7 +46,7 @@ struct AddPlayersSheetView: View {
 
     var sortedPlayers: [Profile] {
         makeItems(
-            from: profileList.filter {
+            from: network.profiles.filter {
                 guard !query.isEmpty else { return true }
                 return ($0.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
@@ -89,6 +90,7 @@ struct AddPlayersSheetView: View {
                     }
                 }
             }
+            
         }
         .searchable(text: $searchText)
     }
@@ -182,7 +184,7 @@ struct AddPlayersSheetView: View {
             showAddPlayersSheet = false
         } label: {
             HStack {
-                ProfileImage(data: profile.imageData, size: 44)
+                ProfileImage(data: network.profileImages[profile.id], size: 44)
                 Text(profile.name ?? "Unknown")
                 Spacer()
                 if let elo = profile.elo {

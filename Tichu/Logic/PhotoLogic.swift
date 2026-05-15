@@ -22,14 +22,14 @@ func dataToPhoto(data: Data?) -> UIImage? {
 func ProfileImage(data: Data?, size: Int) -> some View {
     
     let size = CGFloat(size)
-    if let data {
-        Image(uiImage: dataToPhoto(data: data)!)
+    if let data, let uiImage = dataToPhoto(data: data) {
+        Image(uiImage: uiImage)
             .resizable()
             .scaledToFill()
             .frame(width: size, height: size)
             .clipShape(Circle())
-    }else {
-        Image(systemName:"person.circle.fill")
+    } else {
+        Image(systemName: "person.circle.fill")
             .resizable()
             .scaledToFill()
             .foregroundStyle(.secondary)

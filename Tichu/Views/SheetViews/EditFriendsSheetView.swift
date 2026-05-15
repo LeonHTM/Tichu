@@ -12,11 +12,10 @@ struct EditFriendsSheetView: View {
 
     // MARK: - Bindings
     @Binding var showFriendsSheet: Bool
-    @Binding var friendsList: [Profile]
-    @Binding var requestedFriendsList: [Profile]
 
     // MARK: - Storage
     @AppStorage("userName") var userName: String = ""
+    @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
     @State private var friendsFilterActive: Bool = false
@@ -24,6 +23,8 @@ struct EditFriendsSheetView: View {
     @State private var sortByRequests: sortBy.sortBy = .nameDown
     @State private var friendsListCopy: [Profile] = []
     @State private var requestedFriendsListCopy: [Profile] = []
+    @State private var originalFriends: [Profile] = []
+    @State private var originalRequests: [Profile] = []
     @State private var showAddPlayerSheet: Bool = false
     @State private var currentProfile: Profile?
 
@@ -34,6 +35,44 @@ struct EditFriendsSheetView: View {
 
     var sortedRequestsList: [Profile] {
         makeItems(from: requestedFriendsListCopy, stat: .dateAdded, sortBy: sortByRequests)
+    }
+
+    // MARK: - Done Button
+    private var doneButton: some View {
+        Button("Done", systemImage: "checkmark") {
+            Task {
+                // Friends removed = in original but not in copy
+                let removedIds = originalFriends
+                    .filter { orig in !friendsListCopy.contains(where: { $0.id == orig.id }) }
+                    .map { $0.id }
+
+                // Requests accepted = in original requests but now in friends
+                let acceptedIds = originalRequests
+                    .filter { req in friendsListCopy.contains(where: { $0.id == req.id }) }
+                    .map { $0.id }
+
+                // Requests rejected = in original requests but not in copy anymore
+                let rejectedIds = originalRequests
+                    .filter { req in !requestedFriendsListCopy.contains(where: { $0.id == req.id }) && !friendsListCopy.contains(where: { $0.id == req.id }) }
+                    .map { $0.id }
+
+                for id in removedIds {
+                    await network.removeFriend(profileId: 3, friendId: id)
+                }
+                for id in acceptedIds {
+                    if let req = network.friendRequests.first(where: { $0.senderId == id }) {
+                        await network.respondToFriendRequest(requestId: req.id, action: "accepted")
+                    }
+                }
+                for id in rejectedIds {
+                    if let req = network.friendRequests.first(where: { $0.senderId == id }) {
+                        await network.respondToFriendRequest(requestId: req.id, action: "rejected")
+                    }
+                }
+
+                showFriendsSheet = false
+            }
+        }
     }
 
     // MARK: - Body
@@ -50,8 +89,10 @@ struct EditFriendsSheetView: View {
                     footerNote
                 }
                 .onAppear {
-                    friendsListCopy = friendsList
-                    requestedFriendsListCopy = requestedFriendsList
+                    friendsListCopy = network.friends
+                    requestedFriendsListCopy = network.friendRequestProfiles
+                    originalFriends = network.friends
+                    originalRequests = network.friendRequestProfiles
                 }
                 .listSectionSpacing(0)
                 .navigationTitle("Manage Friendlist")
@@ -77,11 +118,7 @@ struct EditFriendsSheetView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
-                        Button("Done", systemImage: "checkmark") {
-                            friendsList = friendsListCopy
-                            requestedFriendsList = requestedFriendsListCopy
-                            showFriendsSheet = false
-                        }
+                        doneButton
                     }
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", systemImage: "xmark") {
@@ -135,7 +172,7 @@ struct EditFriendsSheetView: View {
         Section {
             ForEach(sortedRequestsList, id: \.id) { friend in
                 HStack {
-                    ProfileImage(data: friend.imageData, size: 44)
+                    ProfileImage(data: network.friendRequestImages[friend.id], size: 44)
                     VStack(alignment: .leading) {
                         Text(friend.name ?? "Unknown")
                     }
@@ -170,7 +207,6 @@ struct EditFriendsSheetView: View {
                     }
                 }
             }
-            
         }
     }
 
@@ -237,7 +273,7 @@ struct EditFriendsSheetView: View {
         Section {
             ForEach(sortedFriendsList, id: \.id) { friend in
                 HStack {
-                    ProfileImage(data: friend.imageData, size: 44)
+                    ProfileImage(data: network.profileImages[friend.id], size: 44)
                     VStack(alignment: .leading) {
                         Text(friend.name ?? "Unknown")
                         if let date = friend.dateAdded {
@@ -258,20 +294,18 @@ struct EditFriendsSheetView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.minus")
-                        Text(friend.isFriend == true ? "Remove Friend" : "Remove Request")
+                        Text("Remove Friend")
                     }
                     .tint(.red)
                 }
             }
             TipView(ListSwipeFriendTip()).tipBackground(Color.clear)
-        }.task {
-            // Configure and load your tips at app launch.
+        }
+        .task {
             do {
                 try Tips.resetDatastore()
                 try Tips.configure()
-            }
-            catch {
-                // Handle TipKit errors
+            } catch {
                 print("Error initializing TipKit \(error.localizedDescription)")
             }
         }
@@ -306,8 +340,6 @@ struct EditFriendsSheetView: View {
 
 #Preview {
     EditFriendsSheetView(
-        showFriendsSheet: .constant(true),
-        friendsList: .constant([exampleLuis,exampleJo,exampleSorin]),
-        requestedFriendsList: .constant([exampleGring])
+        showFriendsSheet: .constant(true)
     )
 }

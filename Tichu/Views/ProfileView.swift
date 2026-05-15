@@ -18,10 +18,11 @@ struct ProfileView: View {
 
     // MARK: - Photo Picker
     @State private var pickerItem: PhotosPickerItem?
+    
+    @ObservedObject private var network = NetworkService.shared
 
-    // MARK: - Friends
-    @State private var friendList: [Profile] = exampleFriends
-    @State private var requestedFriendsList: [Profile] = [exampleGring]
+
+  
 
     // MARK: - Sheet & Alert Presentation
     @State private var showNameSheet: Bool = false
@@ -121,8 +122,8 @@ struct ProfileView: View {
                     Label("Manage Friends", systemImage: "person.2.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 13))
                     Spacer()
-                    if requestedFriendsList.count > 0 {
-                        Text("\(requestedFriendsList.count)")
+                    if network.friendRequestProfiles.count > 0 {
+                        Text("\(network.friendRequestProfiles.count)")
                             .foregroundStyle(.white)
                             .background {
                                 Circle()
@@ -139,9 +140,8 @@ struct ProfileView: View {
             .foregroundStyle(.primary)
             .sheet(isPresented: $showFriendsSheet) {
                 EditFriendsSheetView(
-                    showFriendsSheet: $showFriendsSheet,
-                    friendsList: $friendList,
-                    requestedFriendsList: $requestedFriendsList
+                    showFriendsSheet: $showFriendsSheet
+                
                 )
                 .presentationDetents([.medium, .large])
             }
