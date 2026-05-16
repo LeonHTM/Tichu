@@ -10,10 +10,8 @@ import SwiftUI
 struct Profile: Identifiable, Equatable, Codable {
     var id: Int
     var name: String?
-    var email: String?
     var profileImageUrl: String?
     var imageData: Data?
-    var dateAdded: Date?
 
     // Statistics
     var elo: Int?
@@ -30,9 +28,8 @@ struct Profile: Identifiable, Equatable, Codable {
     var bomber: Int
 
     enum CodingKeys: String, CodingKey {
-        case id, name, email
+        case id, name
         case profileImageUrl = "profile_image_url"
-        case dateAdded = "date_added"
         case elo
         case winnerPercentage = "winner_percentage"
         case tichuMaster = "tichu_master"
@@ -82,7 +79,6 @@ struct Profile: Identifiable, Equatable, Codable {
     ) {
         self.id = id
         self.name = name
-        self.email = email
         self.profileImageUrl = profileImageUrl
         self.imageData = imageData
         self.elo = elo
@@ -104,7 +100,7 @@ struct Profile: Identifiable, Equatable, Codable {
         id = try c.decode(Int.self, forKey: .id)
         name = try c.decodeIfPresent(String.self, forKey: .name)
         profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
-        dateAdded = try c.decodeIfPresent(Date.self, forKey: .dateAdded)
+        
         elo = try c.decodeIfPresent(Int.self, forKey: .elo)
         winnerPercentage = try c.decodeIfPresent(Int.self, forKey: .winnerPercentage) ?? 50
         tichuMaster = try c.decodeIfPresent(Double.self, forKey: .tichuMaster) ?? 0
@@ -135,7 +131,7 @@ struct Profile: Identifiable, Equatable, Codable {
         case .bigGambler: return Double(bigGambler)
         case .pinguGambler: return Double(pinguGambler)
         case .bomber: return Double(bomber)
-        case .dateAdded: return dateAdded?.timeIntervalSince1970 ?? 0
+        case .dateAdded: return 0
         }
     }
 
@@ -175,3 +171,36 @@ func makeItems(
                 }
             }
         }
+func makeItems(
+    from compareList: [Friend],
+    stat: Profile.playerStat,
+    sortBy: sortBy.sortBy
+) -> [Friend] {
+    switch sortBy {
+    case .valueUp:
+        if stat == .dateAdded {
+            return compareList.sorted { ($0.friendsSince ?? .distantPast) < ($1.friendsSince ?? .distantPast) }
+        }
+        return compareList.sorted { $0.profile.getStat(for: stat) < $1.profile.getStat(for: stat) }
+    case .valueDown:
+        if stat == .dateAdded {
+            return compareList.sorted { ($0.friendsSince ?? .distantPast) > ($1.friendsSince ?? .distantPast) }
+        }
+        return compareList.sorted { $0.profile.getStat(for: stat) > $1.profile.getStat(for: stat) }
+    case .nameUp:
+        return compareList.sorted { ($0.profile.name ?? "").lowercased() > ($1.profile.name ?? "").lowercased() }
+    case .nameDown:
+        return compareList.sorted { ($0.profile.name ?? "").lowercased() < ($1.profile.name ?? "").lowercased() }
+    }
+}
+
+
+struct Friend: Identifiable, Equatable {
+    let id: Int
+    let profile: Profile
+    let friendsSince: Date?
+
+    static func == (lhs: Friend, rhs: Friend) -> Bool {
+        lhs.id == rhs.id
+    }
+}

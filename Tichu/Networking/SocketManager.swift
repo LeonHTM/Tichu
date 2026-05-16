@@ -83,7 +83,7 @@ final class SocketService: ObservableObject {
             }
             DispatchQueue.main.async {
                 if !NetworkService.shared.profiles.contains(where: { $0.id == profile.id }) {
-                    withAnimation(.easeInOut){
+                    withAnimation(.easeInOut) {
                         NetworkService.shared.profiles.append(profile)
                     }
                 }
@@ -98,7 +98,7 @@ final class SocketService: ObservableObject {
                 return
             }
             DispatchQueue.main.async {
-                withAnimation(.easeInOut){
+                withAnimation(.easeInOut) {
                     NetworkService.shared.profiles.removeAll { $0.id == id }
                 }
             }
@@ -117,16 +117,22 @@ final class SocketService: ObservableObject {
         // FRIENDSHIP ADDED
         socket.on("friendship_added") { data, ack in
             print("friendship_added: \(data)")
+            Task {
+                await NetworkService.shared.fetchFriends(profileId: 3)
+            }
         }
 
         // FRIENDSHIP REMOVED
         socket.on("friendship_removed") { data, ack in
             print("friendship_removed: \(data)")
+            Task {
+                await NetworkService.shared.fetchFriends(profileId: 3)
+            }
         }
 
         // IMAGE UPDATED
         socket.on("profile_image_updated") { data, ack in
-
+            print("profile_image_updated: \(data)")
             Task {
                 await NetworkService.shared.fetchProfiles()
             }

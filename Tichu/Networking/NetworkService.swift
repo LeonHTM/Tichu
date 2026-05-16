@@ -17,12 +17,13 @@ class NetworkService: ObservableObject {
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
 
-    @Published var friends: [Profile] = []
+    @Published var friends: [Friend] = []
 
     @Published var friendRequestProfiles: [Profile] = []
     @Published var friendRequestImages: [Int: Data] = [:]
-    
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
+    
+    
 
     private init() {}
 
@@ -48,7 +49,7 @@ class NetworkService: ObservableObject {
     }
 
     func fetchProfiles() async {
-        guard let url = URL(string: "\(baseURL)/profiles") else { return }
+        guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
@@ -81,18 +82,19 @@ class NetworkService: ObservableObject {
         }
     }
     
-    func fetchProfilesStats() async {
-        guard let url = URL(string: "\(baseURL)/profilesstats") else { return }
+    func fetchProfilesStats(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode([Profile].self, from: data)
+            let decoded = try JSONDecoder().decode(Profile.self, from: data)
             await MainActor.run {
-                withAnimation(.easeInOut) {
-                    self.profiles = decoded
+                if let index = self.profiles.firstIndex(where: { $0.id == decoded.id }) {
+                    withAnimation(.easeInOut) {
+                        self.profiles[index] = decoded
+                    }
                 }
             }
-            await loadProfileImages()
         } catch {
             print("fetchProfilesstats error: \(error)")
         }
@@ -143,7 +145,23 @@ class NetworkService: ObservableObject {
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            let fetchedFriends = try JSONDecoder().decode([Profile].self, from: data)
+            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let fetchedFriends: [Friend] = raw.compactMap { dict in
+                guard let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                      let profile = try? decoder.decode(Profile.self, from: jsonData) else { return nil }
+
+                var date: Date? = nil
+                if let dateStr = dict["friends_since"] as? String {
+                    date = ISO8601DateFormatter().date(from: dateStr)
+                }
+
+                return Friend(id: profile.id, profile: profile, friendsSince: date)
+            }
+
             await MainActor.run {
                 withAnimation(.easeInOut) {
                     self.friends = fetchedFriends

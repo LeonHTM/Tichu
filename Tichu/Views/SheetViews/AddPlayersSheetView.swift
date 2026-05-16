@@ -33,11 +33,11 @@ struct AddPlayersSheetView: View {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    var sortedFriends: [Profile] {
+    var sortedFriends: [Friend] {
         makeItems(
             from: network.friends.filter {
                 guard !query.isEmpty else { return true }
-                return ($0.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+                return ($0.profile.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
             stat: .elo,
             sortBy: sortByFriends
@@ -146,8 +146,8 @@ struct AddPlayersSheetView: View {
     // MARK: - Friends Rows
     private var friendsRows: some View {
         Section {
-            ForEach(sortedFriends) { profile in
-                playerButton(profile: profile)
+            ForEach(sortedFriends) { friend in
+                playerButton(profile: friend.profile)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
@@ -180,8 +180,21 @@ struct AddPlayersSheetView: View {
     private func playerButton(profile: Profile) -> some View {
         let isAdded = alreadyAdded.contains(where: { $0.id == profile.id })
         return Button {
-            addPlayer = profile
-            showAddPlayersSheet = false
+            
+            if showGuest == false{
+                Task {
+                    await network.fetchProfilesStats(profileId: profile.id)
+                    if let updated = network.profiles.first(where: { $0.id == profile.id }) {
+                                        addPlayer = updated
+                                    }
+                
+                    showAddPlayersSheet = false
+                }
+            }else{
+                addPlayer = profile
+                showAddPlayersSheet = false
+            }
+            
         } label: {
             HStack {
                 ProfileImage(data: network.profileImages[profile.id], size: 44)

@@ -21,15 +21,15 @@ struct EditFriendsSheetView: View {
     @State private var friendsFilterActive: Bool = false
     @State private var sortByFriends: sortBy.sortBy = .nameDown
     @State private var sortByRequests: sortBy.sortBy = .nameDown
-    @State private var friendsListCopy: [Profile] = []
+    @State private var friendsListCopy: [Friend] = []
     @State private var requestedFriendsListCopy: [Profile] = []
-    @State private var originalFriends: [Profile] = []
+    @State private var originalFriends: [Friend] = []
     @State private var originalRequests: [Profile] = []
     @State private var showAddPlayerSheet: Bool = false
     @State private var currentProfile: Profile?
 
     // MARK: - Computed
-    var sortedFriendsList: [Profile] {
+    var sortedFriendsList: [Friend] {
         makeItems(from: friendsListCopy, stat: .dateAdded, sortBy: sortByFriends)
     }
 
@@ -69,6 +69,7 @@ struct EditFriendsSheetView: View {
                         await network.respondToFriendRequest(requestId: req.id, action: "rejected")
                     }
                 }
+                await network.fetchFriends(profileId: 3)
 
                 showFriendsSheet = false
             }
@@ -94,6 +95,12 @@ struct EditFriendsSheetView: View {
                     originalFriends = network.friends
                     originalRequests = network.friendRequestProfiles
                 }
+                .onChange(of: network.friends) {
+                    withAnimation(.easeInOut) {
+                        friendsListCopy = network.friends
+                        originalFriends = network.friends
+                    }
+                }
                 .listSectionSpacing(0)
                 .navigationTitle("Manage Friendlist")
                 .navigationBarTitleDisplayMode(.inline)
@@ -101,14 +108,15 @@ struct EditFriendsSheetView: View {
                 .sheet(isPresented: $showAddPlayerSheet, onDismiss: {
                     if let profile = currentProfile {
                         withAnimation(.easeInOut) {
-                            friendsListCopy.append(profile)
+                            let newFriend = Friend(id: profile.id, profile: profile, friendsSince: Date())
+                            friendsListCopy.append(newFriend)
                         }
                     }
                 }) {
                     AddPlayersSheetView(
                         showAddPlayersSheet: $showAddPlayerSheet,
                         addPlayer: $currentProfile,
-                        alreadyAdded: sortedFriendsList,
+                        alreadyAdded: friendsListCopy.map { $0.profile },
                         showGuest: false,
                         showPlayers: true,
                         showFriends: false,
@@ -170,18 +178,18 @@ struct EditFriendsSheetView: View {
     // MARK: - Friend Requests Rows
     private var friendRequestsRows: some View {
         Section {
-            ForEach(sortedRequestsList, id: \.id) { friend in
+            ForEach(sortedRequestsList, id: \.id) { profile in
                 HStack {
-                    ProfileImage(data: network.friendRequestImages[friend.id], size: 44)
+                    ProfileImage(data: network.friendRequestImages[profile.id], size: 44)
                     VStack(alignment: .leading) {
-                        Text(friend.name ?? "Unknown")
+                        Text(profile.name ?? "Unknown")
                     }
                     Spacer()
                     GlassEffectContainer {
                         HStack {
                             Button {
                                 withAnimation(.easeInOut) {
-                                    requestedFriendsListCopy.removeAll { $0.id == friend.id }
+                                    requestedFriendsListCopy.removeAll { $0.id == profile.id }
                                 }
                             } label: {
                                 Image(systemName: "xmark")
@@ -193,8 +201,9 @@ struct EditFriendsSheetView: View {
 
                             Button {
                                 withAnimation(.easeInOut) {
-                                    requestedFriendsListCopy.removeAll { $0.id == friend.id }
-                                    friendsListCopy.append(friend)
+                                    requestedFriendsListCopy.removeAll { $0.id == profile.id }
+                                    let newFriend = Friend(id: profile.id, profile: profile, friendsSince: Date())
+                                    friendsListCopy.append(newFriend)
                                 }
                             } label: {
                                 Image(systemName: "checkmark")
@@ -271,17 +280,17 @@ struct EditFriendsSheetView: View {
     // MARK: - Friends Rows
     private var friendsRows: some View {
         Section {
-            ForEach(sortedFriendsList, id: \.id) { friend in
+            ForEach(sortedFriendsList) { friend in
                 HStack {
                     ProfileImage(data: network.profileImages[friend.id], size: 44)
                     VStack(alignment: .leading) {
-                        Text(friend.name ?? "Unknown")
-                        if let date = friend.dateAdded {
+                        Text(friend.profile.name ?? "Unknown")
+                        if let date = friend.friendsSince {
                             Text("Friends since \(formattedDate(date))")
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         } else {
-                            Text("Requested Friendship")
+                            Text("Unknown")
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         }
