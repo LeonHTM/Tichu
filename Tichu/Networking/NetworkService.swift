@@ -156,7 +156,11 @@ class NetworkService: ObservableObject {
 
                 var date: Date? = nil
                 if let dateStr = dict["friends_since"] as? String {
-                    date = ISO8601DateFormatter().date(from: dateStr)
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                    date = formatter.date(from: dateStr)
+                    print("DateStr \(dateStr)")
+                    print("Date \(date)")
                 }
 
                 return Friend(id: profile.id, profile: profile, friendsSince: date)
