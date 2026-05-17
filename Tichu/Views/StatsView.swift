@@ -221,6 +221,8 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+        }.task {
+            await network.fetchProfilesStats(profileId: userId)
         }
     }
 

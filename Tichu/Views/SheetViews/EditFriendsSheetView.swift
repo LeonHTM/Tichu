@@ -85,8 +85,6 @@ struct EditFriendsSheetView: View {
                         friendRequestsHeader
                         friendRequestsRows
                         footerNote
-                    }else{
-                        Text("You have no friends yet. Request somebody!").listRowBackground(Color.clear).foregroundStyle(.secondary)
                     }
                     friendsHeader
                     friendsRows
@@ -275,6 +273,8 @@ struct EditFriendsSheetView: View {
                         .foregroundColor(friendsFilterActive ? .accentColor : .primary)
                     }
                 }
+            }else{
+                Text("You have no friends yet. Request somebody!").listRowBackground(Color.clear).foregroundStyle(.secondary)
             }
         }
         .listRowBackground(Color.clear)
