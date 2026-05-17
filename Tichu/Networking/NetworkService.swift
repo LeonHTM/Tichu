@@ -22,12 +22,16 @@ class NetworkService: ObservableObject {
     @Published var friendRequestProfiles: [Profile] = []
     @Published var friendRequestImages: [Int: Data] = [:]
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
-    
+
     
 
     private init() {}
 
     // MARK: - Profiles
+    
+    func profile(for id: Int) -> Profile? {
+        profiles.first(where: { $0.id == id })
+    }
 
     func loadProfileImages() async {
         let snapshot = await MainActor.run { profiles }
@@ -100,25 +104,24 @@ class NetworkService: ObservableObject {
         }
     }
 
-    func createProfile(name: String, email: String) async {
-        guard let url = URL(string: "\(baseURL)/add_profile") else { return }
+    func addProfile(email: String, name: String) async -> Int? {
+        guard let url = URL(string: "\(baseURL)/add_profile") else { return nil }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "name": name,
-            "email": email
+            "email": email,
+            "name": name
         ])
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            let created = try JSONDecoder().decode(Profile.self, from: data)
-            await MainActor.run {
-                self.profiles.append(created)
-            }
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            return json?["id"] as? Int
         } catch {
-            print("createProfile error: \(error)")
+            print("createAccount error: \(error)")
+            return nil
         }
     }
 
@@ -135,6 +138,40 @@ class NetworkService: ObservableObject {
             }
         } catch {
             print("deleteProfile error: \(error)")
+        }
+    }
+    
+    func checkUsername(username: String) async -> Bool {
+        guard let encoded = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            return json?["available"] as? Bool ?? false
+        } catch {
+            print("checkUsername error: \(error)")
+            return false
+        }
+    }
+    
+    func updateUsername(profileId: Int, name: String) async {
+        guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["name": name])
+
+        do {
+            try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                if let index = self.profiles.firstIndex(where: { $0.id == profileId }) {
+                    self.profiles[index].name = name
+                }
+            }
+        } catch {
+            print("updateUsername error: \(error)")
         }
     }
 

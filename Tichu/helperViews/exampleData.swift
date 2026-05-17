@@ -245,6 +245,7 @@ var exampleGring: Profile = Profile(
 )
 
 var exampleLeon: Profile = Profile(
+    id: 49,
     name: "Leon",
     imageData: UIImage(named: "pfp_Leon")?.jpegData(compressionQuality: 1),
     elo: 887,
@@ -262,6 +263,7 @@ var exampleLeon: Profile = Profile(
 )
 
 var exampleLuis: Profile = Profile(
+    id: 50,
     name: "Luis",
     imageData: UIImage(named: "pfp_Luis")?.jpegData(compressionQuality: 1),
     elo: 983,
@@ -279,6 +281,7 @@ var exampleLuis: Profile = Profile(
 )
 
 var exampleSorin: Profile = Profile(
+    id: 48,
     name: "Sorin",
     imageData: UIImage(named: "pfp_Sorin")?.jpegData(compressionQuality: 1),
     elo: 983,
@@ -296,6 +299,7 @@ var exampleSorin: Profile = Profile(
 )
 
 var exampleJo: Profile = Profile(
+    id: 47,
     name: "Jo",
     imageData: UIImage(named: "pfp_Jo")?.jpegData(compressionQuality: 1),
     elo: 1016,
@@ -818,3 +822,4 @@ let exampleFriends:[Profile]=[
     exampleSorin,
     exampleLuis,
 ]
+

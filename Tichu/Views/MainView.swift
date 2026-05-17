@@ -13,7 +13,7 @@ import SwiftUI
 struct MainView: View {
     
     @AppStorage("selectedTab") private var selectedTab = 0
-    @AppStorage("loggedIn") private var loggedIn = false
+    @AppStorage("userId") private var userId = -69420
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
    
@@ -25,9 +25,9 @@ struct MainView: View {
     }
     
     var body: some View {
-        if loggedIn == false{
+        if userId == -69420{
            
-                LoginView()
+                LoginMainView()
             
         }else{
             TabView(selection: $selectedTab) {
@@ -57,8 +57,8 @@ struct MainView: View {
                     .tag(3)
             }.task {
                 await network.fetchProfiles()
-                await network.fetchFriends(profileId:3)
-                await network.fetchFriendRequests(profileId:3)
+                await network.fetchFriends(profileId:userId)
+                await network.fetchFriendRequests(profileId:userId)
             }.onAppear{
                 selectedTab = 0
             }.alert(isPresented: isDisconnected) {

@@ -84,10 +84,13 @@ struct EditFriendsSheetView: View {
                     if requestedFriendsListCopy.count > 0 {
                         friendRequestsHeader
                         friendRequestsRows
+                        footerNote
+                    }else{
+                        Text("You have no friends yet. Request somebody!").listRowBackground(Color.clear).foregroundStyle(.secondary)
                     }
                     friendsHeader
                     friendsRows
-                    footerNote
+                    
                 }
                 .onAppear {
                     friendsListCopy = network.friends

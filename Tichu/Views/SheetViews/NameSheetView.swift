@@ -8,105 +8,133 @@
 import SwiftUI
 
 struct NameSheetView: View {
-    
+
     // MARK: - Bindings
     @Binding var showNameSheet: Bool
-    
+    var email: String
+    var editMode: Bool
+    @ObservedObject private var network = NetworkService.shared
+
     // MARK: - Storage
-    
-    @AppStorage("userName") private var userName: String = ""
-    
+    @AppStorage("userId") private var userId: Int = -69420
+
     // MARK: - State
     @State private var newName: String = ""
-    
+    @State private var isAvailable: Bool = false
+    @State private var isCheckingAvailability: Bool = false
+
     // MARK: - Validation
-    //Länge 20 weil sonst Statsview nicht merh so gut aussieht
     private var isLengthValid: Bool {
         let count = newName.count
         return count >= 3 && count <= 20
     }
-    
+
     private var isCharsetValid: Bool {
         let allowed = CharacterSet(
             charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
         )
-        
         return !newName.isEmpty &&
-        newName.unicodeScalars.allSatisfy { allowed.contains($0) }
+            newName.unicodeScalars.allSatisfy { allowed.contains($0) }
     }
-    
-    // TODO: DARF NICHT UNKNOWN SEIN!!!!
-    private var isAvailable: Bool {
-        true
-    }
-    
+
     private var isAllValid: Bool {
         isLengthValid && isCharsetValid && isAvailable
     }
-    
+
     var body: some View {
-        
         NavigationStack {
             Form {
-                
-                Section() {
-                    
+                Section {
                     TextField("Enter username", text: $newName)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                 }
-                
+
                 Section("Requirements") {
-                    
                     requirementRow(
                         text: "Between 3 and 20 characters",
                         isValid: isLengthValid
                     )
-                    
                     requirementRow(
                         text: "Letters, numbers, and underscores only",
                         isValid: isCharsetValid
                     )
-                    
-                    requirementRow(
-                        text: "Username is available",
-                        isValid: isAvailable
-                    )
+                    HStack {
+                        requirementRow(
+                            text: newName == network.profiles.first { $0.id == userId }?.name ?? "Unknwon" ? "Your old Username" : "Username is available",
+                            isValid: isAvailable
+                        )
+                        if isCheckingAvailability {
+                            Spacer()
+                            ProgressView()
+                        }
+                    }
+                }
+            }.safeAreaInset(edge:.bottom){
+                if editMode == false{
+                    Button{
+                        
+                        Task {
+                            if let id = await network.addProfile(email: email,name:newName) {
+                                UserDefaults.standard.set(id, forKey: "userId")
+                            }
+                        }
+                    }label:{
+                        HStack{
+                            Spacer()
+                            Text("Create Account")
+                            Spacer()
+                        }
+                    }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
                 }
             }
-            .navigationTitle("Edit Username")
+            .navigationTitle(editMode == true ? "Edit Username" : "Create Account")
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top) {
                 Text("Pick a unique username. This is required so you can be added to matches.")
-                    .padding(.horizontal,25)
-                    .padding(.top,10)
-                    .padding(.bottom,-10)
+                    .padding(.horizontal, 25)
+                    .padding(.top, 10)
+                    .padding(.bottom, -10)
             }
             .toolbar {
-                
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", systemImage: "xmark") {
-                        
-                        showNameSheet = false
+                if editMode == true{
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", systemImage: "xmark") {
+                            showNameSheet = false
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done", systemImage: "checkmark") {
+                            let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                            Task{
+                                await network.updateUsername(profileId:userId,name:name)
+                                showNameSheet = false
+                            }
+                        }
+                        .disabled(!isAllValid)
                     }
                 }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done", systemImage: "checkmark") {
-                        userName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-                        showNameSheet = false
+            }
+            .onChange(of: newName) { _ in
+                if isLengthValid && isCharsetValid{
+                    isAvailable = false
+                    guard isLengthValid && isCharsetValid else { return }
+                    isCheckingAvailability = true
+                    Task {
+                        isAvailable = await network.checkUsername(username: newName)
+                        isCheckingAvailability = false
                     }
-                    .disabled(!isAllValid)
                 }
             }
         }
         .onAppear {
-            newName = userName
+            if editMode == true{
+                newName = network.profiles.first { $0.id == userId }?.name ?? "Unknwon"
+            }
         }
     }
-    
 }
 
 #Preview {
-    NameSheetView(showNameSheet: .constant(true))
+    NameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false )
 }

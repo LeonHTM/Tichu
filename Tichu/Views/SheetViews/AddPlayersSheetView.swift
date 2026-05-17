@@ -17,6 +17,7 @@ struct AddPlayersSheetView: View {
     var showPlayers: Bool
     var showFriends: Bool
     var guestIndex: Int
+    @AppStorage("userId") var userId: Int = -69420
 
     // MARK: - State
     @ObservedObject private var network = NetworkService.shared
@@ -47,6 +48,7 @@ struct AddPlayersSheetView: View {
     var sortedPlayers: [Profile] {
         makeItems(
             from: network.profiles.filter {
+                guard $0.id != userId else { return false }
                 guard !query.isEmpty else { return true }
                 return ($0.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },

@@ -11,10 +11,11 @@ import AuthenticationServices
 struct LoginView: View {
 
     // MARK: - Storage
-    @AppStorage("loggedIn") var loggedIn: Bool = false
+    @AppStorage("userId") var userId: Int = -69420
 
     // MARK: - State
-    @State private var userEmail: String = ""
+    @Binding var userEmail: String
+    @Binding var done: Bool
     @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Body
@@ -83,13 +84,14 @@ struct LoginView: View {
             Spacer()
             Button {
                 withAnimation(.easeInOut) {
-                    loggedIn = true
+                    done = true
                 }
             } label: {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.system(size: 24))
                     .foregroundStyle(Color.accent)
-            }
+                    
+            }.padding(.trailing,10)
             .disabled(userEmail.isEmpty)
         }
         .padding(.vertical, 13)
@@ -121,5 +123,24 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView()
+    LoginMainView()
+}
+
+
+struct LoginMainView: View {
+    @State private var userEmail: String = ""
+    @State private var done: Bool = false
+
+    var body: some View {
+        ZStack {
+            if !done {
+                LoginView(userEmail: $userEmail, done: $done)
+                    .transition(.move(edge: .leading))
+            } else {
+                NameSheetView(showNameSheet: .constant(true),email:userEmail,editMode:false)
+                    .transition(.move(edge: .trailing))
+            }
+        }
+        .animation(.easeInOut(duration: 0.4), value: done)
+    }
 }

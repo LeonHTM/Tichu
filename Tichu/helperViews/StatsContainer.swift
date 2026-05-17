@@ -9,13 +9,13 @@ import SwiftUI
 //StatsContainer -> The class of Conatiners used in StatsView
 struct StatsContainer: View {
     //Bindings
-    @Binding var title: String
-    @Binding var description: String
-    @Binding var image: String
-    @Binding var counterLeft: Int
-    @Binding var counterRight: Int
-    @Binding var value: Double
-    @Binding var percentage: Bool
+    var title: String
+    var description: String
+    var image: String
+    var counterLeft: Int
+    var counterRight: Int
+    var value: Double
+    var percentage: Bool
     var inTop: Double
     var stat: Profile.playerStat
     @Environment(\.colorScheme) var colorScheme

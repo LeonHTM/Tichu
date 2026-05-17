@@ -17,7 +17,7 @@ final class SocketService: ObservableObject {
     private var manager: SocketManager!
     private var socket: SocketIOClient!
 
-    @Published var connected = false
+    @Published var connected = true
 
     private init() {
 
@@ -100,6 +100,19 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     NetworkService.shared.profiles.removeAll { $0.id == id }
+                }
+            }
+        }
+        //USERNAME EDITED
+        socket.on("username_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let profileId = dict["profile_id"] as? Int,
+                  let name = dict["name"] as? String else { return }
+            DispatchQueue.main.async {
+                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.profiles[index].name = name
+                    }
                 }
             }
         }

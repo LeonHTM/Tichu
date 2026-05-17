@@ -12,7 +12,7 @@ import TipKit
 struct HistoryView: View {
 
     // MARK: - Storage
-    @AppStorage("userImageData") private var userImageData: Data?
+    @AppStorage("userId") var userId: Int = -69420
     @AppStorage("selectedTab") private var selectedTab = 0
     @Environment(\.colorScheme) var colorScheme
     
@@ -89,7 +89,7 @@ struct HistoryView: View {
             .navigationTitle("History")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: userImageData, size: 44)
+                    ProfileImage(data: network.profileImages[userId], size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -202,7 +202,7 @@ struct HistoryView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: userImageData, size: 44)
+                    ProfileImage(data: network.profileImages[userId], size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }

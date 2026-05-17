@@ -11,10 +11,7 @@ import PhotosUI
 struct ProfileView: View {
 
     // MARK: - Storage
-    @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("userImageData") private var userImageData: Data?
-    @AppStorage("userElo") var userElo: Int = 1000
-    @AppStorage("loggedIn") var loggedIn: Bool = true
+    @AppStorage("userId") var userId: Int = -69420
 
     // MARK: - Photo Picker
     @State private var pickerItem: PhotosPickerItem?
@@ -53,8 +50,9 @@ struct ProfileView: View {
             Spacer()
             VStack {
                 ZStack {
-                    ProfileImage(data: userImageData, size: 100)
+                    ProfileImage(data: network.profileImages[userId], size: 100)
                         .shadow(radius: 10)
+                        .allowsHitTesting(false)
 
                     PhotosPicker(selection: $pickerItem, matching: .images) {
                         Image(systemName: "camera.fill")
@@ -64,26 +62,18 @@ struct ProfileView: View {
                             .glassEffect(.regular.interactive())
                             .offset(y: 32)
                     }
-                    .onChange(of: pickerItem) { _, newItem in
-                        guard let newItem else { return }
-                        Task {
-                            if let data = try? await newItem.loadTransferable(type: Data.self),
-                               let uiImage = UIImage(data: data) {
-                                await MainActor.run {
-                                    self.userImageData = uiImage.jpegData(compressionQuality: 1)
-                                }
-                            }
-                        }
-                    }
                 }
+                 
 
-                Text(userName)
+                Text(network.profiles.first { $0.id == userId }?.name ?? "Unknown")
                     .font(.largeTitle)
                     .fontWeight(.bold)
+                    .allowsHitTesting(false)
 
-                Text("Ranking: \(userElo)")
+                Text("\(network.profiles.first { $0.id == userId }?.elo ?? 1000)")
                     .foregroundStyle(.gray)
                     .fontWeight(.bold)
+                    .allowsHitTesting(false)
             }
             Spacer()
         }
@@ -109,7 +99,7 @@ struct ProfileView: View {
             }
             .foregroundColor(.primary)
             .sheet(isPresented: $showNameSheet) {
-                NameSheetView(showNameSheet: $showNameSheet)
+                NameSheetView(showNameSheet: $showNameSheet,email: "",editMode:true)
                     .presentationDetents([.medium])
             }
 
@@ -169,6 +159,7 @@ struct ProfileView: View {
             .alert("Tichu App doesnt collect any Data!", isPresented: $showPrivacyAlert) {
                 Button(role: .cancel) {
                     withAnimation(.easeInOut(duration: 0.285)) {
+                        
                         showPrivacyAlert = false
                     }
                 } label: {
@@ -260,8 +251,12 @@ struct ProfileView: View {
             .alert("Do you really want to delete your Account?", isPresented: $showDeleteAlert) {
                 Button(role: .destructive) {
                     withAnimation(.easeInOut(duration: 0.285)) {
+                        Task{
+                            await network.deleteProfile(profileId: userId)
+                            userId = -69420
+                        }
                         showDeleteAlert = false
-                        loggedIn = false
+                    
                     }
                 } label: {
                     Text("Delete")

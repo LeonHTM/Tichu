@@ -10,9 +10,7 @@ import SwiftUI
 struct PlayView: View {
 
     // MARK: - Storage
-    @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("userElo") var userElo: Int = 1000
-    @AppStorage("userImageData") private var userImageData: Data?
+    @AppStorage("userId") private var userId: Int = -69420
     
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -55,10 +53,7 @@ struct PlayView: View {
     // MARK: - Methods
     func loadUser() {
         if currentGame.player1 == nil {
-            currentGame.player1 = Profile()
-            currentGame.player1!.name = userName
-            currentGame.player1!.elo = userElo
-            currentGame.player1!.imageData = userImageData
+            currentGame.player1 = network.profile(for:userId)
         }
     }
 
@@ -73,7 +68,6 @@ struct PlayView: View {
                     team2Header
                     team2Players
                 }
-                .id(userImageData)
                 .onChange(of: isGameReady) {
                     if let _ = currentGame.player2?.name {
                         team1 = Team(list: [currentGame.player1!, currentGame.player2!], name: "Team 1")
@@ -86,6 +80,9 @@ struct PlayView: View {
                     currentRound.team2 = team2
                     currentGame.team1 = team1
                     currentGame.team2 = team2
+                }
+                .onChange(of: network.profiles) { _ in
+                    loadUser()
                 }
                 .onChange(of: gameDone) {
                     showGameOverSheet = gameDone
@@ -113,7 +110,7 @@ struct PlayView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        ProfileImage(data: userImageData, size: 44)
+                        ProfileImage(data: network.profileImages[userId], size: 44)
                     }
                     .sharedBackgroundVisibility(.hidden)
                 }
@@ -168,7 +165,7 @@ struct PlayView: View {
             // Player 1 (always present)
             HStack {
                 ProfileImage(data: network.profileImages[currentGame.player1?.id  ?? -1], size: 44)
-                //ProfileImage(data: currentGame.player1?.imageData, size: 44)
+
                 VStack(alignment: .leading) {
                     Text(currentGame.player1?.name ?? "Unknown")
                         .fontWeight(.bold)

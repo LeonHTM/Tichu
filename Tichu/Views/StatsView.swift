@@ -9,21 +9,10 @@ import SwiftUI
 
 struct StatsView: View {
 
+    @ObservedObject private var network = NetworkService.shared
     // MARK: - Storage
-    @AppStorage("userImageData") private var userImageData: Data?
-    @AppStorage("userElo") var userElo: Double = 1000
-    @AppStorage("userWinner") var userWinner: Double = 0
-    @AppStorage("userTichuMaster") var userTichuMaster: Double = 0
-    @AppStorage("userVisionary") var userVisionary: Double = 0
-    @AppStorage("userAddict") var userAddict: Double = 0
-    @AppStorage("userTeamplayer") var userTeamplayer: Double = 0
-    @AppStorage("userAnnouncer") var userAnnouncer: Double = 0
-    @AppStorage("userSaboteur") var userSaboteur: Double = 0
-    @AppStorage("userGambler") var userGambler: Double = 0
-    @AppStorage("userBigGambler") var userBigGambler: Double = 0
-    @AppStorage("pinguGambler") var userPinguGambler: Double = 0
-    @AppStorage("userBomber") var userBomber: Double = 0
-
+    @AppStorage("userId") var userId: Int = -69420
+    
     // MARK: - State
     @State private var showAddPlayersSheet: Bool = false
     @State private var timeTags: [String] = ["All Time", "Year", "Month", "Week", "Today"]
@@ -50,7 +39,7 @@ struct StatsView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: userImageData, size: 44)
+                    ProfileImage(data: network.profileImages[userId], size: 44)
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -66,13 +55,13 @@ struct StatsView: View {
             spacing: 15
         ) {
             StatsContainer(
-                title: .constant("Rating"),
-                description: .constant("All time Elo Rating"),
-                image: .constant("chart.line.uptrend.xyaxis"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userElo,
-                percentage: .constant(false),
+                title: "Rating",
+                description: "All time Elo Rating",
+                image: "chart.line.uptrend.xyaxis",
+                counterLeft: 1,
+                counterRight: 500,
+                value: Double(network.profiles.first { $0.id == userId }?.elo ?? 1000),
+                percentage: false,
                 inTop: 0.025,
                 stat: .elo,
                 items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
@@ -80,13 +69,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Winner"),
-                description: .constant("Percentage of Games won"),
-                image: .constant("trophy"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userWinner,
-                percentage: .constant(true),
+                title: "Winner",
+                description: ("Percentage of Games won"),
+                image: ("trophy"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0),
+                percentage: (true),
                 inTop: 0.1,
                 stat: .winnerPercentage,
                 items: makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
@@ -94,13 +83,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Tichumaster"),
-                description: .constant("Points from Tichu per Round"),
-                image: .constant("number"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userTichuMaster,
-                percentage: .constant(false),
+                title: ("Tichumaster"),
+                description: ("Points from Tichu per Round"),
+                image: ("number"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.tichuMaster ?? 0),
+                percentage: (false),
                 inTop: 0.75,
                 stat: .tichuMaster,
                 items: makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
@@ -108,13 +97,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Visionary"),
-                description: .constant("Tichu announced when finished first"),
-                image: .constant("checkmark.circle"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userVisionary,
-                percentage: .constant(true),
+                title: ("Visionary"),
+                description: ("Tichu announced when finished first"),
+                image: ("checkmark.circle"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.visionary ?? 0),
+                percentage: (true),
                 inTop: 0.025,
                 stat: .visionary,
                 items: makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
@@ -122,13 +111,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Addict"),
-                description: .constant("Games played"),
-                image: .constant("pill"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userAddict,
-                percentage: .constant(false),
+                title: ("Addict"),
+                description: ("Games played"),
+                image: ("pill"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.addict ?? 0),
+                percentage: (false),
                 inTop: 0.9,
                 stat: .addict,
                 items: makeItems(from: compareList, stat: .addict, sortBy: sortBy)
@@ -136,13 +125,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Teamplayer"),
-                description: .constant("Double Win Rate"),
-                image: .constant("hands.clap"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userTeamplayer,
-                percentage: .constant(true),
+                title: ("Teamplayer"),
+                description: ("Double Win Rate"),
+                image: ("hands.clap"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.teamplayer ?? 0),
+                percentage: (true),
                 inTop: 0.06,
                 stat: .teamplayer,
                 items: makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
@@ -150,13 +139,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Announcer"),
-                description: .constant("Big and Small Tichus announced per Round"),
-                image: .constant("megaphone"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userAnnouncer,
-                percentage: .constant(true),
+                title: ("Announcer"),
+                description: ("Big and Small Tichus announced per Round"),
+                image: ("megaphone"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.announcer ?? 0),
+                percentage: (true),
                 inTop: 0.76,
                 stat: .announcer,
                 items: makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
@@ -164,13 +153,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Saboteur"),
-                description: .constant("Tichu prevented ratio"),
-                image: .constant("xmark.circle"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userSaboteur,
-                percentage: .constant(true),
+                title: ("Saboteur"),
+                description: ("Tichu prevented ratio"),
+                image: ("xmark.circle"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.saboteur ?? 0),
+                percentage: (true),
                 inTop: 0.87,
                 stat: .saboteur,
                 items: makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
@@ -178,13 +167,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Gambler"),
-                description: .constant("Tichu success ratio"),
-                image: .constant("exclamationmark.circle"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userGambler,
-                percentage: .constant(true),
+                title: ("Gambler"),
+                description: ("Tichu success ratio"),
+                image: ("exclamationmark.circle"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.gambler ?? 0),
+                percentage: (true),
                 inTop: 0.9,
                 stat: .gambler,
                 items: makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
@@ -192,13 +181,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Big Gambler"),
-                description: .constant("Big Tichu success ratio"),
-                image: .constant("exclamationmark.2.circle"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userBigGambler,
-                percentage: .constant(true),
+                title: ("Big Gambler"),
+                description: ("Big Tichu success ratio"),
+                image: ("exclamationmark.2.circle"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.bigGambler ?? 0),
+                percentage: (true),
                 inTop: 0.1,
                 stat: .bigGambler,
                 items: makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
@@ -206,13 +195,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Pingu Gambler"),
-                description: .constant("Pingu success ratio"),
-                image: .constant("exclamationmark.3.circle"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userPinguGambler,
-                percentage: .constant(true),
+                title: ("Pingu Gambler"),
+                description: ("Pingu success ratio"),
+                image: ("exclamationmark.3.circle"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.pinguGambler ?? 0),
+                percentage: (true),
                 inTop: 0.1,
                 stat: .pinguGambler,
                 items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy)
@@ -220,13 +209,13 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
 
             StatsContainer(
-                title: .constant("Bomber"),
-                description: .constant("Bombs per Round ratio"),
-                image: .constant("flame"),
-                counterLeft: .constant(1),
-                counterRight: .constant(500),
-                value: $userBomber,
-                percentage: .constant(true),
+                title: ("Bomber"),
+                description: ("Bombs per Round ratio"),
+                image: ("flame"),
+                counterLeft: (1),
+                counterRight: (500),
+                value: Double(network.profiles.first { $0.id == userId }?.bomber ?? 0),
+                percentage: (true),
                 inTop: 0.9,
                 stat: .bomber,
                 items: makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
