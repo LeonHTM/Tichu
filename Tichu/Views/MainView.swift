@@ -37,18 +37,30 @@ struct MainView: View {
                         Label("Play", systemImage: "play")
                     }
                     .tag(0)
-                
-                HistoryView()
-                    .tabItem {
+                if socket.connected{
+                    HistoryView().tabItem {
                         Label("History", systemImage: "clock")
                     }
                     .tag(1)
-                
-                StatsView()
-                    .tabItem {
+                }else{
+                    offlineView().tabItem {
+                        Label("History", systemImage: "clock")
+                    }
+                    .tag(1)
+                }
+                    
+                if socket.connected{
+                    StatsView()
+                        .tabItem {
+                            Label("Stats", systemImage: "chart.bar")
+                        }
+                        .tag(2)
+                }else {
+                    offlineView().tabItem {
                         Label("Stats", systemImage: "chart.bar")
                     }
                     .tag(2)
+                }
                 
                 ProfileView()
                     .tabItem {
@@ -62,11 +74,7 @@ struct MainView: View {
             }.onAppear{
                 selectedTab = 0
             }.alert(isPresented: isDisconnected) {
-                Alert(
-                    title: Text("Connection Issue"),
-                    message: Text("Could not connect to server."),
-                    dismissButton: .default(Text("OK"))
-                )
+                offlineView.offlineAlert()
             }
         }
     }

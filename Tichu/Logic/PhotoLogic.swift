@@ -8,8 +8,10 @@
 import Foundation
 import SwiftUI
 import UIKit
+
 //MARK: - From stored data do UIImage
 func dataToPhoto(data: Data?) -> UIImage? {
+   
     if let data,
        let image = UIImage(data: data) {
         return image

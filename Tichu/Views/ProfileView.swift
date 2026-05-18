@@ -12,20 +12,27 @@ struct ProfileView: View {
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
-
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("userElo") var userElo: Int = 1000
+    
     // MARK: - Photo Picker
     @State private var pickerItem: PhotosPickerItem?
+    @State private var isUploadingImage: Bool = false
     
     @ObservedObject private var network = NetworkService.shared
+    @StateObject private var socket = SocketService.shared
 
 
   
-
+    
     // MARK: - Sheet & Alert Presentation
     @State private var showNameSheet: Bool = false
     @State private var showFriendsSheet: Bool = false
     @State private var showPrivacyAlert: Bool = false
     @State private var showDeleteAlert: Bool = false
+    @State private var showOfflineAlert: Bool = false
+    @State private var showImageFailAlert: Bool = false
 
     // MARK: - Body
     var body: some View {
@@ -37,6 +44,8 @@ struct ProfileView: View {
                 authSection
                 deleteAccountSection
                 footerSection
+            }.alert(isPresented:$showOfflineAlert){
+                offlineView.offlineAlert()
             }
             .padding(.top, -20)
             .navigationTitle("Profile")
@@ -50,10 +59,21 @@ struct ProfileView: View {
             Spacer()
             VStack {
                 ZStack {
-                    ProfileImage(data: network.profileImages[userId], size: 100)
-                        .shadow(radius: 10)
-                        .allowsHitTesting(false)
-
+                    if socket.connected {
+                        ZStack{
+                            ProfileImage(data: network.profileImages[userId], size: 100)
+                                .shadow(radius: 10)
+                                .allowsHitTesting(false)
+                            if isUploadingImage{
+                                ProgressView().scaleEffect(2)
+                            }
+                        }
+                    }else{
+                        ProfileImage(data: userImageData, size: 100)
+                            .shadow(radius: 10)
+                            .allowsHitTesting(false)
+                    }
+                    
                     PhotosPicker(selection: $pickerItem, matching: .images) {
                         Image(systemName: "camera.fill")
                             .frame(width: 30, height: 30)
@@ -61,19 +81,58 @@ struct ProfileView: View {
                             .foregroundColor(.primary)
                             .glassEffect(.regular.interactive())
                             .offset(y: 32)
+                    }.disabled(!socket.connected).onChange(of: pickerItem) {
+                        isUploadingImage = true
+                        Task {
+                            guard let pickerItem else {
+                                showImageFailAlert = true
+                                isUploadingImage = false
+                                return
+                            }
+                            
+                            if let data = try? await pickerItem.loadTransferable(type: Data.self) {
+                                
+                                await network.uploadProfileImage(profileId: userId, imageData: UIImage(data: data)!.jpegData(compressionQuality: 0.7)!)
+                                
+                                
+                            }else{
+                                showImageFailAlert = true
+                                isUploadingImage = false
+                            }
+                            isUploadingImage = false
+                            
+                        }
+                    }.alert(isPresented:$showImageFailAlert){
+                        Alert(
+                            title: Text("Could not upload Profile Picture"),
+                            message: Text("Please try again later"),
+                            dismissButton: .default(Text("OK"))
+                        )
                     }
+                      
                 }
                  
-
-                Text(network.profiles.first { $0.id == userId }?.name ?? "Unknown")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .allowsHitTesting(false)
-
-                Text("\(network.profiles.first { $0.id == userId }?.elo ?? 1000)")
-                    .foregroundStyle(.gray)
-                    .fontWeight(.bold)
-                    .allowsHitTesting(false)
+                if socket.connected{
+                    Text(network.profiles.first { $0.id == userId }?.name ?? "Unknown")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .allowsHitTesting(false)
+                    
+                    Text("\(network.profiles.first { $0.id == userId }?.elo ?? 1000)")
+                        .foregroundStyle(.gray)
+                        .fontWeight(.bold)
+                        .allowsHitTesting(false)
+                }else{
+                    Text(userName)
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .allowsHitTesting(false)
+                    
+                    Text("\(userElo)")
+                        .foregroundStyle(.gray)
+                        .fontWeight(.bold)
+                        .allowsHitTesting(false)
+                }
             }
             Spacer()
         }
@@ -85,7 +144,13 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    showNameSheet = true
+                if socket.connected{
+                    
+                        showNameSheet = true
+                        
+                    }else{
+                        showOfflineAlert = true
+                    }
                 }
             } label: {
                 HStack {
@@ -99,13 +164,17 @@ struct ProfileView: View {
             }
             .foregroundColor(.primary)
             .sheet(isPresented: $showNameSheet) {
-                NameSheetView(showNameSheet: $showNameSheet,email: "",editMode:true)
-                    .presentationDetents([.medium])
+                NameSheetView(showNameSheet: $showNameSheet,email: "",editMode:true,done:.constant(true))
+                    .presentationDetents([.large])
             }
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    showFriendsSheet = true
+                    if socket.connected{
+                        showFriendsSheet = true
+                    }else{
+                        showOfflineAlert = true
+                    }
                 }
             } label: {
                 HStack {
@@ -198,7 +267,11 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    print("Switch Account")
+                    if socket.connected{
+                        print("Switch Account")
+                    }else{
+                        showOfflineAlert = true
+                    }
                 }
             } label: {
                 HStack {
@@ -214,7 +287,11 @@ struct ProfileView: View {
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    print("Log out")
+                    if socket.connected{
+                        userId = -69420
+                    }else{
+                        showOfflineAlert = true
+                    }
                 }
             } label: {
                 HStack {
@@ -234,7 +311,11 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    showDeleteAlert = true
+                    if socket.connected{
+                        showDeleteAlert = true
+                    }else{
+                        showOfflineAlert = true
+                    }
                 }
             } label: {
                 HStack {

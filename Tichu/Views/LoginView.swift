@@ -8,25 +8,25 @@
 import SwiftUI
 import AuthenticationServices
 
+
 struct LoginView: View {
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
-
+    @StateObject private var socket = SocketService.shared
     // MARK: - State
     @Binding var userEmail: String
-    @Binding var done: Bool
     @Environment(\.colorScheme) var colorScheme
+    @FocusState private var isEmailFocused: Bool
+
 
     // MARK: - Body
     var body: some View {
-        NavigationStack {
-            GlassEffectContainer {
-                Spacer()
-                appLogoHeader
-                Spacer()
-                signInSection
-            }
+        GlassEffectContainer {
+            Spacer()
+            appLogoHeader
+            Spacer()
+            signInSection
         }
     }
 
@@ -36,6 +36,7 @@ struct LoginView: View {
             Image("AppLogo")
                 .resizable()
                 .frame(width: 100, height: 100)
+
             Text("Welcome to Tichu App")
                 .font(.title)
                 .fontWeight(.bold)
@@ -51,52 +52,71 @@ struct LoginView: View {
                     .font(.title2)
                 Spacer()
             }
-            Text("Play games with your Friends and get statistics about you Tichu Skilss.")
-                .foregroundStyle(Color.secondary)
+
+            Text("Play games with your Friends and get statistics about your Tichu skills.")
+                .foregroundStyle(.secondary)
 
             emailField
+
             HStack {
                 Spacer()
-                Text("or").foregroundStyle(Color.secondary)
+                Text("or").foregroundStyle(.secondary)
                 Spacer()
             }
+
             appleSignInButton
         }
         .padding(.horizontal)
         .padding(.bottom, 30)
     }
 
-    // MARK: - Email Field
+    // MARK: - Email Field (NOW NAVIGATES)
     private var emailField: some View {
         HStack {
             Image(systemName: "envelope.fill")
                 .foregroundColor(.secondary)
                 .padding(.leading)
-            TextField(
-                "\("me@tichuplayer.com")",
-                text: $userEmail
-            )
+
+            TextField("\("me@tichuplayer.com")", text: $userEmail)
                 .textInputAutocapitalization(.never)
-                .multilineTextAlignment(.leading)
                 .autocorrectionDisabled(true)
                 .keyboardType(.emailAddress)
                 .foregroundColor(.primary)
+                .focused($isEmailFocused)
+                
+
             Spacer()
-            Button {
-                withAnimation(.easeInOut) {
-                    done = true
-                }
+
+            NavigationLink {
+                destinationView()
             } label: {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.system(size: 24))
-                    .foregroundStyle(Color.accent)
-                    
-            }.padding(.trailing,10)
+                    .foregroundStyle(Color.accentColor)
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                isEmailFocused = false
+            })
             .disabled(userEmail.isEmpty)
+            .padding(.trailing,10)
         }
         .padding(.vertical, 13)
-        .foregroundStyle(Color.primary)
         .glassEffect(.regular.tint(.secondary.opacity(0.2)).interactive())
+    }
+
+    // MARK: - Destination Routing
+    @ViewBuilder
+    private func destinationView() -> some View {
+        if socket.connected {
+            NameSheetView(
+                showNameSheet: .constant(true),
+                email: userEmail,
+                editMode: false,
+                done: .constant(false)
+            )
+        } else {
+            offlineView()
+        }
     }
 
     // MARK: - Apple Sign In Button
@@ -127,20 +147,16 @@ struct LoginView: View {
 }
 
 
+
+
 struct LoginMainView: View {
+    @StateObject private var socket = SocketService.shared
     @State private var userEmail: String = ""
-    @State private var done: Bool = false
 
     var body: some View {
-        ZStack {
-            if !done {
-                LoginView(userEmail: $userEmail, done: $done)
-                    .transition(.move(edge: .leading))
-            } else {
-                NameSheetView(showNameSheet: .constant(true),email:userEmail,editMode:false)
-                    .transition(.move(edge: .trailing))
-            }
+        NavigationStack {
+            LoginView(userEmail: $userEmail).navigationTitle("Login or Sign up").toolbar(.hidden, for: .navigationBar)
+         
         }
-        .animation(.easeInOut(duration: 0.4), value: done)
     }
 }

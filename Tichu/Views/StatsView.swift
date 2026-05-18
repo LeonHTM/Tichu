@@ -28,6 +28,7 @@ struct StatsView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
+            
             ScrollView {
                 statsGrid
                     .animation(.easeInOut, value: compareList.map { $0.id })

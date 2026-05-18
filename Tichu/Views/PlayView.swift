@@ -10,7 +10,11 @@ import SwiftUI
 struct PlayView: View {
 
     // MARK: - Storage
-    @AppStorage("userId") private var userId: Int = -69420
+    @AppStorage("userId") var userId: Int = -69420
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("userElo") var userElo: Int = 1000
+    
     
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -52,8 +56,18 @@ struct PlayView: View {
 
     // MARK: - Methods
     func loadUser() {
-        if currentGame.player1 == nil {
-            currentGame.player1 = network.profile(for:userId)
+        
+        if socket.connected {
+            if currentGame.player1?.id == -1 || currentGame.player1 == nil {
+                currentGame.player1 = network.profile(for: userId)
+            }
+            
+        } else {
+            currentGame.player1 = Profile()
+            currentGame.player1!.id = -1
+            currentGame.player1!.name = userName
+            currentGame.player1!.elo = userElo
+            currentGame.player1!.imageData = userImageData
         }
     }
 
@@ -81,12 +95,16 @@ struct PlayView: View {
                     currentGame.team1 = team1
                     currentGame.team2 = team2
                 }
-                .onChange(of: network.profiles) { _ in
+                .onChange(of: network.profiles) {
+                    loadUser()
+                }
+                .onChange(of: socket.connected){
                     loadUser()
                 }
                 .onChange(of: gameDone) {
                     showGameOverSheet = gameDone
                 }
+                
                 .sheet(isPresented: $showGameOverSheet) {
                     GameSummarySheetView(
                         showGameOverViewSheetView: $showGameOverSheet,
@@ -110,7 +128,16 @@ struct PlayView: View {
                         }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
-                        ProfileImage(data: network.profileImages[userId], size: 44)
+                        
+                        if socket.connected {
+                            ProfileImage(data: network.profileImages[userId], size: 44)
+                      
+                          
+                        }else{
+                            ProfileImage(data: userImageData, size: 44)
+                                
+                        }
+                        
                     }
                     .sharedBackgroundVisibility(.hidden)
                 }
@@ -122,6 +149,7 @@ struct PlayView: View {
                 }
             }
         }
+       
         .sheet(isPresented: $showDebugSheetView) {
             DebugSheetView(
                 currentGame: $currentGame,
@@ -136,7 +164,7 @@ struct PlayView: View {
                 gameSettingsBottomBar
             }
         }
-        .onAppear { loadUser() }
+        
     }
 
     // MARK: - Team 1 Header
@@ -164,8 +192,11 @@ struct PlayView: View {
         Section {
             // Player 1 (always present)
             HStack {
-                ProfileImage(data: network.profileImages[currentGame.player1?.id  ?? -1], size: 44)
-
+                if socket.connected{
+                    ProfileImage(data: network.profileImages[currentGame.player1?.id  ?? -1], size: 44)
+                }else{
+                    ProfileImage(data: userImageData, size: 44)
+                }
                 VStack(alignment: .leading) {
                     Text(currentGame.player1?.name ?? "Unknown")
                         .fontWeight(.bold)

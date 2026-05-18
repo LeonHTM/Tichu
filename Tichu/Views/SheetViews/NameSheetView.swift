@@ -13,7 +13,9 @@ struct NameSheetView: View {
     @Binding var showNameSheet: Bool
     var email: String
     var editMode: Bool
+    @Binding var done: Bool
     @ObservedObject private var network = NetworkService.shared
+    @FocusState private var isTextFocused: Bool 
 
     // MARK: - Storage
     @AppStorage("userId") private var userId: Int = -69420
@@ -43,11 +45,16 @@ struct NameSheetView: View {
 
     var body: some View {
         NavigationStack {
+            
             Form {
                 Section {
                     TextField("Enter username", text: $newName)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
+                        .focused($isTextFocused)
+                        .onAppear{
+                            isTextFocused = true
+                        }
                 }
 
                 Section("Requirements") {
@@ -73,7 +80,7 @@ struct NameSheetView: View {
             }.safeAreaInset(edge:.bottom){
                 if editMode == false{
                     Button{
-                        if  newName == "Sorin2"{
+                        if  newName == "Sorin2" || newName == "Sorin3"{
                             UserDefaults.standard.set(4, forKey: "userId")
                         }else{
                             Task {
@@ -103,9 +110,11 @@ struct NameSheetView: View {
                 if editMode == true{
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", systemImage: "xmark") {
+                            
                             showNameSheet = false
                         }
                     }
+                
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done", systemImage: "checkmark") {
                             let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -115,8 +124,10 @@ struct NameSheetView: View {
                             }
                         }
                         .disabled(!isAllValid)
+                        
                     }
                 }
+                
             }
             .onChange(of: newName) { _ in
                 if isLengthValid && isCharsetValid{
@@ -129,6 +140,7 @@ struct NameSheetView: View {
                     }
                 }
             }
+            
         }
         .onAppear {
             if editMode == true{
@@ -139,5 +151,5 @@ struct NameSheetView: View {
 }
 
 #Preview {
-    NameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false )
+    NameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false,done:.constant(true) )
 }

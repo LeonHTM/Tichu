@@ -92,4 +92,35 @@ struct ColorfulIconLabelStyle: LabelStyle {
     }
 }
 
+
+struct offlineView: View{
+    var body: some View{
+        VStack(alignment:.center,spacing:10){
+            
+               
+                Text("No Internet Connection").font(.title2).fontWeight(.bold)
+            
+ 
+       
+                Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
+            
+        
+            
+        }
+        
+    }
+    static func offlineAlert() -> Alert {
+        Alert(
+            title: Text("No Internet Connection"),
+            message: Text("Your Device is not connected to the internet."),
+            dismissButton: .default(Text("OK"))
+        )
+    }
+}
+
+
+
+    
+
+
 #Preview{ProfileView()}

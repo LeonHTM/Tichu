@@ -16,16 +16,28 @@ struct EditFriendsSheetView: View {
     // MARK: - Storage
     @AppStorage("userName") var userName: String = ""
     @ObservedObject private var network = NetworkService.shared
+    
+    @AppStorage("userId") private var userId: Int = -69420
 
     // MARK: - State
     @State private var friendsFilterActive: Bool = false
+    
     @State private var sortByFriends: sortBy.sortBy = .nameDown
     @State private var sortByRequests: sortBy.sortBy = .nameDown
+    @State private var sortBySentRequests: sortBy.sortBy = .nameDown
+    
+    @State private var friendList: [Friend] = []
     @State private var friendsListCopy: [Friend] = []
+    
+    @State private var requestedFriendsList: [Profile] = []
     @State private var requestedFriendsListCopy: [Profile] = []
-    @State private var originalFriends: [Friend] = []
-    @State private var originalRequests: [Profile] = []
+    
+    @State private var sentRequestsListCopy: [Profile] = []
+    @State private var sentRequestsList : [Profile] = []
+    
+    
     @State private var showAddPlayerSheet: Bool = false
+    
     @State private var currentProfile: Profile?
 
     // MARK: - Computed
@@ -36,42 +48,93 @@ struct EditFriendsSheetView: View {
     var sortedRequestsList: [Profile] {
         makeItems(from: requestedFriendsListCopy, stat: .dateAdded, sortBy: sortByRequests)
     }
-
+    
+    
+    var sortedSentRequestsList: [Profile] {
+        
+        return makeItems(from: sentRequestsListCopy, stat: .dateAdded, sortBy: sortBySentRequests)
+    }
+    
+    
+    
     // MARK: - Done Button
     private var doneButton: some View {
         Button("Done", systemImage: "checkmark") {
             Task {
-                // Friends removed = in original but not in copy
-                let removedIds = originalFriends
+
+                // MARK: - FRIENDS REMOVED
+                let removedFriendIds = friendList
                     .filter { orig in !friendsListCopy.contains(where: { $0.id == orig.id }) }
                     .map { $0.id }
 
-                // Requests accepted = in original requests but now in friends
-                let acceptedIds = originalRequests
+                for id in removedFriendIds {
+                    await network.removeFriend(profileId: userId, friendId: id)
+                }
+
+                // MARK: - RECEIVED REQUESTS ACCEPTED
+                let acceptedIds = requestedFriendsList
                     .filter { req in friendsListCopy.contains(where: { $0.id == req.id }) }
                     .map { $0.id }
 
-                // Requests rejected = in original requests but not in copy anymore
-                let rejectedIds = originalRequests
-                    .filter { req in !requestedFriendsListCopy.contains(where: { $0.id == req.id }) && !friendsListCopy.contains(where: { $0.id == req.id }) }
+                for senderId in acceptedIds {
+                    await network.respondToFriendRequest(
+                        receiverId: userId,
+                        senderId: senderId,
+                        action: "accepted"
+                    )
+                }
+
+                // MARK: - RECEIVED REQUESTS REJECTED
+                let rejectedIds = requestedFriendsList
+                    .filter { req in
+                        !friendsListCopy.contains(where: { $0.id == req.id }) &&
+                        !requestedFriendsListCopy.contains(where: { $0.id == req.id })
+                    }
                     .map { $0.id }
 
-                for id in removedIds {
-                    await network.removeFriend(profileId: 3, friendId: id)
+                for senderId in rejectedIds {
+                    await network.respondToFriendRequest(
+                        receiverId: userId,
+                        senderId: senderId,
+                        action: "rejected"
+                    )
                 }
-                for id in acceptedIds {
-                    if let req = network.friendRequests.first(where: { $0.senderId == id }) {
-                        await network.respondToFriendRequest(requestId: req.id, action: "accepted")
+
+                // MARK: - SENT REQUESTS CANCELLED
+                let cancelledSentIds = sentRequestsList
+                    .filter { sent in
+                        !sentRequestsListCopy.contains(where: { $0.id == sent.id })
                     }
+                    .map { $0.id }
+
+                for receiverId in cancelledSentIds {
+                    await network.respondToFriendRequest(
+                        receiverId: receiverId,
+                        senderId: userId,
+                        action: "rejected"   // cancel = reject on server
+                    )
                 }
-                for id in rejectedIds {
-                    if let req = network.friendRequests.first(where: { $0.senderId == id }) {
-                        await network.respondToFriendRequest(requestId: req.id, action: "rejected")
+                let newSentRequestIds = sentRequestsListCopy
+                    .filter { new in
+                        !sentRequestsList.contains(where: { $0.id == new.id })
                     }
+                    .map { $0.id }
+
+                for receiverId in newSentRequestIds {
+                    await network.sendFriendRequest(
+                        senderId: userId,
+                        receiverId: receiverId
+                    )
                 }
-                await network.fetchFriends(profileId: 3)
 
                 showFriendsSheet = false
+                
+                // MARK: - REFRESH
+                await network.fetchFriends(profileId: userId)
+                await network.fetchFriendRequests(profileId: userId)
+                await network.fetchSentRequests(profileId: userId)
+
+                
             }
         }
     }
@@ -84,40 +147,75 @@ struct EditFriendsSheetView: View {
                     if requestedFriendsListCopy.count > 0 {
                         friendRequestsHeader
                         friendRequestsRows
-                        footerNote
+                        //footerNote
                     }
+                    
                     friendsHeader
                     friendsRows
                     
+                    if sentRequestsListCopy.count > 0 {
+                        sentRequestsHeader
+                        sentRequestsRows
+                        
+                    }
                 }
+                
                 .onAppear {
-                    friendsListCopy = network.friends
-                    requestedFriendsListCopy = network.friendRequestProfiles
-                    originalFriends = network.friends
-                    originalRequests = network.friendRequestProfiles
+                    withAnimation(.easeInOut) {
+                        friendList = network.friends
+                        friendsListCopy = network.friends
+                        
+                        let receiverIds = network.sentRequests.map { $0.receiverId }
+                        sentRequestsList = network.profiles.filter { receiverIds.contains($0.id)}
+                        sentRequestsListCopy =  network.profiles.filter { receiverIds.contains($0.id)}
+                        
+                        requestedFriendsList = network.friendRequestProfiles
+                        requestedFriendsListCopy = network.friendRequestProfiles
+                    }
                 }
                 .onChange(of: network.friends) {
                     withAnimation(.easeInOut) {
                         friendsListCopy = network.friends
-                        originalFriends = network.friends
+                        friendList = network.friends
                     }
                 }
+                .onChange(of: network.sentRequests.map { $0.receiverId }) {
+                    withAnimation(.easeInOut) {
+                        let receiverIds = network.sentRequests.map { $0.receiverId }
+                        sentRequestsListCopy = network.profiles.filter { receiverIds.contains($0.id) }
+                        sentRequestsList = network.profiles.filter { receiverIds.contains($0.id) }
+                    }
+                }
+                .onChange(of: network.friendRequests.map { $0.id }){
+                    withAnimation(.easeInOut) {
+                        requestedFriendsList = network.friendRequestProfiles
+                        requestedFriendsListCopy = network.friendRequestProfiles
+                    }
+                }
+                
                 .listSectionSpacing(0)
                 .navigationTitle("Manage Friendlist")
                 .navigationBarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .bottom) { addFriendButton }
                 .sheet(isPresented: $showAddPlayerSheet, onDismiss: {
                     if let profile = currentProfile {
-                        withAnimation(.easeInOut) {
-                            let newFriend = Friend(id: profile.id, profile: profile, friendsSince: Date())
-                            friendsListCopy.append(newFriend)
-                        }
+                        //withAnimation(.easeInOut) {
+                            /*let newFriend = Friend(id: profile.id, profile: profile, friendsSince: Date())*/
+                        Task {
+                            withAnimation(.easeInOut) {
+                                sentRequestsListCopy.append(profile)
+                                
+                            }
+                            
+                                }
+                        //}
+                        
                     }
                 }) {
                     AddPlayersSheetView(
                         showAddPlayersSheet: $showAddPlayerSheet,
                         addPlayer: $currentProfile,
-                        alreadyAdded: friendsListCopy.map { $0.profile },
+                        alreadyAdded: friendsListCopy.map { $0.profile } + sentRequestsListCopy + requestedFriendsListCopy,
                         showGuest: false,
                         showPlayers: true,
                         showFriends: false,
@@ -135,6 +233,9 @@ struct EditFriendsSheetView: View {
                         }
                     }
                 }
+            }.task {
+                //ACTUALLY FETCH REQUESTS THAT WERE MADE NOT THAT ARE SEDN TO PROFIEL
+                await network.fetchSentRequests(profileId: userId)
             }
         }
     }
@@ -143,7 +244,7 @@ struct EditFriendsSheetView: View {
     private var friendRequestsHeader: some View {
         Section {
             HStack {
-                Text("Friend Requests").fontWeight(.bold)
+                Text("Recieved Requests").fontWeight(.bold)
                 Spacer()
                 if requestedFriendsListCopy.count > 1 {
                     Menu {
@@ -274,7 +375,9 @@ struct EditFriendsSheetView: View {
                     }
                 }
             }else{
-                Text("You have no friends yet. Request somebody!").listRowBackground(Color.clear).foregroundStyle(.secondary)
+                if sentRequestsListCopy.count == 0 && requestedFriendsListCopy.count == 0{
+                    Text("You have no friends yet. Request somebody!").listRowBackground(Color.clear).foregroundStyle(.secondary)
+                }
             }
         }
         .listRowBackground(Color.clear)
@@ -311,7 +414,104 @@ struct EditFriendsSheetView: View {
                     .tint(.red)
                 }
             }
-            TipView(ListSwipeFriendTip()).tipBackground(Color.clear)
+            if friendsListCopy.count > 0{
+                TipView(ListSwipeFriendTip()).tipBackground(Color.clear)
+            }
+        }
+        .task {
+            do {
+                try Tips.resetDatastore()
+                try Tips.configure()
+            } catch {
+                print("Error initializing TipKit \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    private var sentRequestsHeader: some View {
+        Section {
+                HStack {
+                    Text("Sent Requests").fontWeight(.bold)
+                    Spacer()
+                    if sentRequestsListCopy.count > 1 {
+                        Menu {
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    sortBySentRequests = .nameDown
+                                    friendsFilterActive = false
+                                }
+                            } label: {
+                                if sortBySentRequests == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
+                                Text("Alphabetical (A-Z)")
+                            }
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    sortBySentRequests = .nameUp
+                                    friendsFilterActive = true
+                                }
+                            } label: {
+                                if sortBySentRequests == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
+                                Text("Alphabetical (Z-A)")
+                            }
+                            Divider()
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    sortBySentRequests = .valueDown
+                                    friendsFilterActive = true
+                                }
+                            } label: {
+                                if sortBySentRequests == .valueDown { Image(systemName: "checkmark") } else { Image("Date.down") }
+                                Text("Date Added (New - Old)")
+                            }
+                            Button {
+                                withAnimation(.easeInOut) {
+                                    sortBySentRequests = .valueUp
+                                    friendsFilterActive = true
+                                }
+                            } label: {
+                                if sortBySentRequests == .valueUp { Image(systemName: "checkmark") } else { Image("Date.up") }
+                                Text("Date Added (Old - New)")
+                            }
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                                .font(.system(size: 20))
+                        }
+                        .foregroundColor(friendsFilterActive ? .accentColor : .primary)
+                    }
+                }
+            
+        }
+        .listRowBackground(Color.clear)
+    }
+    
+    private var sentRequestsRows: some View {
+        Section {
+            ForEach(sortedSentRequestsList) { request in
+                HStack {
+                    ProfileImage(data: network.profileImages[request.id], size: 44)
+                    VStack(alignment: .leading) {
+                        Text(request.name ?? "Unknown")
+
+                        Text("Requested")
+                                .foregroundStyle(.secondary)
+                                .font(.system(size: 16))
+                        
+                    }
+                }
+                .swipeActions(edge: .trailing) {
+                    Button {
+                        withAnimation(.easeInOut) {
+                            
+                            sentRequestsListCopy.removeAll { $0.id == request.id }
+                        }
+                    } label: {
+                        Image(systemName: "person.badge.minus")
+                        Text("Remove Request")
+                    }
+                    .tint(.red)
+                }
+            }
+            
         }
         .task {
             do {
@@ -355,3 +555,4 @@ struct EditFriendsSheetView: View {
         showFriendsSheet: .constant(true)
     )
 }
+

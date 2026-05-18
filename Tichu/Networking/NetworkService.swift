@@ -12,8 +12,13 @@ import SwiftUI
 class NetworkService: ObservableObject {
     static let shared = NetworkService()
 
-    let baseURL = "http://192.168.1.84:5001"
-
+    let baseURL = "https://prevalent-prodigal-justify.ngrok-free.dev"
+    
+    @AppStorage("userId") private var userId = -69420
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("userElo") var userElo: Int = 1000
+    
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
 
@@ -21,7 +26,9 @@ class NetworkService: ObservableObject {
 
     @Published var friendRequestProfiles: [Profile] = []
     @Published var friendRequestImages: [Int: Data] = [:]
+    
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
+    @Published var sentRequests: [(id: Int, receiverId: Int)] = []
 
     
 
@@ -54,7 +61,6 @@ class NetworkService: ObservableObject {
 
     func fetchProfiles() async {
         guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
-
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
@@ -64,6 +70,11 @@ class NetworkService: ObservableObject {
                 }
             }
             await loadProfileImages()
+            
+            userName = profiles.first{$0.id == userId}?.name ?? "Unknown"
+            userElo = profiles.first{$0.id == userId}?.elo ?? 1000
+            userImageData = profileImages[userId]
+            
         } catch {
             print("fetchProfiles error: \(error)")
         }
@@ -196,8 +207,7 @@ class NetworkService: ObservableObject {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
                     date = formatter.date(from: dateStr)
-                    print("DateStr \(dateStr)")
-                    print("Date \(date)")
+
                 }
 
                 return Friend(id: profile.id, profile: profile, friendsSince: date)
@@ -241,6 +251,27 @@ class NetworkService: ObservableObject {
             print("removeFriend error: \(error)")
         }
     }
+    
+    func fetchSentRequests(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            let parsed = raw.compactMap { dict -> (id: Int, receiverId: Int)? in
+                guard let id = dict["id"] as? Int,
+                      let receiverId = dict["receiver_id"] as? Int else { return nil }
+                return (id: id, receiverId: receiverId)
+            }
+
+            await MainActor.run {
+                self.sentRequests = parsed
+            }
+        } catch {
+            print("fetchSentRequests error: \(error)")
+        }
+    }
 
     func sendFriendRequest(senderId: Int, receiverId: Int) async {
         guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
@@ -255,16 +286,31 @@ class NetworkService: ObservableObject {
         }
     }
 
-    func respondToFriendRequest(requestId: Int, action: String) async {
-        guard let url = URL(string: "\(baseURL)/manage_requests/\(requestId)") else { return }
+    func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
+
+        guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
 
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": action])
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "action": action
+        ])
 
         do {
             try await URLSession.shared.data(for: request)
+
+            await MainActor.run {
+                // remove from local state immediately (optional but recommended)
+                self.friendRequests.removeAll {
+                    $0.senderId == senderId
+                }
+
+                self.friendRequestProfiles.removeAll {
+                    $0.id == senderId
+                }
+            }
+
         } catch {
             print("respondToFriendRequest error: \(error)")
         }

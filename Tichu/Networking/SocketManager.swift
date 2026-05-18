@@ -11,6 +11,9 @@ import Combine
 import SwiftUI
 
 final class SocketService: ObservableObject {
+    
+    
+    @AppStorage("userId") private var userId = -69420
 
     static let shared = SocketService()
 
@@ -22,7 +25,7 @@ final class SocketService: ObservableObject {
     private init() {
 
         guard let url = URL(
-            string: "http://192.168.1.84:5001"
+            string: "https://prevalent-prodigal-justify.ngrok-free.dev"
         ) else {
             return
         }
@@ -30,7 +33,7 @@ final class SocketService: ObservableObject {
         manager = SocketManager(
             socketURL: url,
             config: [
-                .log(true),
+                //.log(true),
                 .compress,
                 .reconnects(true),
                 .reconnectWait(1)
@@ -119,27 +122,36 @@ final class SocketService: ObservableObject {
 
         // FRIEND REQUEST SENT
         socket.on("friend_request_sent") { data, ack in
-            print("friend_request_sent: \(data)")
+            Task{
+                await NetworkService.shared.fetchSentRequests(profileId: self.userId)
+                await NetworkService.shared.fetchFriendRequests(profileId: self.userId)
+            }
         }
 
         // FRIEND REQUEST UPDATED
         socket.on("friend_request_updated") { data, ack in
-            print("friend_request_updated: \(data)")
+            Task{
+                
+                await NetworkService.shared.fetchFriendRequests(profileId: self.userId)
+                await NetworkService.shared.fetchFriends(profileId: self.userId)
+            }
         }
 
         // FRIENDSHIP ADDED
-        socket.on("friendship_added") { data, ack in
+        socket.on("friendship_added") { [weak self] data, ack in
             print("friendship_added: \(data)")
-            Task {
-                await NetworkService.shared.fetchFriends(profileId: 3)
+            Task { [weak self] in
+                guard let self = self else { return }
+                await NetworkService.shared.fetchFriends(profileId: self.userId)
             }
         }
 
         // FRIENDSHIP REMOVED
-        socket.on("friendship_removed") { data, ack in
+        socket.on("friendship_removed") { [weak self] data, ack in
             print("friendship_removed: \(data)")
-            Task {
-                await NetworkService.shared.fetchFriends(profileId: 3)
+            Task { [weak self] in
+                guard let self = self else { return }
+                await NetworkService.shared.fetchFriends(profileId: self.userId)
             }
         }
 
@@ -158,3 +170,4 @@ final class SocketService: ObservableObject {
         socket.disconnect()
     }
 }
+

@@ -30,7 +30,7 @@ struct HistoryView: View {
     var body: some View {
         if gameHistory.count > 0 {
             historyView
-        } else {
+        }else {
             emptyStateView
         }
     }
@@ -208,6 +208,7 @@ struct HistoryView: View {
             }
         }
     }
+    
 }
 
 #Preview {

@@ -12,6 +12,8 @@ struct DebugSheetView: View {
     @Binding var showDebugSheetView:Bool
     @Binding var exampleGameHistory: [tichuGame]
     @AppStorage("selectedTab") private var selectedTab = 0
+    @ObservedObject private var network = NetworkService.shared
+    
     
     var body: some View {
         NavigationStack{
@@ -53,6 +55,9 @@ struct DebugSheetView: View {
                     
                 }label:{
                     Text("Load example history")
+                }
+                ForEach(Array(network.profileImages.keys.sorted()), id: \.self) { id in
+                    ProfileImage(data: network.profileImages[id], size: 44)
                 }
                    
             .navigationTitle(Text("Debug View"))
