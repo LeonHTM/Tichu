@@ -1,0 +1,9 @@
+{
+    "Simulator Target Bundle": "LeonHTM.Tichu",
+    "aps": {
+        "alert": {
+            "title": "LeonHTM requested to be your Friend",
+            "body": "This is a test notification body"
+        }
+    }
+}

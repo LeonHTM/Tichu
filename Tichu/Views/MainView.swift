@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UserNotifications
 
 
 
@@ -16,7 +16,7 @@ struct MainView: View {
     @AppStorage("userId") private var userId = -69420
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
-   
+    let notificationCenter = UNUserNotificationCenter.current()
     private var isDisconnected: Binding<Bool> {
         Binding(
             get: { !socket.connected },
@@ -75,6 +75,12 @@ struct MainView: View {
                 selectedTab = 0
             }.alert(isPresented: isDisconnected) {
                 offlineView.offlineAlert()
+            }.task{
+                do {
+                    try await notificationCenter.requestAuthorization(options: [.alert, .badge, .sound])
+                } catch {
+                    print("Request authorization error")
+                }
             }
         }
     }

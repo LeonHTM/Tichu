@@ -147,9 +147,8 @@ struct EditFriendsSheetView: View {
                     if requestedFriendsListCopy.count > 0 {
                         friendRequestsHeader
                         friendRequestsRows
-                        //footerNote
+                       
                     }
-                    
                     friendsHeader
                     friendsRows
                     
