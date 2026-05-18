@@ -198,23 +198,27 @@ struct EditFriendsSheetView: View {
                 .safeAreaInset(edge: .bottom) { addFriendButton }
                 .sheet(isPresented: $showAddPlayerSheet, onDismiss: {
                     if let profile = currentProfile {
-                        //withAnimation(.easeInOut) {
-                            /*let newFriend = Friend(id: profile.id, profile: profile, friendsSince: Date())*/
-                        Task {
+                        if sentRequestsList.contains(where: { $0.id == profile.id }) {
+                            // Already had a pending sent request → just ensure it's in the copy
+                            if !sentRequestsListCopy.contains(where: { $0.id == profile.id }) {
+                                withAnimation(.easeInOut) {
+                                    sentRequestsListCopy.append(profile)
+                                }
+                            }
+                        } else if friendsListCopy.contains(where: { $0.id == profile.id }) {
+                            // Mutual request auto-accepted on server → already a friend, nothing to do
+                        } else {
+                            // New request
                             withAnimation(.easeInOut) {
                                 sentRequestsListCopy.append(profile)
-                                
                             }
-                            
-                                }
-                        //}
-                        
+                        }
                     }
                 }) {
                     AddPlayersSheetView(
                         showAddPlayersSheet: $showAddPlayerSheet,
                         addPlayer: $currentProfile,
-                        alreadyAdded: friendsListCopy.map { $0.profile } + sentRequestsListCopy + requestedFriendsListCopy,
+                        alreadyAdded: friendsListCopy.map { $0.profile } + sentRequestsListCopy ,
                         showGuest: false,
                         showPlayers: true,
                         showFriends: false,
@@ -233,7 +237,6 @@ struct EditFriendsSheetView: View {
                     }
                 }
             }.task {
-                //ACTUALLY FETCH REQUESTS THAT WERE MADE NOT THAT ARE SEDN TO PROFIEL
                 await network.fetchSentRequests(profileId: userId)
             }
         }
@@ -419,7 +422,6 @@ struct EditFriendsSheetView: View {
         }
         .task {
             do {
-                try Tips.resetDatastore()
                 try Tips.configure()
             } catch {
                 print("Error initializing TipKit \(error.localizedDescription)")
@@ -514,7 +516,6 @@ struct EditFriendsSheetView: View {
         }
         .task {
             do {
-                try Tips.resetDatastore()
                 try Tips.configure()
             } catch {
                 print("Error initializing TipKit \(error.localizedDescription)")

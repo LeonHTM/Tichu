@@ -104,6 +104,12 @@ struct PlayView: View {
                 .onChange(of: gameDone) {
                     showGameOverSheet = gameDone
                 }
+                .onAppear{
+                    loadUser()
+                    
+                }
+                
+                
                 
                 .sheet(isPresented: $showGameOverSheet) {
                     GameSummarySheetView(

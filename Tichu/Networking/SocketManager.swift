@@ -131,7 +131,7 @@ final class SocketService: ObservableObject {
         // FRIEND REQUEST UPDATED
         socket.on("friend_request_updated") { data, ack in
             Task{
-                
+                await NetworkService.shared.fetchSentRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriendRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriends(profileId: self.userId)
             }
@@ -142,6 +142,7 @@ final class SocketService: ObservableObject {
             print("friendship_added: \(data)")
             Task { [weak self] in
                 guard let self = self else { return }
+                await NetworkService.shared.fetchSentRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriends(profileId: self.userId)
             }
         }

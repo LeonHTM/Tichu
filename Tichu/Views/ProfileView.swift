@@ -15,6 +15,7 @@ struct ProfileView: View {
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
+    @AppStorage("selectedTab") private var selectedTab = 0
     
     // MARK: - Photo Picker
     @State private var pickerItem: PhotosPickerItem?
@@ -268,7 +269,12 @@ struct ProfileView: View {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if socket.connected{
-                        print("Switch Account")
+                        userId = -69420
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            userId = 15
+                            selectedTab = -1
+                            
+                        }
                     }else{
                         showOfflineAlert = true
                     }

@@ -160,7 +160,6 @@ struct EditRoundsSheetView: View {
         .task {
             // Configure and load your tips at app launch.
             do {
-                try Tips.resetDatastore()
                 try Tips.configure()
             }
             catch {
