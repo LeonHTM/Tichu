@@ -19,13 +19,11 @@ class NotificationService: UNNotificationServiceExtension {
         withContentHandler contentHandler:
         @escaping (UNNotificationContent) -> Void
     ) {
-
         self.contentHandler = contentHandler
 
         guard let bestAttemptContent =
             (request.content.mutableCopy()
              as? UNMutableNotificationContent) else {
-
             contentHandler(request.content)
             return
         }
@@ -34,78 +32,86 @@ class NotificationService: UNNotificationServiceExtension {
 
         let userInfo = request.content.userInfo
 
-        let senderName =
-            userInfo["sender_name"] as? String ?? "Unknown"
+        let senderName     = userInfo["sender_name"]     as? String ?? "Unknown"
+        let senderHandle   = userInfo["sender_id"]       as? String ?? senderName
+        let conversationID = userInfo["conversation_id"] as? String ?? "default-chat"
+        let imageURLString = userInfo["image_url"]       as? String
 
-        let imageURLString =
-            userInfo["image_url"] as? String
+        // Build name components for Contacts matching
+        var nameComponents = PersonNameComponents()
+        let parts = senderName.split(separator: " ", maxSplits: 1)
+        nameComponents.givenName  = parts.first.map(String.init)
+        nameComponents.familyName = parts.dropFirst().first.map(String.init)
 
-        guard let imageURLString,
-              let imageURL = URL(string: imageURLString) else {
-
-            contentHandler(bestAttemptContent)
-            return
-        }
-
-        downloadImage(from: imageURL) { image in
-
-            let avatar: INImage?
-
-            if let imageData = image?.pngData() {
-                avatar = INImage(imageData: imageData)
-            } else {
-                avatar = nil
-            }
+        func buildAndDeliver(avatar: INImage?) {
 
             let sender = INPerson(
                 personHandle: INPersonHandle(
-                    value: senderName,
+                    value: senderHandle,
                     type: .unknown
                 ),
-                nameComponents: nil,
+                nameComponents: nameComponents,
                 displayName: senderName,
                 image: avatar,
                 contactIdentifier: nil,
-                customIdentifier: nil
+                customIdentifier: senderHandle
             )
 
             let intent = INSendMessageIntent(
-                recipients: nil,
+                recipients: nil,          // nil = one-to-one, current user is implied recipient
                 outgoingMessageType: .outgoingMessageText,
                 content: bestAttemptContent.body,
                 speakableGroupName: nil,
-                conversationIdentifier: "chat",
+                conversationIdentifier: conversationID,
                 serviceName: nil,
                 sender: sender,
                 attachments: nil
             )
 
-            let interaction = INInteraction(
-                intent: intent,
-                response: nil
-            )
-
+            // ✅ Required per Apple docs: donate BEFORE calling updating(from:)
+            let interaction = INInteraction(intent: intent, response: nil)
             interaction.direction = .incoming
 
-            interaction.donate(completion: nil)
+            interaction.donate { [weak self] error in
+                guard let self else { return }
 
-            do {
-                let updatedContent =
-                    try bestAttemptContent.updating(from: intent)
+                if let error {
+                    print("❌ Interaction donation failed: \(error)")
+                    contentHandler(bestAttemptContent)
+                    return
+                }
 
-                contentHandler(updatedContent)
-            } catch {
-                contentHandler(bestAttemptContent)
+                do {
+                    // ✅ Update content AFTER successful donation
+                    let updatedContent = try bestAttemptContent.updating(from: intent)
+                    contentHandler(updatedContent)
+                } catch {
+                    print("❌ Content update failed: \(error)")
+                    contentHandler(bestAttemptContent)
+                }
             }
+        }
+
+        guard let imageURLString,
+              let imageURL = URL(string: imageURLString) else {
+            buildAndDeliver(avatar: nil)
+            return
+        }
+
+        downloadImage(from: imageURL) { image in
+            let avatar: INImage?
+            if let data = image?.jpegData(compressionQuality: 0.8) {
+                avatar = INImage(imageData: data)
+            } else {
+                avatar = nil
+            }
+            buildAndDeliver(avatar: avatar)
         }
     }
 
     override func serviceExtensionTimeWillExpire() {
         guard let contentHandler = contentHandler,
-              let bestAttemptContent = bestAttemptContent else {
-            return
-        }
-
+              let bestAttemptContent = bestAttemptContent else { return }
         contentHandler(bestAttemptContent)
     }
 
@@ -113,19 +119,12 @@ class NotificationService: UNNotificationServiceExtension {
         from url: URL,
         completion: @escaping (UIImage?) -> Void
     ) {
-
-        URLSession.shared.dataTask(with: url) {
-            data, _, _ in
-
-            guard let data = data,
-                  let image = UIImage(data: data) else {
-
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            guard let data, let image = UIImage(data: data) else {
                 completion(nil)
                 return
             }
-
             completion(image)
-
         }.resume()
     }
 }
