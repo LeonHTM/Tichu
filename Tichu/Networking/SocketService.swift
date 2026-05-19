@@ -13,7 +13,6 @@ import SwiftUI
 final class SocketService: ObservableObject {
 
     @AppStorage("userId") private var userId = -69420
-
     static let shared = SocketService()
 
     private var manager: SocketManager!
@@ -54,6 +53,12 @@ final class SocketService: ObservableObject {
         socket.removeAllHandlers()
         manager.disconnect()
         setupSocket()
+        Task{
+            await NetworkService.shared.fetchProfiles()
+            await NetworkService.shared.fetchFriends(profileId: userId)
+            await NetworkService.shared.fetchFriendRequests(profileId: userId)
+        }
+        
     }
 
     // MARK: - Setup Events
