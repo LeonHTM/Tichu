@@ -34,7 +34,7 @@ final class SocketService: ObservableObject {
         manager = SocketManager(
             socketURL: url,
             config: [
-                .log(true),
+                //.log(true),
                 .compress,
                 .reconnects(true),
                 .reconnectWait(1)
@@ -47,7 +47,7 @@ final class SocketService: ObservableObject {
     }
 
     // MARK: - Reconnect with new URL
-
+    //Force reconnect wont happen automatically
     func reconnect() {
         socket.disconnect()
         socket.removeAllHandlers()

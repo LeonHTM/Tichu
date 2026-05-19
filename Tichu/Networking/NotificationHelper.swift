@@ -53,3 +53,18 @@ extension CustomAppDelegate: UNUserNotificationCenterDelegate {
         return [.badge, .banner, .list, .sound]
     }
 }
+
+func removeFriendRequestNotification(fromSenderId senderId: Int) {
+    UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+        let toRemove = notifications
+            .filter { notification in
+                let userInfo = notification.request.content.userInfo
+                let id = userInfo["sender_id"] as? String
+                return id == String(senderId)
+            }
+            .map { $0.request.identifier }
+
+        print("Removing notifications: \(toRemove)")
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
+    }
+}

@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct StatsView: View {
-
+    
     @ObservedObject private var network = NetworkService.shared
+    @StateObject private var socket = SocketService.shared
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     
@@ -21,10 +22,11 @@ struct StatsView: View {
     @State private var sortBy: sortBy.sortBy = .valueDown
     @State private var compareList: [Profile] = []
     @State private var addPlayer: Profile? = nil
-
+    @State private var showOfflineAlert: Bool = false
+    
     // MARK: - Computed
     var filterActive: Bool { sortBy != .valueDown }
-
+    
     // MARK: - Body
     var body: some View {
         NavigationStack {
@@ -33,6 +35,31 @@ struct StatsView: View {
                 statsGrid
                     .animation(.easeInOut, value: compareList.map { $0.id })
                     .padding()
+            }.sheet(isPresented: $showAddPlayersSheet, onDismiss: {
+                withAnimation(.easeInOut) {
+                    if !compareList.contains(where: { $0.id == addPlayer?.id ?? Profile().id }),
+                       addPlayer?.name ?? Profile().name != nil {
+                        compareList.append(addPlayer ?? Profile())
+                    }
+                }
+            }) {
+                AddPlayersSheetView(
+                    showAddPlayersSheet: $showAddPlayersSheet,
+                    addPlayer: $addPlayer,
+                    alreadyAdded: compareList,
+                    showGuest: .constant(false),
+                    showPlayers: .constant(true),
+                    showFriends: .constant(true),
+                    guestIndex: 2
+                )
+                .presentationDetents([.medium, .large])
+            }
+            
+            
+            .onChange(of:socket.connected){
+                if !socket.connected{
+                    showAddPlayersSheet = false
+                }
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable { }
@@ -48,7 +75,7 @@ struct StatsView: View {
             .safeAreaInset(edge: .bottom) { bottomBar }
         }
     }
-
+    
     // MARK: - Stats Grid
     private var statsGrid: some View {
         LazyVGrid(
@@ -68,7 +95,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: "Winner",
                 description: ("Percentage of Games won"),
@@ -82,7 +109,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Tichumaster"),
                 description: ("Points from Tichu per Round"),
@@ -96,7 +123,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Visionary"),
                 description: ("Tichu announced when finished first"),
@@ -110,7 +137,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Addict"),
                 description: ("Games played"),
@@ -124,7 +151,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .addict, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Teamplayer"),
                 description: ("Double Win Rate"),
@@ -138,7 +165,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Announcer"),
                 description: ("Big and Small Tichus announced per Round"),
@@ -152,7 +179,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Saboteur"),
                 description: ("Tichu prevented ratio"),
@@ -166,7 +193,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Gambler"),
                 description: ("Tichu success ratio"),
@@ -180,7 +207,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Big Gambler"),
                 description: ("Big Tichu success ratio"),
@@ -194,7 +221,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Pingu Gambler"),
                 description: ("Pingu success ratio"),
@@ -208,7 +235,7 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
-
+            
             StatsContainer(
                 title: ("Bomber"),
                 description: ("Bombs per Round ratio"),
@@ -226,7 +253,7 @@ struct StatsView: View {
             await network.fetchProfilesStats(profileId: userId)
         }
     }
-
+    
     // MARK: - Time Filter Chips
     private var timeFilterChips: some View {
         ChipsView(tags: timeTags) { tag, isSelected in
@@ -236,7 +263,7 @@ struct StatsView: View {
         }
         .padding(.leading, 10)
     }
-
+    
     // MARK: - Bottom Bar
     private var bottomBar: some View {
         GlassEffectContainer {
@@ -249,7 +276,7 @@ struct StatsView: View {
             }
         }
     }
-
+    
     // MARK: - Sort Menu
     private var sortMenu: some View {
         Menu {
@@ -290,69 +317,75 @@ struct StatsView: View {
         .padding(.leading, 20)
         .padding(.bottom, 10)
     }
-
+    
     // MARK: - Compare Menu
     private var compareMenu: some View {
-        Menu {
-            Button {
-                showAddPlayersSheet = true
-            } label: {
-                Image(systemName: "person.badge.plus")
-                Text("Add Player to compare")
-            }
-            if !compareList.isEmpty {
-                Divider()
-            }
-            ForEach(compareList, id: \.id) { item in
-                Button {
-                    withAnimation(.easeInOut) {
-                        compareList.removeAll { $0.id == item.id }
+        if socket.connected {
+            return AnyView(
+                Menu {
+                    Button {
+                        showAddPlayersSheet = true
+                    } label: {
+                        Image(systemName: "person.badge.plus")
+                        Text("Add Player to compare")
+                    }
+                    if !compareList.isEmpty {
+                        Divider()
+                    }
+                    ForEach(compareList, id: \.id) { item in
+                        Button {
+                            withAnimation(.easeInOut) {
+                                compareList.removeAll { $0.id == item.id }
+                            }
+                        } label: {
+                            Image("person.badge.remove")
+                            Text("Remove \(item.name ?? "Unknown")")
+                        }
+                    }
+                    if compareList.count > 1 {
+                        Divider()
+                        Button {
+                            compareList = []
+                        } label: {
+                            Image(systemName: "minus.circle")
+                            Text("Remove All Players")
+                        }
                     }
                 } label: {
-                    Image("person.badge.remove")
-                    Text("Remove \(item.name ?? "Unknown")")
+                    Image("person.badge.edit")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                    Text("Edit comparison")
+                        .foregroundColor(.primary)
                 }
-            }
-            if compareList.count > 1 {
-                Divider()
-                Button {
-                    compareList = []
-                } label: {
-                    Image(systemName: "minus.circle")
-                    Text("Remove All Players")
-                }
-            }
-        } label: {
-            Image("person.badge.edit")
-                .font(.system(size: 20))
-                .foregroundColor(.primary)
-            Text("Edit comparison")
-                .foregroundColor(.primary)
-        }
-        .labelStyle(.titleAndIcon)
-        .menuOrder(.fixed)
-        .padding(10)
-        .glassEffect(.regular.interactive())
-        .padding(.trailing, 20)
-        .padding(.bottom, 10)
-        .sheet(isPresented: $showAddPlayersSheet, onDismiss: {
-            withAnimation(.easeInOut) {
-                if !compareList.contains(where: { $0.id == addPlayer?.id ?? Profile().id }),
-                   addPlayer?.name ?? Profile().name != nil {
-                    compareList.append(addPlayer ?? Profile())
-                }
-            }
-        }) {
-            AddPlayersSheetView(
-                showAddPlayersSheet: $showAddPlayersSheet,
-                addPlayer: $addPlayer,
-                alreadyAdded: compareList,
-                showGuest: false,
-                showPlayers: true,
-                showFriends: true,
-                guestIndex: 2
+                .labelStyle(.titleAndIcon)
+                .menuOrder(.fixed)
+                .padding(10)
+                .glassEffect(.regular.interactive())
+                .padding(.trailing, 20)
+                .padding(.bottom, 10)
             )
-            .presentationDetents([.medium, .large])
+        } else {
+            return AnyView(
+                Button(action: {
+                    showOfflineAlert = true
+                }) {
+                    HStack {
+                        Image("person.badge.edit")
+                            .font(.system(size: 20))
+                            .foregroundColor(.primary)
+                        Text("Edit comparison")
+                            .foregroundColor(.primary)
+                    }
+                }
+                    .alert(isPresented:$showOfflineAlert){
+                        offlineView.offlineAlert()
+                    }
+                .padding(10)
+                .glassEffect(.regular.interactive())
+                .padding(.trailing, 20)
+                .padding(.bottom, 10)
+            )
         }
     }
 }

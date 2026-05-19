@@ -52,7 +52,9 @@ struct ProfileView: View {
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
         }.onReceive(NotificationCenter.default.publisher(for: .openFriendsSheet)) { _ in
-            showFriendsSheet = true
+            if socket.connected{
+                showFriendsSheet = true
+            }
         }
     }
 

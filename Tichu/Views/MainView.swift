@@ -47,18 +47,13 @@ struct MainView: View {
                         .tag(1)
                     }
                         
-                    if socket.connected {
+                    
                         StatsView()
                             .tabItem {
                                 Label("Stats", systemImage: "chart.bar")
                             }
                             .tag(2)
-                    } else {
-                        offlineView().tabItem {
-                            Label("Stats", systemImage: "chart.bar")
-                        }
-                        .tag(2)
-                    }
+                    
                     
                     ProfileView()
                         .tabItem {

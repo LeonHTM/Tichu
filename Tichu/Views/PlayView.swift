@@ -27,6 +27,9 @@ struct PlayView: View {
     @State private var showAddRoundSheet: Bool = false
     @State private var showDebugSheetView: Bool = false
     @State private var showGameOverSheet: Bool = false
+    
+    @State private var showPlayers: Bool = true
+    @State private var showFriends: Bool = true
 
     @State private var team1 = Team()
     @State private var team2 = Team()
@@ -81,6 +84,14 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players
+                }.onChange(of:socket.connected){
+                    if !socket.connected{
+                        showFriends = false
+                        showPlayers = false
+                    }else{
+                        showFriends = true
+                        showPlayers = true
+                    }
                 }
                 .onChange(of: isGameReady) {
                     if let _ = currentGame.player2?.name {
@@ -233,7 +244,7 @@ struct PlayView: View {
                             showAddPlayersSheet: $showAddPlayersSheet2,
                             addPlayer: $currentGame.player2,
                             alreadyAdded: [currentGame.player3, currentGame.player4].compactMap { $0 },
-                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 2
+                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 2
                         )
                         .presentationDetents([.medium, .large])
                     }
@@ -290,7 +301,7 @@ struct PlayView: View {
                             showAddPlayersSheet: $showAddPlayersSheet3,
                             addPlayer: $currentGame.player3,
                             alreadyAdded: [currentGame.player2, currentGame.player4].compactMap { $0 },
-                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 3
+                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 3
                         )
                         .presentationDetents([.medium, .large])
                     }
@@ -315,7 +326,7 @@ struct PlayView: View {
                             showAddPlayersSheet: $showAddPlayersSheet4,
                             addPlayer: $currentGame.player4,
                             alreadyAdded: [currentGame.player2, currentGame.player3].compactMap { $0 },
-                            showGuest: true, showPlayers: true, showFriends: true, guestIndex: 4
+                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 4
                         )
                         .presentationDetents([.medium, .large])
                     }

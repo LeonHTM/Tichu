@@ -16,7 +16,7 @@ struct EditFriendsSheetView: View {
     // MARK: - Storage
     @AppStorage("userName") var userName: String = ""
     @ObservedObject private var network = NetworkService.shared
-    
+    @StateObject private var socket = SocketService.shared
     @AppStorage("userId") private var userId: Int = -69420
 
     // MARK: - State
@@ -158,6 +158,16 @@ struct EditFriendsSheetView: View {
                         
                     }
                 }
+                .task {
+                    await network.fetchProfiles()
+                    await network.fetchFriends(profileId: userId)
+                    await network.fetchFriendRequests(profileId: userId)
+                }
+                .onChange(of:socket.connected){
+                    if !socket.connected{
+                        showFriendsSheet = false
+                    }
+                }
                 
                 .onAppear {
                     withAnimation(.easeInOut) {
@@ -219,9 +229,9 @@ struct EditFriendsSheetView: View {
                         showAddPlayersSheet: $showAddPlayerSheet,
                         addPlayer: $currentProfile,
                         alreadyAdded: friendsListCopy.map { $0.profile } + sentRequestsListCopy ,
-                        showGuest: false,
-                        showPlayers: true,
-                        showFriends: false,
+                        showGuest: .constant(false),
+                        showPlayers: .constant(true),
+                        showFriends: .constant(false),
                         guestIndex: 0
                     )
                     .presentationDetents([.medium, .large])

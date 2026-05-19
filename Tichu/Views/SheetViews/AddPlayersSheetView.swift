@@ -13,11 +13,12 @@ struct AddPlayersSheetView: View {
     @Binding var showAddPlayersSheet: Bool
     @Binding var addPlayer: Profile?
     var alreadyAdded: [Profile]
-    var showGuest: Bool
-    var showPlayers: Bool
-    var showFriends: Bool
+    @Binding var showGuest: Bool
+    @Binding var showPlayers: Bool
+    @Binding var showFriends: Bool
     var guestIndex: Int
     @AppStorage("userId") var userId: Int = -69420
+    @StateObject private var socket = SocketService.shared
 
     // MARK: - State
     @ObservedObject private var network = NetworkService.shared
@@ -251,9 +252,9 @@ struct AddPlayersSheetView: View {
         showAddPlayersSheet: .constant(true),
         addPlayer: .constant(exampleProfiles[0]),
         alreadyAdded: [],
-        showGuest: true,
-        showPlayers: true,
-        showFriends: true,
+        showGuest: .constant(true),
+        showPlayers: .constant(true),
+        showFriends: .constant(true),
         guestIndex: 2
     )
 }

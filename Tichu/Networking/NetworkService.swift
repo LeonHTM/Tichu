@@ -35,6 +35,20 @@ class NetworkService: ObservableObject {
     private init() {}
 
     // MARK: - Profiles
+    func resetClientData(){
+     
+        self.profiles = []
+        self.friendRequestProfiles = []
+        self.friends = []
+        
+        self.profileImages = [:]
+        self.sentRequests = []
+        
+        
+        self.friendRequestImages = [:]
+        self.friendRequests = []
+        self.sentRequests = []
+    }
 
     func profile(for id: Int) -> Profile? {
         profiles.first(where: { $0.id == id })
@@ -280,6 +294,7 @@ class NetworkService: ObservableObject {
         } catch {
             print("addFriend error: \(error)")
         }
+        removeFriendRequestNotification(fromSenderId: friendId)
     }
 
     func removeFriend(profileId: Int, friendId: Int) async {
@@ -349,6 +364,10 @@ class NetworkService: ObservableObject {
                 self.friendRequests.removeAll { $0.senderId == senderId }
                 self.friendRequestProfiles.removeAll { $0.id == senderId }
             }
+
+            // Remove the friend request notification from this sender
+            removeFriendRequestNotification(fromSenderId: senderId)
+
         } catch {
             print("respondToFriendRequest error: \(error)")
         }
