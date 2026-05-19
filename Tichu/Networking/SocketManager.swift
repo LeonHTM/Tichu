@@ -25,7 +25,7 @@ final class SocketService: ObservableObject {
     private init() {
 
         guard let url = URL(
-            string: "https://prevalent-prodigal-justify.ngrok-free.dev"
+            string: "https://dow-strengthen-effectively-intro.trycloudflare.com"
         ) else {
             return
         }

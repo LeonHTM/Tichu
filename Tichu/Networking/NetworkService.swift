@@ -12,7 +12,7 @@ import SwiftUI
 class NetworkService: ObservableObject {
     static let shared = NetworkService()
 
-    let baseURL = "https://prevalent-prodigal-justify.ngrok-free.dev"
+    let baseURL = "https://dow-strengthen-effectively-intro.trycloudflare.com"
     
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?
@@ -29,8 +29,6 @@ class NetworkService: ObservableObject {
     
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
     @Published var sentRequests: [(id: Int, receiverId: Int)] = []
-
-    
 
     private init() {}
 
@@ -186,6 +184,24 @@ class NetworkService: ObservableObject {
         }
     }
 
+    func checkEmail(email: String) async -> Int? {
+        guard let encoded = email.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            let available = json?["available"] as? Bool ?? false
+            let existingId = json?["id"] as? Int
+            return existingId
+        } catch {
+            print("checkEmail error: \(error)")
+            return nil
+        }
+    }
+
+    
+
     // MARK: - Friends
 
     func fetchFriends(profileId: Int) async {
@@ -207,7 +223,6 @@ class NetworkService: ObservableObject {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
                     date = formatter.date(from: dateStr)
-
                 }
 
                 return Friend(id: profile.id, profile: profile, friendsSince: date)
@@ -220,6 +235,22 @@ class NetworkService: ObservableObject {
             }
         } catch {
             print("fetchFriends error: \(error)")
+        }
+    }
+    
+    func registerDevice(profileId: Int, deviceToken: String) async {
+        guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": deviceToken])
+
+        do {
+            try await URLSession.shared.data(for: request)
+            print("Device token registered successfully")
+        } catch {
+            print("registerDevice error: \(error)")
         }
     }
 
@@ -287,7 +318,6 @@ class NetworkService: ObservableObject {
     }
 
     func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
-
         guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
 
         var request = URLRequest(url: url)
@@ -301,16 +331,9 @@ class NetworkService: ObservableObject {
             try await URLSession.shared.data(for: request)
 
             await MainActor.run {
-                // remove from local state immediately (optional but recommended)
-                self.friendRequests.removeAll {
-                    $0.senderId == senderId
-                }
-
-                self.friendRequestProfiles.removeAll {
-                    $0.id == senderId
-                }
+                self.friendRequests.removeAll { $0.senderId == senderId }
+                self.friendRequestProfiles.removeAll { $0.id == senderId }
             }
-
         } catch {
             print("respondToFriendRequest error: \(error)")
         }

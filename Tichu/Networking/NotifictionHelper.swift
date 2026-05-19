@@ -1,69 +1,41 @@
 //
-//  NotifictionHelper.swift
+//  NotificationHelper.swift
 //  Tichu
 //
 //  Created by Leon on 18.05.2026.
 //
 
-
-//  CustomAppDelegate.swift
-/*import SwiftUI
+import SwiftUI
 import UserNotifications
 
 @MainActor
 class CustomAppDelegate: NSObject, UIApplicationDelegate {
-    // This gives us access to the methods from our main app code inside the app delegate
     var app: TichuApp?
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        // This is where we register this device to recieve push notifications from Apple
-        // All this function does is register the device with APNs, it doesn't set up push notifications by itself
+    var onDeviceToken: ((String) -> Void)?
+
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         application.registerForRemoteNotifications()
-        
-        // Setting the notification delegate
         UNUserNotificationCenter.current().delegate = self
-        
         return true
     }
-    
-    func application(_ application: UIApplication,
-                       didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        // Once the device is registered for push notifications Apple will send the token to our app and it will be available here.
-        // This is also where we will forward the token to our push server
-        // If you want to see a string version of your token, you can use the following code to print it out
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let stringifiedToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print("stringifiedToken:", stringifiedToken)
+        print("APNs token:", stringifiedToken)
+        onDeviceToken?(stringifiedToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Failed to register for remote notifications:", error)
     }
 }
 
 extension CustomAppDelegate: UNUserNotificationCenterDelegate {
-    // This function lets us do something when the user interacts with a notification
-    // like log that they clicked it, or navigate to a specific screen
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-            print("Got notification title: ", response.notification.request.content.title)
+        print("Notification tapped:", response.notification.request.content.title)
     }
-    
-    // This function allows us to view notifications in the app even with it in the foreground
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        // These options are the options that will be used when displaying a notification with the app in the foreground
-        // for example, we will be able to display a badge on the app a banner alert will appear and we could play a sound
         return [.badge, .banner, .list, .sound]
     }
 }
-
-@main
-struct Push_Notifications_ExampleApp: App {
-    // this gives us access to our app delegate in SwiftUI
-    @UIApplicationDelegateAdaptor private var appDelegate: CustomAppDelegate
-    
-    var body: some Scene {
-        WindowGroup {
-            MainView()
-                .onAppear(perform: {
-                    // this makes sure that we are setting the app to the app delegate as soon as the main view appears
-                    appDelegate.app = self
-                })
-        }
-    }
-}
-*/

@@ -14,11 +14,14 @@ struct LoginView: View {
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @StateObject private var socket = SocketService.shared
+    @ObservedObject private var network = NetworkService.shared
     // MARK: - State
     @Binding var userEmail: String
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var isEmailFocused: Bool
-
+    @State private var isChecking:Bool = false
+    @State private var alreadyExistsId: Int?
+    @State private var showOfflineAlert: Bool = false
 
     // MARK: - Body
     var body: some View {
@@ -83,22 +86,65 @@ struct LoginView: View {
                 .keyboardType(.emailAddress)
                 .foregroundColor(.primary)
                 .focused($isEmailFocused)
+                .alert(isPresented:$showOfflineAlert){
+                    offlineView.offlineAlert()
+                }
+                .onChange(of: userEmail) {
+
+                    if socket.connected{
+                        isChecking = true
+                        Task {
+                            alreadyExistsId = await network.checkEmail(email: userEmail)
+                            isChecking = false
+                        }
+                    }
+                    }
                 
 
             Spacer()
-
-            NavigationLink {
-                destinationView()
-            } label: {
+            
+            ZStack {
                 Image(systemName: "arrow.right.circle.fill")
                     .font(.system(size: 24))
-                    .foregroundStyle(Color.accentColor)
+                    .opacity(0) // always reserves the space
+
+                if isChecking {
+                    ProgressView()
+                } else {
+                    if socket.connected {
+                        if alreadyExistsId == nil{
+                            NavigationLink {
+                                destinationView()
+                            } label: {
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                            .simultaneousGesture(TapGesture().onEnded {
+                                isEmailFocused = false
+                            })
+                            .disabled(userEmail.isEmpty)
+                        }else{
+                            Button{
+                                userId = alreadyExistsId!
+                            }label:{
+                                Image(systemName: "arrow.right.circle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(Color.accentColor)
+                            }
+                        }
+                    } else {
+                        Button {
+                            showOfflineAlert = true
+                        } label: {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                }
             }
-            .simultaneousGesture(TapGesture().onEnded {
-                isEmailFocused = false
-            })
-            .disabled(userEmail.isEmpty)
-            .padding(.trailing,10)
+            .padding(.trailing, 10)
         }
         .padding(.vertical, 13)
         .glassEffect(.regular.tint(.secondary.opacity(0.2)).interactive())

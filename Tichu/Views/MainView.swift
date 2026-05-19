@@ -5,25 +5,16 @@
 //  Created by Leon on 21.04.2026.
 //
 
-//
-//  MainView.swift
-//  Tichu
-//
-//  Created by Leon on 21.04.2026.
-//
-
 import SwiftUI
 import UserNotifications
 
-
-
 struct MainView: View {
-    
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("userId") private var userId = -69420
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
     let notificationCenter = UNUserNotificationCenter.current()
+
     private var isDisconnected: Binding<Bool> {
         Binding(
             get: { !socket.connected },
@@ -41,12 +32,12 @@ struct MainView: View {
                     ))
             } else {
                 TabView(selection: $selectedTab) {
-                    
                     PlayView()
                         .tabItem {
                             Label("Play", systemImage: "play")
                         }
                         .tag(0)
+
                     if socket.connected {
                         HistoryView().tabItem {
                             Label("History", systemImage: "clock")
