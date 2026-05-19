@@ -269,7 +269,10 @@ struct ProfileView: View {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if socket.connected{
-                        userId = -69420
+                        Task{
+                            await network.logout(profileId: userId)
+                            userId = -69420
+                        }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                             userId = 15
                             selectedTab = -1
@@ -294,7 +297,10 @@ struct ProfileView: View {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if socket.connected{
-                        userId = -69420
+                        Task{
+                            await network.logout(profileId: userId)
+                            userId = -69420
+                        }
                     }else{
                         showOfflineAlert = true
                     }

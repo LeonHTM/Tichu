@@ -12,13 +12,15 @@ import SwiftUI
 class NetworkService: ObservableObject {
     static let shared = NetworkService()
 
-    let baseURL = "https://dow-strengthen-effectively-intro.trycloudflare.com"
-    
+    static let baseURL = "https://roy-cartridges-drop-supporting.trycloudflare.com"
+    let baseURL = NetworkService.baseURL
+
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
-    
+    @AppStorage("pendingDeviceToken") var pendingDeviceToken: String = ""
+
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
 
@@ -26,14 +28,14 @@ class NetworkService: ObservableObject {
 
     @Published var friendRequestProfiles: [Profile] = []
     @Published var friendRequestImages: [Int: Data] = [:]
-    
+
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
     @Published var sentRequests: [(id: Int, receiverId: Int)] = []
 
     private init() {}
 
     // MARK: - Profiles
-    
+
     func profile(for id: Int) -> Profile? {
         profiles.first(where: { $0.id == id })
     }
@@ -68,16 +70,16 @@ class NetworkService: ObservableObject {
                 }
             }
             await loadProfileImages()
-            
+
             userName = profiles.first{$0.id == userId}?.name ?? "Unknown"
             userElo = profiles.first{$0.id == userId}?.elo ?? 1000
             userImageData = profileImages[userId]
-            
+
         } catch {
             print("fetchProfiles error: \(error)")
         }
     }
-    
+
     func fetchProfilesSimple() async {
         guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
 
@@ -94,7 +96,7 @@ class NetworkService: ObservableObject {
             print("fetchProfilessimple error: \(error)")
         }
     }
-    
+
     func fetchProfilesStats(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
 
@@ -110,6 +112,22 @@ class NetworkService: ObservableObject {
             }
         } catch {
             print("fetchProfilesstats error: \(error)")
+        }
+    }
+
+    func logout(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+
+        do {
+            try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                self.pendingDeviceToken = ""
+            }
+        } catch {
+            print("logout error: \(error)")
         }
     }
 
@@ -149,7 +167,7 @@ class NetworkService: ObservableObject {
             print("deleteProfile error: \(error)")
         }
     }
-    
+
     func checkUsername(username: String) async -> Bool {
         guard let encoded = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
               let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
@@ -163,7 +181,7 @@ class NetworkService: ObservableObject {
             return false
         }
     }
-    
+
     func updateUsername(profileId: Int, name: String) async {
         guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
 
@@ -191,7 +209,6 @@ class NetworkService: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            let available = json?["available"] as? Bool ?? false
             let existingId = json?["id"] as? Int
             return existingId
         } catch {
@@ -199,8 +216,6 @@ class NetworkService: ObservableObject {
             return nil
         }
     }
-
-    
 
     // MARK: - Friends
 
@@ -237,7 +252,7 @@ class NetworkService: ObservableObject {
             print("fetchFriends error: \(error)")
         }
     }
-    
+
     func registerDevice(profileId: Int, deviceToken: String) async {
         guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
 
@@ -282,9 +297,9 @@ class NetworkService: ObservableObject {
             print("removeFriend error: \(error)")
         }
     }
-    
+
     func fetchSentRequests(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)") else { return }
+        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)/") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)

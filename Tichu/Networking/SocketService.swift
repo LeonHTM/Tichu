@@ -1,5 +1,5 @@
 //
-//  SocketManager.swift
+//  SocketService.swift
 //  Tichu
 //
 //  Created by Leon on 15.05.2026.
@@ -11,8 +11,7 @@ import Combine
 import SwiftUI
 
 final class SocketService: ObservableObject {
-    
-    
+
     @AppStorage("userId") private var userId = -69420
 
     static let shared = SocketService()
@@ -24,9 +23,7 @@ final class SocketService: ObservableObject {
 
     private init() {
 
-        guard let url = URL(
-            string: "https://dow-strengthen-effectively-intro.trycloudflare.com"
-        ) else {
+        guard let url = URL(string: NetworkService.baseURL) else {
             return
         }
 
@@ -106,7 +103,8 @@ final class SocketService: ObservableObject {
                 }
             }
         }
-        //USERNAME EDITED
+
+        // USERNAME EDITED
         socket.on("username_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let profileId = dict["profile_id"] as? Int,
@@ -122,7 +120,7 @@ final class SocketService: ObservableObject {
 
         // FRIEND REQUEST SENT
         socket.on("friend_request_sent") { data, ack in
-            Task{
+            Task {
                 await NetworkService.shared.fetchSentRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriendRequests(profileId: self.userId)
             }
@@ -130,7 +128,7 @@ final class SocketService: ObservableObject {
 
         // FRIEND REQUEST UPDATED
         socket.on("friend_request_updated") { data, ack in
-            Task{
+            Task {
                 await NetworkService.shared.fetchSentRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriendRequests(profileId: self.userId)
                 await NetworkService.shared.fetchFriends(profileId: self.userId)
@@ -171,4 +169,3 @@ final class SocketService: ObservableObject {
         socket.disconnect()
     }
 }
-
