@@ -8,6 +8,11 @@
 import SwiftUI
 import UserNotifications
 
+extension Notification.Name {
+    static let didTapPushNotification = Notification.Name("didTapPushNotification")
+    static let openFriendsSheet = Notification.Name("openFriendsSheet")
+}
+
 @MainActor
 class CustomAppDelegate: NSObject, UIApplicationDelegate {
     var app: TichuApp?
@@ -31,8 +36,17 @@ class CustomAppDelegate: NSObject, UIApplicationDelegate {
 }
 
 extension CustomAppDelegate: UNUserNotificationCenterDelegate {
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         print("Notification tapped:", response.notification.request.content.title)
+
+        let userInfo = response.notification.request.content.userInfo
+
+        NotificationCenter.default.post(
+            name: .didTapPushNotification,
+            object: nil,
+            userInfo: userInfo as? [String: Any]
+        )
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {

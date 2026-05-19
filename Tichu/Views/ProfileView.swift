@@ -51,6 +51,8 @@ struct ProfileView: View {
             .padding(.top, -20)
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
+        }.onReceive(NotificationCenter.default.publisher(for: .openFriendsSheet)) { _ in
+            showFriendsSheet = true
         }
     }
 

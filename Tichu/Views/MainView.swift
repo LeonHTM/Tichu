@@ -16,10 +16,7 @@ struct MainView: View {
     let notificationCenter = UNUserNotificationCenter.current()
 
     private var isDisconnected: Binding<Bool> {
-        Binding(
-            get: { !socket.connected },
-            set: { _ in }
-        )
+        .constant(!socket.connected)
     }
     
     var body: some View {
@@ -95,6 +92,13 @@ struct MainView: View {
                         print("Request authorization error")
                     }
                 }
+               
+                
+            }
+        } .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
+            selectedTab = 3
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                NotificationCenter.default.post(name: .openFriendsSheet, object: nil)
             }
         }
         .animation(.easeInOut(duration: 0.4), value: userId == -69420)
