@@ -5,6 +5,7 @@
 ## User settings
 Tichu.xcodeproj/
 xcuserdata/
+Tichu/Data/config.swift
 
 ## Obj-C/Swift specific
 *.hmap

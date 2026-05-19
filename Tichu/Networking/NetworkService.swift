@@ -11,9 +11,9 @@ import SwiftUI
 
 class NetworkService: ObservableObject {
     static let shared = NetworkService()
-
-    static let baseURL = "https://roy-cartridges-drop-supporting.trycloudflare.com"
-    let baseURL = NetworkService.baseURL
+    
+    @ObservedObject var config = Config.shared
+    var baseURL: String { Config.shared.baseURL }
 
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?

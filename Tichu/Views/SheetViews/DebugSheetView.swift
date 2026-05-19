@@ -13,6 +13,8 @@ struct DebugSheetView: View {
     @Binding var exampleGameHistory: [tichuGame]
     @AppStorage("selectedTab") private var selectedTab = 0
     @ObservedObject private var network = NetworkService.shared
+    @ObservedObject var config = Config.shared
+ 
     
     
     var body: some View {
@@ -56,9 +58,14 @@ struct DebugSheetView: View {
                 }label:{
                     Text("Load example history")
                 }
-                ForEach(Array(network.profileImages.keys.sorted()), id: \.self) { id in
+                Button{
+                    Config.shared.switchURL()
+                }label:{
+                    Text("Switch Server Current: \(Config.shared.baseURL)")
+                }.id(Config.shared.baseURL)
+                /*ForEach(Array(network.profileImages.keys.sorted()), id: \.self) { id in
                     ProfileImage(data: network.profileImages[id], size: 44)
-                }
+                }*/
                    
             .navigationTitle(Text("Debug View"))
             .navigationBarTitleDisplayMode(.inline)

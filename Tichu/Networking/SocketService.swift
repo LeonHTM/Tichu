@@ -20,17 +20,22 @@ final class SocketService: ObservableObject {
     private var socket: SocketIOClient!
 
     @Published var connected = true
+    var baseURL: String { Config.shared.baseURL }
+
 
     private init() {
+        setupSocket()
+    }
 
-        guard let url = URL(string: NetworkService.baseURL) else {
-            return
-        }
+    // MARK: - Setup Socket
+
+    private func setupSocket() {
+        guard let url = URL(string: baseURL) else { return }
 
         manager = SocketManager(
             socketURL: url,
             config: [
-                //.log(true),
+                .log(true),
                 .compress,
                 .reconnects(true),
                 .reconnectWait(1)
@@ -38,10 +43,17 @@ final class SocketService: ObservableObject {
         )
 
         socket = manager.defaultSocket
-
         setupHandlers()
-
         socket.connect()
+    }
+
+    // MARK: - Reconnect with new URL
+
+    func reconnect() {
+        socket.disconnect()
+        socket.removeAllHandlers()
+        manager.disconnect()
+        setupSocket()
     }
 
     // MARK: - Setup Events
