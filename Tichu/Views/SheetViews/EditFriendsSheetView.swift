@@ -34,7 +34,7 @@ struct EditFriendsSheetView: View {
     
     @State private var sentRequestsListCopy: [Profile] = []
     @State private var sentRequestsList : [Profile] = []
-    
+    @State private var isSending: Bool = false
     
     @State private var showAddPlayerSheet: Bool = false
     
@@ -61,7 +61,7 @@ struct EditFriendsSheetView: View {
     private var doneButton: some View {
         Button("Done", systemImage: "checkmark") {
             Task {
-
+                isSending = true
                 // MARK: - FRIENDS REMOVED
                 let removedFriendIds = friendList
                     .filter { orig in !friendsListCopy.contains(where: { $0.id == orig.id }) }
@@ -126,13 +126,14 @@ struct EditFriendsSheetView: View {
                         receiverId: receiverId
                     )
                 }
-
+                isSending = false
                 showFriendsSheet = false
                 
                 // MARK: - REFRESH
                 await network.fetchFriends(profileId: userId)
                 await network.fetchFriendRequests(profileId: userId)
                 await network.fetchSentRequests(profileId: userId)
+                
 
                 
             }
@@ -142,20 +143,25 @@ struct EditFriendsSheetView: View {
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                List {
-                    if requestedFriendsListCopy.count > 0 {
-                        friendRequestsHeader
-                        friendRequestsRows
-                       
+            VStack {
+                ZStack{
+                    if isSending{
+                        ProgressView()
                     }
-                    friendsHeader
-                    friendsRows
-                    
-                    if sentRequestsListCopy.count > 0 {
-                        sentRequestsHeader
-                        sentRequestsRows
+                    List {
+                        if requestedFriendsListCopy.count > 0 {
+                            friendRequestsHeader
+                            friendRequestsRows
+                            
+                        }
+                        friendsHeader
+                        friendsRows
                         
+                        if sentRequestsListCopy.count > 0 {
+                            sentRequestsHeader
+                            sentRequestsRows
+                            
+                        }
                     }
                 }
                 .task {
@@ -415,7 +421,7 @@ struct EditFriendsSheetView: View {
                     }
                 }
                 .swipeActions(edge: .trailing) {
-                    Button {
+                    Button(role:.destructive) {
                         withAnimation(.easeInOut) {
                             friendsListCopy.removeAll { $0.id == friend.id }
                         }
@@ -510,7 +516,7 @@ struct EditFriendsSheetView: View {
                     }
                 }
                 .swipeActions(edge: .trailing) {
-                    Button {
+                    Button(role:.destructive) {
                         withAnimation(.easeInOut) {
                             
                             sentRequestsListCopy.removeAll { $0.id == request.id }
@@ -519,7 +525,7 @@ struct EditFriendsSheetView: View {
                         Image(systemName: "person.badge.minus")
                         Text("Remove Request")
                     }
-                    .tint(.red)
+                    
                 }
             }
             

@@ -161,7 +161,7 @@ struct LoginView: View {
                 done: .constant(false)
             )
         } else {
-            offlineView()
+            offlineView(showNavBar: .constant(false))
         }
     }
 

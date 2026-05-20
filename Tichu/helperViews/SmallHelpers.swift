@@ -92,21 +92,60 @@ struct ColorfulIconLabelStyle: LabelStyle {
     }
 }
 
-
-struct offlineView: View{
+struct NavigationProfileImage:View{
+    @StateObject private var socket = SocketService.shared
+    @StateObject private var network = NetworkService.shared
+    @AppStorage("userId") var userId: Int = -69420
+    @AppStorage("userImageData") var userImageData: Data?
+    
     var body: some View{
-        VStack(alignment:.center,spacing:10){
-            
-               
-                Text("No Internet Connection").font(.title2).fontWeight(.bold)
-            
- 
-       
-                Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
-            
         
+        
+        
+        if socket.connected {
+            ProfileImage(data: network.profileImages[userId], size: 44)
+            
+            
+        }else{
+            ProfileImage(data: userImageData, size: 44)
             
         }
+    }
+}
+
+
+struct offlineView: View{
+    @Binding  var showNavBar: Bool
+    @ObservedObject private var network = NetworkService.shared
+    @AppStorage("userId") private var userId = -69420
+    var body: some View{
+        NavigationStack{
+            VStack(alignment:.center,spacing:10){
+                
+                
+                Text("No Internet Connection").font(.title2).fontWeight(.bold)
+                
+                
+                
+                Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
+                
+                
+                
+            }.toolbarTitleDisplayMode(.inlineLarge)
+                .navigationTitle(showNavBar ? "History" : "" )
+                .toolbar {
+                    if showNavBar{
+                        ToolbarItem {
+                            
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            ProfileImage(data: network.profileImages[userId], size: 44)
+                        }
+                        .sharedBackgroundVisibility(.hidden)
+                    }
+                }
+        }
+            
         
     }
     static func offlineAlert() -> Alert {
@@ -123,4 +162,6 @@ struct offlineView: View{
     
 
 
-#Preview{ProfileView()}
+#Preview{
+    offlineView(showNavBar: .constant(true))
+}

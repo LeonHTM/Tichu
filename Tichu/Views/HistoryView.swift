@@ -89,7 +89,7 @@ struct HistoryView: View {
             .navigationTitle("History")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: network.profileImages[userId], size: 44)
+                    NavigationProfileImage()
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -202,7 +202,7 @@ struct HistoryView: View {
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: network.profileImages[userId], size: 44)
+                    NavigationProfileImage()
                 }
                 .sharedBackgroundVisibility(.hidden)
             }

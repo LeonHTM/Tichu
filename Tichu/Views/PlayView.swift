@@ -84,6 +84,11 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players
+                }.refreshable{
+                    await network.fetchProfiles()
+                    await network.fetchFriends(profileId: userId)
+                    await network.fetchFriendRequests(profileId: userId)
+                    loadUser()
                 }.onChange(of:socket.connected){
                     if !socket.connected{
                         showFriends = false
@@ -146,14 +151,7 @@ struct PlayView: View {
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         
-                        if socket.connected {
-                            ProfileImage(data: network.profileImages[userId], size: 44)
-                      
-                          
-                        }else{
-                            ProfileImage(data: userImageData, size: 44)
-                                
-                        }
+                        NavigationProfileImage()
                         
                     }
                     .sharedBackgroundVisibility(.hidden)

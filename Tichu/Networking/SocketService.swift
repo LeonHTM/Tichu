@@ -120,6 +120,20 @@ final class SocketService: ObservableObject {
                 }
             }
         }
+        socket.on("remove_friend_request_notification") { [weak self] data, _ in
+            guard let dict = data.first as? [String: Any],
+                  let userId = dict["user_id"] as? Int,
+                  let senderId = dict["sender_id"] as? Int else { return }
+
+            // Only act if this event is for the current user
+            guard userId == (UserDefaults.standard.integer(forKey: "userId")) else {
+                print("Wanted to delete Notification but couldn")
+                return
+                
+            }
+
+            removeFriendRequestNotification(fromSenderId: senderId)
+        }
 
         // USERNAME EDITED
         socket.on("username_updated") { data, ack in

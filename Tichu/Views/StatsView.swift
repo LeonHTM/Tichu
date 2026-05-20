@@ -62,12 +62,18 @@ struct StatsView: View {
                 }
             }
             .background(Color(uiColor: .systemGroupedBackground))
-            .refreshable { }
+            .refreshable {
+                if socket.connected{
+                    for profile in compareList {
+                        await network.fetchProfilesStats(profileId: profile.id)
+                    }
+                }
+            }
             .navigationTitle("Statistics")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    ProfileImage(data: network.profileImages[userId], size: 44)
+                    NavigationProfileImage()
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -256,8 +262,12 @@ struct StatsView: View {
     
     // MARK: - Time Filter Chips
     private var timeFilterChips: some View {
-        ChipsView(tags: timeTags) { tag, isSelected in
-            ChipView(tag, isSelected: isSelected)
+        ChipsView(tags: timeTags,onlyOne:true) { tag, isSelected in
+            if !socket.connected{
+                ChipView(tag:tag, isSelected: isSelected,showAlert:true)
+            }else{
+                ChipView(tag:tag, isSelected: isSelected,showAlert:false)
+            }
         } didChangeSelection: { selection in
             selectedTags = selection
         }
@@ -393,3 +403,4 @@ struct StatsView: View {
 #Preview {
     StatsView()
 }
+

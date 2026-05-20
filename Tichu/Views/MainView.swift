@@ -41,10 +41,12 @@ struct MainView: View {
                         }
                         .tag(1)
                     } else {
-                        offlineView().tabItem {
+                        offlineView(showNavBar: .constant(true)).tabItem {
                             Label("History", systemImage: "clock")
                         }
                         .tag(1)
+                        
+                        
                     }
                         
                     
