@@ -12,6 +12,7 @@ struct MainView: View {
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("userId") private var userId = -69420
     @State private var isLoading: Bool = false
+    @State private var fetchTrigger: Int = 0
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
     let notificationCenter = UNUserNotificationCenter.current()
@@ -21,7 +22,6 @@ struct MainView: View {
     }
     
     var body: some View {
-    
         Group {
             if userId == -69420 {
                 LoginMainView()
@@ -31,7 +31,7 @@ struct MainView: View {
                     ))
             } else {
                 TabView(selection: $selectedTab) {
-                    PlayView()
+                    PlayView(fetchTrigger: fetchTrigger)
                         .tabItem {
                             Label("Play", systemImage: "play")
                         }
@@ -47,17 +47,13 @@ struct MainView: View {
                             Label("History", systemImage: "clock")
                         }
                         .tag(1)
-                        
-                        
                     }
-                    
                     
                     StatsView()
                         .tabItem {
                             Label("Stats", systemImage: "chart.bar")
                         }
                         .tag(2)
-                    
                     
                     ProfileView()
                         .tabItem {
@@ -70,16 +66,13 @@ struct MainView: View {
                     removal: .move(edge: .trailing).combined(with: .opacity)
                 ))
                 .onAppear() {
-                    Task{
+                    Task {
                         await network.fetch(isLoading: $isLoading)
+                        fetchTrigger += 1
                     }
                 }
                 .onAppear {
-                    if !(selectedTab == -1) {
-                        selectedTab = 0
-                    } else {
-                        selectedTab = 3
-                    }
+                    selectedTab = 0
                 }
                 .alert(isPresented: isDisconnected) {
                     offlineView.offlineAlert()
@@ -91,11 +84,14 @@ struct MainView: View {
                         print("Request authorization error")
                     }
                 }
-                
-                
             }
-            
-        } .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
+        }.onChange(of:userId){
+            Task {
+                await network.fetch(isLoading: $isLoading)
+                fetchTrigger += 1
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
             selectedTab = 3
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 NotificationCenter.default.post(name: .openFriendsSheet, object: nil)
@@ -103,7 +99,6 @@ struct MainView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: userId == -69420)
     }
-    
 }
 
 #Preview {

@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Combine
+
 
 struct Team: Identifiable, Equatable {
     let id = UUID()
@@ -292,27 +292,233 @@ enum tichuGameTarget: Int, CaseIterable, Identifiable {
 }
 
 
-class PlayViewModel: ObservableObject {
-    @Published var currentGame = tichuGame()
 
-    // Mirror AppStorage values in here
-    var userId: Int
-    var userName: String
-    var userElo: Int
-    var userImageData: Data?
 
-    init(userId: Int, userName: String, userElo: Int, userImageData: Data?) {
-        self.userId = userId
-        self.userName = userName
-        self.userElo = userElo
-        self.userImageData = userImageData
-    }
+//UPDATE GAME TO STORE ONLY ID TO UPDATE ON CHANGE
 
-    func loadUser() {
-        if currentGame.player1 == nil {
-            var profile = Profile(id: userId, name: userName, elo: userElo)
-            profile.imageData = userImageData
-            currentGame.player1 = profile
-        }
-    }
-}
+/*import SwiftUI
+ 
+ struct Team: Identifiable, Equatable {
+     let id = UUID()
+     let name: String
+     var playerIds: [Int]
+
+     init(playerIds: [Int] = [], name: String = "Unknown Team") {
+         precondition(playerIds.isEmpty || playerIds.count == 2, "If provided, exactly 2 player IDs allowed")
+         self.playerIds = playerIds
+         self.name = name
+     }
+
+     static func == (lhs: Team, rhs: Team) -> Bool {
+         lhs.playerIds == rhs.playerIds
+     }
+ }
+
+ struct tichuGame: Identifiable {
+     let id = UUID()
+     let date: Date
+
+     // Team 1
+     var team1: Team?
+     var player1Id: Int?
+     var player2Id: Int?
+     var currentPointsTeam1: Int
+
+     // Team 2
+     var team2: Team?
+     var player3Id: Int?
+     var player4Id: Int?
+     var currentPointsTeam2: Int
+
+     var allowPingus: Bool
+     var target: Int
+     var Rounds: [Round]
+     var winRounds: [Round]
+     var winnerId: Int?  // team id
+
+     init(
+         allowPingus: Bool = true,
+         player1Id: Int? = nil,
+         player2Id: Int? = nil,
+         player3Id: Int? = nil,
+         player4Id: Int? = nil,
+         Rounds: [Round] = [],
+         winRounds: [Round] = [],
+         target: Int = 1000
+     ) {
+         self.player1Id = player1Id
+         self.player2Id = player2Id
+         self.player3Id = player3Id
+         self.player4Id = player4Id
+
+         self.target = target
+         self.date = Date()
+
+         if let p1 = player1Id, let p2 = player2Id {
+             self.team1 = Team(playerIds: [p1, p2], name: "Team 1")
+         } else {
+             self.team1 = nil
+         }
+
+         if let p3 = player3Id, let p4 = player4Id {
+             self.team2 = Team(playerIds: [p3, p4], name: "Team 2")
+         } else {
+             self.team2 = nil
+         }
+
+         self.Rounds = Rounds
+         self.winRounds = winRounds
+         self.currentPointsTeam1 = 0
+         self.currentPointsTeam2 = 0
+         self.allowPingus = allowPingus
+         self.winnerId = nil
+     }
+
+     // Helper to get profiles from NetworkService
+     func player1(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == player1Id } }
+     func player2(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == player2Id } }
+     func player3(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == player3Id } }
+     func player4(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == player4Id } }
+
+     var isReady: Bool {
+         player2Id != nil && player3Id != nil && player4Id != nil
+     }
+
+     mutating func addRound(addedRound: Round) {
+         Rounds.append(addedRound)
+         self.currentPointsTeam1 += addedRound.tichuPointsTeam1 + addedRound.roundPointsTeam1
+         self.currentPointsTeam2 += addedRound.tichuPointsTeam2 + addedRound.roundPointsTeam2
+     }
+
+     mutating func reCount() {
+         self.currentPointsTeam1 = 0
+         self.currentPointsTeam2 = 0
+         self.winnerId = nil
+         self.winRounds.removeAll()
+
+         func conditionIsTrue(_ t1: Int, _ t2: Int, _ target: Int) -> Bool {
+             return !((t1 >= target && t1 > t2) || (t2 >= target && t2 > t1))
+         }
+
+         var stillTrue = true
+
+         for round in self.Rounds {
+             self.currentPointsTeam1 += round.tichuPointsTeam1 + round.roundPointsTeam1
+             self.currentPointsTeam2 += round.tichuPointsTeam2 + round.roundPointsTeam2
+             self.winRounds.append(round)
+
+             let cond = conditionIsTrue(self.currentPointsTeam1, self.currentPointsTeam2, self.target)
+
+             if stillTrue && !cond {
+                 if self.currentPointsTeam1 >= self.target && self.currentPointsTeam1 > self.currentPointsTeam2 {
+                     self.winnerId = team1?.id.hashValue
+                 } else if self.currentPointsTeam2 >= self.target && self.currentPointsTeam2 > self.currentPointsTeam1 {
+                     self.winnerId = team2?.id.hashValue
+                 }
+                 break
+             }
+             stillTrue = cond
+         }
+     }
+ }
+
+ struct Round: Identifiable {
+     var id = UUID()
+     var firstId: Int?
+     var secondId: Int?
+     var thirdId: Int?
+     var fourthId: Int?
+
+     var team1: Team?
+     var team2: Team?
+
+     var firstBombs: Int
+     var secondBombs: Int
+     var thirdBombs: Int
+     var fourthBombs: Int
+
+     var tichuPointsTeam1: Int
+     var tichuPointsTeam2: Int
+
+     var roundPointsTeam1: Int
+     var roundPointsTeam2: Int
+
+     var doubleWinTeam1: Bool
+     var doubleWinTeam2: Bool
+
+     var announcedTichuIds: [Int]
+     var announcedBigTichuIds: [Int]
+     var announcedPinguIds: [Int]
+
+     init(
+         firstId: Int? = nil,
+         secondId: Int? = nil,
+         thirdId: Int? = nil,
+         fourthId: Int? = nil,
+         firstBombs: Int = 0,
+         secondBombs: Int = 0,
+         thirdBombs: Int = 0,
+         fourthBombs: Int = 0,
+         tichuPointsTeam1: Int = 50,
+         tichuPointsTeam2: Int = 50,
+         roundPointsTeam1: Int = 0,
+         roundPointsTeam2: Int = 0,
+         doubleWinTeam1: Bool = false,
+         doubleWinTeam2: Bool = false,
+         announcedTichuIds: [Int] = [],
+         announcedBigTichuIds: [Int] = [],
+         announcedPinguIds: [Int] = [],
+         team1: Team? = nil,
+         team2: Team? = nil
+     ) {
+         precondition(firstBombs <= 3 && secondBombs <= 3 && thirdBombs <= 3 && fourthBombs <= 3, "Max 3 bombs per player")
+         precondition(tichuPointsTeam1 + tichuPointsTeam2 == 100, "Team points must sum to 100")
+
+         let allAnnouncements = announcedTichuIds + announcedBigTichuIds + announcedPinguIds
+         precondition(Set(allAnnouncements).count == allAnnouncements.count, "A player can only announce one type")
+
+         self.firstId = firstId
+         self.secondId = secondId
+         self.thirdId = thirdId
+         self.fourthId = fourthId
+
+         self.firstBombs = firstBombs
+         self.secondBombs = secondBombs
+         self.thirdBombs = thirdBombs
+         self.fourthBombs = fourthBombs
+
+         self.tichuPointsTeam1 = tichuPointsTeam1
+         self.tichuPointsTeam2 = tichuPointsTeam2
+
+         self.announcedTichuIds = announcedTichuIds
+         self.announcedBigTichuIds = announcedBigTichuIds
+         self.announcedPinguIds = announcedPinguIds
+
+         self.roundPointsTeam1 = roundPointsTeam1
+         self.roundPointsTeam2 = roundPointsTeam2
+
+         self.doubleWinTeam1 = doubleWinTeam1
+         self.doubleWinTeam2 = doubleWinTeam2
+
+         self.team1 = team1
+         self.team2 = team2
+     }
+
+     // Helper to get profiles from NetworkService
+     func first(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == firstId } }
+     func second(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == secondId } }
+     func third(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == thirdId } }
+     func fourth(from profiles: [Profile]) -> Profile? { profiles.first { $0.id == fourthId } }
+ }
+
+ enum tichuGameTarget: Int, CaseIterable, Identifiable {
+     case xs = 250
+     case s = 500
+     case l = 750
+     case xl = 1000
+     case xxl = 2000
+     case xxxl = 5000
+     case xxxxl = 10000
+
+     var id: Int { self.rawValue }
+ }*/

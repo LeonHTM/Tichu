@@ -15,25 +15,11 @@ struct PlayView: View {
     @AppStorage("userName") var userName: String = "Storage - Unknown"
     @AppStorage("userElo") var userElo: Int = 404
 
+    // MARK: - Input
+    let fetchTrigger: Int
+
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
-
-    // MARK: - ViewModel
-    @StateObject private var viewModel: PlayViewModel
-
-    init() {
-        // Bootstrap the VM with current AppStorage values at init time
-        let userId = UserDefaults.standard.integer(forKey: "userId")
-        let userName = UserDefaults.standard.string(forKey: "userName") ?? "Storage - Unknown"
-        let userElo = UserDefaults.standard.integer(forKey: "userElo")
-        let userImageData = UserDefaults.standard.data(forKey: "userImageData")
-        _viewModel = StateObject(wrappedValue: PlayViewModel(
-            userId: userId,
-            userName: userName,
-            userElo: userElo,
-            userImageData: userImageData
-        ))
-    }
 
     // MARK: - State
     @State private var showAddPlayersSheet2: Bool = false
@@ -49,33 +35,38 @@ struct PlayView: View {
 
     @State private var team1 = Team()
     @State private var team2 = Team()
+    @State private var currentGame = tichuGame()
     @State private var currentRound = Round()
     @State private var revanche: Bool = false
 
     @FocusState private var targetFieldFocused: Bool
 
-    // MARK: - Convenience
-    private var currentGame: tichuGame {
-        get { viewModel.currentGame }
-    }
-
     // MARK: - Computed
     private var isGameReady: Bool {
-        viewModel.currentGame.player2 != nil && viewModel.currentGame.player3 != nil && viewModel.currentGame.player4 != nil
+        currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
     }
 
     private var gameDone: Bool {
-        viewModel.currentGame.winner != nil
+        currentGame.winner != nil
     }
 
     private var isRated: Bool {
         let players = [
-            viewModel.currentGame.player1,
-            viewModel.currentGame.player2,
-            viewModel.currentGame.player3,
-            viewModel.currentGame.player4
+            currentGame.player1,
+            currentGame.player2,
+            currentGame.player3,
+            currentGame.player4
         ].compactMap { $0 }
         return !players.contains { $0.elo == nil }
+    }
+
+    // MARK: - Methods
+    func loadUser() {
+        if currentGame.player1 == nil {
+            var profile = Profile(id: userId, name: userName, elo: userElo)
+            profile.imageData = userImageData
+            currentGame.player1 = profile
+        }
     }
 
     // MARK: - Body
@@ -88,13 +79,17 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players
-                }.refreshable {
+                }
+                .refreshable {
                     await network.fetch(isLoading: .constant(false))
-                    viewModel.loadUser()
-                }.onAppear {
-                    print("appearing")
-                    viewModel.loadUser()
-                }.onChange(of: socket.connected) {
+                    loadUser()
+                }
+                .onChange(of: fetchTrigger) {
+                    withAnimation(.easeInOut) {
+                        loadUser()
+                    }
+                }
+                .onChange(of: socket.connected) {
                     if !socket.connected {
                         showFriends = false
                         showPlayers = false
@@ -104,40 +99,40 @@ struct PlayView: View {
                     }
                 }
                 .onChange(of: isGameReady) {
-                    if let _ = viewModel.currentGame.player2?.name {
-                        team1 = Team(list: [viewModel.currentGame.player1!, viewModel.currentGame.player2!], name: "Team 1")
+                    if let _ = currentGame.player2?.name {
+                        team1 = Team(list: [currentGame.player1!, currentGame.player2!], name: "Team 1")
                     }
-                    if let _ = viewModel.currentGame.player3?.name, let _ = viewModel.currentGame.player4?.name {
-                        team2 = Team(list: [viewModel.currentGame.player3!, viewModel.currentGame.player4!], name: "Team 2")
+                    if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
+                        team2 = Team(list: [currentGame.player3!, currentGame.player4!], name: "Team 2")
                     }
-                    if isGameReady == false { viewModel.loadUser() }
+                    if isGameReady == false { loadUser() }
                     currentRound.team1 = team1
                     currentRound.team2 = team2
-                    viewModel.currentGame.team1 = team1
-                    viewModel.currentGame.team2 = team2
+                    currentGame.team1 = team1
+                    currentGame.team2 = team2
                 }
                 .onChange(of: gameDone) {
                     showGameOverSheet = gameDone
                 }
                 .sheet(isPresented: $showGameOverSheet, onDismiss: {
                     if revanche == true {
-                        let p1 = viewModel.currentGame.player1!
-                        let p2 = viewModel.currentGame.player2!
-                        let p3 = viewModel.currentGame.player3!
-                        let p4 = viewModel.currentGame.player4!
+                        let p1 = currentGame.player1!
+                        let p2 = currentGame.player2!
+                        let p3 = currentGame.player3!
+                        let p4 = currentGame.player4!
                         withAnimation(.easeInOut) {
-                            viewModel.currentGame = tichuGame(player1: p1, player2: p2, player3: p3, player4: p4)
+                            currentGame = tichuGame(player1: p1, player2: p2, player3: p3, player4: p4)
                         }
                     } else {
                         withAnimation(.easeInOut) {
-                            viewModel.currentGame = tichuGame()
-                            viewModel.loadUser()
+                            currentGame = tichuGame()
+                            loadUser()
                         }
                     }
                 }) {
                     GameSummarySheetView(
                         showGameOverViewSheetView: $showGameOverSheet,
-                        currentGame: $viewModel.currentGame,
+                        currentGame: $currentGame,
                         revanche: $revanche,
                         showRevancheButton: true,
                         HistoryMode: false
@@ -172,7 +167,7 @@ struct PlayView: View {
         }
         .sheet(isPresented: $showDebugSheetView) {
             DebugSheetView(
-                currentGame: $viewModel.currentGame,
+                currentGame: $currentGame,
                 showDebugSheetView: $showDebugSheetView,
                 exampleGameHistory: .constant([])
             )
@@ -196,7 +191,7 @@ struct PlayView: View {
                     .foregroundStyle(Color.accentColor)
                 Spacer()
                 if isGameReady {
-                    Text("\(viewModel.currentGame.currentPointsTeam1)")
+                    Text("\(currentGame.currentPointsTeam1)")
                         .font(.title2)
                         .fontWeight(.bold)
                 }
@@ -210,24 +205,34 @@ struct PlayView: View {
     private var team1Players: some View {
         Section {
             HStack {
-                ProfileImage(data: viewModel.currentGame.player1?.imageData, size: 44)
+                ProfileImage(data: currentGame.player1?.imageData, size: 44)
                 VStack(alignment: .leading) {
-                    Text(viewModel.currentGame.player1?.name ?? "Unknown")
+                    Text(currentGame.player1?.name ?? "Unknown")
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
+                        .redacted(
+                            reason: currentGame.player1?.name == nil
+                                ? .placeholder
+                                : []
+                        )
                 }
                 Spacer()
-                Text("Ranking: \(viewModel.currentGame.player1?.elo ?? -69420)")
-                    .foregroundStyle(.secondary)
-                    .font(.system(size: 16))
+                if let ranking = currentGame.player1?.elo {
+                    Text("Ranking: \(ranking)")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 16))
+                }else{
+                    ProgressView()
+                }
+                    
             }
 
-            if let name2 = viewModel.currentGame.player2?.name {
+            if let name2 = currentGame.player2?.name {
                 HStack {
-                    ProfileImage(data: viewModel.currentGame.player2!.imageData, size: 44)
+                    ProfileImage(data: currentGame.player2!.imageData, size: 44)
                     Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     Spacer()
-                    if let elo = viewModel.currentGame.player2?.elo {
+                    if let elo = currentGame.player2?.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -238,8 +243,8 @@ struct PlayView: View {
                     .sheet(isPresented: $showAddPlayersSheet2) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet2,
-                            addPlayer: $viewModel.currentGame.player2,
-                            alreadyAdded: [viewModel.currentGame.player3, viewModel.currentGame.player4].compactMap { $0 },
+                            addPlayer: $currentGame.player2,
+                            alreadyAdded: [currentGame.player3, currentGame.player4].compactMap { $0 },
                             showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 2
                         )
                         .presentationDetents([.medium, .large])
@@ -266,7 +271,7 @@ struct PlayView: View {
                 Text("Team 2")
                 Spacer()
                 if isGameReady {
-                    Text("\(viewModel.currentGame.currentPointsTeam2)")
+                    Text("\(currentGame.currentPointsTeam2)")
                 }
             }
         }
@@ -278,12 +283,12 @@ struct PlayView: View {
     // MARK: - Team 2 Players
     private var team2Players: some View {
         Section {
-            if let name3 = viewModel.currentGame.player3?.name {
+            if let name3 = currentGame.player3?.name {
                 HStack {
-                    ProfileImage(data: viewModel.currentGame.player3!.imageData, size: 44)
+                    ProfileImage(data: currentGame.player3!.imageData, size: 44)
                     Text(name3).fontWeight(.bold)
                     Spacer()
-                    if let elo = viewModel.currentGame.player3?.elo {
+                    if let elo = currentGame.player3?.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -294,20 +299,20 @@ struct PlayView: View {
                     .sheet(isPresented: $showAddPlayersSheet3) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet3,
-                            addPlayer: $viewModel.currentGame.player3,
-                            alreadyAdded: [viewModel.currentGame.player2, viewModel.currentGame.player4].compactMap { $0 },
+                            addPlayer: $currentGame.player3,
+                            alreadyAdded: [currentGame.player2, currentGame.player4].compactMap { $0 },
                             showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 3
                         )
                         .presentationDetents([.medium, .large])
                     }
             }
 
-            if let name4 = viewModel.currentGame.player4?.name {
+            if let name4 = currentGame.player4?.name {
                 HStack {
-                    ProfileImage(data: viewModel.currentGame.player4!.imageData, size: 44)
+                    ProfileImage(data: currentGame.player4!.imageData, size: 44)
                     Text(name4).fontWeight(.bold)
                     Spacer()
-                    if let elo = viewModel.currentGame.player4?.elo {
+                    if let elo = currentGame.player4?.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -318,8 +323,8 @@ struct PlayView: View {
                     .sheet(isPresented: $showAddPlayersSheet4) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet4,
-                            addPlayer: $viewModel.currentGame.player4,
-                            alreadyAdded: [viewModel.currentGame.player2, viewModel.currentGame.player3].compactMap { $0 },
+                            addPlayer: $currentGame.player4,
+                            alreadyAdded: [currentGame.player2, currentGame.player3].compactMap { $0 },
                             showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 4
                         )
                         .presentationDetents([.medium, .large])
@@ -351,7 +356,7 @@ struct PlayView: View {
                     .fontWeight(.bold)
                     .font(.title2)
                     .offset(y: -15)
-                Text(isGameReady ? " \(viewModel.currentGame.target)" : " ")
+                Text(isGameReady ? " \(currentGame.target)" : " ")
                     .fontWeight(.bold)
                     .font(.title2)
                     .offset(y: -15)
@@ -365,7 +370,7 @@ struct PlayView: View {
     private var gameReadyBottomBar: some View {
         GlassEffectContainer {
             HStack {
-                if viewModel.currentGame.Rounds.count > 0 {
+                if currentGame.Rounds.count > 0 {
                     Button {
                         showEditRoundsSheet = true
                     } label: {
@@ -382,13 +387,13 @@ struct PlayView: View {
                     .sheet(isPresented: $showEditRoundsSheet) {
                         EditRoundsSheetView(
                             showEditRoundsSheet: $showEditRoundsSheet,
-                            currentGame: $viewModel.currentGame
+                            currentGame: $currentGame
                         )
                         .presentationDetents([.medium, .large])
                     }
                 } else {
                     Button {
-                        withAnimation(.easeInOut) { viewModel.currentGame = tichuGame() }
+                        withAnimation(.easeInOut) { currentGame = tichuGame() }
                     } label: {
                         HStack {
                             Image(systemName: "trash")
@@ -421,7 +426,7 @@ struct PlayView: View {
                 }) {
                     AddRoundSheetView(
                         showAddRoundsSheet: $showAddRoundSheet,
-                        currentGame: $viewModel.currentGame,
+                        currentGame: $currentGame,
                         currentRound: $currentRound,
                         editMode: false,
                         roundIndex: nil
@@ -436,14 +441,14 @@ struct PlayView: View {
         HStack {
             Spacer()
             Menu {
-                Picker("Game Target", selection: $viewModel.currentGame.target) {
+                Picker("Game Target", selection: $currentGame.target) {
                     Text("250").tag(250)
                     Text("500").tag(500)
                     Text("1000").tag(1000)
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
                 }
-                Toggle(isOn: $viewModel.currentGame.allowPingus) {
+                Toggle(isOn: $currentGame.allowPingus) {
                     Text("Allow Pingus")
                 }
             } label: {
@@ -459,5 +464,5 @@ struct PlayView: View {
 }
 
 #Preview {
-    PlayView()
+    PlayView(fetchTrigger: 0)
 }

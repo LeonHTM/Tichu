@@ -263,8 +263,7 @@ struct ProfileView: View {
                             userId = -69420
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            userId = 15
-                            selectedTab = -1
+                            userId = 17
                             
                         }
                     }else{
