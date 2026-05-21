@@ -13,8 +13,8 @@ struct ProfileView: View {
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
-    @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("userElo") var userElo: Int = 1000
+    @AppStorage("userName") var userName: String = "Storage - Unknown"
+    @AppStorage("userElo") var userElo: Int = 404
     @AppStorage("selectedTab") private var selectedTab = 0
     
     // MARK: - Photo Picker
@@ -64,20 +64,16 @@ struct ProfileView: View {
             Spacer()
             VStack {
                 ZStack {
-                    if socket.connected {
+                    
                         ZStack{
-                            ProfileImage(data: network.profileImages[userId], size: 100)
+                            ProfileImage(data: userImageData, size: 100)
                                 .shadow(radius: 10)
                                 .allowsHitTesting(false)
                             if isUploadingImage{
                                 ProgressView().scaleEffect(2)
                             }
                         }
-                    }else{
-                        ProfileImage(data: userImageData, size: 100)
-                            .shadow(radius: 10)
-                            .allowsHitTesting(false)
-                    }
+                    
                     
                     PhotosPicker(selection: $pickerItem, matching: .images) {
                         Image(systemName: "camera.fill")
@@ -117,18 +113,7 @@ struct ProfileView: View {
                       
                 }
                  
-                if socket.connected{
-                    Text(network.profiles.first { $0.id == userId }?.name ?? "Unknown")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .allowsHitTesting(false)
-                    
-                    Text("\(network.profiles.first { $0.id == userId }?.elo ?? 1000)")
-                        .foregroundStyle(.gray)
-                        .fontWeight(.bold)
-                        .allowsHitTesting(false)
-                }else{
-                    Text(userName)
+                    Text("\(userName)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .allowsHitTesting(false)
@@ -137,7 +122,7 @@ struct ProfileView: View {
                         .foregroundStyle(.gray)
                         .fontWeight(.bold)
                         .allowsHitTesting(false)
-                }
+                
             }
             Spacer()
         }

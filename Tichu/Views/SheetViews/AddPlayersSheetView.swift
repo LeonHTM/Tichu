@@ -184,19 +184,22 @@ struct AddPlayersSheetView: View {
         let isAdded = alreadyAdded.contains(where: { $0.id == profile.id })
         return Button {
             
+            //Also load Stats in Case of StatsView
             if showGuest == false{
                 Task {
                     await network.fetchProfilesStats(profileId: profile.id)
                     if let updated = network.profiles.first(where: { $0.id == profile.id }) {
                                         addPlayer = updated
                                     }
-                
-                    showAddPlayersSheet = false
                 }
             }else{
                 addPlayer = profile
-                showAddPlayersSheet = false
             }
+            if var player = addPlayer {
+                player.imageData = network.profileImages[player.id]
+                addPlayer = player
+            }
+            showAddPlayersSheet = false
             
         } label: {
             HStack {

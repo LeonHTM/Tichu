@@ -13,6 +13,7 @@ struct GameSummarySheetView: View {
     // MARK: - Bindings
     @Binding var showGameOverViewSheetView: Bool
     @Binding var currentGame: tichuGame
+    @Binding var revanche: Bool
 
     // MARK: - State
     @State private var selectedTab: Int = 0
@@ -172,12 +173,9 @@ struct GameSummarySheetView: View {
         if showRevancheButton {
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
+                    revanche = true
                     showGameOverViewSheetView = false
-                    let p1 = currentGame.player1!
-                    let p2 = currentGame.player2!
-                    let p3 = currentGame.player3!
-                    let p4 = currentGame.player4!
-                    currentGame = tichuGame(player1: p1, player2: p2, player3: p3, player4: p4)
+                    
                 } label: {
                     Text("Revanche")
                 }
@@ -190,7 +188,9 @@ struct GameSummarySheetView: View {
     GameSummarySheetView(
         showGameOverViewSheetView: .constant(true),
         currentGame: .constant(exampleGame),
+        revanche: .constant(false),
         showRevancheButton: true,
-        HistoryMode: true
+        HistoryMode: true,
+        
     )
 }

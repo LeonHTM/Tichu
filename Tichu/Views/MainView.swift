@@ -11,6 +11,7 @@ import UserNotifications
 struct MainView: View {
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("userId") private var userId = -69420
+    @State private var isLoading: Bool = false
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
     let notificationCenter = UNUserNotificationCenter.current()
@@ -20,6 +21,7 @@ struct MainView: View {
     }
     
     var body: some View {
+    
         Group {
             if userId == -69420 {
                 LoginMainView()
@@ -34,7 +36,7 @@ struct MainView: View {
                             Label("Play", systemImage: "play")
                         }
                         .tag(0)
-
+                    
                     if socket.connected {
                         HistoryView().tabItem {
                             Label("History", systemImage: "clock")
@@ -48,13 +50,13 @@ struct MainView: View {
                         
                         
                     }
-                        
                     
-                        StatsView()
-                            .tabItem {
-                                Label("Stats", systemImage: "chart.bar")
-                            }
-                            .tag(2)
+                    
+                    StatsView()
+                        .tabItem {
+                            Label("Stats", systemImage: "chart.bar")
+                        }
+                        .tag(2)
                     
                     
                     ProfileView()
@@ -67,10 +69,10 @@ struct MainView: View {
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .trailing).combined(with: .opacity)
                 ))
-                .task {
-                    await network.fetchProfiles()
-                    await network.fetchFriends(profileId: userId)
-                    await network.fetchFriendRequests(profileId: userId)
+                .onAppear() {
+                    Task{
+                        await network.fetch(isLoading: $isLoading)
+                    }
                 }
                 .onAppear {
                     if !(selectedTab == -1) {
@@ -89,9 +91,10 @@ struct MainView: View {
                         print("Request authorization error")
                     }
                 }
-               
+                
                 
             }
+            
         } .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
             selectedTab = 3
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
@@ -100,6 +103,7 @@ struct MainView: View {
         }
         .animation(.easeInOut(duration: 0.4), value: userId == -69420)
     }
+    
 }
 
 #Preview {

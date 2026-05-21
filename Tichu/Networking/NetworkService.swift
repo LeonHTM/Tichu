@@ -13,6 +13,7 @@ class NetworkService: ObservableObject {
     static let shared = NetworkService()
     
     @ObservedObject var config = Config.shared
+    
     var baseURL: String { Config.shared.baseURL }
 
     @AppStorage("userId") private var userId = -69420
@@ -50,9 +51,6 @@ class NetworkService: ObservableObject {
         self.sentRequests = []
     }
 
-    func profile(for id: Int) -> Profile? {
-        profiles.first(where: { $0.id == id })
-    }
 
     func loadProfileImages() async {
         let snapshot = await MainActor.run { profiles }
@@ -66,6 +64,10 @@ class NetworkService: ObservableObject {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 await MainActor.run {
                     self.profileImages[profile.id] = data
+                    // If is user also update the ProfileImage
+                    if profile.id == self.userId {
+                        userImageData = data
+                    }
                 }
             } catch {
                 print("loadProfileImages error for profile \(profile.id): \(error)")
@@ -76,7 +78,9 @@ class NetworkService: ObservableObject {
     func fetchProfiles() async {
         guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
         do {
+            //Load Data
             let (data, _) = try await URLSession.shared.data(from: url)
+            //Set Profiles as Data
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
             await MainActor.run {
                 withAnimation(.easeInOut) {
@@ -84,32 +88,12 @@ class NetworkService: ObservableObject {
                 }
             }
             await loadProfileImages()
-
-            userName = profiles.first{$0.id == userId}?.name ?? "Unknown"
-            userElo = profiles.first{$0.id == userId}?.elo ?? 1000
-            userImageData = profileImages[userId]
 
         } catch {
             print("fetchProfiles error: \(error)")
         }
     }
 
-    func fetchProfilesSimple() async {
-        guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode([Profile].self, from: data)
-            await MainActor.run {
-                withAnimation(.easeInOut) {
-                    self.profiles = decoded
-                }
-            }
-            await loadProfileImages()
-        } catch {
-            print("fetchProfilessimple error: \(error)")
-        }
-    }
 
     func fetchProfilesStats(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
@@ -451,4 +435,29 @@ class NetworkService: ObservableObject {
             print("fetchFriendRequests error: \(error)")
         }
     }
+    
+    func fetch(isLoading: Binding<Bool>) async {
+        let currentUserId = await MainActor.run { userId }
+
+        await MainActor.run { isLoading.wrappedValue = true }
+
+        await fetchProfiles()
+        await fetchFriends(profileId: currentUserId)
+        await fetchFriendRequests(profileId: currentUserId)
+
+        await MainActor.run {
+            if let imageData = self.profileImages[currentUserId] {
+                self.userImageData = imageData
+            }
+            if let name = self.profiles.first(where: { $0.id == currentUserId })?.name {
+                self.userName = name
+            }
+            if let elo = self.profiles.first(where: { $0.id == currentUserId })?.elo {
+                self.userElo = elo
+            }
+
+            isLoading.wrappedValue = false
+        }
+    }
 }
+

@@ -78,6 +78,7 @@ struct HistoryView: View {
                 GameSummarySheetView(
                     showGameOverViewSheetView: $showGameSummarySheetView,
                     currentGame: $currentGameE,
+                    revanche:.constant(false),
                     showRevancheButton: false,
                     HistoryMode: true
                 )

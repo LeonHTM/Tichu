@@ -318,9 +318,9 @@ var exampleJo: Profile = Profile(
 
 
 
-let guest2Profile: Profile = Profile(name: "Guest 2", imageData: nil)
-let guest3Profile: Profile = Profile(name: "Guest 3", imageData: nil)
-let guest4Profile: Profile = Profile(name: "Guest 4", imageData: nil)
+let guest2Profile: Profile = Profile(id:-69,name: "Guest 2", imageData: nil)
+let guest3Profile: Profile = Profile(id:-68,name: "Guest 3", imageData: nil)
+let guest4Profile: Profile = Profile(id:-67,name: "Guest 4", imageData: nil)
 
 let exampleTeam1 = Team(list: [exampleLuis, exampleJo],name:"Team 1")
 let exampleTeam2 = Team(list: [exampleSorin, exampleLeon],name:"Team 2")

@@ -6,6 +6,9 @@
 Tichu.xcodeproj/
 xcuserdata/
 Tichu/Data/config.swift
+Gemfile.lock
+fastlane/
+Gemfile
 
 ## Obj-C/Swift specific
 *.hmap

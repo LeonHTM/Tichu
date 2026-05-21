@@ -13,6 +13,9 @@ import SwiftUI
 final class SocketService: ObservableObject {
 
     @AppStorage("userId") private var userId = -69420
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("userElo") var userElo: Int = 1000
     static let shared = SocketService()
 
     private var manager: SocketManager!
@@ -117,6 +120,9 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     NetworkService.shared.profiles.removeAll { $0.id == id }
+                    if id == self.userId{
+                        self.userId = -69420
+                    }
                 }
             }
         }
@@ -134,7 +140,7 @@ final class SocketService: ObservableObject {
 
             removeFriendRequestNotification(fromSenderId: senderId)
         }
-
+        
         // USERNAME EDITED
         socket.on("username_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
@@ -143,7 +149,14 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async {
                 if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
                     withAnimation(.easeInOut) {
+                        //Update List of Profiles
                         NetworkService.shared.profiles[index].name = name
+                        //If is user also updated the Storage
+                        if profileId == self.userId{
+                            self.userName = name
+                        
+                            
+                        }
                     }
                 }
             }

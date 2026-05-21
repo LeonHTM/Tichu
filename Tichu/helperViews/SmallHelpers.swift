@@ -93,23 +93,11 @@ struct ColorfulIconLabelStyle: LabelStyle {
 }
 
 struct NavigationProfileImage:View{
-    @StateObject private var socket = SocketService.shared
-    @StateObject private var network = NetworkService.shared
-    @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
     
     var body: some View{
         
-        
-        
-        if socket.connected {
-            ProfileImage(data: network.profileImages[userId], size: 44)
-            
-            
-        }else{
             ProfileImage(data: userImageData, size: 44)
-            
-        }
     }
 }
 
