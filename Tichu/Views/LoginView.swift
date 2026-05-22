@@ -126,7 +126,10 @@ struct LoginView: View {
                             .disabled(userEmail.isEmpty)
                         }else{
                             Button{
-                                userId = alreadyExistsId!
+                                Task{
+                                    await network.login(userId: alreadyExistsId!)
+                                }
+
                             }label:{
                                 Image(systemName: "arrow.right.circle.fill")
                                     .font(.system(size: 24))

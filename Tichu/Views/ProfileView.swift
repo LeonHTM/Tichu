@@ -260,10 +260,11 @@ struct ProfileView: View {
                     if socket.connected{
                         Task{
                             await network.logout(profileId: userId)
-                            userId = -69420
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            userId = 17
+                            Task{
+                                await network.login(userId:2)
+                            }
                             
                         }
                     }else{
@@ -287,7 +288,7 @@ struct ProfileView: View {
                     if socket.connected{
                         Task{
                             await network.logout(profileId: userId)
-                            userId = -69420
+                            
                         }
                     }else{
                         showOfflineAlert = true
@@ -333,8 +334,8 @@ struct ProfileView: View {
                 Button(role: .destructive) {
                     withAnimation(.easeInOut(duration: 0.285)) {
                         Task{
+                            await network.logout(profileId: userId)
                             await network.deleteProfile(profileId: userId)
-                            userId = -69420
                         }
                         showDeleteAlert = false
                     

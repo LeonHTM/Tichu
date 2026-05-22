@@ -11,6 +11,10 @@ struct DebugSheetView: View {
     @Binding var currentGame:tichuGame
     @Binding var showDebugSheetView:Bool
     @Binding var exampleGameHistory: [tichuGame]
+    @AppStorage("userId") var userId: Int = -69420
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("userName") var userName: String = "Storage - Unknown"
+    @AppStorage("userElo") var userElo: Int = 404
     @AppStorage("selectedTab") private var selectedTab = 0
     @ObservedObject private var network = NetworkService.shared
     @ObservedObject var config = Config.shared
@@ -78,6 +82,12 @@ struct DebugSheetView: View {
                     }
                 }
             }
+                HStack{Text("\(userId)")
+                    Text("\(userName)")
+                    Text("\(userElo)")
+                    ProfileImage(data:userImageData,size:44)
+                }
+                
               
             }
         }

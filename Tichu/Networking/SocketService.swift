@@ -205,6 +205,12 @@ final class SocketService: ObservableObject {
                 await NetworkService.shared.fetchProfiles()
             }
         }
+        
+        socket.on("auth_failed"){data, ack in
+            Task{
+                await NetworkService.shared.logout(profileId:self.userId)
+            }
+        }
     }
 
     // MARK: - Disconnect

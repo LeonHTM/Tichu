@@ -258,7 +258,7 @@ struct Round: Identifiable {
 
         self.firstBombs = firstBombs
         self.secondBombs = secondBombs
-        self.thirdBombs = fourthBombs
+        self.thirdBombs = thirdBombs
         self.fourthBombs = fourthBombs
 
         self.tichuPointsTeam1 = tichuPointsTeam1

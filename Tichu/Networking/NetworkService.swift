@@ -21,6 +21,7 @@ class NetworkService: ObservableObject {
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("pendingDeviceToken") var pendingDeviceToken: String = ""
+    @AppStorage("authToken") var authToken: String = ""
 
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
@@ -35,22 +36,69 @@ class NetworkService: ObservableObject {
 
     private init() {}
 
+    // MARK: - Auth Header Helper
+
+    private func authorizedRequest(url: URL, method: String = "GET") -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+
+    // MARK: - Login
+
+    func login(userId: Int) async -> Bool {
+        guard let url = URL(string: "\(baseURL)/login") else { return false }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["id": userId])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+            if let token = json?["token"] as? String,
+               let userId = json?["id"] as? Int {
+
+                await MainActor.run {
+                    self.authToken = token
+                    self.userId = userId
+                }
+
+                // Register push token after successful login
+                if !pendingDeviceToken.isEmpty {
+                    await registerDevice(
+                        profileId: userId,
+                        deviceToken: pendingDeviceToken
+                    )
+                } else {
+                    print("No device token available yet")
+                }
+
+                return true
+            }
+
+        } catch {
+            print("login error: \(error)")
+        }
+
+        return false
+    }
+
     // MARK: - Profiles
     func resetClientData(){
-     
         self.profiles = []
         self.friendRequestProfiles = []
         self.friends = []
-        
         self.profileImages = [:]
         self.sentRequests = []
-        
-        
         self.friendRequestImages = [:]
         self.friendRequests = []
         self.sentRequests = []
+        self.authToken = ""
     }
-
 
     func loadProfileImages() async {
         let snapshot = await MainActor.run { profiles }
@@ -64,7 +112,6 @@ class NetworkService: ObservableObject {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 await MainActor.run {
                     self.profileImages[profile.id] = data
-                    // If is user also update the ProfileImage
                     if profile.id == self.userId {
                         userImageData = data
                     }
@@ -78,9 +125,7 @@ class NetworkService: ObservableObject {
     func fetchProfiles() async {
         guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
         do {
-            //Load Data
-            let (data, _) = try await URLSession.shared.data(from: url)
-            //Set Profiles as Data
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
             await MainActor.run {
                 withAnimation(.easeInOut) {
@@ -88,18 +133,16 @@ class NetworkService: ObservableObject {
                 }
             }
             await loadProfileImages()
-
         } catch {
             print("fetchProfiles error: \(error)")
         }
     }
 
-
     func fetchProfilesStats(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let decoded = try JSONDecoder().decode(Profile.self, from: data)
             await MainActor.run {
                 if let index = self.profiles.firstIndex(where: { $0.id == decoded.id }) {
@@ -116,13 +159,14 @@ class NetworkService: ObservableObject {
     func logout(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
             await MainActor.run {
                 self.pendingDeviceToken = ""
+                self.authToken = ""
+                self.userId = -69420
             }
         } catch {
             print("logout error: \(error)")
@@ -143,6 +187,10 @@ class NetworkService: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            // Store the token returned on registration
+            if let token = json?["token"] as? String {
+                await MainActor.run { self.authToken = token }
+            }
             return json?["id"] as? Int
         } catch {
             print("createAccount error: \(error)")
@@ -153,8 +201,7 @@ class NetworkService: ObservableObject {
     func deleteProfile(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_profile/\(profileId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        var request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -171,7 +218,7 @@ class NetworkService: ObservableObject {
               let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             return json?["available"] as? Bool ?? false
         } catch {
@@ -183,8 +230,7 @@ class NetworkService: ObservableObject {
     func updateUsername(profileId: Int, name: String) async {
         guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["name": name])
 
@@ -205,10 +251,10 @@ class NetworkService: ObservableObject {
               let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
 
         do {
+            // No auth needed — used before login
             let (data, _) = try await URLSession.shared.data(from: url)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            let existingId = json?["id"] as? Int
-            return existingId
+            return json?["id"] as? Int
         } catch {
             print("checkEmail error: \(error)")
             return nil
@@ -221,7 +267,7 @@ class NetworkService: ObservableObject {
         guard let url = URL(string: "\(baseURL)/friends/\(profileId)/") else { return }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
 
             let decoder = JSONDecoder()
@@ -254,8 +300,7 @@ class NetworkService: ObservableObject {
     func registerDevice(profileId: Int, deviceToken: String) async {
         guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": deviceToken])
 
@@ -270,8 +315,7 @@ class NetworkService: ObservableObject {
     func addFriend(profileId: Int, friendId: Int) async {
         guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -284,8 +328,7 @@ class NetworkService: ObservableObject {
     func removeFriend(profileId: Int, friendId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        var request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -301,7 +344,7 @@ class NetworkService: ObservableObject {
         guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)/") else { return }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
 
             let parsed = raw.compactMap { dict -> (id: Int, receiverId: Int)? in
@@ -321,8 +364,7 @@ class NetworkService: ObservableObject {
     func sendFriendRequest(senderId: Int, receiverId: Int) async {
         guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -334,12 +376,9 @@ class NetworkService: ObservableObject {
     func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
         guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "action": action
-        ])
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": action])
 
         do {
             try await URLSession.shared.data(for: request)
@@ -349,7 +388,6 @@ class NetworkService: ObservableObject {
                 self.friendRequestProfiles.removeAll { $0.id == senderId }
             }
 
-            // Remove the friend request notification from this sender
             removeFriendRequestNotification(fromSenderId: senderId)
 
         } catch {
@@ -362,8 +400,7 @@ class NetworkService: ObservableObject {
     func uploadProfileImage(profileId: Int, imageData: Data) async {
         guard let url = URL(string: "\(baseURL)/add_image/\(profileId)/") else { return }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
 
         let boundary = UUID().uuidString
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
@@ -387,6 +424,7 @@ class NetworkService: ObservableObject {
         guard let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { return nil }
 
         do {
+            // Images are public (no auth needed)
             let (data, _) = try await URLSession.shared.data(from: url)
             return data
         } catch {
@@ -401,7 +439,7 @@ class NetworkService: ObservableObject {
         guard let url = URL(string: "\(baseURL)/requests/\(profileId)/") else { return }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
 
             let parsed = raw.compactMap { dict -> (id: Int, senderId: Int)? in
@@ -460,4 +498,3 @@ class NetworkService: ObservableObject {
         }
     }
 }
-
