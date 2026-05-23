@@ -33,6 +33,9 @@ class NetworkService: ObservableObject {
 
     @Published var friendRequests: [(id: Int, senderId: Int)] = []
     @Published var sentRequests: [(id: Int, receiverId: Int)] = []
+    
+    @Published var games: [Game] = []
+    @Published var roundsByGame: [Int: [Round]] = [:]
 
     private init() {}
 
@@ -497,4 +500,274 @@ class NetworkService: ObservableObject {
             isLoading.wrappedValue = false
         }
     }
+    
+    
+    // MARK: - Games
+
+    func addGame(
+        target: Int,
+        allowPingus: Bool,
+        team1Player1Id: Int?,
+        team1Player2Id: Int?,
+        team2Player1Id: Int?,
+        team2Player2Id: Int?
+    ) async -> Game? {
+        guard let url = URL(string: "\(baseURL)/add_game") else { return nil }
+
+        var request = authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "target": target,
+            "allow_pingus": allowPingus,
+            "team1_player1_id": team1Player1Id as Any,
+            "team1_player2_id": team1Player2Id as Any,
+            "team2_player1_id": team2Player1Id as Any,
+            "team2_player2_id": team2Player2Id as Any
+        ])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let game = try decoder.decode(Game.self, from: data)
+
+            await MainActor.run {
+                self.games.append(game)
+            }
+
+            return game
+        } catch {
+            print("addGame error: \(error)")
+            return nil
+        }
+    }
+
+    func deleteGame(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/delete_game/\(gameId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "DELETE")
+
+        do {
+            try await URLSession.shared.data(for: request)
+
+            await MainActor.run {
+                self.games.removeAll { $0.id == gameId }
+                self.roundsByGame.removeValue(forKey: gameId)
+            }
+        } catch {
+            print("deleteGame error: \(error)")
+        }
+    }
+
+    func fetchProfileGames(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/games") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            struct Response: Decodable {
+                let profile_id: Int
+                let games: [Game]
+            }
+
+            let decoded = try decoder.decode(Response.self, from: data)
+
+            await MainActor.run {
+                self.games = decoded.games
+            }
+
+        } catch {
+            print("fetchProfileGames error: \(error)")
+        }
+    }
+    
+    // MARK: - Rounds
+
+    func addRound(
+        gameId: Int,
+        roundOrder: Int = 1,
+        firstProfileId: Int? = nil,
+        secondProfileId: Int? = nil,
+        thirdProfileId: Int? = nil,
+        fourthProfileId: Int? = nil,
+        firstBombs: Int = 0,
+        secondBombs: Int = 0,
+        thirdBombs: Int = 0,
+        fourthBombs: Int = 0,
+        tichuPointsTeam1: Int = 50,
+        tichuPointsTeam2: Int = 50,
+        roundPointsTeam1: Int = 0,
+        roundPointsTeam2: Int = 0,
+        doubleWinTeam1: Bool = false,
+        doubleWinTeam2: Bool = false,
+        announcedTichu: [Int] = [],
+        announcedBigTichu: [Int] = [],
+        announcedPingu: [Int] = []
+    ) async -> Round? {
+        guard let url = URL(string: "\(baseURL)/add_round") else { return nil }
+
+        var request = authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "game_id": gameId,
+            "round_order": roundOrder,
+            "first_profile_id": firstProfileId as Any,
+            "second_profile_id": secondProfileId as Any,
+            "third_profile_id": thirdProfileId as Any,
+            "fourth_profile_id": fourthProfileId as Any,
+            "first_bombs": firstBombs,
+            "second_bombs": secondBombs,
+            "third_bombs": thirdBombs,
+            "fourth_bombs": fourthBombs,
+            "tichu_points_team1": tichuPointsTeam1,
+            "tichu_points_team2": tichuPointsTeam2,
+            "round_points_team1": roundPointsTeam1,
+            "round_points_team2": roundPointsTeam2,
+            "double_win_team1": doubleWinTeam1,
+            "double_win_team2": doubleWinTeam2,
+            "announced_tichu": announcedTichu,
+            "announced_big_tichu": announcedBigTichu,
+            "announced_pingu": announcedPingu
+        ])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let round = try decoder.decode(Round.self, from: data)
+
+            await MainActor.run {
+                var list = self.roundsByGame[gameId] ?? []
+                list.append(round)
+                list.sort { $0.round_order < $1.round_order }
+                self.roundsByGame[gameId] = list
+            }
+
+            return round
+        } catch {
+            print("addRound error: \(error)")
+            return nil
+        }
+    }
+
+    func fetchGameRounds(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/game/\(gameId)/rounds") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+
+            struct Response: Decodable {
+                let game_id: Int
+                let rounds: [Round]
+            }
+
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let decoded = try decoder.decode(Response.self, from: data)
+
+            await MainActor.run {
+                self.roundsByGame[gameId] = decoded.rounds
+            }
+
+        } catch {
+            print("fetchGameRounds error: \(error)")
+        }
+    }
+
+    func editRound(roundId: Int, updates: [String: Any]) async {
+        guard let url = URL(string: "\(baseURL)/edit_round/\(roundId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "PATCH")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: updates)
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let updated = try decoder.decode(Round.self, from: data)
+
+            await MainActor.run {
+                for (gameId, rounds) in self.roundsByGame {
+                    if let index = rounds.firstIndex(where: { $0.id == roundId }) {
+                        var updatedRounds = rounds
+                        updatedRounds[index] = updated
+                        self.roundsByGame[gameId] = updatedRounds
+                        break
+                    }
+                }
+            }
+
+        } catch {
+            print("editRound error: \(error)")
+        }
+    }
+
+    func deleteRound(gameId: Int, roundId: Int) async {
+        guard let url = URL(string: "\(baseURL)/delete_round/\(roundId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "DELETE")
+
+        do {
+            try await URLSession.shared.data(for: request)
+
+            await MainActor.run {
+                self.roundsByGame[gameId]?.removeAll { $0.id == roundId }
+            }
+
+        } catch {
+            print("deleteRound error: \(error)")
+        }
+    }
+    
+    func reCalculate(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)/") else { return }
+
+        var request = authorizedRequest(url: url, method: "POST")
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+            guard
+                let gameId = json?["game_id"] as? Int,
+                let team1 = json?["current_points_team1"] as? Int,
+                let team2 = json?["current_points_team2"] as? Int
+            else {
+                print("Invalid response format")
+                return
+            }
+
+            await MainActor.run {
+                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
+                    self.games[index].current_points_team1 = team1
+                    self.games[index].current_points_team2 = team2
+                }
+            }
+
+        } catch {
+            print("reCalculate error: \(error)")
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

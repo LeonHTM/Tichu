@@ -50,18 +50,16 @@ final class SocketService: ObservableObject {
     }
 
     // MARK: - Reconnect with new URL
-    //Force reconnect wont happen automatically
     func reconnect() {
         socket.disconnect()
         socket.removeAllHandlers()
         manager.disconnect()
         setupSocket()
-        Task{
+        Task {
             await NetworkService.shared.fetchProfiles()
             await NetworkService.shared.fetchFriends(profileId: userId)
             await NetworkService.shared.fetchFriendRequests(profileId: userId)
         }
-        
     }
 
     // MARK: - Setup Events
@@ -70,27 +68,17 @@ final class SocketService: ObservableObject {
 
         socket.on(clientEvent: .connect) { [weak self] data, ack in
             print("Socket connected")
-            DispatchQueue.main.async {
-                self?.connected = true
-            }
+            DispatchQueue.main.async { self?.connected = true }
         }
 
         socket.on(clientEvent: .disconnect) { [weak self] data, ack in
             print("Socket disconnected")
-            DispatchQueue.main.async {
-                self?.connected = false
-            }
+            DispatchQueue.main.async { self?.connected = false }
         }
 
         socket.on(clientEvent: .error) { [weak self] data, ack in
             print("Socket error: \(data)")
-            DispatchQueue.main.async {
-                self?.connected = false
-            }
-        }
-
-        socket.on(clientEvent: .statusChange) { data, ack in
-            print("Status changed: \(data)")
+            DispatchQueue.main.async { self?.connected = false }
         }
 
         // PROFILE CREATED
@@ -120,28 +108,26 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async {
                 withAnimation(.easeInOut) {
                     NetworkService.shared.profiles.removeAll { $0.id == id }
-                    if id == self.userId{
+                    if id == self.userId {
                         self.userId = -69420
                     }
                 }
             }
         }
+
+        // REMOVE FRIENDSHIP NOTIFICATION
         socket.on("remove_friend_request_notification") { [weak self] data, _ in
             guard let dict = data.first as? [String: Any],
                   let userId = dict["user_id"] as? Int,
                   let senderId = dict["sender_id"] as? Int else { return }
-
-            // Only act if this event is for the current user
             guard userId == (UserDefaults.standard.integer(forKey: "userId")) else {
-                print("Wanted to delete Notification but couldn")
+                print("Wanted to delete Notification but couldn't")
                 return
-                
             }
-
             removeFriendRequestNotification(fromSenderId: senderId)
         }
-        
-        // USERNAME EDITED
+
+        // USERNAME UPDATED
         socket.on("username_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let profileId = dict["profile_id"] as? Int,
@@ -149,13 +135,9 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async {
                 if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
                     withAnimation(.easeInOut) {
-                        //Update List of Profiles
                         NetworkService.shared.profiles[index].name = name
-                        //If is user also updated the Storage
-                        if profileId == self.userId{
+                        if profileId == self.userId {
                             self.userName = name
-                        
-                            
                         }
                     }
                 }
@@ -205,11 +187,98 @@ final class SocketService: ObservableObject {
                 await NetworkService.shared.fetchProfiles()
             }
         }
-        
-        socket.on("auth_failed"){data, ack in
-            Task{
-                await NetworkService.shared.logout(profileId:self.userId)
+
+        // AUTH FAILED
+        socket.on("auth_failed") { data, ack in
+            Task {
+                await NetworkService.shared.logout(profileId: self.userId)
             }
+        }
+
+        // MARK: - Game Events
+
+        // GAME CREATED
+        socket.on("game_created") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else {
+                print("game_created: failed to parse \(data)")
+                return
+            }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            guard let game = try? decoder.decode(Game.self, from: jsonData) else {
+                print("game_created: failed to decode Game")
+                return
+            }
+            DispatchQueue.main.async {
+                if !NetworkService.shared.games.contains(where: { $0.id == game.id }) {
+                    NetworkService.shared.games.append(game)
+                }
+            }
+        }
+
+        // GAME DELETED
+        socket.on("game_deleted") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let gameId = dict["game_id"] as? Int else {
+                print("game_deleted: failed to parse \(data)")
+                return
+            }
+            DispatchQueue.main.async {
+                NetworkService.shared.games.removeAll { $0.id == gameId }
+                NetworkService.shared.roundsByGame.removeValue(forKey: gameId)
+            }
+        }
+
+        // MARK: - Round Events
+
+        // ROUND CREATED
+        // ROUND UPDATED
+        socket.on("round_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            guard let updated = try? decoder.decode(Round.self, from: jsonData) else { return }
+            DispatchQueue.main.async {
+                let gameId = updated.game_id
+                if var rounds = NetworkService.shared.roundsByGame[gameId],
+                   let index = rounds.firstIndex(where: { $0.id == updated.id }) {
+                    rounds[index] = updated
+                    NetworkService.shared.roundsByGame[gameId] = rounds
+                }
+            }
+            Task { await NetworkService.shared.fetchProfileGames(profileId: self.userId) }
+        }
+
+        // ROUND DELETED
+        socket.on("round_deleted") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let roundId = dict["round_id"] as? Int,
+                  let gameId = dict["game_id"] as? Int else { return }
+            DispatchQueue.main.async {
+                NetworkService.shared.roundsByGame[gameId]?.removeAll { $0.id == roundId }
+            }
+            Task { await NetworkService.shared.fetchProfileGames(profileId: self.userId) }
+        }
+
+        // ROUND CREATED
+        socket.on("round_created") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            guard let round = try? decoder.decode(Round.self, from: jsonData) else { return }
+            DispatchQueue.main.async {
+                let gameId = round.game_id
+                var list = NetworkService.shared.roundsByGame[gameId] ?? []
+                if !list.contains(where: { $0.id == round.id }) {
+                    list.append(round)
+                    list.sort { $0.round_order < $1.round_order }
+                    NetworkService.shared.roundsByGame[gameId] = list
+                }
+            }
+            Task { await NetworkService.shared.fetchProfileGames(profileId: self.userId) }
         }
     }
 
