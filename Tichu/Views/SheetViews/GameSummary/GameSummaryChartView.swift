@@ -15,36 +15,37 @@ struct ScorePoint: Identifiable {
     let team: String
 }
 
+
 struct GameSummaryChartView: View {
-    @Binding var currentGame: tichuGame
-  
+    @Binding var currentGame: Game
+    var rounds: [Round] // Pass all rounds for this game from outside
+
+    // Only rounds that count toward the win (boolWinRound == true), ordered
+    private var winRounds: [Round] {
+        rounds
+            .filter { $0.gameId == currentGame.id && $0.boolWinRound }
+            .sorted { $0.roundOrder < $1.roundOrder }
+    }
 
     // MARK: - Build cumulative score
-    private func cumulativePoints(team: Team) -> [Int] {
-        var list: [Int] = []
-        var counter1 = 0
-        var counter2 = 0
-        if team == currentGame.team1 {
-            list.append(counter1)
-            for round in currentGame.winRounds {
-                counter1 += (round.tichuPointsTeam1+round.roundPointsTeam1)
-                list.append(counter1)
+    private func cumulativePoints(forTeam teamNumber: Int) -> [Int] {
+        var list: [Int] = [0]
+        var counter = 0
+        for round in winRounds {
+            if teamNumber == 1 {
+                counter += round.tichuPointsTeam1 + round.roundPointsTeam1
+            } else {
+                counter += round.tichuPointsTeam2 + round.roundPointsTeam2
             }
-        } else {
-            list.append(counter2)
-            for round in currentGame.winRounds {
-                counter2 += (round.tichuPointsTeam2+round.roundPointsTeam2)
-                list.append(counter2)
-            }
+            list.append(counter)
         }
-
         return list
     }
 
     // MARK: - Chart Data
     private var chartData: [ScorePoint] {
-        let team1Points = cumulativePoints(team: currentGame.team1 ?? Team())
-        let team2Points = cumulativePoints(team: currentGame.team2 ?? Team())
+        let team1Points = cumulativePoints(forTeam: 1)
+        let team2Points = cumulativePoints(forTeam: 2)
 
         let team1Data = team1Points.enumerated().map {
             ScorePoint(round: $0.offset, value: $0.element, team: "Team 1")
@@ -56,7 +57,7 @@ struct GameSummaryChartView: View {
 
         return team1Data + team2Data
     }
-    
+
     // MARK: - Y-Axis Domain
     private var yDomain: ClosedRange<Int> {
         let values = chartData.map { $0.value }
@@ -104,17 +105,7 @@ struct GameSummaryChartView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
-        
-        /*.chartYAxis {
-         AxisMarks(values: .stride(by: 50)) { _ in
-             AxisTick()
-             AxisValueLabel()
-             AxisGridLine()
-         }
-     }*/ //All fifty
     }
 }
 
-#Preview {
-    GameSummaryChartView(currentGame: .constant(exampleGame ))
-}
+

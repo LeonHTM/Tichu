@@ -12,8 +12,12 @@ struct GameSummarySheetView: View {
 
     // MARK: - Bindings
     @Binding var showGameOverViewSheetView: Bool
-    @Binding var currentGame: tichuGame
+    @Binding var currentGame: Game
     @Binding var revanche: Bool
+
+    // MARK: - Dependencies
+    let profiles: [Profile]
+    @ObservedObject var network: NetworkService
 
     // MARK: - State
     @State private var selectedTab: Int = 0
@@ -26,11 +30,26 @@ struct GameSummarySheetView: View {
     var showRevancheButton: Bool
     var HistoryMode: Bool
 
+    // MARK: - Computed
+
+    private var winnerName: String {
+        guard let winnerId = currentGame.winner else { return "Unknown" }
+        if winnerId == 1 { return "Team 1" }
+        if winnerId == 2 { return "Team 2" }
+        return "Unknown"
+    }
+
     // MARK: - Share
     func renderShareImage() -> UIImage? {
-        let shareView = GameSummaryShareView(currentGame: currentGame, accentCo: .accent)
-            .tint(Color.accentColor)
-            .environment(\.colorScheme, colorScheme)
+        let rounds = network.roundsByGame[currentGame.id] ?? []
+        let shareView = GameSummaryShareView(
+            currentGame: currentGame,
+            rounds: rounds,
+            profiles: profiles,
+            accentCo: .accent
+        )
+        .tint(Color.accentColor)
+        .environment(\.colorScheme, colorScheme)
         let renderer = ImageRenderer(content: shareView)
         renderer.colorMode = .nonLinear
         renderer.proposedSize = ProposedViewSize(width: 500, height: 750)
@@ -57,7 +76,10 @@ struct GameSummarySheetView: View {
             .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
                 Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
                 Button("Delete", role: .destructive) {
-                    DispatchQueue.main.async { currentGame = tichuGame() }
+                    Task {
+                        await network.deleteGame(gameId: currentGame.id)
+                        showGameOverViewSheetView = false
+                    }
                 }
             } message: {
                 Text("This Game will be deleted")
@@ -66,7 +88,7 @@ struct GameSummarySheetView: View {
                 ActivityViewController(activityItems: [image])
             }
             .safeAreaInset(edge: .bottom) { bottomBar }
-            .navigationTitle("\(currentGame.winner?.name ?? "Unknown") won!")
+            .navigationTitle("\(winnerName) won!")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
         }
@@ -77,6 +99,8 @@ struct GameSummarySheetView: View {
         GameSummaryListView(
             showGameSummarySheetView: $showGameOverViewSheetView,
             currentGame: $currentGame,
+            profiles: profiles,
+            network: network,
             allowEditing: false
         )
         .padding(.bottom, -50)
@@ -88,13 +112,19 @@ struct GameSummarySheetView: View {
             switch selectedTab {
             case 0:
                 VStack {
-                    GameSummaryChartView(currentGame: $currentGame).frame(width: 350)
+                    GameSummaryChartView(
+                        currentGame: $currentGame,
+                        rounds: network.roundsByGame[currentGame.id] ?? []
+                    )
+                    .frame(width: 350)
                     Spacer()
                 }
             case 1:
                 GameSummaryListView(
                     showGameSummarySheetView: $showGameOverViewSheetView,
                     currentGame: $currentGame,
+                    profiles: profiles,
+                    network: network,
                     allowEditing: !HistoryMode
                 )
                 .padding(.bottom, -50)
@@ -123,11 +153,10 @@ struct GameSummarySheetView: View {
                 } label: {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 22))
-                       
                 }
                 .padding(10)
                 .foregroundColor(.primary)
-                .glassEffect(.regular.interactive(),in:Circle())
+                .glassEffect(.regular.interactive(), in: Circle())
 
                 Spacer()
 
@@ -165,7 +194,6 @@ struct GameSummarySheetView: View {
         ToolbarItem(placement: .cancellationAction) {
             Button(role: .cancel) {
                 showGameOverViewSheetView = false
-                DispatchQueue.main.async { currentGame = tichuGame() }
             } label: {
                 Image(systemName: "xmark")
             }
@@ -175,22 +203,10 @@ struct GameSummarySheetView: View {
                 Button(role: .confirm) {
                     revanche = true
                     showGameOverViewSheetView = false
-                    
                 } label: {
                     Text("Revanche")
                 }
             }
         }
     }
-}
-
-#Preview {
-    GameSummarySheetView(
-        showGameOverViewSheetView: .constant(true),
-        currentGame: .constant(exampleGame),
-        revanche: .constant(false),
-        showRevancheButton: true,
-        HistoryMode: true,
-        
-    )
 }

@@ -13,39 +13,69 @@ struct EditRoundsSheetView: View {
 
     // MARK: - Bindings
     @Binding var showEditRoundsSheet: Bool
-    @Binding var currentGame: tichuGame
+    @Binding var currentGame: Game
+
+    // MARK: - Dependencies
+    let profiles: [Profile]
+    @ObservedObject var network: NetworkService
 
     // MARK: - State
-    @State private var currentGameCopy: tichuGame = tichuGame()
-    @State private var currentRound = Round()
+    @State private var rounds: [Round] = []
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
     @State private var showAddRoundSheet: Bool = false
     @State private var showList: Bool = false
     @State private var editingRoundIndex: Int = 0
+    @State private var isLoading: Bool = false
     var listSwipeTip = ListSwipeTip()
 
     @Environment(\.colorScheme) var colorScheme
 
+    // MARK: - Computed
+
+    private var allRounds: [Round] {
+        rounds.sorted { $0.roundOrder < $1.roundOrder }
+    }
+
+    private var winRounds: [Round] {
+        allRounds.filter { $0.boolWinRound }
+    }
+
+    private func profile(for id: Int?) -> Profile? {
+        guard let id else { return nil }
+        return profiles.first { $0.id == id }
+    }
+
+    private var team1Profiles: [Profile] {
+        [profile(for: currentGame.team1Player1Id),
+         profile(for: currentGame.team1Player2Id)].compactMap { $0 }
+    }
+
+    private var team2Profiles: [Profile] {
+        [profile(for: currentGame.team2Player1Id),
+         profile(for: currentGame.team2Player2Id)].compactMap { $0 }
+    }
+
     // MARK: - Helpers
-    private func placement(player: Profile, in round: Round) -> Int {
-        if round.first?.id == player.id { return 1 }
-        if round.second?.id == player.id { return 2 }
-        if round.third?.id == player.id { return 3 }
-        if round.fourth?.id == player.id { return 4 }
+
+    private func place(of profile: Profile, in round: Round) -> Int {
+        if round.firstProfileId  == profile.id { return 1 }
+        if round.secondProfileId == profile.id { return 2 }
+        if round.thirdProfileId  == profile.id { return 3 }
+        if round.fourthProfileId == profile.id { return 4 }
         return 999
     }
 
-    private func sortedTeam(team: Team, in round: Round) -> [Profile] {
-        team.list.sorted { placement(player: $0, in: round) < placement(player: $1, in: round) }
+    private func sortedTeamProfiles(_ teamProfiles: [Profile], in round: Round) -> [Profile] {
+        teamProfiles.sorted { place(of: $0, in: round) < place(of: $1, in: round) }
     }
 
-    private func bombCounter(player: Profile, round: Round) -> Int {
-        if player.id == round.first?.id { return round.firstBombs }
-        else if player.id == round.second?.id { return round.secondBombs }
-        else if player.id == round.third?.id { return round.thirdBombs }
-        else if player.id == round.fourth?.id { return round.fourthBombs }
-        else { return 999 }
+    private func bombCounter(profile: Profile, round: Round) -> Int {
+        if round.firstProfileId  == profile.id { return round.firstBombs }
+        if round.secondProfileId == profile.id { return round.secondBombs }
+        if round.thirdProfileId  == profile.id { return round.thirdBombs }
+        if round.fourthProfileId == profile.id { return round.fourthBombs }
+        return 0
     }
 
     private func bindingForExpanded(row index: Int, disabled: Bool = false) -> Binding<Bool> {
@@ -58,11 +88,9 @@ struct EditRoundsSheetView: View {
         )
     }
     
-    let timer = Timer.publish(
-            every: 5,      // interval in seconds
-            on: .main,
-            in: .common
-        ).autoconnect()
+
+    
+    
 
     // MARK: - Body
     var body: some View {
@@ -73,7 +101,9 @@ struct EditRoundsSheetView: View {
                 emptyView
             }
         }
-        .onAppear { currentGameCopy = currentGame }
+        .onAppear {
+            rounds = network.roundsByGame[currentGame.id] ?? []
+        }
         .safeAreaInset(edge: .top) { scoreHeader }
         .safeAreaInset(edge: .bottom) { deleteGameButton }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
@@ -82,9 +112,10 @@ struct EditRoundsSheetView: View {
                 showList = false
             }
             Button("Delete", role: .destructive) {
-                showEditRoundsSheet = false
-                showList = false
-                DispatchQueue.main.async { currentGame = tichuGame() }
+                Task {
+                    await network.deleteGame(gameId: currentGame.id)
+                    showEditRoundsSheet = false
+                }
             }
         } message: {
             Text("This Game will be deleted")
@@ -93,19 +124,15 @@ struct EditRoundsSheetView: View {
 
     // MARK: - Rounds List
     private var roundsList: some View {
-        
-            
         List {
-            
-            ForEach(Array($currentGameCopy.Rounds), id: \.id) { $currentRound in
-                let index = currentGameCopy.Rounds.firstIndex(where: { $0.id == currentRound.id }) ?? 0
+            ForEach(Array(allRounds.enumerated()), id: \.element.id) { index, currentRound in
                 let hasExpanded = expandedRows.contains(index)
-                let isWinningRound = currentGameCopy.winRounds.contains { $0.id == currentRound.id }
+                let isWinningRound = winRounds.contains { $0.id == currentRound.id }
                 let isLocked = !isWinningRound
-                
-                let sortedTeam1 = sortedTeam(team: currentGameCopy.team1 ?? Team(list: []), in: currentRound)
-                let sortedTeam2 = sortedTeam(team: currentGameCopy.team2 ?? Team(list: []), in: currentRound)
-                
+
+                let sortedTeam1 = sortedTeamProfiles(team1Profiles, in: currentRound)
+                let sortedTeam2 = sortedTeamProfiles(team2Profiles, in: currentRound)
+
                 DisclosureGroup(isExpanded: bindingForExpanded(row: index, disabled: isLocked)) {
                     roundDetail(currentRound: currentRound, sortedTeam1: sortedTeam1, sortedTeam2: sortedTeam2)
                 } label: {
@@ -113,11 +140,12 @@ struct EditRoundsSheetView: View {
                 }
                 .opacity(isLocked ? 0.5 : 1.0)
                 .swipeActions(edge: .trailing) {
-                    Button(role: .destructive) {
+                   /* Button(role: .destructive) {
                         withAnimation(.easeInOut) {
-                            if currentGameCopy.Rounds.count > 1 {
-                                currentGameCopy.Rounds.remove(at: index)
-                                currentGameCopy.reCount()
+                            if allRounds.count > 1 {
+                                let gameId = currentGame.id
+                                let roundId = currentRound.id
+                                Task { await handleDeleteRound(gameId: gameId, roundId: roundId) }
                             } else {
                                 showDeleteGameAlert = true
                                 DispatchQueue.main.async { showList = true }
@@ -125,60 +153,52 @@ struct EditRoundsSheetView: View {
                         }
                     } label: {
                         Label("Delete", systemImage: "trash")
-                    }
+                    }*/
+
                     if !isLocked {
-                        Button {
-                            withAnimation(.easeInOut) {
-                                editingRoundIndex = index
-                                showAddRoundSheet = true
-                            }
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(.accentColor)
-                        
+                        editButton(for: index)
                     }
                 }
-                
             }
+
             TipView(listSwipeTip).tipBackground(.clear)
-            
-            
-            if currentGameCopy.Rounds.count != currentGameCopy.winRounds.count {
+
+            if allRounds.count != winRounds.count {
                 Section {
-                    Text("\(currentGameCopy.Rounds.count - currentGameCopy.winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that \(currentGameCopy.winner?.name ?? "Unknown") already won after Round \(currentGameCopy.winRounds.count).")
+                    /*Text("\(allRounds.count - winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that the winner already won after Round \(winRounds.count).")*/
                 }
                 .listRowBackground(Color.clear)
                 .foregroundStyle(.secondary)
-                
             }
-            
         }
-            
-    
-        
         .task {
-            // Configure and load your tips at app launch.
-            do {
-                try Tips.configure()
-            }
-            catch {
-                // Handle TipKit errors
+            do { try Tips.configure() } catch {
                 print("Error initializing TipKit \(error.localizedDescription)")
             }
         }
-        .sheet(isPresented: $showAddRoundSheet, onDismiss: { currentRound = Round() }) {
-            let roundBinding = Binding<Round>(
-                get: { currentGameCopy.Rounds[editingRoundIndex] },
-                set: { currentGameCopy.Rounds[editingRoundIndex] = $0 }
-            )
-            AddRoundSheetView(
+        .sheet(isPresented: $showAddRoundSheet, onDismiss: {
+            Task {
+                await network.fetchGameRounds(gameId: currentGame.id)
+                await network.reCalculate(gameId: currentGame.id)
+                rounds = network.roundsByGame[currentGame.id] ?? []
+                let updatedGames: [Game] = network.games
+                if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
+                    currentGame = updated
+                }
+            }
+        }) {
+            let roundIndexValue = editingRoundIndex + 1
+            let editingRoundValue = allRounds[safe: editingRoundIndex]
+            /*AddRoundSheetView(
                 showAddRoundsSheet: $showAddRoundSheet,
-                currentGame: $currentGameCopy,
-                currentRound: roundBinding,
+                currentGame: $currentGame,
+                rounds: $rounds,
                 editMode: true,
-                roundIndex: editingRoundIndex + 1
-            )
+                roundIndex: roundIndexValue,
+                editingRound: editingRoundValue,
+                profiles: profiles,
+                network: network
+            )*/
         }
         .id(editingRoundIndex)
         .zIndex(0)
@@ -190,6 +210,35 @@ struct EditRoundsSheetView: View {
         .toolbar { roundsListToolbar }
     }
 
+    // MARK: - Actions
+    private func handleDeleteRound(gameId: Int, roundId: Int) async {
+        await network.deleteRound(gameId: gameId, roundId: roundId)
+        await network.reCalculate(gameId: gameId)
+        let updatedRounds = network.roundsByGame[gameId] ?? []
+        await MainActor.run {
+            rounds = updatedRounds
+        }
+        let updatedGames: [Game] = network.games
+        if let updated = updatedGames.first(where: { $0.id == gameId }) {
+            await MainActor.run {
+                currentGame = updated
+            }
+        }
+    }
+
+    // MARK: - UI Helpers
+    @ViewBuilder
+    private func editButton(for index: Int) -> some View {
+        Button {
+            editingRoundIndex = index
+            showAddRoundSheet = true
+        } label: {
+            Label("Edit", systemImage: "pencil")
+        }
+        .animation(.easeInOut, value: showAddRoundSheet)
+        .tint(.accentColor)
+    }
+
     // MARK: - Round Label
     private func roundLabel(index: Int, hasExpanded: Bool, currentRound: Round) -> some View {
         HStack {
@@ -197,7 +246,6 @@ struct EditRoundsSheetView: View {
                 .fontWeight(.bold)
                 .font(.system(size: 20))
                 .padding(10)
-                
             Spacer()
             if !hasExpanded {
                 Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
@@ -219,7 +267,7 @@ struct EditRoundsSheetView: View {
                 .padding(.top)
                 .padding(.horizontal)
 
-                playerRows(players: sortedTeam1, round: currentRound, teamPlayers: (currentGameCopy.player1, currentGameCopy.player2))
+                playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame.team1Player1Id, currentGame.team1Player2Id))
 
                 HStack {
                     Text("Team 2").fontWeight(.bold)
@@ -229,7 +277,7 @@ struct EditRoundsSheetView: View {
                 .padding(.top)
                 .padding(.horizontal)
 
-                playerRows(players: sortedTeam2, round: currentRound, teamPlayers: (currentGameCopy.player3, currentGameCopy.player4))
+                playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame.team2Player1Id, currentGame.team2Player2Id))
             }
             Spacer()
         }
@@ -239,28 +287,31 @@ struct EditRoundsSheetView: View {
     }
 
     // MARK: - Player Rows
-    private func playerRows(players: [Profile], round: Round, teamPlayers: (Profile?, Profile?)) -> some View {
+    private func playerRows(players: [Profile], round: Round, teamProfileIds: (Int?, Int?)) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(players, id: \.id) { player in
-                let place = placement(player: player, in: round)
-                let isFirst = round.first?.id == player.id
-                let isFirstIsA = round.first?.id == teamPlayers.0?.id
-                let isFirstIsB = round.first?.id == teamPlayers.1?.id
-                let isSecondIsA = round.second?.id == teamPlayers.0?.id
-                let isSecondIsB = round.second?.id == teamPlayers.1?.id
-                let placeColor: Color = (place == 1 && isSecondIsA || place == 1 && isSecondIsB || place == 2 && isFirstIsA || place == 2 && isFirstIsB)
-                    ? .green.opacity(colorScheme == .dark ? 0.66 : 1) : .primary
+                let playerPlace = place(of: player, in: round)
+                let isFirst = round.firstProfileId == player.id
 
-                let tichu = round.hasAnnouncedTichu.contains(player)
-                let bigTichu = round.hasAnnouncedBigTichu.contains(player)
-                let pingu = round.hasAnnouncedPingu.contains(player)
-                let bomb = bombCounter(player: player, round: round)
+                // Double win color: green if this player is 1st or 2nd and their teammate is also in top 2
+                let firstId  = round.firstProfileId
+                let secondId = round.secondProfileId
+                let teamIds  = [teamProfileIds.0, teamProfileIds.1]
+                let isDoubleWin = (firstId != nil && secondId != nil) &&
+                    teamIds.contains(firstId) && teamIds.contains(secondId)
+                let placeColor: Color = isDoubleWin
+                    ? .green.opacity(colorScheme == .dark ? 0.66 : 1)
+                    : .primary
+
+                let tichu    = round.announcedTichu.contains(player.id)
+                let bigTichu = round.announcedBigTichu.contains(player.id)
+                let pingu    = round.announcedPingu.contains(player.id)
+                let bomb     = bombCounter(profile: player, round: round)
 
                 HStack {
-                    Text("\(place).").fontWeight(.bold).foregroundStyle(placeColor)
+                    Text("\(playerPlace).").fontWeight(.bold).foregroundStyle(placeColor)
                     Text(player.name ?? "Unknown")
                     Spacer()
-
                     announcementView(tichu: tichu, bigTichu: bigTichu, pingu: pingu, isFirst: isFirst, bomb: bomb)
                     bombView(bomb: bomb)
                 }
@@ -320,10 +371,10 @@ struct EditRoundsSheetView: View {
     private var scoreHeader: some View {
         HStack {
             Text("Team 1:").foregroundStyle(Color.accentColor)
-            Text("\(currentGameCopy.currentPointsTeam1)").foregroundStyle(Color.accentColor)
+            Text("\(currentGame.currentPointsTeam1)").foregroundStyle(Color.accentColor)
             Spacer()
             Text("Team 2:")
-            Text("\(currentGameCopy.currentPointsTeam2)")
+            Text("\(currentGame.currentPointsTeam2)")
         }
         .fontWeight(.bold)
         .font(.title2)
@@ -356,8 +407,6 @@ struct EditRoundsSheetView: View {
         }
         ToolbarItem(placement: .confirmationAction) {
             Button("Done", systemImage: "checkmark") {
-                currentGame = currentGameCopy
-                currentGame.reCount()
                 showEditRoundsSheet = false
             }
         }
@@ -374,10 +423,10 @@ struct EditRoundsSheetView: View {
     }
 }
 
-#Preview {
-    EditRoundsSheetView(
-        showEditRoundsSheet: .constant(true),
-        currentGame: .constant(exampleGame)
-    )
+// MARK: - Safe subscript
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
 }
 

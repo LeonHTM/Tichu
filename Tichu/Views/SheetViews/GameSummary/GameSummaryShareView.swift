@@ -7,271 +7,255 @@
 
 import SwiftUI
 
-
 struct GameSummaryShareView: View {
     @Environment(\.colorScheme) var colorScheme
-    let currentGame: tichuGame
-    let accentCo :Color
-    
+    let currentGame: Game
+    let rounds: [Round]
+    let profiles: [Profile]
+    let accentCo: Color
+
+    // MARK: - Helpers
+
+    private var allRounds: [Round] {
+        rounds.filter { $0.gameId == currentGame.id }
+              .sorted { $0.roundOrder < $1.roundOrder }
+    }
+
+    private func profile(for id: Int?) -> Profile? {
+        guard let id else { return nil }
+        return profiles.first { $0.id == id }
+    }
+
+    private var team1Profiles: [Profile] {
+        [profile(for: currentGame.team1Player1Id),
+         profile(for: currentGame.team1Player2Id)].compactMap { $0 }
+    }
+
+    private var team2Profiles: [Profile] {
+        [profile(for: currentGame.team2Player1Id),
+         profile(for: currentGame.team2Player2Id)].compactMap { $0 }
+    }
+
     func gameWinner() -> String {
         if currentGame.currentPointsTeam1 >= currentGame.target ||
             currentGame.currentPointsTeam2 >= currentGame.target {
-            
             if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2 {
                 return "Team 1"
             } else if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1 {
                 return "Team 2"
             }
         }
-        
         return "Unknown"
     }
 
-    private func teamPlacement(team: Team, currentRound: Round) -> some View{
-        let p0 = team.list[0]
-        let p1 = team.list[1]
-        
-        var p0_place: String = ""
-        var p1_place: String = ""
-        
-        if currentRound.first == p0{
-            p0_place = "1"
-        }else if currentRound.second == p0{
-            p0_place = "2"
-        }else if currentRound.third == p0{
-            p0_place = "3"
-        }else{
-            p0_place = "4"
-        }
-        
-        
-        if currentRound.first == p1{
-            p1_place = "1"
-        }else if currentRound.second == p1{
-            p1_place = "2"
-        }else if currentRound.third == p1{
-            p1_place = "3"
-        }else{
-            p1_place = "4"
-        }
-        
-        return Text("(\(p0_place)/\(p1_place))").monospaced()
+    // Returns finishing place (1–4) of a profile in a round, based on firstProfileId etc.
+    private func place(of profile: Profile, in round: Round) -> String {
+        if round.firstProfileId == profile.id  { return "1" }
+        if round.secondProfileId == profile.id { return "2" }
+        if round.thirdProfileId == profile.id  { return "3" }
+        return "4"
     }
-    private func teamAnnounced(team: Team, round: Round,lead:String) -> some View {
-        
-        let p0 = team.list[0]
-        let p1 = team.list[1]
 
-        let (text0, color0, symbol0,bomb0): (String, Color, String,Int) = {
-            
-            if round.hasAnnouncedBigTichu.contains(p0) {
-                return ("T", p0 == round.first ? .green : .red, p0 == round.first ? "checkmark" : "xmark",p0 == round.first ? round.firstBombs : p0 == round.second ? round.secondBombs : p0 == round.third ? round.thirdBombs : p0 == round.fourth ? round.fourthBombs : 99)
-                
-            }  else if round.hasAnnouncedTichu.contains(p0) {
-                return ("t", p0 == round.first ? .green : .red, p0 == round.first ? "checkmark" : "xmark",p0 == round.first ? round.firstBombs : p0 == round.second ? round.secondBombs : p0 == round.third ? round.thirdBombs : p0 == round.fourth ? round.fourthBombs : 99)
-                
-            }  else if round.hasAnnouncedPingu.contains(p0) {
-                return ("P", p0 == round.first ? .green : .red, p0 == round.first ? "checkmark" : "xmark",p0 == round.first ? round.firstBombs : p0 == round.second ? round.secondBombs : p0 == round.third ? round.thirdBombs : p0 == round.fourth ? round.fourthBombs : 99)
-                
-            }
-            return ("C", .clear, "",p0 == round.first ? round.firstBombs : p0 == round.second ? round.secondBombs : p0 == round.third ? round.thirdBombs : p0 == round.fourth ? round.fourthBombs : 99)
-        }()
-        let (text1, color1, symbol1,bomb1): (String, Color, String,Int) = {
-            
-            if round.hasAnnouncedBigTichu.contains(p1) {
-                return ("T", p1 == round.first ? .green : .red, p1 == round.first ? "checkmark" : "xmark",p1 == round.first ? round.firstBombs : p1 == round.second ? round.secondBombs : p1 == round.third ? round.thirdBombs : p1 == round.fourth ? round.fourthBombs : 99)
-                
-            }else if round.hasAnnouncedPingu.contains(p1) {
-                return ("P", p1 == round.first ? .green : .red, p1 == round.first ? "checkmark" : "xmark",p1 == round.first ? round.firstBombs : p1 == round.second ? round.secondBombs : p1 == round.third ? round.thirdBombs : p1 == round.fourth ? round.fourthBombs : 99)
-            }else if round.hasAnnouncedTichu.contains(p1) {
-                return ("t", p1 == round.first ? .green : .red, p1 == round.first ? "checkmark" : "xmark",p1 == round.first ? round.firstBombs : p1 == round.second ? round.secondBombs : p1 == round.third ? round.thirdBombs : p1 == round.fourth ? round.fourthBombs : 99)
-            }
-            return ("C", .clear, "",p1 == round.first ? round.firstBombs : p1 == round.second ? round.secondBombs : p1 == round.third ? round.thirdBombs : p1 == round.fourth ? round.fourthBombs : 99)
+    private func bombs(of profile: Profile, in round: Round) -> Int {
+        if round.firstProfileId  == profile.id { return round.firstBombs }
+        if round.secondProfileId == profile.id { return round.secondBombs }
+        if round.thirdProfileId  == profile.id { return round.thirdBombs }
+        return round.fourthBombs
+    }
 
-        }()
+    private func teamPlacement(profiles: [Profile], currentRound: Round) -> some View {
+        let p0Place = profiles.count > 0 ? place(of: profiles[0], in: currentRound) : "?"
+        let p1Place = profiles.count > 1 ? place(of: profiles[1], in: currentRound) : "?"
+        return Text("(\(p0Place)/\(p1Place))").monospaced()
+    }
+
+    private func announcementInfo(for profile: Profile, in round: Round) -> (text: String, color: Color) {
+        let won = round.firstProfileId == profile.id
+        let resultColor: Color = won ? .green : .red
+
+        if round.announcedBigTichu.contains(profile.id) {
+            return ("T", resultColor)
+        } else if round.announcedTichu.contains(profile.id) {
+            return ("t", resultColor)
+        } else if round.announcedPingu.contains(profile.id) {
+            return ("P", resultColor)
+        }
+        return ("C", .clear)
+    }
+
+    private func teamAnnounced(profiles: [Profile], round: Round, lead: String) -> some View {
+        let p0 = profiles.count > 0 ? profiles[0] : nil
+        let p1 = profiles.count > 1 ? profiles[1] : nil
+
+        let info0 = p0.map { announcementInfo(for: $0, in: round) }
+        let info1 = p1.map { announcementInfo(for: $0, in: round) }
+
+        let bomb0 = p0.map { bombs(of: $0, in: round) } ?? 0
+        let bomb1 = p1.map { bombs(of: $0, in: round) } ?? 0
+
+        let name0 = p0?.name.flatMap { String($0.prefix(2)) } ?? "Uk"
+        let name1 = p1?.name.flatMap { String($0.prefix(2)) } ?? "Uk"
 
         return HStack {
-            if text0 != "C"{
-                HStack{
-                    if lead == "leading"{
-                        Text("\(p0.name?.prefix(2) ?? "Uk")").foregroundStyle(color0).lineLimit(1)
+            if let info0, info0.text != "C" {
+                HStack {
+                    if lead == "leading" {
+                        Text(name0).foregroundStyle(info0.color).lineLimit(1)
                         Text("\(bomb0)")
-                        Text(text0).foregroundStyle(color0).lineLimit(1)
-                    }else if lead == "trailing"{
-                        Text(text0).foregroundStyle(color0).lineLimit(1)
-                        Text("\(p0.name?.prefix(2) ?? "Uk")").foregroundStyle(color0).lineLimit(1)
+                        Text(info0.text).foregroundStyle(info0.color).lineLimit(1)
+                    } else {
+                        Text(info0.text).foregroundStyle(info0.color).lineLimit(1)
+                        Text(name0).foregroundStyle(info0.color).lineLimit(1)
                         Text("\(bomb0)")
-                        
                     }
-                }.font(.system(size:17)).frame(width:60,alignment: lead == "trailing" ? .trailing : .leading)
-                
-            }else{
-                HStack{
-                    Text("\(p0.name?.prefix(2) ?? "Uk")").lineLimit(1)
+                }
+                .font(.system(size: 17))
+                .frame(width: 60, alignment: lead == "trailing" ? .trailing : .leading)
+            } else {
+                HStack {
+                    Text(name0).lineLimit(1)
                     Text("\(bomb0)")
-                }.font(.system(size:17)).frame(width:60,alignment: lead == "trailing" ? .trailing : .leading).monospaced()
+                }
+                .font(.system(size: 17))
+                .frame(width: 60, alignment: lead == "trailing" ? .trailing : .leading)
+                .monospaced()
             }
-    
-            if text1 != "C"{
-                HStack{
-                    if lead == "leading"{
-                        Text("\(p1.name?.prefix(2) ?? "Uk")").foregroundStyle(color1).lineLimit(1)
+
+            if let info1, info1.text != "C" {
+                HStack {
+                    if lead == "leading" {
+                        Text(name1).foregroundStyle(info1.color).lineLimit(1)
                         Text("\(bomb1)")
-                        Text(text1).foregroundStyle(color1).lineLimit(1)
-                    }else if lead == "trailing"{
-                        Text(text1).foregroundStyle(color1).lineLimit(1)
-                        Text("\(p1.name?.prefix(2) ?? "Uk")").foregroundStyle(color1).lineLimit(1)
+                        Text(info1.text).foregroundStyle(info1.color).lineLimit(1)
+                    } else {
+                        Text(info1.text).foregroundStyle(info1.color).lineLimit(1)
+                        Text(name1).foregroundStyle(info1.color).lineLimit(1)
                         Text("\(bomb1)")
-                        
                     }
-                }.font(.system(size:17)).frame(width:60,alignment: lead == "trailing" ? .trailing : .leading).monospaced()
-                
-            }else{
-                HStack{
-                    Text("\(p1.name?.prefix(2) ?? "Uk")").lineLimit(1)
+                }
+                .font(.system(size: 17))
+                .frame(width: 60, alignment: lead == "trailing" ? .trailing : .leading)
+                .monospaced()
+            } else {
+                HStack {
+                    Text(name1).lineLimit(1)
                     Text("\(bomb1)")
-                }.font(.system(size:17)).frame(width:60,alignment: lead == "trailing" ? .trailing : .leading)
+                }
+                .font(.system(size: 17))
+                .frame(width: 60, alignment: lead == "trailing" ? .trailing : .leading)
             }
         }
-        
         .opacity(colorScheme == .dark ? 0.66 : 1)
     }
 
-
+    // MARK: - Body
 
     var body: some View {
-        
         VStack(spacing: 24) {
-            
+
             Text("Round Results")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-            
-            
-            
-            HStack{
-                VStack{
+
+            HStack {
+                VStack {
                     Text("Team 1:").fontWeight(.bold)
-                    Text("\(currentGame.team1?.list[0].name ?? "Unknnown")").font(.title).fontWeight(.bold)
-                    Text("\(currentGame.team1?.list[1].name ?? "Unknown")").font(.title).fontWeight(.bold)
+                    Text(team1Profiles.count > 0 ? team1Profiles[0].name ?? "Unknown" : "Unknown")
+                        .font(.title).fontWeight(.bold)
+                    Text(team1Profiles.count > 1 ? team1Profiles[1].name ?? "Unknown" : "Unknown")
+                        .font(.title).fontWeight(.bold)
                 }.foregroundStyle(accentCo)
                 Spacer()
-                VStack{
+                VStack {
                     Text("Team 2:").fontWeight(.bold)
-                    Text("\(currentGame.team2?.list[0].name ?? "Unknnown")").font(.title).fontWeight(.bold)
-                    Text("\(currentGame.team2?.list[1].name ?? "Unknown")").font(.title).fontWeight(.bold)
+                    Text(team2Profiles.count > 0 ? team2Profiles[0].name ?? "Unknown" : "Unknown")
+                        .font(.title).fontWeight(.bold)
+                    Text(team2Profiles.count > 1 ? team2Profiles[1].name ?? "Unknown" : "Unknown")
+                        .font(.title).fontWeight(.bold)
                 }
-                
-            }.padding(.horizontal,30)
-            
+            }.padding(.horizontal, 30)
+
             GameSummaryChartView(
-                currentGame: .constant(currentGame)
+                currentGame: .constant(currentGame),
+                rounds: rounds
             )
             .frame(height: 250)
+
             HStack {
-                
                 VStack {
-                    
                     Text("Team 1")
                         .font(.headline)
                         .foregroundStyle(accentCo)
-                    
                     Text("\(currentGame.currentPointsTeam1)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(accentCo)
                 }
-                
                 Spacer()
-                VStack{
+                VStack {
                     Text("Target: \(currentGame.target)").fontWeight(.bold)
-                    Text("Winner: \(gameWinner())").fontWeight(.bold).foregroundStyle(gameWinner() == "Team 1" ? accentCo : Color.primary)
+                    Text("Winner: \(gameWinner())").fontWeight(.bold)
+                        .foregroundStyle(gameWinner() == "Team 1" ? accentCo : Color.primary)
                 }
                 Spacer()
-                
                 VStack {
-                    
-                    Text("Team 2")
-                        .font(.headline)
-                    
+                    Text("Team 2").font(.headline)
                     Text("\(currentGame.currentPointsTeam2)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                 }
-            }.padding(.horizontal,30)
-            
+            }.padding(.horizontal, 30)
+
             Text("Details").fontWeight(.bold).font(.title)
-            HStack{
-                Text("Team 1").padding(.trailing,23).foregroundStyle(accentCo)
+            HStack {
+                Text("Team 1").padding(.trailing, 23).foregroundStyle(accentCo)
                 Text("Rounds:").fontWeight(.bold)
-                Text("Team 2").padding(.leading,20)
+                Text("Team 2").padding(.leading, 20)
             }
-            HStack(alignment:.top){
-                VStack{
-                    ForEach(currentGame.Rounds, id: \.id) { currentRound in
-                        
+
+            HStack(alignment: .top) {
+                VStack {
+                    ForEach(allRounds) { currentRound in
                         HStack {
-                            
-                            teamPlacement(team:currentGame.team1!,currentRound:currentRound).frame(width: 60, alignment: .trailing).padding(.trailing,60)
-                           
-                            
-                            teamAnnounced(
-                                team: currentGame.team1!,
-                                round: currentRound,
-                                lead: "trailing"
-                            ).frame(width: 65, alignment: .trailing)
-                            
-                            
+                            teamPlacement(profiles: team1Profiles, currentRound: currentRound)
+                                .frame(width: 60, alignment: .trailing)
+                                .padding(.trailing, 60)
+
+                            teamAnnounced(profiles: team1Profiles, round: currentRound, lead: "trailing")
+                                .frame(width: 65, alignment: .trailing)
+
                             Text("\(currentRound.tichuPointsTeam1)")
                                 .fontWeight(.bold)
-                            
-                                .frame(width: 50, alignment: .trailing).monospaced()
+                                .frame(width: 50, alignment: .trailing)
+                                .monospaced()
                         }
                     }
-                    
                 }
-                
-                VStack{
-                    ForEach(currentGame.Rounds, id: \.id) { currentRound in
-                        
+
+                VStack {
+                    ForEach(allRounds) { currentRound in
                         HStack {
                             Text("\(currentRound.tichuPointsTeam2)")
                                 .fontWeight(.bold)
-                                .frame(width: 50, alignment: .leading).monospaced()
-                            
-                            
-                            
-                            teamAnnounced(
-                                team: currentGame.team2!,
-                                round: currentRound,
-                                lead: "leading"
-                            ).frame(width: 65, alignment: .leading)
-                            
-                            teamPlacement(team:currentGame.team2!,currentRound:currentRound).frame(width: 60, alignment: .leading).padding(.leading,60)
-                            
-                            
+                                .frame(width: 50, alignment: .leading)
+                                .monospaced()
+
+                            teamAnnounced(profiles: team2Profiles, round: currentRound, lead: "leading")
+                                .frame(width: 65, alignment: .leading)
+
+                            teamPlacement(profiles: team2Profiles, currentRound: currentRound)
+                                .frame(width: 60, alignment: .leading)
+                                .padding(.leading, 60)
                         }
                     }
-                    
                 }
-                
             }
-            HStack{
+
+            HStack {
                 Text("Made with Tichu App").fontWeight(.bold)
-                Image("AppLogo").resizable().frame(width:45,height:45)
+                Image("AppLogo").resizable().frame(width: 45, height: 45)
             }
-            
-            
+
         }.frame(width: 500).background(colorScheme == .dark ? Color.black : Color.white)
     }
-    
-        
-       
-    }
-
-    
-
-
-#Preview {
-    GameSummaryShareView(currentGame:exampleGame,accentCo:.accent)
 }

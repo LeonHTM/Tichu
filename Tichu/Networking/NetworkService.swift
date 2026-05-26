@@ -485,6 +485,7 @@ class NetworkService: ObservableObject {
         await fetchProfiles()
         await fetchFriends(profileId: currentUserId)
         await fetchFriendRequests(profileId: currentUserId)
+        await fetchProfileGames(profileId: userId)
 
         await MainActor.run {
             if let imageData = self.profileImages[currentUserId] {
@@ -519,11 +520,11 @@ class NetworkService: ObservableObject {
 
         request.httpBody = try? JSONSerialization.data(withJSONObject: [
             "target": target,
-            "allow_pingus": allowPingus,
-            "team1_player1_id": team1Player1Id as Any,
-            "team1_player2_id": team1Player2Id as Any,
-            "team2_player1_id": team2Player1Id as Any,
-            "team2_player2_id": team2Player2Id as Any
+            "allowPingus": allowPingus,
+            "team1Player1Id": team1Player1Id as Any,
+            "team1Player2Id": team1Player2Id as Any,
+            "team2Player1Id": team2Player1Id as Any,
+            "team2Player2Id": team2Player2Id as Any
         ])
 
         do {
@@ -568,10 +569,15 @@ class NetworkService: ObservableObject {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
 
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            decoder.dateDecodingStrategy = .formatted(formatter)
 
             struct Response: Decodable {
-                let profile_id: Int
+                let profileId: Int
                 let games: [Game]
             }
 
@@ -607,7 +613,8 @@ class NetworkService: ObservableObject {
         doubleWinTeam2: Bool = false,
         announcedTichu: [Int] = [],
         announcedBigTichu: [Int] = [],
-        announcedPingu: [Int] = []
+        announcedPingu: [Int] = [],
+        
     ) async -> Round? {
         guard let url = URL(string: "\(baseURL)/add_round") else { return nil }
 
@@ -633,7 +640,8 @@ class NetworkService: ObservableObject {
             "double_win_team2": doubleWinTeam2,
             "announced_tichu": announcedTichu,
             "announced_big_tichu": announcedBigTichu,
-            "announced_pingu": announcedPingu
+            "announced_pingu": announcedPingu,
+            
         ])
 
         do {
@@ -646,7 +654,7 @@ class NetworkService: ObservableObject {
             await MainActor.run {
                 var list = self.roundsByGame[gameId] ?? []
                 list.append(round)
-                list.sort { $0.round_order < $1.round_order }
+                list.sort { $0.roundOrder < $1.roundOrder }
                 self.roundsByGame[gameId] = list
             }
 
@@ -664,11 +672,12 @@ class NetworkService: ObservableObject {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
 
             struct Response: Decodable {
-                let game_id: Int
+                let gameId: Int
                 let rounds: [Round]
             }
 
             let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
             decoder.dateDecodingStrategy = .iso8601
 
             let decoded = try decoder.decode(Response.self, from: data)
@@ -730,6 +739,35 @@ class NetworkService: ObservableObject {
         }
     }
     
+    func fetchGame(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/game/\(gameId)") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            decoder.dateDecodingStrategy = .formatted(formatter)
+
+            let game = try decoder.decode(Game.self, from: data)
+
+            await MainActor.run {
+                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
+                    self.games[index] = game
+                } else {
+                    self.games.append(game)
+                }
+            }
+
+        } catch {
+            print("fetchGame error: \(error)")
+        }
+    }
+    
     func reCalculate(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)/") else { return }
 
@@ -742,8 +780,8 @@ class NetworkService: ObservableObject {
 
             guard
                 let gameId = json?["game_id"] as? Int,
-                let team1 = json?["current_points_team1"] as? Int,
-                let team2 = json?["current_points_team2"] as? Int
+                let team1 = json?["currentPointsTeam1"] as? Int,
+                let team2 = json?["currentPointsTeam2"] as? Int
             else {
                 print("Invalid response format")
                 return
@@ -751,8 +789,10 @@ class NetworkService: ObservableObject {
 
             await MainActor.run {
                 if let index = self.games.firstIndex(where: { $0.id == gameId }) {
-                    self.games[index].current_points_team1 = team1
-                    self.games[index].current_points_team2 = team2
+                    withAnimation(.easeInOut){
+                        self.games[index].currentPointsTeam1 = team1
+                        self.games[index].currentPointsTeam2 = team2
+                    }
                 }
             }
 

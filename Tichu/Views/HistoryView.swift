@@ -2,7 +2,7 @@
 //  HistoryView.swift
 //  Tichu
 //
-//Create by Leon on 08.05.2026
+//  Created by Leon on 08.05.2026
 //
 
 import SwiftUI
@@ -15,22 +15,36 @@ struct HistoryView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("selectedTab") private var selectedTab = 0
     @Environment(\.colorScheme) var colorScheme
-    
+    @State private var showDebugSheetView: Bool = false
+
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
-    @State private var currentGameE = tichuGame()
-    @State private var gameHistory: [tichuGame] = exampleHistory
     @State private var showGameSummarySheetView: Bool = false
-    @State private var selectedGame: tichuGame = tichuGame()
-    @State private var showDebugSheetView: Bool = false
+    @State private var currentGameE: Game = Game(id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0)
+    @State private var selectedGame: Game? = nil
+
+    // MARK: - Computed
+
+    private var gameHistory: [Game] {
+        network.games.sorted { $0.date > $1.date }
+    }
+
+    private func rounds(for game: Game) -> [Round] {
+        network.roundsByGame[game.id] ?? []
+    }
+
+    private func playerName(_ id: Int?) -> String {
+        guard let id else { return "Unknown" }
+        return network.profiles.first { $0.id == id }?.name ?? "Unknown"
+    }
 
     // MARK: - Body
     var body: some View {
         if gameHistory.count > 0 {
             historyView
-        }else {
+        } else {
             emptyStateView
         }
     }
@@ -47,22 +61,17 @@ struct HistoryView: View {
                         LazyVStack(spacing: 0) {
                             Color.clear.frame(height: centerY - rowHeight / 2 - 10)
 
-                            ForEach(gameHistory, id: \.id) { currentGame in
-                                gameRow(currentGame: currentGame, centerY: centerY, rowHeight: rowHeight)
+                            ForEach(gameHistory, id: \.id) { game in
+                                gameRow(currentGame: game, centerY: centerY, rowHeight: rowHeight)
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
                                     .scrollTargetLayout()
-                                    .popoverTip(HistoryTapTip(),arrowEdge:.bottom)
-                                    
-                                
-                            }.task {
-                                // Configure and load your tips at app launch.
+                                    .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
+                            }
+                            .task {
                                 do {
-                                    try Tips.resetDatastore()
                                     try Tips.configure()
-                                }
-                                catch {
-                                    // Handle TipKit errors
+                                } catch {
                                     print("Error initializing TipKit \(error.localizedDescription)")
                                 }
                             }
@@ -73,22 +82,35 @@ struct HistoryView: View {
                     .background(Color(uiColor: .systemGroupedBackground))
                     .scrollTargetBehavior(.viewAligned)
                 }
+            }.sheet(isPresented: $showDebugSheetView) {
+                DebugSheetView(currentGame: .constant(network.games[0]),showDebugSheetView: $showDebugSheetView)
+                
+            }
+            .refreshable {
+                Task{
+                    await network.fetch(isLoading:.constant(true))
+                }
+                
             }
             .sheet(isPresented: $showGameSummarySheetView) {
                 GameSummarySheetView(
                     showGameOverViewSheetView: $showGameSummarySheetView,
                     currentGame: $currentGameE,
-                    revanche:.constant(false),
+                    revanche: .constant(false),
+                    profiles: network.profiles,
+                    network: network,
                     showRevancheButton: false,
                     HistoryMode: true
                 )
             }
-            .onChange(of: showGameSummarySheetView) {
-                currentGameE.reCount()
-            }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
             .toolbar {
+                ToolbarItem {
+                    Button { showDebugSheetView = true } label: {
+                        Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationProfileImage()
                 }
@@ -96,42 +118,47 @@ struct HistoryView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            GameSummaryChartView(currentGame: $selectedGame)
+            if let selected = selectedGame {
+                GameSummaryChartView(
+                    currentGame: .constant(selected),
+                    rounds: rounds(for: selected)
+                )
                 .frame(height: 200)
                 .padding()
                 .glassEffect(.regular.tint(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white).interactive(), in: .rect(cornerRadius: 20))
                 .padding(.top, 50)
                 .padding(.horizontal, 10)
                 .padding(.top, 5)
+            }
         }
         .onAppear {
-            for index in gameHistory.indices {
-                gameHistory[index].reCount()
+            if selectedGame == nil {
+                selectedGame = gameHistory.first
             }
-            selectedGame = gameHistory[0]
+            Task {
+                for game in gameHistory {
+                    await network.fetchGameRounds(gameId: game.id)
+                }
+            }
         }
     }
 
     // MARK: - Game Row
-    private func gameRow(currentGame: tichuGame, centerY: CGFloat, rowHeight: CGFloat) -> some View {
+    private func gameRow(currentGame: Game, centerY: CGFloat, rowHeight: CGFloat) -> some View {
         GeometryReader { geo in
             let midY = geo.frame(in: .scrollView).midY
             let distance = abs(centerY - midY)
             let isCentered = distance < (rowHeight / 10)
-            let isSelected = selectedGame.id == currentGame.id
+            let isSelected = selectedGame?.id == currentGame.id
             let opacity = max(0.35, 1 - (distance / 600))
 
             let scoreText = "\(currentGame.currentPointsTeam1) : \(currentGame.currentPointsTeam2)"
-            let team1Name0 = currentGame.team1?.list.indices.contains(0) == true ? currentGame.team1?.list[0].name ?? "Unknown" : "Unknown"
-            let team1Name1 = currentGame.team1?.list.indices.contains(1) == true ? currentGame.team1?.list[1].name ?? "Unknown" : "Unknown"
-            let team2Name0 = currentGame.team2?.list.indices.contains(0) == true ? currentGame.team2?.list[0].name ?? "Unknown" : "Unknown"
-            let team2Name1 = currentGame.team2?.list.indices.contains(1) == true ? currentGame.team2?.list[1].name ?? "Unknown" : "Unknown"
-            let matchupText = "\(team1Name0) & \(team1Name1)"
-            let opponentText = "\(team2Name0) & \(team2Name1)"
+            let matchupText = "\(playerName(currentGame.team1Player1Id)) & \(playerName(currentGame.team1Player2Id))"
+            let opponentText = "\(playerName(currentGame.team2Player1Id)) & \(playerName(currentGame.team2Player2Id))"
 
             Button {
-                showGameSummarySheetView = true
                 currentGameE = currentGame
+                showGameSummarySheetView = true
             } label: {
                 HStack {
                     Text(scoreText)
@@ -140,7 +167,7 @@ struct HistoryView: View {
                         .padding(.horizontal, 10)
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(matchupText)
+                            Text(matchupText).foregroundStyle(Color.primary)
                             Text("vs").fontWeight(.bold)
                             Text(opponentText)
                         }
@@ -159,14 +186,14 @@ struct HistoryView: View {
                 .opacity(opacity)
             }
             .onChange(of: isCentered) { _, newValue in
-                if newValue, selectedGame.id != currentGame.id {
+                if newValue, selectedGame?.id != currentGame.id {
                     selectedGame = currentGame
                 }
             }
             .sensoryFeedback(.selection, trigger: isSelected)
             .onAppear {
-                if selectedGame.id == exampleGame.id || selectedGame.id == UUID() {
-                    if isCentered { selectedGame = currentGame }
+                if selectedGame == nil && isCentered {
+                    selectedGame = currentGame
                 }
             }
         }
@@ -180,9 +207,8 @@ struct HistoryView: View {
                     .padding()
                     .sheet(isPresented: $showDebugSheetView) {
                         DebugSheetView(
-                            currentGame: $selectedGame,
-                            showDebugSheetView: $showDebugSheetView,
-                            exampleGameHistory: $gameHistory
+                            currentGame: $currentGameE,
+                            showDebugSheetView: $showDebugSheetView
                         )
                     }
                 Button {
@@ -209,7 +235,6 @@ struct HistoryView: View {
             }
         }
     }
-    
 }
 
 #Preview {

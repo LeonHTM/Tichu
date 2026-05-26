@@ -250,7 +250,7 @@ struct AddPlayersSheetView: View {
     }
 }
 
-#Preview {
+/*#Preview {
     AddPlayersSheetView(
         showAddPlayersSheet: .constant(true),
         addPlayer: .constant(exampleProfiles[0]),
@@ -260,4 +260,4 @@ struct AddPlayersSheetView: View {
         showFriends: .constant(true),
         guestIndex: 2
     )
-}
+}*/

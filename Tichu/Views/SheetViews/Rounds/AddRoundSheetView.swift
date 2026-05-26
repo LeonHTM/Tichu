@@ -14,8 +14,17 @@ struct AddRoundSheetView: View {
 
     // MARK: - Bindings
     @Binding var showAddRoundsSheet: Bool
-    @Binding var currentGame: tichuGame
-    @Binding var currentRound: Round
+    @Binding var currentGame: Game
+    @Binding var rounds: [Round]
+
+    // MARK: - Dependencies
+    let profiles: [Profile]
+    @ObservedObject var network: NetworkService
+
+    // MARK: - Props
+    var editMode: Bool
+    let roundIndex: Int?
+    var editingRound: Round? // passed in when editing
 
     // MARK: - State
     @State private var hasAnnouncedPlayer1: CanAnnounce = .none
@@ -27,43 +36,67 @@ struct AddRoundSheetView: View {
     @State private var hasPushedList: [Bool] = [false, false, false, false]
     @State private var rankingList: [Int] = [0, 0, 0, 0]
 
-    // MARK: - Props
+    // Local round state (replaces @Binding var currentRound)
+    @State private var firstProfileId: Int? = nil
+    @State private var secondProfileId: Int? = nil
+    @State private var thirdProfileId: Int? = nil
+    @State private var fourthProfileId: Int? = nil
+    @State private var firstBombs: Int = 0
+    @State private var secondBombs: Int = 0
+    @State private var thirdBombs: Int = 0
+    @State private var fourthBombs: Int = 0
+    @State private var tichuPointsTeam1: Int = 50
+    @State private var tichuPointsTeam2: Int = 50
+    @State private var announcedTichu: [Int] = []
+    @State private var announcedBigTichu: [Int] = []
+    @State private var announcedPingu: [Int] = []
+
     @Environment(\.colorScheme) var colorScheme
-    var editMode: Bool
-    let roundIndex: Int?
+
+    // MARK: - Resolved Players
+
+    private var player1: Profile? { profiles.first { $0.id == currentGame.team1Player1Id } }
+    private var player2: Profile? { profiles.first { $0.id == currentGame.team1Player2Id } }
+    private var player3: Profile? { profiles.first { $0.id == currentGame.team2Player1Id } }
+    private var player4: Profile? { profiles.first { $0.id == currentGame.team2Player2Id } }
+
+    private var team1Ids: [Int] { [currentGame.team1Player1Id, currentGame.team1Player2Id].compactMap { $0 } }
+    private var team2Ids: [Int] { [currentGame.team2Player1Id, currentGame.team2Player2Id].compactMap { $0 } }
 
     // MARK: - Computed
+
     private var hasDoubleWinTeam1: Bool {
-        (currentRound.first == currentGame.team1?.list[0] && currentRound.second == currentGame.team1?.list[1]) ||
-        (currentRound.first == currentGame.team1?.list[1] && currentRound.second == currentGame.team1?.list[0])
+        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        return team1Ids.contains(f) && team1Ids.contains(s)
     }
 
     private var hasDoubleWinTeam2: Bool {
-        (currentRound.first == currentGame.team2?.list[0] && currentRound.second == currentGame.team2?.list[1]) ||
-        (currentRound.first == currentGame.team2?.list[1] && currentRound.second == currentGame.team2?.list[0])
+        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        return team2Ids.contains(f) && team2Ids.contains(s)
     }
 
     private var displayTeam1Points: Int {
         if hasDoubleWinTeam1 { return 100 }
         if hasDoubleWinTeam2 { return 0 }
-        return currentRound.tichuPointsTeam1
+        return tichuPointsTeam1
     }
 
     private var displayTeam2Points: Int {
         if hasDoubleWinTeam2 { return 100 }
         if hasDoubleWinTeam1 { return 0 }
-        return currentRound.tichuPointsTeam2
+        return tichuPointsTeam2
     }
 
     // MARK: - Team Helpers
+
     private func isTeam1(_ player: Profile?) -> Bool {
         guard let player else { return false }
-        return player.id == currentGame.player1?.id || player.id == currentGame.player2?.id
+        return team1Ids.contains(player.id)
     }
 
     private func isTeam2(_ player: Profile?) -> Bool {
         guard let player else { return false }
-        return player.id == currentGame.player3?.id || player.id == currentGame.player4?.id
+        return team2Ids.contains(player.id)
     }
 
     private func isGolden(index: Int) -> Bool {
@@ -81,67 +114,119 @@ struct AddRoundSheetView: View {
     }
 
     // MARK: - Announcement Helpers
+
     func announcement(for player: Profile?) -> CanAnnounce {
         guard let player else { return .none }
-        if currentRound.hasAnnouncedBigTichu.contains(where: { $0.id == player.id }) { return .bigTichu }
-        if currentRound.hasAnnouncedTichu.contains(where: { $0.id == player.id }) { return .tichu }
-        if currentRound.hasAnnouncedPingu.contains(where: { $0.id == player.id }) { return .pingu }
+        if announcedBigTichu.contains(player.id) { return .bigTichu }
+        if announcedTichu.contains(player.id) { return .tichu }
+        if announcedPingu.contains(player.id) { return .pingu }
         return .none
     }
 
-    func updateAnnouncement(player: Profile, state: CanAnnounce) {
-        currentRound.hasAnnouncedTichu.removeAll { $0.id == player.id }
-        currentRound.hasAnnouncedBigTichu.removeAll { $0.id == player.id }
-        currentRound.hasAnnouncedPingu.removeAll { $0.id == player.id }
+    func updateAnnouncement(playerId: Int, state: CanAnnounce) {
+        announcedTichu.removeAll { $0 == playerId }
+        announcedBigTichu.removeAll { $0 == playerId }
+        announcedPingu.removeAll { $0 == playerId }
         switch state {
-        case .tichu: currentRound.hasAnnouncedTichu.append(player)
-        case .bigTichu: currentRound.hasAnnouncedBigTichu.append(player)
-        case .pingu: currentRound.hasAnnouncedPingu.append(player)
-        case .none: break
+        case .tichu:    announcedTichu.append(playerId)
+        case .bigTichu: announcedBigTichu.append(playerId)
+        case .pingu:    announcedPingu.append(playerId)
+        case .none:     break
         }
     }
 
     // MARK: - Round Logic
+
     func move(from source: IndexSet, to destination: Int) {
         players.move(fromOffsets: source, toOffset: destination)
     }
 
     private func buildRankingList() -> [Int] {
-        let roundOrder: [Profile?] = [currentRound.first, currentRound.second, currentRound.third, currentRound.fourth]
+        let orderIds: [Int?] = [firstProfileId, secondProfileId, thirdProfileId, fourthProfileId]
         return players.map { player in
             guard let player else { return 0 }
-            if let idx = roundOrder.firstIndex(where: { $0?.id == player.id }) { return idx + 1 }
+            if let idx = orderIds.firstIndex(where: { $0 == player.id }) { return idx + 1 }
             return 0
         }
     }
 
     private func applyDoubleWin() {
         if hasDoubleWinTeam1 {
-            currentRound.tichuPointsTeam1 = 100
-            currentRound.tichuPointsTeam2 = 0
+            tichuPointsTeam1 = 100
+            tichuPointsTeam2 = 0
         } else if hasDoubleWinTeam2 {
-            currentRound.tichuPointsTeam1 = 0
-            currentRound.tichuPointsTeam2 = 100
+            tichuPointsTeam1 = 0
+            tichuPointsTeam2 = 100
         }
     }
 
     func saveRound() {
         if dragMode {
-            currentRound.first = players[0]
-            currentRound.second = players[1]
-            currentRound.third = players[2]
-            currentRound.fourth = players[3]
+            firstProfileId  = players[0]?.id
+            secondProfileId = players[1]?.id
+            thirdProfileId  = players[2]?.id
+            fourthProfileId = players[3]?.id
         }
-        updateAnnouncement(player: currentGame.player1!, state: hasAnnouncedPlayer1)
-        updateAnnouncement(player: currentGame.player2!, state: hasAnnouncedPlayer2)
-        updateAnnouncement(player: currentGame.player3!, state: hasAnnouncedPlayer3)
-        updateAnnouncement(player: currentGame.player4!, state: hasAnnouncedPlayer4)
+        if let p1 = player1 { updateAnnouncement(playerId: p1.id, state: hasAnnouncedPlayer1) }
+        if let p2 = player2 { updateAnnouncement(playerId: p2.id, state: hasAnnouncedPlayer2) }
+        if let p3 = player3 { updateAnnouncement(playerId: p3.id, state: hasAnnouncedPlayer3) }
+        if let p4 = player4 { updateAnnouncement(playerId: p4.id, state: hasAnnouncedPlayer4) }
         applyDoubleWin()
-        if !editMode {
-            currentGame.addRound(addedRound: currentRound)
-            currentRound = Round()
+
+        let nextOrder = (rounds.map { $0.roundOrder }.max() ?? 0) + 1
+
+        Task {
+            if editMode, let round = editingRound {
+                await network.editRound(roundId: round.id, updates: [
+                    "first_profile_id":  firstProfileId  as Any,
+                    "second_profile_id": secondProfileId as Any,
+                    "third_profile_id":  thirdProfileId  as Any,
+                    "fourth_profile_id": fourthProfileId as Any,
+                    "first_bombs":  firstBombs,
+                    "second_bombs": secondBombs,
+                    "third_bombs":  thirdBombs,
+                    "fourth_bombs": fourthBombs,
+                    "tichu_points_team1": tichuPointsTeam1,
+                    "tichu_points_team2": tichuPointsTeam2,
+                    "double_win_team1": hasDoubleWinTeam1,
+                    "double_win_team2": hasDoubleWinTeam2,
+                    "announced_tichu":     announcedTichu,
+                    "announced_big_tichu": announcedBigTichu,
+                    "announced_pingu":     announcedPingu
+                ])
+            } else {
+                await network.addRound(
+                    gameId:          currentGame.id,
+                    roundOrder:      nextOrder,
+                    firstProfileId:  firstProfileId,
+                    secondProfileId: secondProfileId,
+                    thirdProfileId:  thirdProfileId,
+                    fourthProfileId: fourthProfileId,
+                    firstBombs:      firstBombs,
+                    secondBombs:     secondBombs,
+                    thirdBombs:      thirdBombs,
+                    fourthBombs:     fourthBombs,
+                    tichuPointsTeam1: tichuPointsTeam1,
+                    tichuPointsTeam2: tichuPointsTeam2,
+                    roundPointsTeam1: 0,
+                    roundPointsTeam2: 0,
+                    doubleWinTeam1: hasDoubleWinTeam1,
+                    doubleWinTeam2: hasDoubleWinTeam2,
+                    announcedTichu:     announcedTichu,
+                    announcedBigTichu:  announcedBigTichu,
+                    announcedPingu:     announcedPingu
+                )
+            }
+            await network.reCalculate(gameId: currentGame.id)
+            let updatedRounds = network.roundsByGame[currentGame.id] ?? []
+            let updatedGames: [Game] = network.games
+            await MainActor.run {
+                rounds = updatedRounds
+                if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
+                    currentGame = updated
+                }
+            }
         }
-        currentGame.reCount()
     }
 
     // MARK: - Body
@@ -170,18 +255,31 @@ struct AddRoundSheetView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .onAppear {
-                if editMode {
-                    players = [currentGame.player1, currentGame.player2, currentGame.player3, currentGame.player4]
+                players = [player1, player2, player3, player4]
+
+                if editMode, let round = editingRound {
+                    firstProfileId  = round.firstProfileId
+                    secondProfileId = round.secondProfileId
+                    thirdProfileId  = round.thirdProfileId
+                    fourthProfileId = round.fourthProfileId
+                    firstBombs  = round.firstBombs
+                    secondBombs = round.secondBombs
+                    thirdBombs  = round.thirdBombs
+                    fourthBombs = round.fourthBombs
+                    tichuPointsTeam1 = round.tichuPointsTeam1
+                    tichuPointsTeam2 = round.tichuPointsTeam2
+                    announcedTichu    = round.announcedTichu
+                    announcedBigTichu = round.announcedBigTichu
+                    announcedPingu    = round.announcedPingu
                     hasPushedList = [true, true, true, true]
                     rankingList = buildRankingList()
                     counter = rankingList.filter { $0 != 0 }.count
-                } else {
-                    players = [currentGame.player1, currentGame.player2, currentGame.player3, currentGame.player4]
                 }
-                hasAnnouncedPlayer1 = announcement(for: currentGame.player1)
-                hasAnnouncedPlayer2 = announcement(for: currentGame.player2)
-                hasAnnouncedPlayer3 = announcement(for: currentGame.player3)
-                hasAnnouncedPlayer4 = announcement(for: currentGame.player4)
+
+                hasAnnouncedPlayer1 = announcement(for: player1)
+                hasAnnouncedPlayer2 = announcement(for: player2)
+                hasAnnouncedPlayer3 = announcement(for: player3)
+                hasAnnouncedPlayer4 = announcement(for: player4)
             }
         }
     }
@@ -193,8 +291,22 @@ struct AddRoundSheetView: View {
                 VStack(alignment: .leading) {
                     Text("Team 1").font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     VStack {
-                        PlayerContainer(player: currentGame.player1 ?? Profile(), team: currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer1, bombNumber: $currentRound.firstBombs, currentGame: $currentGame)
-                        PlayerContainer(player: currentGame.player2 ?? Profile(), team: currentGame.team1 ?? Team(), hasAnnounced: $hasAnnouncedPlayer2, bombNumber: $currentRound.secondBombs, currentGame: $currentGame)
+                        PlayerContainer(
+                            player: player1 ?? Profile(),
+                            teamIds: team1Ids,
+                            allowPingus: currentGame.allowPingus,
+                            hasAnnounced: $hasAnnouncedPlayer1,
+                            bombNumber: $firstBombs,
+                           
+                        )
+                        PlayerContainer(
+                            player: player2 ?? Profile(),
+                            teamIds: team1Ids,
+                            allowPingus: currentGame.allowPingus,
+                            hasAnnounced: $hasAnnouncedPlayer2,
+                            bombNumber: $secondBombs,
+                            
+                        )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                 }
@@ -203,8 +315,22 @@ struct AddRoundSheetView: View {
             VStack(alignment: .leading) {
                 Text("Team 2").font(.title2).fontWeight(.bold)
                 VStack {
-                    PlayerContainer(player: currentGame.player3 ?? Profile(), team: currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer3, bombNumber: $currentRound.thirdBombs, currentGame: $currentGame)
-                    PlayerContainer(player: currentGame.player4 ?? Profile(), team: currentGame.team2 ?? Team(), hasAnnounced: $hasAnnouncedPlayer4, bombNumber: $currentRound.fourthBombs, currentGame: $currentGame)
+                    PlayerContainer(
+                        player: player3 ?? Profile(),
+                        teamIds: team2Ids,
+                        allowPingus: currentGame.allowPingus,
+                        hasAnnounced: $hasAnnouncedPlayer3,
+                        bombNumber: $thirdBombs,
+                        
+                    )
+                    PlayerContainer(
+                        player: player4 ?? Profile(),
+                        teamIds: team2Ids,
+                        allowPingus: currentGame.allowPingus,
+                        hasAnnounced: $hasAnnouncedPlayer4,
+                        bombNumber: $fourthBombs,
+                        
+                    )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
             }
@@ -261,10 +387,10 @@ struct AddRoundSheetView: View {
                             hasPushedList[index] = true
                             if rankingList.allSatisfy({ $0 != 0 }) {
                                 withAnimation(.easeInOut) {
-                                    if let i1 = rankingList.firstIndex(of: 1) { currentRound.first = players[i1] }
-                                    if let i2 = rankingList.firstIndex(of: 2) { currentRound.second = players[i2] }
-                                    if let i3 = rankingList.firstIndex(of: 3) { currentRound.third = players[i3] }
-                                    if let i4 = rankingList.firstIndex(of: 4) { currentRound.fourth = players[i4] }
+                                    if let i1 = rankingList.firstIndex(of: 1) { firstProfileId  = players[i1]?.id }
+                                    if let i2 = rankingList.firstIndex(of: 2) { secondProfileId = players[i2]?.id }
+                                    if let i3 = rankingList.firstIndex(of: 3) { thirdProfileId  = players[i3]?.id }
+                                    if let i4 = rankingList.firstIndex(of: 4) { fourthProfileId = players[i4]?.id }
                                 }
                             }
                         } else {
@@ -272,10 +398,10 @@ struct AddRoundSheetView: View {
                                 counter = 0
                                 rankingList = [0, 0, 0, 0]
                                 hasPushedList = [false, false, false, false]
-                                currentRound.first = nil
-                                currentRound.second = nil
-                                currentRound.third = nil
-                                currentRound.fourth = nil
+                                firstProfileId  = nil
+                                secondProfileId = nil
+                                thirdProfileId  = nil
+                                fourthProfileId = nil
                             }
                         }
                     } label: {
@@ -322,12 +448,12 @@ struct AddRoundSheetView: View {
                         get: {
                             if hasDoubleWinTeam1 { return 100 }
                             else if hasDoubleWinTeam2 { return 0 }
-                            return Double(currentRound.tichuPointsTeam1)
+                            return Double(tichuPointsTeam1)
                         },
                         set: { newValue in
                             guard !hasDoubleWinTeam1 else { return }
-                            currentRound.tichuPointsTeam1 = Int(newValue)
-                            currentRound.tichuPointsTeam2 = 100 - Int(newValue)
+                            tichuPointsTeam1 = Int(newValue)
+                            tichuPointsTeam2 = 100 - Int(newValue)
                         }
                     ),
                     in: -25...125,
@@ -345,7 +471,7 @@ struct AddRoundSheetView: View {
     }
 }
 
-#Preview {
+/*#Preview {
     AddRoundSheetView(
         showAddRoundsSheet: .constant(true),
         currentGame: .constant(exampleGame),
@@ -353,4 +479,4 @@ struct AddRoundSheetView: View {
         editMode: false,
         roundIndex: nil
     )
-}
+}*/

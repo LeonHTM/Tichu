@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PlayView: View {
+/*struct PlayView: View {
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
@@ -461,8 +461,14 @@ struct PlayView: View {
         .padding(.horizontal, 20)
         .padding(.bottom, 10)
     }
+}*/
+
+struct PlayView: View {
+    var body: some View{
+        Text(" Play View")
+    }
 }
 
-#Preview {
+/*#Preview {
     PlayView(fetchTrigger: 0)
-}
+}*/

@@ -7,20 +7,21 @@
 
 import SwiftUI
 
+
 struct Game: Identifiable, Decodable {
     let id: Int
     var date: Date
 
     var target: Int
-    var allow_pingus: Bool
+    var allowPingus: Bool
 
-    var team1_player1_id: Int?
-    var team1_player2_id: Int?
-    var team2_player1_id: Int?
-    var team2_player2_id: Int?
+    var team1Player1Id: Int?
+    var team1Player2Id: Int?
+    var team2Player1Id: Int?
+    var team2Player2Id: Int?
 
-    var current_points_team1: Int
-    var current_points_team2: Int
+    var currentPointsTeam1: Int
+    var currentPointsTeam2: Int
 
     var winner: Int?
 }
@@ -29,33 +30,33 @@ import Foundation
 
 struct Round: Identifiable, Decodable {
     let id: Int
-    var game_id: Int
-    var round_order: Int
+    var gameId: Int
+    var roundOrder: Int
 
-    var first_profile_id: Int?
-    var second_profile_id: Int?
-    var third_profile_id: Int?
-    var fourth_profile_id: Int?
+    var firstProfileId: Int?
+    var secondProfileId: Int?
+    var thirdProfileId: Int?
+    var fourthProfileId: Int?
 
-    var first_bombs: Int
-    var second_bombs: Int
-    var third_bombs: Int
-    var fourth_bombs: Int
+    var firstBombs: Int
+    var secondBombs: Int
+    var thirdBombs: Int
+    var fourthBombs: Int
 
-    var tichu_points_team1: Int
-    var tichu_points_team2: Int
+    var tichuPointsTeam1: Int
+    var tichuPointsTeam2: Int
 
-    var round_points_team1: Int
-    var round_points_team2: Int
+    var roundPointsTeam1: Int
+    var roundPointsTeam2: Int
 
-    var double_win_team1: Bool
-    var double_win_team2: Bool
+    var doubleWinTeam1: Bool
+    var doubleWinTeam2: Bool
 
-    var bool_win_round: Bool
+    var boolWinRound: Bool
 
-    var announced_tichu: [Int]
-    var announced_big_tichu: [Int]
-    var announced_pingu: [Int]
+    var announcedTichu: [Int]
+    var announcedBigTichu: [Int]
+    var announcedPingu: [Int]
 }
 
 enum tichuGameTarget: Int, CaseIterable, Identifiable {
