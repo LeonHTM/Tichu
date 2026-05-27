@@ -39,6 +39,41 @@ class NetworkService: ObservableObject {
 
     private init() {}
 
+    // MARK: - Flexible Date Decoder
+
+    var flexibleDateDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let str = try container.decode(String.self)
+
+            let isoFormatter = ISO8601DateFormatter()
+
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            if let date = isoFormatter.date(from: str) { return date }
+
+            isoFormatter.formatOptions = [.withInternetDateTime]
+            if let date = isoFormatter.date(from: str) { return date }
+
+            let fallback = DateFormatter()
+            fallback.locale = Locale(identifier: "en_US_POSIX")
+            fallback.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            if let date = fallback.date(from: str) { return date }
+
+            fallback.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+            if let date = fallback.date(from: str) { return date }
+
+            fallback.dateFormat = "yyyy-MM-dd"
+            if let date = fallback.date(from: str) { return date }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Cannot decode date: \(str)"
+            )
+        }
+        return decoder
+    }
     // MARK: - Auth Header Helper
 
     private func authorizedRequest(url: URL, method: String = "GET") -> URLRequest {
@@ -70,12 +105,8 @@ class NetworkService: ObservableObject {
                     self.userId = userId
                 }
 
-                // Register push token after successful login
                 if !pendingDeviceToken.isEmpty {
-                    await registerDevice(
-                        profileId: userId,
-                        deviceToken: pendingDeviceToken
-                    )
+                    await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
                 } else {
                     print("No device token available yet")
                 }
@@ -91,7 +122,8 @@ class NetworkService: ObservableObject {
     }
 
     // MARK: - Profiles
-    func resetClientData(){
+
+    func resetClientData() {
         self.profiles = []
         self.friendRequestProfiles = []
         self.friends = []
@@ -112,13 +144,21 @@ class NetworkService: ObservableObject {
                   let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
 
             do {
-                let (data, _) = try await URLSession.shared.data(from: url)
+                
+                //THIS MAKES SURE PROFILE PICTURE GET ACTUALLY LOADED 
+                var request = URLRequest(url: url)
+                request.cachePolicy = .reloadIgnoringLocalCacheData
+                request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+
+                let (data, _) = try await URLSession.shared.data(for: request)
+
                 await MainActor.run {
                     self.profileImages[profile.id] = data
                     if profile.id == self.userId {
                         userImageData = data
                     }
                 }
+
             } catch {
                 print("loadProfileImages error for profile \(profile.id): \(error)")
             }
@@ -162,7 +202,7 @@ class NetworkService: ObservableObject {
     func logout(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "POST")
+        let request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -190,7 +230,6 @@ class NetworkService: ObservableObject {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            // Store the token returned on registration
             if let token = json?["token"] as? String {
                 await MainActor.run { self.authToken = token }
             }
@@ -204,7 +243,7 @@ class NetworkService: ObservableObject {
     func deleteProfile(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_profile/\(profileId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "DELETE")
+        let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -254,7 +293,6 @@ class NetworkService: ObservableObject {
               let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
 
         do {
-            // No auth needed — used before login
             let (data, _) = try await URLSession.shared.data(from: url)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             return json?["id"] as? Int
@@ -273,21 +311,19 @@ class NetworkService: ObservableObject {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
 
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-
             let fetchedFriends: [Friend] = raw.compactMap { dict in
                 guard let jsonData = try? JSONSerialization.data(withJSONObject: dict),
-                      let profile = try? decoder.decode(Profile.self, from: jsonData) else { return nil }
+                      let profile = try? JSONDecoder().decode(Profile.self, from: jsonData) else { return nil }
 
                 var date: Date? = nil
                 if let dateStr = dict["friends_since"] as? String {
                     let formatter = DateFormatter()
                     formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                    formatter.locale = Locale(identifier: "en_US_POSIX")
                     date = formatter.date(from: dateStr)
                 }
 
-                return Friend(id: profile.id, profile: profile, friendsSince: date)
+                return Friend(id: profile.id,profile: profile,friendsSince: date)
             }
 
             await MainActor.run {
@@ -318,7 +354,7 @@ class NetworkService: ObservableObject {
     func addFriend(profileId: Int, friendId: Int) async {
         guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "POST")
+        let request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -331,7 +367,7 @@ class NetworkService: ObservableObject {
     func removeFriend(profileId: Int, friendId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "DELETE")
+        let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -367,7 +403,7 @@ class NetworkService: ObservableObject {
     func sendFriendRequest(senderId: Int, receiverId: Int) async {
         guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "POST")
+        let request = authorizedRequest(url: url, method: "POST")
 
         do {
             try await URLSession.shared.data(for: request)
@@ -385,14 +421,11 @@ class NetworkService: ObservableObject {
 
         do {
             try await URLSession.shared.data(for: request)
-
             await MainActor.run {
                 self.friendRequests.removeAll { $0.senderId == senderId }
                 self.friendRequestProfiles.removeAll { $0.id == senderId }
             }
-
             removeFriendRequestNotification(fromSenderId: senderId)
-
         } catch {
             print("respondToFriendRequest error: \(error)")
         }
@@ -400,7 +433,25 @@ class NetworkService: ObservableObject {
 
     // MARK: - Profile Image
 
-    func uploadProfileImage(profileId: Int, imageData: Data) async {
+    func uploadProfileImage(
+        profileId: Int,
+        imageData: Data,
+        maxSize: CGFloat = 256,
+        quality: CGFloat = 0.4
+    ) async {
+
+        guard let uiImage = UIImage(data: imageData) else {
+            print("uploadProfileImage: invalid image data")
+            return
+        }
+
+        let resized = uiImage.resized(to: maxSize)
+
+        guard let compressedData = resized.jpegData(compressionQuality: quality) else {
+            print("uploadProfileImage: compression failed")
+            return
+        }
+
         guard let url = URL(string: "\(baseURL)/add_image/\(profileId)/") else { return }
 
         var request = authorizedRequest(url: url, method: "POST")
@@ -412,8 +463,9 @@ class NetworkService: ObservableObject {
         body.append("--\(boundary)\r\n".data(using: .utf8)!)
         body.append("Content-Disposition: form-data; name=\"image\"; filename=\"profile_\(profileId).jpg\"\r\n".data(using: .utf8)!)
         body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
+        body.append(compressedData)
         body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
         request.httpBody = body
 
         do {
@@ -427,7 +479,6 @@ class NetworkService: ObservableObject {
         guard let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { return nil }
 
         do {
-            // Images are public (no auth needed)
             let (data, _) = try await URLSession.shared.data(from: url)
             return data
         } catch {
@@ -476,7 +527,7 @@ class NetworkService: ObservableObject {
             print("fetchFriendRequests error: \(error)")
         }
     }
-    
+
     func fetch(isLoading: Binding<Bool>) async {
         let currentUserId = await MainActor.run { userId }
 
@@ -485,7 +536,7 @@ class NetworkService: ObservableObject {
         await fetchProfiles()
         await fetchFriends(profileId: currentUserId)
         await fetchFriendRequests(profileId: currentUserId)
-        await fetchProfileGames(profileId: userId)
+        await fetchProfileGames(profileId: currentUserId)
 
         await MainActor.run {
             if let imageData = self.profileImages[currentUserId] {
@@ -497,12 +548,10 @@ class NetworkService: ObservableObject {
             if let elo = self.profiles.first(where: { $0.id == currentUserId })?.elo {
                 self.userElo = elo
             }
-
             isLoading.wrappedValue = false
         }
     }
-    
-    
+
     // MARK: - Games
 
     func addGame(
@@ -517,27 +566,21 @@ class NetworkService: ObservableObject {
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
         request.httpBody = try? JSONSerialization.data(withJSONObject: [
             "target": target,
-            "allowPingus": allowPingus,
-            "team1Player1Id": team1Player1Id as Any,
-            "team1Player2Id": team1Player2Id as Any,
-            "team2Player1Id": team2Player1Id as Any,
-            "team2Player2Id": team2Player2Id as Any
+            "allow_pingus": allowPingus,
+            "team1_player1_id": team1Player1Id as Any,
+            "team1_player2_id": team1Player2Id as Any,
+            "team2_player1_id": team2Player1Id as Any,
+            "team2_player2_id": team2Player2Id as Any
         ])
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-
+            let decoder = flexibleDateDecoder
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
             let game = try decoder.decode(Game.self, from: data)
-
-            await MainActor.run {
-                self.games.append(game)
-            }
-
+            await MainActor.run { self.games.append(game) }
             return game
         } catch {
             print("addGame error: \(error)")
@@ -548,11 +591,10 @@ class NetworkService: ObservableObject {
     func deleteGame(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_game/\(gameId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "DELETE")
+        let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
-
             await MainActor.run {
                 self.games.removeAll { $0.id == gameId }
                 self.roundsByGame.removeValue(forKey: gameId)
@@ -567,31 +609,41 @@ class NetworkService: ObservableObject {
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            decoder.dateDecodingStrategy = .formatted(formatter)
-
             struct Response: Decodable {
                 let profileId: Int
                 let games: [Game]
             }
 
-            let decoded = try decoder.decode(Response.self, from: data)
+            let decoded = try flexibleDateDecoder.decode(Response.self, from: data)
 
             await MainActor.run {
                 self.games = decoded.games
             }
-
         } catch {
             print("fetchProfileGames error: \(error)")
+            
         }
     }
-    
+
+    func fetchGame(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/game/\(gameId)") else { return }
+        
+        print("\(baseURL)/game/\(gameId)")
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let game = try flexibleDateDecoder.decode(Game.self, from: data)
+            await MainActor.run {
+                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
+                    self.games[index] = game
+                } else {
+                    self.games.append(game)
+                }
+            }
+        } catch {
+            print("fetchGame error: \(error)")
+        }
+    }
+
     // MARK: - Rounds
 
     func addRound(
@@ -613,14 +665,12 @@ class NetworkService: ObservableObject {
         doubleWinTeam2: Bool = false,
         announcedTichu: [Int] = [],
         announcedBigTichu: [Int] = [],
-        announcedPingu: [Int] = [],
-        
+        announcedPingu: [Int] = []
     ) async -> Round? {
         guard let url = URL(string: "\(baseURL)/add_round") else { return nil }
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
         request.httpBody = try? JSONSerialization.data(withJSONObject: [
             "game_id": gameId,
             "round_order": roundOrder,
@@ -640,24 +690,18 @@ class NetworkService: ObservableObject {
             "double_win_team2": doubleWinTeam2,
             "announced_tichu": announcedTichu,
             "announced_big_tichu": announcedBigTichu,
-            "announced_pingu": announcedPingu,
-            
+            "announced_pingu": announcedPingu
         ])
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-
-            let round = try decoder.decode(Round.self, from: data)
-
+            let round = try flexibleDateDecoder.decode(Round.self, from: data)
             await MainActor.run {
                 var list = self.roundsByGame[gameId] ?? []
                 list.append(round)
                 list.sort { $0.roundOrder < $1.roundOrder }
                 self.roundsByGame[gameId] = list
             }
-
             return round
         } catch {
             print("addRound error: \(error)")
@@ -676,16 +720,11 @@ class NetworkService: ObservableObject {
                 let rounds: [Round]
             }
 
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            decoder.dateDecodingStrategy = .iso8601
-
-            let decoded = try decoder.decode(Response.self, from: data)
+            let decoded = try flexibleDateDecoder.decode(Response.self, from: data)
 
             await MainActor.run {
                 self.roundsByGame[gameId] = decoded.rounds
             }
-
         } catch {
             print("fetchGameRounds error: \(error)")
         }
@@ -700,12 +739,7 @@ class NetworkService: ObservableObject {
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-
-            let updated = try decoder.decode(Round.self, from: data)
-
+            let updated = try flexibleDateDecoder.decode(Round.self, from: data)
             await MainActor.run {
                 for (gameId, rounds) in self.roundsByGame {
                     if let index = rounds.firstIndex(where: { $0.id == roundId }) {
@@ -716,7 +750,6 @@ class NetworkService: ObservableObject {
                     }
                 }
             }
-
         } catch {
             print("editRound error: \(error)")
         }
@@ -725,89 +758,47 @@ class NetworkService: ObservableObject {
     func deleteRound(gameId: Int, roundId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_round/\(roundId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "DELETE")
+        let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
             try await URLSession.shared.data(for: request)
-
             await MainActor.run {
                 self.roundsByGame[gameId]?.removeAll { $0.id == roundId }
             }
-
         } catch {
             print("deleteRound error: \(error)")
         }
     }
-    
-    func fetchGame(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/game/\(gameId)") else { return }
 
-        do {
-            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            decoder.dateDecodingStrategy = .formatted(formatter)
-
-            let game = try decoder.decode(Game.self, from: data)
-
-            await MainActor.run {
-                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
-                    self.games[index] = game
-                } else {
-                    self.games.append(game)
-                }
-            }
-
-        } catch {
-            print("fetchGame error: \(error)")
-        }
-    }
-    
     func reCalculate(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)/") else { return }
+        guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "POST")
+        let request = authorizedRequest(url: url, method: "POST")
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
 
             guard
-                let gameId = json?["game_id"] as? Int,
-                let team1 = json?["currentPointsTeam1"] as? Int,
-                let team2 = json?["currentPointsTeam2"] as? Int
+                let responseGameId = json?["game_id"] as? Int,
+                let team1 = json?["current_points_team1"] as? Int,
+                let team2 = json?["current_points_team2"] as? Int
             else {
-                print("Invalid response format")
+                print("reCalculate: invalid response format")
                 return
             }
 
             await MainActor.run {
-                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
-                    withAnimation(.easeInOut){
+                if let index = self.games.firstIndex(where: { $0.id == responseGameId }) {
+                    withAnimation(.easeInOut) {
+                        print("team1: \(team1), team2: \(team2)")
                         self.games[index].currentPointsTeam1 = team1
                         self.games[index].currentPointsTeam2 = team2
                     }
                 }
             }
-
         } catch {
             print("reCalculate error: \(error)")
         }
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

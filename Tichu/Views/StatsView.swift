@@ -20,8 +20,8 @@ struct StatsView: View {
     @State private var selectedTags: [String] = []
     @State private var sortStat: Profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .valueDown
-    @State private var compareList: [Profile] = []
-    @State private var addPlayer: Profile? = nil
+    @State private var compareList: [Int] = []
+    @State private var addPlayerId: Int?
     @State private var showOfflineAlert: Bool = false
     
     // MARK: - Computed
@@ -33,19 +33,19 @@ struct StatsView: View {
             
             ScrollView {
                 statsGrid
-                    .animation(.easeInOut, value: compareList.map { $0.id })
+                    .animation(.easeInOut, value: compareList.map { $0})
                     .padding()
             }.sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                 withAnimation(.easeInOut) {
-                    if !compareList.contains(where: { $0.id == addPlayer?.id ?? Profile().id }),
-                       addPlayer?.name ?? Profile().name != nil {
-                        compareList.append(addPlayer ?? Profile())
+                    if !compareList.contains(where: { $0 == addPlayerId}) && addPlayerId != nil
+                      {
+                        compareList.append(addPlayerId!)
                     }
                 }
             }) {
                 AddPlayersSheetView(
                     showAddPlayersSheet: $showAddPlayersSheet,
-                    addPlayer: $addPlayer,
+                    addPlayerId: $addPlayerId,
                     alreadyAdded: compareList,
                     showGuest: .constant(false),
                     showPlayers: .constant(true),
@@ -64,8 +64,8 @@ struct StatsView: View {
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {
                 if socket.connected{
-                    for profile in compareList {
-                        await network.fetchProfilesStats(profileId: profile.id)
+                    for profileId in compareList {
+                        await network.fetchProfilesStats(profileId: profileId)
                     }
                 }
             }
@@ -342,14 +342,14 @@ struct StatsView: View {
                     if !compareList.isEmpty {
                         Divider()
                     }
-                    ForEach(compareList, id: \.id) { item in
+                    ForEach(compareList, id: \.self) { item in
                         Button {
                             withAnimation(.easeInOut) {
-                                compareList.removeAll { $0.id == item.id }
+                                compareList.removeAll { $0 == item }
                             }
                         } label: {
                             Image("person.badge.remove")
-                            Text("Remove \(item.name ?? "Unknown")")
+                            Text("Remove \(network.profiles.first { $0.id == item }?.name ?? "Unknown")")
                         }
                     }
                     if compareList.count > 1 {

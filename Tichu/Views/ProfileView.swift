@@ -93,7 +93,7 @@ struct ProfileView: View {
                             
                             if let data = try? await pickerItem.loadTransferable(type: Data.self) {
                                 
-                                await network.uploadProfileImage(profileId: userId, imageData: UIImage(data: data)!.jpegData(compressionQuality: 0.7)!)
+                                await network.uploadProfileImage(profileId: userId, imageData: data)
                                 
                                 
                             }else{

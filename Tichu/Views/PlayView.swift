@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/*struct PlayView: View {
+struct PlayView: View {
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
@@ -29,43 +29,85 @@ import SwiftUI
     @State private var showAddRoundSheet: Bool = false
     @State private var showDebugSheetView: Bool = false
     @State private var showGameOverSheet: Bool = false
-    
+
     @State private var showPlayers: Bool = true
     @State private var showFriends: Bool = true
 
-    @State private var team1 = Team()
-    @State private var team2 = Team()
-    @State private var currentGame = tichuGame()
-    @State private var currentRound = Round()
+    @State private var currentGame: Game? = nil
+
     @State private var revanche: Bool = false
 
-    @FocusState private var targetFieldFocused: Bool
+    @State private var player1Id: Int?
+    @State private var player2Id: Int?
+    @State private var player3Id: Int?
+    @State private var player4Id: Int?
 
+    @State private var target: Int = 1000
+    @State private var allowPingus: Bool = true
+
+    @FocusState private var targetFieldFocused: Bool
+    
+    
+    
     // MARK: - Computed
+
+    private var player1: Profile? {
+        network.profiles.first { $0.id == userId }
+    }
+
+    private func profile(for id: Int?) -> Profile? {
+        guard let id else { return nil }
+        return network.profiles.first { $0.id == id }
+    }
+
     private var isGameReady: Bool {
-        currentGame.player2 != nil && currentGame.player3 != nil && currentGame.player4 != nil
+        player1 != nil && player2Id != nil && player3Id != nil && player4Id != nil
     }
 
     private var gameDone: Bool {
-        currentGame.winner != nil
+        guard let game = currentGame else { return false }
+        if game.currentPointsTeam1 >= game.target && game.currentPointsTeam1 > game.currentPointsTeam2 { return true }
+        if game.currentPointsTeam2 >= game.target && game.currentPointsTeam2 > game.currentPointsTeam1 { return true }
+        return false
     }
 
     private var isRated: Bool {
-        let players = [
-            currentGame.player1,
-            currentGame.player2,
-            currentGame.player3,
-            currentGame.player4
-        ].compactMap { $0 }
-        return !players.contains { $0.elo == nil }
+        let ids = [userId, player2Id, player3Id, player4Id].compactMap { $0 }
+        guard ids.count == 4 else { return false }
+        return ids.allSatisfy { id in
+            network.profiles.first { $0.id == id }?.elo != nil
+        }
     }
 
+    private var currentPointsTeam1: Int { currentGame?.currentPointsTeam1 ?? -69402 }
+    private var currentPointsTeam2: Int { currentGame?.currentPointsTeam2 ?? 0 }
+
     // MARK: - Methods
-    func loadUser() {
-        if currentGame.player1 == nil {
-            var profile = Profile(id: userId, name: userName, elo: userElo)
-            profile.imageData = userImageData
-            currentGame.player1 = profile
+
+    private func startGame() {
+        if currentGame == nil{
+            Task {
+                let game = await network.addGame(
+                    target: target,
+                    allowPingus: allowPingus,
+                    team1Player1Id: userId,
+                    team1Player2Id: player2Id,
+                    team2Player1Id: player3Id,
+                    team2Player2Id: player4Id
+                )
+                await MainActor.run {
+                    currentGame = game
+                }
+            }
+        }
+    }
+
+    private func resetGame() {
+        withAnimation(.easeInOut){
+            currentGame = nil
+            player2Id = nil
+            player3Id = nil
+            player4Id = nil
         }
     }
 
@@ -80,13 +122,41 @@ import SwiftUI
                     team2Header
                     team2Players
                 }
+                    
+                
                 .refreshable {
                     await network.fetch(isLoading: .constant(false))
-                    loadUser()
                 }
+                .onChange(of:network.games){
+                    if currentGame != nil{
+                        print("brakka5000")
+                        guard let id = currentGame?.id else { return }
+                        currentGame = network.games.first(where: { $0.id == id })
+                    }
+                    
+                }
+                
                 .onChange(of: fetchTrigger) {
-                    withAnimation(.easeInOut) {
-                        loadUser()
+                    let openGames = network.games.filter { $0.winner == nil }
+                    print("OPEN GAMES: \(openGames.count)")
+                    print("GAMES: \(network.games.count)")
+                    //print("CLOSED GAMES: \(network.games.filter($0.winner != nil).count)")
+                    if openGames.count == 1 {
+                        withAnimation(.easeInOut){
+                            currentGame = openGames.first
+                            player1Id = currentGame?.team1Player1Id
+                            player2Id = currentGame?.team1Player2Id
+                            player3Id = currentGame?.team2Player1Id
+                            player4Id = currentGame?.team2Player2Id
+                            Task{
+                                await network.fetchGameRounds(gameId: currentGame!.id)
+                            }
+                        }
+                    }
+                }
+                .onChange(of: isGameReady) {
+                    if isGameReady {
+                        startGame()
                     }
                 }
                 .onChange(of: socket.connected) {
@@ -98,46 +168,59 @@ import SwiftUI
                         showPlayers = true
                     }
                 }
-                .onChange(of: isGameReady) {
-                    if let _ = currentGame.player2?.name {
-                        team1 = Team(list: [currentGame.player1!, currentGame.player2!], name: "Team 1")
+                .onChange(of: network.games.map(\.id)) {
+                    guard let id = currentGame?.id else { return }
+
+                    if network.games.first(where: { $0.id == id }) == nil {
+                        showEditRoundsSheet = false
+                        resetGame()
                     }
-                    if let _ = currentGame.player3?.name, let _ = currentGame.player4?.name {
-                        team2 = Team(list: [currentGame.player3!, currentGame.player4!], name: "Team 2")
-                    }
-                    if isGameReady == false { loadUser() }
-                    currentRound.team1 = team1
-                    currentRound.team2 = team2
-                    currentGame.team1 = team1
-                    currentGame.team2 = team2
+                        
+                    
                 }
                 .onChange(of: gameDone) {
-                    showGameOverSheet = gameDone
+                    if gameDone { showGameOverSheet = true }
                 }
                 .sheet(isPresented: $showGameOverSheet, onDismiss: {
-                    if revanche == true {
-                        let p1 = currentGame.player1!
-                        let p2 = currentGame.player2!
-                        let p3 = currentGame.player3!
-                        let p4 = currentGame.player4!
-                        withAnimation(.easeInOut) {
-                            currentGame = tichuGame(player1: p1, player2: p2, player3: p3, player4: p4)
+                    if revanche {
+                        guard let game = currentGame else { return }
+                        let p1 = game.team1Player1Id
+                        let p2 = game.team1Player2Id
+                        let p3 = game.team2Player1Id
+                        let p4 = game.team2Player2Id
+                        Task {
+                            let newGame = await network.addGame(
+                                target: game.target,
+                                allowPingus: game.allowPingus,
+                                team1Player1Id: p1,
+                                team1Player2Id: p2,
+                                team2Player1Id: p3,
+                                team2Player2Id: p4
+                            )
+                            await MainActor.run {
+                                currentGame = newGame
+                                revanche = false
+                            }
                         }
                     } else {
-                        withAnimation(.easeInOut) {
-                            currentGame = tichuGame()
-                            loadUser()
-                        }
+                        resetGame()
                     }
                 }) {
-                    GameSummarySheetView(
-                        showGameOverViewSheetView: $showGameOverSheet,
-                        currentGame: $currentGame,
-                        revanche: $revanche,
-                        showRevancheButton: true,
-                        HistoryMode: false
-                    )
-                    .presentationDetents([.medium])
+                    if let game = currentGame {
+                        GameSummarySheetView(
+                            showGameOverViewSheetView: $showGameOverSheet,
+                            currentGame: Binding(
+                                get: { game },
+                                set: { currentGame = $0 }
+                            ),
+                            revanche: $revanche,
+                            profiles: network.profiles,
+                            network: network,
+                            showRevancheButton: true,
+                            HistoryMode: false
+                        )
+                        .presentationDetents([.medium, .large])
+                    }
                 }
                 .scrollContentBackground(.hidden)
                 .background(alignment: .center) { vsBackground }
@@ -167,9 +250,11 @@ import SwiftUI
         }
         .sheet(isPresented: $showDebugSheetView) {
             DebugSheetView(
-                currentGame: $currentGame,
-                showDebugSheetView: $showDebugSheetView,
-                exampleGameHistory: .constant([])
+                currentGame: Binding(
+                    get: { currentGame ?? Game(id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
+                    set: { currentGame = $0 }
+                ),
+                showDebugSheetView: $showDebugSheetView
             )
         }
         .safeAreaInset(edge: .bottom) {
@@ -185,16 +270,18 @@ import SwiftUI
     private var team1Header: some View {
         Section {
             HStack {
+                
                 Text("Team 1")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.accentColor)
                 Spacer()
                 if isGameReady {
-                    Text("\(currentGame.currentPointsTeam1)")
+                    Text("\(currentPointsTeam1)")
                         .font(.title2)
                         .fontWeight(.bold)
                 }
+            
             }
             .listRowBackground(Color.clear)
         }
@@ -205,34 +292,41 @@ import SwiftUI
     private var team1Players: some View {
         Section {
             HStack {
-                ProfileImage(data: currentGame.player1?.imageData, size: 44)
-                VStack(alignment: .leading) {
-                    Text(currentGame.player1?.name ?? "Unknown")
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.accentColor)
-                        .redacted(
-                            reason: currentGame.player1?.name == nil
-                                ? .placeholder
-                                : []
-                        )
+                if let p1Id = player1Id, let p1 = profile(for: p1Id) {
+                    HStack {
+                        ProfileImage(data: network.profileImages[p1Id], size: 44)
+                        Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                        Spacer()
+                        if let elo = p1.elo {
+                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                        } else {
+                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                        }
+                    }
+                } else {
+                    ProfileImage(data: userImageData, size: 44)
+                    VStack(alignment: .leading) {
+                        Text(player1?.name ?? userName)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.accentColor)
+                    }
+                    Spacer()
+                    if let ranking = player1?.elo {
+                        Text("Ranking: \(ranking)")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 16))
+                    } else {
+                        ProgressView()
+                    }
                 }
-                Spacer()
-                if let ranking = currentGame.player1?.elo {
-                    Text("Ranking: \(ranking)")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 16))
-                }else{
-                    ProgressView()
-                }
-                    
             }
 
-            if let name2 = currentGame.player2?.name {
+            if let p2Id = player2Id, let p2 = profile(for: p2Id) {
                 HStack {
-                    ProfileImage(data: currentGame.player2!.imageData, size: 44)
-                    Text(name2).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                    ProfileImage(data: network.profileImages[p2Id], size: 44)
+                    Text(p2.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
                     Spacer()
-                    if let elo = currentGame.player2?.elo {
+                    if let elo = p2.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -243,9 +337,12 @@ import SwiftUI
                     .sheet(isPresented: $showAddPlayersSheet2) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet2,
-                            addPlayer: $currentGame.player2,
-                            alreadyAdded: [currentGame.player3, currentGame.player4].compactMap { $0 },
-                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 2
+                            addPlayerId: $player2Id,
+                            alreadyAdded: [player3Id, player4Id].compactMap { $0 },
+                            showGuest: .constant(true),
+                            showPlayers: $showPlayers,
+                            showFriends: $showFriends,
+                            guestIndex: 2
                         )
                         .presentationDetents([.medium, .large])
                     }
@@ -271,7 +368,7 @@ import SwiftUI
                 Text("Team 2")
                 Spacer()
                 if isGameReady {
-                    Text("\(currentGame.currentPointsTeam2)")
+                    Text("\(currentPointsTeam2)")
                 }
             }
         }
@@ -283,12 +380,12 @@ import SwiftUI
     // MARK: - Team 2 Players
     private var team2Players: some View {
         Section {
-            if let name3 = currentGame.player3?.name {
+            if let p3Id = player3Id, let p3 = profile(for: p3Id) {
                 HStack {
-                    ProfileImage(data: currentGame.player3!.imageData, size: 44)
-                    Text(name3).fontWeight(.bold)
+                    ProfileImage(data: network.profileImages[p3Id], size: 44)
+                    Text(p3.name ?? "Unknown").fontWeight(.bold)
                     Spacer()
-                    if let elo = currentGame.player3?.elo {
+                    if let elo = p3.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -299,20 +396,23 @@ import SwiftUI
                     .sheet(isPresented: $showAddPlayersSheet3) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet3,
-                            addPlayer: $currentGame.player3,
-                            alreadyAdded: [currentGame.player2, currentGame.player4].compactMap { $0 },
-                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 3
+                            addPlayerId: $player3Id,
+                            alreadyAdded: [player2Id, player4Id].compactMap { $0 },
+                            showGuest: .constant(true),
+                            showPlayers: $showPlayers,
+                            showFriends: $showFriends,
+                            guestIndex: 3
                         )
                         .presentationDetents([.medium, .large])
                     }
             }
 
-            if let name4 = currentGame.player4?.name {
+            if let p4Id = player4Id, let p4 = profile(for: p4Id) {
                 HStack {
-                    ProfileImage(data: currentGame.player4!.imageData, size: 44)
-                    Text(name4).fontWeight(.bold)
+                    ProfileImage(data: network.profileImages[p4Id], size: 44)
+                    Text(p4.name ?? "Unknown").fontWeight(.bold)
                     Spacer()
-                    if let elo = currentGame.player4?.elo {
+                    if let elo = p4.elo {
                         Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                     } else {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
@@ -323,9 +423,12 @@ import SwiftUI
                     .sheet(isPresented: $showAddPlayersSheet4) {
                         AddPlayersSheetView(
                             showAddPlayersSheet: $showAddPlayersSheet4,
-                            addPlayer: $currentGame.player4,
-                            alreadyAdded: [currentGame.player2, currentGame.player3].compactMap { $0 },
-                            showGuest: .constant(true), showPlayers: $showPlayers, showFriends: $showFriends, guestIndex: 4
+                            addPlayerId: $player4Id,
+                            alreadyAdded: [player2Id, player3Id].compactMap { $0 },
+                            showGuest: .constant(true),
+                            showPlayers: $showPlayers,
+                            showFriends: $showFriends,
+                            guestIndex: 4
                         )
                         .presentationDetents([.medium, .large])
                     }
@@ -356,7 +459,7 @@ import SwiftUI
                     .fontWeight(.bold)
                     .font(.title2)
                     .offset(y: -15)
-                Text(isGameReady ? " \(currentGame.target)" : " ")
+                Text(isGameReady ? " \(currentGame?.target ?? target)" : " \(target)")
                     .fontWeight(.bold)
                     .font(.title2)
                     .offset(y: -15)
@@ -370,41 +473,29 @@ import SwiftUI
     private var gameReadyBottomBar: some View {
         GlassEffectContainer {
             HStack {
-                if currentGame.Rounds.count > 0 {
-                    Button {
-                        showEditRoundsSheet = true
-                    } label: {
-                        Image(systemName: "list.bullet.badge.ellipsis")
-                            .font(.system(size: 20))
-                            .foregroundColor(.primary)
-                            .frame(width: 29, height: 29)
-                            .clipShape(Circle())
-                    }
-                    .padding(10)
-                    .glassEffect(.regular.interactive())
-                    .padding(.leading, 20)
-                    .padding(.bottom, 10)
-                    .sheet(isPresented: $showEditRoundsSheet) {
+                Button {
+                    showEditRoundsSheet = true
+                } label: {
+                    Image(systemName: "list.bullet.badge.ellipsis")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                        .frame(width: 29, height: 29)
+                        .clipShape(Circle())
+                }
+                .padding(10)
+                .glassEffect(.regular.interactive())
+                .padding(.leading, 20)
+                .padding(.bottom, 10)
+                .sheet(isPresented: $showEditRoundsSheet) {
+                    if let game = currentGame {
                         EditRoundsSheetView(
                             showEditRoundsSheet: $showEditRoundsSheet,
-                            currentGame: $currentGame
+                            currentGameId: game.id,
+                            profiles: network.profiles,
+                            network: network
                         )
                         .presentationDetents([.medium, .large])
                     }
-                } else {
-                    Button {
-                        withAnimation(.easeInOut) { currentGame = tichuGame() }
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash")
-                            Text("Delete Game")
-                        }
-                        .foregroundColor(.primary)
-                        .padding(13)
-                        .glassEffect(.regular.interactive())
-                    }
-                    .padding(.bottom, 10)
-                    .padding(.leading, 20)
                 }
 
                 Spacer()
@@ -421,16 +512,18 @@ import SwiftUI
                 .glassEffect(.regular.interactive())
                 .padding(.trailing, 20)
                 .padding(.bottom, 10)
-                .sheet(isPresented: $showAddRoundSheet, onDismiss: {
-                    currentRound = Round()
-                }) {
-                    AddRoundSheetView(
-                        showAddRoundsSheet: $showAddRoundSheet,
-                        currentGame: $currentGame,
-                        currentRound: $currentRound,
-                        editMode: false,
-                        roundIndex: nil
-                    )
+                .sheet(isPresented: $showAddRoundSheet) {
+                    if let game = currentGame {
+                        AddRoundSheetView(
+                            showAddRoundsSheet: $showAddRoundSheet,
+                            currentGameId: game.id,
+                            profiles: network.profiles,
+                            network: network,
+                            editMode: false,
+                            roundIndex: nil,
+                            editingRound: nil
+                        )
+                    }
                 }
             }
         }
@@ -441,14 +534,14 @@ import SwiftUI
         HStack {
             Spacer()
             Menu {
-                Picker("Game Target", selection: $currentGame.target) {
+                Picker("Game Target", selection: $target) {
                     Text("250").tag(250)
                     Text("500").tag(500)
                     Text("1000").tag(1000)
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
                 }
-                Toggle(isOn: $currentGame.allowPingus) {
+                Toggle(isOn: $allowPingus) {
                     Text("Allow Pingus")
                 }
             } label: {
@@ -457,18 +550,9 @@ import SwiftUI
             .foregroundStyle(.primary)
             .padding(10)
             .glassEffect(.regular.interactive(), in: Circle())
+            .padding(.trailing, 20)
+            .padding(.bottom, 10)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 10)
-    }
-}*/
-
-struct PlayView: View {
-    var body: some View{
-        Text(" Play View")
     }
 }
 
-/*#Preview {
-    PlayView(fetchTrigger: 0)
-}*/

@@ -32,7 +32,7 @@ struct MainView: View {
             } else {
                 TabView(selection: $selectedTab) {
                     //PlayView(fetchTrigger: fetchTrigger)
-                    PlayView()
+                    PlayView(fetchTrigger: fetchTrigger)
                         .tabItem {
                             Label("Play", systemImage: "play")
                         }

@@ -13,14 +13,14 @@ struct EditRoundsSheetView: View {
 
     // MARK: - Bindings
     @Binding var showEditRoundsSheet: Bool
-    @Binding var currentGame: Game
+    var currentGameId: Int
 
     // MARK: - Dependencies
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
 
     // MARK: - State
-    @State private var rounds: [Round] = []
+    
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
     @State private var showAddRoundSheet: Bool = false
@@ -32,6 +32,13 @@ struct EditRoundsSheetView: View {
     @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Computed
+    
+    private var rounds: [Round]{
+        network.roundsByGame[currentGameId] ?? []
+    }
+    private var currentGame: Game? {
+        network.games.first { $0.id == currentGameId }
+    }
 
     private var allRounds: [Round] {
         rounds.sorted { $0.roundOrder < $1.roundOrder }
@@ -47,13 +54,13 @@ struct EditRoundsSheetView: View {
     }
 
     private var team1Profiles: [Profile] {
-        [profile(for: currentGame.team1Player1Id),
-         profile(for: currentGame.team1Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team1Player1Id),
+         profile(for: currentGame?.team1Player2Id)].compactMap { $0 }
     }
 
     private var team2Profiles: [Profile] {
-        [profile(for: currentGame.team2Player1Id),
-         profile(for: currentGame.team2Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team2Player1Id),
+         profile(for: currentGame?.team2Player2Id)].compactMap { $0 }
     }
 
     // MARK: - Helpers
@@ -101,9 +108,7 @@ struct EditRoundsSheetView: View {
                 emptyView
             }
         }
-        .onAppear {
-            rounds = network.roundsByGame[currentGame.id] ?? []
-        }
+        
         .safeAreaInset(edge: .top) { scoreHeader }
         .safeAreaInset(edge: .bottom) { deleteGameButton }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
@@ -113,7 +118,10 @@ struct EditRoundsSheetView: View {
             }
             Button("Delete", role: .destructive) {
                 Task {
-                    await network.deleteGame(gameId: currentGame.id)
+                    if let gameId = currentGame?.id {
+                        await network.deleteGame(gameId: gameId)
+                        
+                    }
                     showEditRoundsSheet = false
                 }
             }
@@ -140,10 +148,10 @@ struct EditRoundsSheetView: View {
                 }
                 .opacity(isLocked ? 0.5 : 1.0)
                 .swipeActions(edge: .trailing) {
-                   /* Button(role: .destructive) {
+                   Button(role: .destructive) {
                         withAnimation(.easeInOut) {
                             if allRounds.count > 1 {
-                                let gameId = currentGame.id
+                                guard let gameId = currentGame?.id else { return }
                                 let roundId = currentRound.id
                                 Task { await handleDeleteRound(gameId: gameId, roundId: roundId) }
                             } else {
@@ -153,7 +161,7 @@ struct EditRoundsSheetView: View {
                         }
                     } label: {
                         Label("Delete", systemImage: "trash")
-                    }*/
+                    }
 
                     if !isLocked {
                         editButton(for: index)
@@ -165,7 +173,7 @@ struct EditRoundsSheetView: View {
 
             if allRounds.count != winRounds.count {
                 Section {
-                    /*Text("\(allRounds.count - winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that the winner already won after Round \(winRounds.count).")*/
+                    Text("\(allRounds.count - winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that the winner already won after Round \(winRounds.count).")
                 }
                 .listRowBackground(Color.clear)
                 .foregroundStyle(.secondary)
@@ -178,27 +186,23 @@ struct EditRoundsSheetView: View {
         }
         .sheet(isPresented: $showAddRoundSheet, onDismiss: {
             Task {
-                await network.fetchGameRounds(gameId: currentGame.id)
-                await network.reCalculate(gameId: currentGame.id)
-                rounds = network.roundsByGame[currentGame.id] ?? []
-                let updatedGames: [Game] = network.games
-                if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
-                    currentGame = updated
+                if let gameId = currentGame?.id {
+                    await network.fetchGameRounds(gameId: gameId)
+                    await network.reCalculate(gameId: gameId)
                 }
             }
         }) {
             let roundIndexValue = editingRoundIndex + 1
             let editingRoundValue = allRounds[safe: editingRoundIndex]
-            /*AddRoundSheetView(
+            AddRoundSheetView(
                 showAddRoundsSheet: $showAddRoundSheet,
-                currentGame: $currentGame,
-                rounds: $rounds,
-                editMode: true,
-                roundIndex: roundIndexValue,
-                editingRound: editingRoundValue,
+                currentGameId: currentGame?.id ?? self.currentGameId,
                 profiles: profiles,
-                network: network
-            )*/
+                network: network,
+                editMode: true,
+                roundIndex: editingRoundIndex + 1,
+                editingRound: allRounds[safe: editingRoundIndex]
+            )
         }
         .id(editingRoundIndex)
         .zIndex(0)
@@ -215,15 +219,8 @@ struct EditRoundsSheetView: View {
         await network.deleteRound(gameId: gameId, roundId: roundId)
         await network.reCalculate(gameId: gameId)
         let updatedRounds = network.roundsByGame[gameId] ?? []
-        await MainActor.run {
-            rounds = updatedRounds
-        }
-        let updatedGames: [Game] = network.games
-        if let updated = updatedGames.first(where: { $0.id == gameId }) {
-            await MainActor.run {
-                currentGame = updated
-            }
-        }
+      
+       
     }
 
     // MARK: - UI Helpers
@@ -267,7 +264,7 @@ struct EditRoundsSheetView: View {
                 .padding(.top)
                 .padding(.horizontal)
 
-                playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame.team1Player1Id, currentGame.team1Player2Id))
+                playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame?.team1Player1Id, currentGame?.team1Player2Id))
 
                 HStack {
                     Text("Team 2").fontWeight(.bold)
@@ -277,7 +274,7 @@ struct EditRoundsSheetView: View {
                 .padding(.top)
                 .padding(.horizontal)
 
-                playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame.team2Player1Id, currentGame.team2Player2Id))
+                playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame?.team2Player1Id, currentGame?.team2Player2Id))
             }
             Spacer()
         }
@@ -369,12 +366,14 @@ struct EditRoundsSheetView: View {
 
     // MARK: - Score Header
     private var scoreHeader: some View {
-        HStack {
+        let team1 = currentGame?.currentPointsTeam1 ?? 0
+        let team2 = currentGame?.currentPointsTeam2 ?? 0
+        return HStack {
             Text("Team 1:").foregroundStyle(Color.accentColor)
-            Text("\(currentGame.currentPointsTeam1)").foregroundStyle(Color.accentColor)
+            Text("\(team1)").foregroundStyle(Color.accentColor)
             Spacer()
             Text("Team 2:")
-            Text("\(currentGame.currentPointsTeam2)")
+            Text("\(team2)")
         }
         .fontWeight(.bold)
         .font(.title2)
@@ -429,4 +428,3 @@ extension Array {
         indices.contains(index) ? self[index] : nil
     }
 }
-

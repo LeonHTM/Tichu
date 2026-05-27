@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-struct Game: Identifiable, Decodable {
+struct Game: Identifiable, Decodable, Equatable {
     let id: Int
     var date: Date
 
@@ -24,6 +24,10 @@ struct Game: Identifiable, Decodable {
     var currentPointsTeam2: Int
 
     var winner: Int?
+    
+    static func == (lhs: Game, rhs: Game) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 import Foundation

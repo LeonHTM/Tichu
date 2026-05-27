@@ -171,26 +171,118 @@ func makeItems(
                 }
             }
         }
+
+func makeItems(
+    from compareList: [Int],
+    stat: Profile.playerStat,
+    sortBy: sortBy.sortBy
+) -> [Profile] {
+
+    let profiles = NetworkService.shared.profiles.filter {
+        compareList.contains($0.id)
+    }
+
+    switch sortBy {
+
+    case .valueUp:
+        return profiles.sorted {
+            $0.getStat(for: stat) < $1.getStat(for: stat)
+        }
+
+    case .valueDown:
+        return profiles.sorted {
+            $0.getStat(for: stat) > $1.getStat(for: stat)
+        }
+
+    case .nameUp:
+        return profiles.sorted {
+            ($0.name ?? "").lowercased() <
+            ($1.name ?? "").lowercased()
+        }
+
+    case .nameDown:
+        return profiles.sorted {
+            ($0.name ?? "").lowercased() >
+            ($1.name ?? "").lowercased()
+        }
+    }
+}
+
+
+func makeItems(
+    from compareList: [Int],
+    stat: Profile.playerStat,
+    sortBy: sortBy.sortBy
+) -> [Friend] {
+    let friends = NetworkService.shared.friends.filter {
+        compareList.contains($0.id)
+    }
+    
+    switch sortBy {
+    case .valueUp:
+        if stat == .dateAdded {
+            return friends.sorted { ($0.friendsSince ?? .distantPast) < ($1.friendsSince ?? .distantPast) }
+        }
+        return friends.sorted { $0.profile.getStat(for: stat) < $1.profile.getStat(for: stat) }
+    case .valueDown:
+        if stat == .dateAdded {
+            return friends.sorted { ($0.friendsSince ?? .distantPast) > ($1.friendsSince ?? .distantPast) }
+        }
+        return friends.sorted { $0.profile.getStat(for: stat) > $1.profile.getStat(for: stat) }
+    case .nameUp:
+        return friends.sorted { ($0.profile.name ?? "").lowercased() > ($1.profile.name ?? "").lowercased() }
+    case .nameDown:
+        return friends.sorted { ($0.profile.name ?? "").lowercased() < ($1.profile.name ?? "").lowercased() }
+    }
+}
+
+
+
 func makeItems(
     from compareList: [Friend],
     stat: Profile.playerStat,
     sortBy: sortBy.sortBy
 ) -> [Friend] {
+
     switch sortBy {
+
     case .valueUp:
         if stat == .dateAdded {
-            return compareList.sorted { ($0.friendsSince ?? .distantPast) < ($1.friendsSince ?? .distantPast) }
+            return compareList.sorted {
+                ($0.friendsSince ?? .distantPast) <
+                ($1.friendsSince ?? .distantPast)
+            }
         }
-        return compareList.sorted { $0.profile.getStat(for: stat) < $1.profile.getStat(for: stat) }
+
+        return compareList.sorted {
+            $0.profile.getStat(for: stat) <
+            $1.profile.getStat(for: stat)
+        }
+
     case .valueDown:
         if stat == .dateAdded {
-            return compareList.sorted { ($0.friendsSince ?? .distantPast) > ($1.friendsSince ?? .distantPast) }
+            return compareList.sorted {
+                ($0.friendsSince ?? .distantPast) >
+                ($1.friendsSince ?? .distantPast)
+            }
         }
-        return compareList.sorted { $0.profile.getStat(for: stat) > $1.profile.getStat(for: stat) }
+
+        return compareList.sorted {
+            $0.profile.getStat(for: stat) >
+            $1.profile.getStat(for: stat)
+        }
+
     case .nameUp:
-        return compareList.sorted { ($0.profile.name ?? "").lowercased() > ($1.profile.name ?? "").lowercased() }
+        return compareList.sorted {
+            ($0.profile.name ?? "").lowercased() <
+            ($1.profile.name ?? "").lowercased()
+        }
+
     case .nameDown:
-        return compareList.sorted { ($0.profile.name ?? "").lowercased() < ($1.profile.name ?? "").lowercased() }
+        return compareList.sorted {
+            ($0.profile.name ?? "").lowercased() >
+            ($1.profile.name ?? "").lowercased()
+        }
     }
 }
 
@@ -199,7 +291,7 @@ struct Friend: Identifiable, Equatable {
     let id: Int
     let profile: Profile
     let friendsSince: Date?
-
+    
     static func == (lhs: Friend, rhs: Friend) -> Bool {
         lhs.id == rhs.id
     }

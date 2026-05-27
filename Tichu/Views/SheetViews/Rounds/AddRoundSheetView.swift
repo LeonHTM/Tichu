@@ -14,8 +14,7 @@ struct AddRoundSheetView: View {
 
     // MARK: - Bindings
     @Binding var showAddRoundsSheet: Bool
-    @Binding var currentGame: Game
-    @Binding var rounds: [Round]
+    var currentGameId: Int
 
     // MARK: - Dependencies
     let profiles: [Profile]
@@ -24,7 +23,7 @@ struct AddRoundSheetView: View {
     // MARK: - Props
     var editMode: Bool
     let roundIndex: Int?
-    var editingRound: Round? // passed in when editing
+    var editingRound: Round?
 
     // MARK: - State
     @State private var hasAnnouncedPlayer1: CanAnnounce = .none
@@ -36,7 +35,6 @@ struct AddRoundSheetView: View {
     @State private var hasPushedList: [Bool] = [false, false, false, false]
     @State private var rankingList: [Int] = [0, 0, 0, 0]
 
-    // Local round state (replaces @Binding var currentRound)
     @State private var firstProfileId: Int? = nil
     @State private var secondProfileId: Int? = nil
     @State private var thirdProfileId: Int? = nil
@@ -54,6 +52,10 @@ struct AddRoundSheetView: View {
     @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Resolved Players
+    private var currentGame: Game { network.games.first { $0.id == currentGameId }! }
+    private var rounds: [Round]{
+        network.roundsByGame[currentGameId] ?? []
+    }
 
     private var player1: Profile? { profiles.first { $0.id == currentGame.team1Player1Id } }
     private var player2: Profile? { profiles.first { $0.id == currentGame.team1Player2Id } }
@@ -182,36 +184,36 @@ struct AddRoundSheetView: View {
                     "second_profile_id": secondProfileId as Any,
                     "third_profile_id":  thirdProfileId  as Any,
                     "fourth_profile_id": fourthProfileId as Any,
-                    "first_bombs":  firstBombs,
-                    "second_bombs": secondBombs,
-                    "third_bombs":  thirdBombs,
-                    "fourth_bombs": fourthBombs,
+                    "first_bombs":       firstBombs,
+                    "second_bombs":      secondBombs,
+                    "third_bombs":       thirdBombs,
+                    "fourth_bombs":      fourthBombs,
                     "tichu_points_team1": tichuPointsTeam1,
                     "tichu_points_team2": tichuPointsTeam2,
-                    "double_win_team1": hasDoubleWinTeam1,
-                    "double_win_team2": hasDoubleWinTeam2,
+                    "double_win_team1":  hasDoubleWinTeam1,
+                    "double_win_team2":  hasDoubleWinTeam2,
                     "announced_tichu":     announcedTichu,
                     "announced_big_tichu": announcedBigTichu,
                     "announced_pingu":     announcedPingu
                 ])
             } else {
                 await network.addRound(
-                    gameId:          currentGame.id,
-                    roundOrder:      nextOrder,
-                    firstProfileId:  firstProfileId,
-                    secondProfileId: secondProfileId,
-                    thirdProfileId:  thirdProfileId,
-                    fourthProfileId: fourthProfileId,
-                    firstBombs:      firstBombs,
-                    secondBombs:     secondBombs,
-                    thirdBombs:      thirdBombs,
-                    fourthBombs:     fourthBombs,
+                    gameId:           currentGame.id,
+                    roundOrder:       nextOrder,
+                    firstProfileId:   firstProfileId,
+                    secondProfileId:  secondProfileId,
+                    thirdProfileId:   thirdProfileId,
+                    fourthProfileId:  fourthProfileId,
+                    firstBombs:       firstBombs,
+                    secondBombs:      secondBombs,
+                    thirdBombs:       thirdBombs,
+                    fourthBombs:      fourthBombs,
                     tichuPointsTeam1: tichuPointsTeam1,
                     tichuPointsTeam2: tichuPointsTeam2,
                     roundPointsTeam1: 0,
                     roundPointsTeam2: 0,
-                    doubleWinTeam1: hasDoubleWinTeam1,
-                    doubleWinTeam2: hasDoubleWinTeam2,
+                    doubleWinTeam1:   hasDoubleWinTeam1,
+                    doubleWinTeam2:   hasDoubleWinTeam2,
                     announcedTichu:     announcedTichu,
                     announcedBigTichu:  announcedBigTichu,
                     announcedPingu:     announcedPingu
@@ -221,9 +223,10 @@ struct AddRoundSheetView: View {
             let updatedRounds = network.roundsByGame[currentGame.id] ?? []
             let updatedGames: [Game] = network.games
             await MainActor.run {
-                rounds = updatedRounds
-                if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
-                    currentGame = updated
+                network.roundsByGame[currentGame.id] = updatedRounds
+                if let idx = network.games.firstIndex(where: { $0.id == currentGame.id }),
+                   let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
+                    network.games[idx] = updated
                 }
             }
         }
@@ -262,12 +265,12 @@ struct AddRoundSheetView: View {
                     secondProfileId = round.secondProfileId
                     thirdProfileId  = round.thirdProfileId
                     fourthProfileId = round.fourthProfileId
-                    firstBombs  = round.firstBombs
-                    secondBombs = round.secondBombs
-                    thirdBombs  = round.thirdBombs
-                    fourthBombs = round.fourthBombs
+                    firstBombs      = round.firstBombs
+                    secondBombs     = round.secondBombs
+                    thirdBombs      = round.thirdBombs
+                    fourthBombs     = round.fourthBombs
                     tichuPointsTeam1 = round.tichuPointsTeam1
-                    tichuPointsTeam2 = round.tichuPointsTeam2
+                    tichuPointsTeam2 = round.tichuPointsTeam2 
                     announcedTichu    = round.announcedTichu
                     announcedBigTichu = round.announcedBigTichu
                     announcedPingu    = round.announcedPingu
@@ -296,16 +299,14 @@ struct AddRoundSheetView: View {
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
                             hasAnnounced: $hasAnnouncedPlayer1,
-                            bombNumber: $firstBombs,
-                           
+                            bombNumber: $firstBombs
                         )
                         PlayerContainer(
                             player: player2 ?? Profile(),
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
                             hasAnnounced: $hasAnnouncedPlayer2,
-                            bombNumber: $secondBombs,
-                            
+                            bombNumber: $secondBombs
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
@@ -320,16 +321,14 @@ struct AddRoundSheetView: View {
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
                         hasAnnounced: $hasAnnouncedPlayer3,
-                        bombNumber: $thirdBombs,
-                        
+                        bombNumber: $thirdBombs
                     )
                     PlayerContainer(
                         player: player4 ?? Profile(),
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
                         hasAnnounced: $hasAnnouncedPlayer4,
-                        bombNumber: $fourthBombs,
-                        
+                        bombNumber: $fourthBombs
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
@@ -412,6 +411,7 @@ struct AddRoundSheetView: View {
                             Spacer()
                         }
                     }
+                    .sensoryFeedback(.selection, trigger: counter)
                     .foregroundStyle(Color.primary)
                 }
             }
@@ -471,12 +471,3 @@ struct AddRoundSheetView: View {
     }
 }
 
-/*#Preview {
-    AddRoundSheetView(
-        showAddRoundsSheet: .constant(true),
-        currentGame: .constant(exampleGame),
-        currentRound: .constant(exampleRound6),
-        editMode: false,
-        roundIndex: nil
-    )
-}*/

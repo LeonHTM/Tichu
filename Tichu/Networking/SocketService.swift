@@ -97,6 +97,8 @@ final class SocketService: ObservableObject {
                 }
             }
         }
+        
+        
 
         // PROFILE DELETED
         socket.on("profile_deleted") { data, ack in
@@ -205,16 +207,15 @@ final class SocketService: ObservableObject {
                 print("game_created: failed to parse \(data)")
                 return
             }
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            let decoder = NetworkService.shared.flexibleDateDecoder // make flexibleDateDecoder internal instead of private
             guard let game = try? decoder.decode(Game.self, from: jsonData) else {
                 print("game_created: failed to decode Game")
                 return
             }
-            withAnimation(.easeInOut){
-                Task {
-                    if !NetworkService.shared.games.contains(where: { $0.id == game.id }) {
-                        await NetworkService.shared.games.append(game)
+            Task { @MainActor in
+                if !NetworkService.shared.games.contains(where: { $0.id == game.id }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.games.append(game)
                     }
                 }
             }
@@ -229,6 +230,7 @@ final class SocketService: ObservableObject {
             }
             withAnimation(.easeInOut){
                 Task{
+                    print("Game Deleted: \(gameId)")
                     await NetworkService.shared.games.removeAll { $0.id == gameId }
                     await NetworkService.shared.roundsByGame.removeValue(forKey: gameId)
                 }

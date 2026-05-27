@@ -52,6 +52,8 @@ struct DebugSheetView: View {
                     Text("\(userName)")
                     Text("\(userElo)")
                     ProfileImage(data:userImageData,size:44)
+                    ProfileImage(data:network.profileImages[userId],size:44)
+                    ProfileImage(data:network.profileImages[2],size:44)
                 }
                 
               

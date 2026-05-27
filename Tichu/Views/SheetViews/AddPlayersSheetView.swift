@@ -11,8 +11,8 @@ struct AddPlayersSheetView: View {
 
     // MARK: - Bindings
     @Binding var showAddPlayersSheet: Bool
-    @Binding var addPlayer: Profile?
-    var alreadyAdded: [Profile]
+    @Binding var addPlayerId: Int?
+    var alreadyAdded: [Int]
     @Binding var showGuest: Bool
     @Binding var showPlayers: Bool
     @Binding var showFriends: Bool
@@ -105,11 +105,11 @@ struct AddPlayersSheetView: View {
                 ProfileImage(data: nil, size: 44)
                 Button("Guest") {
                     if guestIndex == 2 {
-                        addPlayer = guest2Profile
+                        addPlayerId = guest2Profile.id
                     } else if guestIndex == 3 {
-                        addPlayer = guest3Profile
+                        addPlayerId = guest3Profile.id
                     } else {
-                        addPlayer = guest4Profile
+                        addPlayerId = guest4Profile.id
                     }
                     showAddPlayersSheet = false
                 }
@@ -150,7 +150,7 @@ struct AddPlayersSheetView: View {
     private var friendsRows: some View {
         Section {
             ForEach(sortedFriends) { friend in
-                playerButton(profile: friend.profile)
+                playerButton(profileId: friend.id)
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
@@ -174,40 +174,45 @@ struct AddPlayersSheetView: View {
     // MARK: - Players Rows
     private var playersRows: some View {
         ForEach(sortedPlayers) { profile in
-            playerButton(profile: profile)
+            playerButton(profileId: profile.id)
                 .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
 
     // MARK: - Player Button
-    private func playerButton(profile: Profile) -> some View {
-        let isAdded = alreadyAdded.contains(where: { $0.id == profile.id })
+    private func playerButton(profileId: Int) -> some View {
+        let isAdded = alreadyAdded.contains(where: { $0 == profileId })
+
+        let profile = network.profiles.first(where: { $0.id == profileId })
+
         return Button {
-            
-            //Also load Stats in Case of StatsView
-            if showGuest == false{
+
+            if showGuest == false {
                 Task {
-                    await network.fetchProfilesStats(profileId: profile.id)
-                    if let updated = network.profiles.first(where: { $0.id == profile.id }) {
-                                        addPlayer = updated
-                                    }
+                    await network.fetchProfilesStats(profileId: profileId)
+                    addPlayerId = profileId
                 }
-            }else{
-                addPlayer = profile
+            } else {
+                addPlayerId = profileId
             }
-            if var player = addPlayer {
-                player.imageData = network.profileImages[player.id]
-                addPlayer = player
-            }
+
             showAddPlayersSheet = false
-            
+
         } label: {
             HStack {
-                ProfileImage(data: network.profileImages[profile.id], size: 44)
-                Text(profile.name ?? "Unknown")
+                ProfileImage(
+                    data: network.profileImages[profileId],
+                    size: 44
+                )
+
+                Text(profile?.name ?? "Unknown")
+
                 Spacer()
-                if let elo = profile.elo {
-                    Text("\(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+
+                if let elo = profile?.elo {
+                    Text("\(elo)")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 16))
                 }
             }
         }

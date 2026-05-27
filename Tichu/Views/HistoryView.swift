@@ -28,7 +28,7 @@ struct HistoryView: View {
     // MARK: - Computed
 
     private var gameHistory: [Game] {
-        network.games.sorted { $0.date > $1.date }
+        network.games.sorted { $0.date > $1.date }.filter{$0.winner != nil}
     }
 
     private func rounds(for game: Game) -> [Round] {
