@@ -9,7 +9,7 @@ import SwiftUI
 
 struct GameSummaryListView: View {
     @Binding var showGameSummarySheetView: Bool
-    @Binding var currentGame: Game
+    var currentGameId: Int?
 
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
@@ -25,6 +25,10 @@ struct GameSummaryListView: View {
     var allowEditing: Bool
 
     // MARK: - Computed
+    
+    private var currentGame: Game? {
+        network.games.first(where:{$0.id == currentGameId})
+    }
 
     private var allRounds: [Round] {
         rounds.sorted { $0.roundOrder < $1.roundOrder }
@@ -40,19 +44,19 @@ struct GameSummaryListView: View {
     }
 
     private var team1Profiles: [Profile] {
-        [profile(for: currentGame.team1Player1Id),
-         profile(for: currentGame.team1Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team1Player1Id ?? 0),
+         profile(for: currentGame?.team1Player2Id ?? 0)].compactMap { $0 }
     }
 
     private var team2Profiles: [Profile] {
-        [profile(for: currentGame.team2Player1Id),
-         profile(for: currentGame.team2Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team2Player1Id ?? 0),
+         profile(for: currentGame?.team2Player2Id ?? 0)].compactMap { $0 }
     }
 
     var gameDone: Bool {
-        if currentGame.currentPointsTeam1 >= currentGame.target || currentGame.currentPointsTeam2 >= currentGame.target {
-            if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2 { return true }
-            if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1 { return true }
+        if currentGame?.currentPointsTeam1 ?? 0 >= currentGame?.target ?? 1000 || currentGame?.currentPointsTeam2 ?? 0 >= currentGame?.target ?? 1000 {
+            if currentGame?.currentPointsTeam1 ?? 0 > currentGame?.currentPointsTeam2 ?? 0 { return true }
+            if currentGame?.currentPointsTeam2 ?? 0 > currentGame?.currentPointsTeam1 ?? 0 { return true }
         }
         return false
     }
@@ -114,7 +118,7 @@ struct GameSummaryListView: View {
                                     .padding(.top)
                                     .padding(.horizontal)
 
-                                    playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame.team1Player1Id, currentGame.team1Player2Id))
+                                    playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame!.team1Player1Id, currentGame!.team1Player2Id))
 
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
@@ -124,7 +128,7 @@ struct GameSummaryListView: View {
                                     .padding(.top)
                                     .padding(.horizontal)
 
-                                    playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame.team2Player1Id, currentGame.team2Player2Id))
+                                    playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame!.team2Player1Id, currentGame!.team2Player2Id))
                                 }
                                 Spacer()
                             }
@@ -193,7 +197,7 @@ struct GameSummaryListView: View {
                             HStack {
                                 Spacer()
                                 Text("Played on")
-                                Text(currentGame.date, style: .date)
+                                Text(currentGame?.date ?? Date(), style: .date)
                                 Spacer()
                             }
                             .foregroundStyle(Color.secondary)
@@ -204,12 +208,12 @@ struct GameSummaryListView: View {
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss: {
                     Task {
-                        await network.fetchGameRounds(gameId: currentGame.id)
-                        await network.reCalculate(gameId: currentGame.id)
-                        rounds = network.roundsByGame[currentGame.id] ?? []
+                        await network.fetchGameRounds(gameId: currentGame?.id ?? 0)
+                        await network.reCalculate(gameId: currentGame?.id ?? 0)
+                        rounds = network.roundsByGame[currentGame?.id ?? 0] ?? []
                         let updatedGames: [Game] = network.games
-                        if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
-                            currentGame = updated
+                        if let updated = updatedGames.first(where: { $0.id == currentGame?.id ?? 0 }) {
+                            //currentGame = updated
                         }
                     }
                 }) {
@@ -234,7 +238,7 @@ struct GameSummaryListView: View {
             }
         }
         .onAppear {
-            rounds = network.roundsByGame[currentGame.id] ?? []
+            rounds = network.roundsByGame[currentGame?.id ?? 0] ?? []
         }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
@@ -243,7 +247,7 @@ struct GameSummaryListView: View {
             }
             Button("Delete", role: .destructive) {
                 Task {
-                    await network.deleteGame(gameId: currentGame.id)
+                    await network.deleteGame(gameId: currentGame?.id ?? 0)
                     showGameSummarySheetView = false
                 }
             }

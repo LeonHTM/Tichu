@@ -33,7 +33,7 @@ struct PlayView: View {
     @State private var showPlayers: Bool = true
     @State private var showFriends: Bool = true
 
-    @State private var currentGame: Game? = nil
+    @State private var currentGameId: Int? = nil
 
     @State private var revanche: Bool = false
 
@@ -46,10 +46,13 @@ struct PlayView: View {
     @State private var allowPingus: Bool = true
 
     @FocusState private var targetFieldFocused: Bool
-    
-    
-    
+
     // MARK: - Computed
+
+    private var currentGame: Game? {
+        guard let id = currentGameId else { return nil }
+        return network.games.first { $0.id == id }
+    }
 
     private var player1: Profile? {
         network.profiles.first { $0.id == userId }
@@ -85,7 +88,7 @@ struct PlayView: View {
     // MARK: - Methods
 
     private func startGame() {
-        if currentGame == nil{
+        if currentGameId == nil {
             Task {
                 let game = await network.addGame(
                     target: target,
@@ -96,15 +99,15 @@ struct PlayView: View {
                     team2Player2Id: player4Id
                 )
                 await MainActor.run {
-                    currentGame = game
+                    currentGameId = game?.id
                 }
             }
         }
     }
 
     private func resetGame() {
-        withAnimation(.easeInOut){
-            currentGame = nil
+        withAnimation(.easeInOut) {
+            currentGameId = nil
             player2Id = nil
             player3Id = nil
             player4Id = nil
@@ -122,34 +125,45 @@ struct PlayView: View {
                     team2Header
                     team2Players
                 }
-                    
-                
+
                 .refreshable {
                     await network.fetch(isLoading: .constant(false))
                 }
-                .onChange(of:network.games){
-                    if currentGame != nil{
-                        print("brakka5000")
-                        guard let id = currentGame?.id else { return }
-                        currentGame = network.games.first(where: { $0.id == id })
-                    }
-                    
-                }
-                
-                .onChange(of: fetchTrigger) {
+                .onChange(of: network.games) {
+                    // currentGame is now computed, nothing to sync
+                }.onChange(of: network.games) {
                     let openGames = network.games.filter { $0.winner == nil }
                     print("OPEN GAMES: \(openGames.count)")
                     print("GAMES: \(network.games.count)")
-                    //print("CLOSED GAMES: \(network.games.filter($0.winner != nil).count)")
                     if openGames.count == 1 {
-                        withAnimation(.easeInOut){
-                            currentGame = openGames.first
-                            player1Id = currentGame?.team1Player1Id
-                            player2Id = currentGame?.team1Player2Id
-                            player3Id = currentGame?.team2Player1Id
-                            player4Id = currentGame?.team2Player2Id
-                            Task{
-                                await network.fetchGameRounds(gameId: currentGame!.id)
+                        withAnimation(.easeInOut) {
+                            currentGameId = openGames.first?.id
+                            player1Id = openGames.first?.team1Player1Id
+                            player2Id = openGames.first?.team1Player2Id
+                            player3Id = openGames.first?.team2Player1Id
+                            player4Id = openGames.first?.team2Player2Id
+                            Task {
+                                if let id = currentGameId {
+                                    await network.fetchGameRounds(gameId: id)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .onChange(of: fetchTrigger) {
+                    let openGames = network.games.filter { $0.winner == nil }
+                    if openGames.count == 1 {
+                        withAnimation(.easeInOut) {
+                            currentGameId = openGames.first?.id
+                            player1Id = openGames.first?.team1Player1Id
+                            player2Id = openGames.first?.team1Player2Id
+                            player3Id = openGames.first?.team2Player1Id
+                            player4Id = openGames.first?.team2Player2Id
+                            Task {
+                                if let id = currentGameId {
+                                    await network.fetchGameRounds(gameId: id)
+                                }
                             }
                         }
                     }
@@ -169,14 +183,12 @@ struct PlayView: View {
                     }
                 }
                 .onChange(of: network.games.map(\.id)) {
-                    guard let id = currentGame?.id else { return }
+                    guard let id = currentGameId else { return }
 
                     if network.games.first(where: { $0.id == id }) == nil {
                         showEditRoundsSheet = false
                         resetGame()
                     }
-                        
-                    
                 }
                 .onChange(of: gameDone) {
                     if gameDone { showGameOverSheet = true }
@@ -198,7 +210,7 @@ struct PlayView: View {
                                 team2Player2Id: p4
                             )
                             await MainActor.run {
-                                currentGame = newGame
+                                currentGameId = newGame?.id
                                 revanche = false
                             }
                         }
@@ -209,10 +221,7 @@ struct PlayView: View {
                     if let game = currentGame {
                         GameSummarySheetView(
                             showGameOverViewSheetView: $showGameOverSheet,
-                            currentGame: Binding(
-                                get: { game },
-                                set: { currentGame = $0 }
-                            ),
+                            currentGameId: currentGameId,
                             revanche: $revanche,
                             profiles: network.profiles,
                             network: network,
@@ -252,7 +261,7 @@ struct PlayView: View {
             DebugSheetView(
                 currentGame: Binding(
                     get: { currentGame ?? Game(id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
-                    set: { currentGame = $0 }
+                    set: { currentGameId = $0.id }
                 ),
                 showDebugSheetView: $showDebugSheetView
             )
@@ -270,7 +279,6 @@ struct PlayView: View {
     private var team1Header: some View {
         Section {
             HStack {
-                
                 Text("Team 1")
                     .font(.title2)
                     .fontWeight(.bold)
@@ -281,7 +289,6 @@ struct PlayView: View {
                         .font(.title2)
                         .fontWeight(.bold)
                 }
-            
             }
             .listRowBackground(Color.clear)
         }
@@ -292,7 +299,10 @@ struct PlayView: View {
     private var team1Players: some View {
         Section {
             HStack {
-                if let p1Id = player1Id, let p1 = profile(for: p1Id) {
+                if let p1Id = player1Id,
+                   currentGameId != nil,
+                   let p1 = profile(for: p1Id) {
+                    
                     HStack {
                         ProfileImage(data: network.profileImages[p1Id], size: 44)
                         Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
@@ -555,4 +565,3 @@ struct PlayView: View {
         }
     }
 }
-

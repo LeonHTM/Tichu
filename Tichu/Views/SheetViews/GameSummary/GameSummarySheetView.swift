@@ -12,7 +12,7 @@ struct GameSummarySheetView: View {
 
     // MARK: - Bindings
     @Binding var showGameOverViewSheetView: Bool
-    @Binding var currentGame: Game
+    var currentGameId: Int?
     @Binding var revanche: Bool
 
     // MARK: - Dependencies
@@ -29,11 +29,15 @@ struct GameSummarySheetView: View {
     @Environment(\.displayScale) private var displayScale
     var showRevancheButton: Bool
     var HistoryMode: Bool
+    
+    private var currentGame: Game? {
+        network.games.first(where:{$0.id == currentGameId})
+    }
 
     // MARK: - Computed
 
     private var winnerName: String {
-        guard let winnerId = currentGame.winner else { return "Unknown" }
+        guard let winnerId = currentGame?.winner else { return "Unknown" }
         if winnerId == 1 { return "Team 1" }
         if winnerId == 2 { return "Team 2" }
         return "Unknown"
@@ -41,9 +45,9 @@ struct GameSummarySheetView: View {
 
     // MARK: - Share
     func renderShareImage() -> UIImage? {
-        let rounds = network.roundsByGame[currentGame.id] ?? []
+        let rounds = network.roundsByGame[currentGameId ?? 0] ?? []
         let shareView = GameSummaryShareView(
-            currentGame: currentGame,
+            currentGameId: currentGameId,
             rounds: rounds,
             profiles: profiles,
             accentCo: .accent
@@ -77,7 +81,7 @@ struct GameSummarySheetView: View {
                 Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
                 Button("Delete", role: .destructive) {
                     Task {
-                        await network.deleteGame(gameId: currentGame.id)
+                        await network.deleteGame(gameId: currentGameId ?? 0)
                         showGameOverViewSheetView = false
                     }
                 }
@@ -98,7 +102,7 @@ struct GameSummarySheetView: View {
     private var historyContent: some View {
         GameSummaryListView(
             showGameSummarySheetView: $showGameOverViewSheetView,
-            currentGame: $currentGame,
+            currentGameId: currentGameId,
             profiles: profiles,
             network: network,
             allowEditing: false
@@ -113,8 +117,7 @@ struct GameSummarySheetView: View {
             case 0:
                 VStack {
                     GameSummaryChartView(
-                        currentGame: $currentGame,
-                        rounds: network.roundsByGame[currentGame.id] ?? []
+                        currentGameId: currentGameId
                     )
                     .frame(width: 350)
                     Spacer()
@@ -122,7 +125,7 @@ struct GameSummarySheetView: View {
             case 1:
                 GameSummaryListView(
                     showGameSummarySheetView: $showGameOverViewSheetView,
-                    currentGame: $currentGame,
+                    currentGameId: currentGameId,
                     profiles: profiles,
                     network: network,
                     allowEditing: !HistoryMode
@@ -161,9 +164,9 @@ struct GameSummarySheetView: View {
                 Spacer()
 
                 HStack {
-                    Text("\(currentGame.currentPointsTeam1)").fontWeight(.bold).font(.title3).foregroundStyle(Color.accentColor)
+                    Text("\(currentGame?.currentPointsTeam1 ?? -69420)").fontWeight(.bold).font(.title3).foregroundStyle(Color.accentColor)
                     Text("vs").fontWeight(.bold).font(.title3)
-                    Text("\(currentGame.currentPointsTeam2)").fontWeight(.bold).font(.title3)
+                    Text("\(currentGame?.currentPointsTeam2 ?? -69420)").fontWeight(.bold).font(.title3)
                 }
                 .padding(13)
                 .glassEffect(.regular.interactive())

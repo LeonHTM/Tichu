@@ -17,16 +17,25 @@ struct ScorePoint: Identifiable {
 
 
 struct GameSummaryChartView: View {
-    @Binding var currentGame: Game
-    var rounds: [Round] // Pass all rounds for this game from outside
+    var currentGameId: Int?
 
     // Only rounds that count toward the win (boolWinRound == true), ordered
+   
+    
+    private var currentGame: Game? {
+        NetworkService.shared.games.first(where:{$0.id == currentGameId})
+        }
+    
+    private var rounds: [Round]? {
+        NetworkService.shared.roundsByGame[currentGameId ?? 0]
+    }
+    
     private var winRounds: [Round] {
-        rounds
-            .filter { $0.gameId == currentGame.id && $0.boolWinRound }
+        rounds ?? []
+            .filter { $0.gameId == currentGameId && $0.boolWinRound }
             .sorted { $0.roundOrder < $1.roundOrder }
     }
-
+    
     // MARK: - Build cumulative score
     private func cumulativePoints(forTeam teamNumber: Int) -> [Int] {
         var list: [Int] = [0]

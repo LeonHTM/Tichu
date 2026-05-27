@@ -9,15 +9,19 @@ import SwiftUI
 
 struct GameSummaryShareView: View {
     @Environment(\.colorScheme) var colorScheme
-    let currentGame: Game
+    let currentGameId: Int?
     let rounds: [Round]
     let profiles: [Profile]
     let accentCo: Color
 
     // MARK: - Helpers
+    
+    private var currentGame: Game? {
+        NetworkService.shared.games.first(where:{$0.id == currentGameId})
+        }
 
     private var allRounds: [Round] {
-        rounds.filter { $0.gameId == currentGame.id }
+        rounds.filter { $0.gameId == currentGameId }
               .sorted { $0.roundOrder < $1.roundOrder }
     }
 
@@ -27,21 +31,21 @@ struct GameSummaryShareView: View {
     }
 
     private var team1Profiles: [Profile] {
-        [profile(for: currentGame.team1Player1Id),
-         profile(for: currentGame.team1Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team1Player1Id ?? 0),
+         profile(for: currentGame?.team1Player2Id ?? 0)].compactMap { $0 }
     }
 
     private var team2Profiles: [Profile] {
-        [profile(for: currentGame.team2Player1Id),
-         profile(for: currentGame.team2Player2Id)].compactMap { $0 }
+        [profile(for: currentGame?.team2Player1Id ?? 0),
+         profile(for: currentGame?.team2Player2Id ?? 0)].compactMap { $0 }
     }
 
     func gameWinner() -> String {
-        if currentGame.currentPointsTeam1 >= currentGame.target ||
-            currentGame.currentPointsTeam2 >= currentGame.target {
-            if currentGame.currentPointsTeam1 > currentGame.currentPointsTeam2 {
+        if currentGame?.currentPointsTeam1 ?? 0 >= currentGame?.target ?? 0 ||
+            currentGame?.currentPointsTeam2 ?? 0 >= currentGame?.target ?? 0 {
+            if currentGame?.currentPointsTeam1 ?? 0 > currentGame?.currentPointsTeam2 ?? 0 {
                 return "Team 1"
-            } else if currentGame.currentPointsTeam2 > currentGame.currentPointsTeam1 {
+            } else if currentGame?.currentPointsTeam2 ?? 0 > currentGame?.currentPointsTeam1 ?? 0 {
                 return "Team 2"
             }
         }
@@ -176,8 +180,7 @@ struct GameSummaryShareView: View {
             }.padding(.horizontal, 30)
 
             GameSummaryChartView(
-                currentGame: .constant(currentGame),
-                rounds: rounds
+                currentGameId: currentGameId
             )
             .frame(height: 250)
 
@@ -186,21 +189,21 @@ struct GameSummaryShareView: View {
                     Text("Team 1")
                         .font(.headline)
                         .foregroundStyle(accentCo)
-                    Text("\(currentGame.currentPointsTeam1)")
+                    Text("\(currentGame?.currentPointsTeam1 ?? 0)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(accentCo)
                 }
                 Spacer()
                 VStack {
-                    Text("Target: \(currentGame.target)").fontWeight(.bold)
+                    Text("Target: \(currentGame?.target ?? 1000)").fontWeight(.bold)
                     Text("Winner: \(gameWinner())").fontWeight(.bold)
                         .foregroundStyle(gameWinner() == "Team 1" ? accentCo : Color.primary)
                 }
                 Spacer()
                 VStack {
                     Text("Team 2").font(.headline)
-                    Text("\(currentGame.currentPointsTeam2)")
+                    Text("\(currentGame?.currentPointsTeam2 ?? 0)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                 }
