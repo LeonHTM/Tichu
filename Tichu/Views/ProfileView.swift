@@ -229,7 +229,28 @@ struct ProfileView: View {
             }
 
             Button {
-                if let url = URL(string: "mailto:leon@tichu.dev") {
+                let subject = "Tichu App Support"
+                let osVersion = ProcessInfo.processInfo.operatingSystemVersion
+                let iosVersion = "\(osVersion.majorVersion).\(osVersion.minorVersion)"
+                let iosBuild = ProcessInfo.processInfo.operatingSystemVersionString
+                    .components(separatedBy: " ")
+                    .last?
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "()")) ?? "Unknown"
+                let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+                let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+
+                let body = """
+                    
+                    
+                    
+                    App Version: \(appVersion) (\(buildNumber))
+                    iOS: \(iosVersion) (\(iosBuild))
+                    Device: \(deviceModelName())
+                    User ID: \(userId)356af6d-ec96-49e1-a7e8-e372ce3c6363
+                    """
+                let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                if let url = URL(string: "mailto:leon@tichu.dev?subject=\(encodedSubject)&body=\(encodedBody)") {
                     UIApplication.shared.open(url)
                 }
             } label: {
