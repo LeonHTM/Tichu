@@ -14,7 +14,9 @@ struct GameSummaryListView: View {
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
 
-    @State private var rounds: [Round] = []
+    // All round data is read directly from network.roundsByGame, which is
+    // @Published so SwiftUI re-renders automatically when fetchGameRounds finishes.
+
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
     @State private var showAddRoundSheet: Bool = false
@@ -25,13 +27,14 @@ struct GameSummaryListView: View {
     var allowEditing: Bool
 
     // MARK: - Computed
-    
+
     private var currentGame: Game? {
-        network.games.first(where:{$0.id == currentGameId})
+        network.games.first(where: { $0.id == currentGameId })
     }
 
     private var allRounds: [Round] {
-        rounds.sorted { $0.roundOrder < $1.roundOrder }
+        (network.roundsByGame[currentGameId ?? 0] ?? [])
+            .sorted { $0.roundOrder < $1.roundOrder }
     }
 
     private var winRounds: [Round] {
@@ -113,7 +116,6 @@ struct GameSummaryListView: View {
                                     HStack {
                                         Text("Team 1").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                         Spacer()
-                                        //Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold).foregroundStyle(Color.accentColor)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
@@ -123,7 +125,6 @@ struct GameSummaryListView: View {
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
                                         Spacer()
-                                        //Text("\(currentRound.tichu_points_team2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
@@ -157,11 +158,7 @@ struct GameSummaryListView: View {
                                         /*Task {
                                             await network.deleteRound(gameId: currentGame.id, roundId: currentRound.id)
                                             await network.reCalculate(gameId: currentGame.id)
-                                            rounds = network.roundsByGame[currentGame.id] ?? []
                                             let updatedGames: [Game] = network.games
-                                            if let updated = updatedGames.first(where: { $0.id == currentGame.id }) {
-                                                currentGame = updated
-                                            }
                                         }*/
                                     } else {
                                         showDeleteGameAlert = true
@@ -210,23 +207,9 @@ struct GameSummaryListView: View {
                     Task {
                         await network.fetchGameRounds(gameId: currentGame?.id ?? 0)
                         await network.reCalculate(gameId: currentGame?.id ?? 0)
-                        rounds = network.roundsByGame[currentGame?.id ?? 0] ?? []
-                        let updatedGames: [Game] = network.games
-                        if let updated = updatedGames.first(where: { $0.id == currentGame?.id ?? 0 }) {
-                            //currentGame = updated
-                        }
                     }
                 }) {
-                    /*AddRoundSheetView(
-                        showAddRoundsSheet: $showAddRoundSheet,
-                        currentGame: $currentGame,
-                        rounds: $rounds,
-                        editMode: true,
-                        roundIndex: editingRoundIndex + 1,
-                        editingRound: allRounds[safe: editingRoundIndex],
-                        profiles: profiles,
-                        network: network
-                    )*/
+                    /*AddRoundSheetView(...)*/
                 }
                 .id(editingRoundIndex)
                 .listSectionSpacing(0)
@@ -238,7 +221,13 @@ struct GameSummaryListView: View {
             }
         }
         .onAppear {
-            rounds = network.roundsByGame[currentGame?.id ?? 0] ?? []
+            // If rounds aren't loaded yet (e.g. sheet opened before HistoryView fetch),
+            // trigger a fetch. Otherwise allRounds already has data immediately.
+            if network.roundsByGame[currentGameId ?? 0] == nil {
+                Task {
+                    await network.fetchGameRounds(gameId: currentGameId ?? 0)
+                }
+            }
         }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {

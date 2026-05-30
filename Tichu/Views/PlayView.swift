@@ -14,9 +14,7 @@ struct PlayView: View {
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Storage - Unknown"
     @AppStorage("userElo") var userElo: Int = 404
-
-    // MARK: - Input
-    let fetchTrigger: Int
+    @AppStorage("isLoading") var isLoading: Bool = false
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -118,143 +116,144 @@ struct PlayView: View {
     var body: some View {
         ZStack {
             NavigationStack {
-                List {
+                    List {
                     team1Header
-                    team1Players
+                        team1Players.disabled(isLoading)
                     centerSpacer
                     team2Header
-                    team2Players
+                    team2Players.disabled(isLoading)
                 }
-
-                .refreshable {
-                    await network.fetch(isLoading: .constant(false))
-                }
-                .onChange(of: network.games) {
-                    // currentGame is now computed, nothing to sync
-                }.onChange(of: network.games) {
-                    let openGames = network.games.filter { $0.winner == nil }
-                    print("OPEN GAMES: \(openGames.count)")
-                    print("GAMES: \(network.games.count)")
-                    if openGames.count == 1 {
-                        withAnimation(.easeInOut) {
-                            currentGameId = openGames.first?.id
-                            player1Id = openGames.first?.team1Player1Id
-                            player2Id = openGames.first?.team1Player2Id
-                            player3Id = openGames.first?.team2Player1Id
-                            player4Id = openGames.first?.team2Player2Id
-                            Task {
-                                if let id = currentGameId {
-                                    await network.fetchGameRounds(gameId: id)
+                
+                    .refreshable {
+                        await network.fetch()
+                    }
+                    .onChange(of: network.games) {
+                        // currentGame is now computed, nothing to sync
+                    }.onChange(of: network.games) {
+                        let openGames = network.games.filter { $0.winner == nil }
+                        print("OPEN GAMES: \(openGames.count)")
+                        print("GAMES: \(network.games.count)")
+                        if openGames.count == 1 {
+                            withAnimation(.easeInOut) {
+                                currentGameId = openGames.first?.id
+                                player1Id = openGames.first?.team1Player1Id
+                                player2Id = openGames.first?.team1Player2Id
+                                player3Id = openGames.first?.team2Player1Id
+                                player4Id = openGames.first?.team2Player2Id
+                                Task {
+                                    if let id = currentGameId {
+                                        await network.fetchGameRounds(gameId: id)
+                                    }
                                 }
                             }
                         }
                     }
-                }
-
-                .onChange(of: fetchTrigger) {
-                    let openGames = network.games.filter { $0.winner == nil }
-                    if openGames.count == 1 {
-                        withAnimation(.easeInOut) {
-                            currentGameId = openGames.first?.id
-                            player1Id = openGames.first?.team1Player1Id
-                            player2Id = openGames.first?.team1Player2Id
-                            player3Id = openGames.first?.team2Player1Id
-                            player4Id = openGames.first?.team2Player2Id
-                            Task {
-                                if let id = currentGameId {
-                                    await network.fetchGameRounds(gameId: id)
+                
+                    .onChange(of: isLoading) {
+                        let openGames = network.games.filter { $0.winner == nil }
+                        if openGames.count == 1 {
+                            withAnimation(.easeInOut) {
+                                currentGameId = openGames.first?.id
+                                player1Id = openGames.first?.team1Player1Id
+                                player2Id = openGames.first?.team1Player2Id
+                                player3Id = openGames.first?.team2Player1Id
+                                player4Id = openGames.first?.team2Player2Id
+                                Task {
+                                    if let id = currentGameId {
+                                        await network.fetchGameRounds(gameId: id)
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                .onChange(of: isGameReady) {
-                    if isGameReady {
-                        startGame()
+                    .onChange(of: isGameReady) {
+                        if isGameReady {
+                            startGame()
+                        }
                     }
-                }
-                .onChange(of: socket.connected) {
-                    if !socket.connected {
-                        showFriends = false
-                        showPlayers = false
-                    } else {
-                        showFriends = true
-                        showPlayers = true
+                    .onChange(of: socket.connected) {
+                        if !socket.connected {
+                            showFriends = false
+                            showPlayers = false
+                        } else {
+                            showFriends = true
+                            showPlayers = true
+                        }
                     }
-                }
-                .onChange(of: network.games.map(\.id)) {
-                    guard let id = currentGameId else { return }
-
-                    if network.games.first(where: { $0.id == id }) == nil {
-                        showEditRoundsSheet = false
-                        resetGame()
+                    .onChange(of: network.games.map(\.id)) {
+                        guard let id = currentGameId else { return }
+                        
+                        if network.games.first(where: { $0.id == id }) == nil {
+                            showEditRoundsSheet = false
+                            resetGame()
+                        }
                     }
-                }
-                .onChange(of: gameDone) {
-                    if gameDone { showGameOverSheet = true }
-                }
-                .sheet(isPresented: $showGameOverSheet, onDismiss: {
-                    if revanche {
-                        guard let game = currentGame else { return }
-                        let p1 = game.team1Player1Id
-                        let p2 = game.team1Player2Id
-                        let p3 = game.team2Player1Id
-                        let p4 = game.team2Player2Id
-                        Task {
-                            let newGame = await network.addGame(
-                                target: game.target,
-                                allowPingus: game.allowPingus,
-                                team1Player1Id: p1,
-                                team1Player2Id: p2,
-                                team2Player1Id: p3,
-                                team2Player2Id: p4
+                    .onChange(of: gameDone) {
+                        if gameDone { showGameOverSheet = true }
+                    }
+                    .sheet(isPresented: $showGameOverSheet, onDismiss: {
+                        if revanche {
+                            guard let game = currentGame else { return }
+                            let p1 = game.team1Player1Id
+                            let p2 = game.team1Player2Id
+                            let p3 = game.team2Player1Id
+                            let p4 = game.team2Player2Id
+                            Task {
+                                let newGame = await network.addGame(
+                                    target: game.target,
+                                    allowPingus: game.allowPingus,
+                                    team1Player1Id: p1,
+                                    team1Player2Id: p2,
+                                    team2Player1Id: p3,
+                                    team2Player2Id: p4
+                                )
+                                await MainActor.run {
+                                    currentGameId = newGame?.id
+                                    revanche = false
+                                }
+                            }
+                        } else {
+                            resetGame()
+                        }
+                    }) {
+                        if let game = currentGame {
+                            GameSummarySheetView(
+                                showGameOverViewSheetView: $showGameOverSheet,
+                                currentGameId: currentGameId,
+                                revanche: $revanche,
+                                profiles: network.profiles,
+                                network: network,
+                                showRevancheButton: true,
+                                HistoryMode: false
                             )
-                            await MainActor.run {
-                                currentGameId = newGame?.id
-                                revanche = false
+                            .presentationDetents([.medium, .large])
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
+                    .background(alignment: .center) { vsBackground }
+                    .edgesIgnoringSafeArea(.all)
+                    .background(Color(uiColor: .systemGroupedBackground))
+                    .listSectionSpacing(0)
+                    .navigationTitle("Play")
+                    .toolbarTitleDisplayMode(.inlineLarge)
+                    .toolbar {
+                        ToolbarItem {
+                            Button { showDebugSheetView = true } label: {
+                                Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
                             }
                         }
-                    } else {
-                        resetGame()
+                        ToolbarItem(placement: .topBarTrailing) {
+                            NavigationProfileImage()
+                        }
+                        .sharedBackgroundVisibility(.hidden)
                     }
-                }) {
-                    if let game = currentGame {
-                        GameSummarySheetView(
-                            showGameOverViewSheetView: $showGameOverSheet,
-                            currentGameId: currentGameId,
-                            revanche: $revanche,
-                            profiles: network.profiles,
-                            network: network,
-                            showRevancheButton: true,
-                            HistoryMode: false
-                        )
-                        .presentationDetents([.medium, .large])
-                    }
-                }
-                .scrollContentBackground(.hidden)
-                .background(alignment: .center) { vsBackground }
-                .edgesIgnoringSafeArea(.all)
-                .background(Color(uiColor: .systemGroupedBackground))
-                .listSectionSpacing(0)
-                .navigationTitle("Play")
-                .toolbarTitleDisplayMode(.inlineLarge)
-                .toolbar {
-                    ToolbarItem {
-                        Button { showDebugSheetView = true } label: {
-                            Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") { targetFieldFocused = false }
                         }
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        NavigationProfileImage()
-                    }
-                    .sharedBackgroundVisibility(.hidden)
-                }
-                .toolbar {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button("Done") { targetFieldFocused = false }
-                    }
-                }
+               
             }
         }
         .sheet(isPresented: $showDebugSheetView) {
@@ -326,7 +325,9 @@ struct PlayView: View {
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     } else {
-                        ProgressView()
+                        Text("Ranking: 1000")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 16))
                     }
                 }
             }
@@ -342,7 +343,17 @@ struct PlayView: View {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                     }
                 }
-            } else {
+            } else if isLoading{
+                HStack {
+                    ProfileImage(data: nil, size: 44)
+                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                    Spacer()
+                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
+                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                }
+                
+                
+            }else {
                 addPlayerRow(label: "Add Player 2", action: { showAddPlayersSheet2 = true })
                     .sheet(isPresented: $showAddPlayersSheet2) {
                         AddPlayersSheetView(
@@ -401,7 +412,17 @@ struct PlayView: View {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                     }
                 }
-            } else {
+            } else if isLoading{
+                HStack {
+                    ProfileImage(data: nil, size: 44)
+                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                    Spacer()
+                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
+                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                }
+                
+                
+            }else {
                 addPlayerRow(label: "Add Player 3", action: { showAddPlayersSheet3 = true })
                     .sheet(isPresented: $showAddPlayersSheet3) {
                         AddPlayersSheetView(
@@ -428,7 +449,18 @@ struct PlayView: View {
                         Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                     }
                 }
-            } else {
+                
+            } else if isLoading{
+                HStack {
+                    ProfileImage(data: nil, size: 44)
+                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                    Spacer()
+                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
+                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                }
+                
+                
+            }else {
                 addPlayerRow(label: "Add Player 4", action: { showAddPlayersSheet4 = true })
                     .sheet(isPresented: $showAddPlayersSheet4) {
                         AddPlayersSheetView(
@@ -461,18 +493,35 @@ struct PlayView: View {
 
     // MARK: - VS Background
     private var vsBackground: some View {
-        VStack {
-            Text("VS")
-                .font(.system(size: 120, weight: .bold))
-            HStack {
-                Text(isRated ? "Rated" : "Unrated")
-                    .fontWeight(.bold)
-                    .font(.title2)
-                    .offset(y: -15)
-                Text(isGameReady ? " \(currentGame?.target ?? target)" : " \(target)")
-                    .fontWeight(.bold)
-                    .font(.title2)
-                    .offset(y: -15)
+        Group {
+            if isLoading == false {
+                withAnimation(.easeInOut){
+                    VStack {
+                        Text("VS")
+                            .font(.system(size: 120, weight: .bold))
+                        HStack {
+                            Text(isRated ? "Rated" : "Unrated")
+                                .fontWeight(.bold)
+                                .font(.title3)
+                                .offset(y: -15)
+                            Text(isGameReady ? " \(currentGame?.target ?? target)" : " \(target)")
+                                .fontWeight(.bold)
+                                .font(.title3)
+                                .offset(y: -15)
+                        }
+                    }
+                }
+            } else {
+                withAnimation(.easeInOut){
+                    VStack{
+                        ProgressView().scaleEffect(2)
+                        Text("Loading game...")
+                            .fontWeight(.bold)
+                            .font(.title3)
+                            .offset(y: 15)
+                    }
+                    
+                }
             }
         }
         .foregroundStyle(Color.secondary)

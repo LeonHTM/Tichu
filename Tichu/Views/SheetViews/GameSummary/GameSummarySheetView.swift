@@ -15,6 +15,7 @@ struct GameSummarySheetView: View {
     var currentGameId: Int?
     @Binding var revanche: Bool
 
+
     // MARK: - Dependencies
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
@@ -88,8 +89,17 @@ struct GameSummarySheetView: View {
             } message: {
                 Text("This Game will be deleted")
             }
-            .sheet(item: $shareImageToPresent) { image in
-                ActivityViewController(activityItems: [image])
+            .sheet(isPresented: Binding(
+                get: { shareImageToPresent != nil },
+                set: { if !$0 { shareImageToPresent = nil } }
+            )) {
+                if let image = shareImageToPresent {
+                    ActivityViewController(
+                        title: "Tichu Round from \(currentGame?.date.formatted(date: .numeric, time: .omitted) ?? "Unknown")",
+                        message: "Made with Tichu-App.",
+                        image: image
+                    )
+                }
             }
             .safeAreaInset(edge: .bottom) { bottomBar }
             .navigationTitle("\(winnerName) won!")

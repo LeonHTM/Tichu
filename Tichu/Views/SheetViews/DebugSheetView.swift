@@ -48,12 +48,20 @@ struct DebugSheetView: View {
                     Text("Manually recalculate Round \(reCalculate)")
                 }
             
-                HStack{Text("\(userId)")
-                    Text("\(userName)")
-                    Text("\(userElo)")
+                HStack{Text("Id:\(userId)")
+                    Text("Name: \(userName)")
+                    Text("Elo: \(userElo)")
                     ProfileImage(data:userImageData,size:44)
+                    
+                }
+                
+                
+                
+                HStack{Text("Id:\(userId)")
+                    Text("Elo:  \(network.profiles.first(where: {$0.id == userId})?.name ?? "Error")")
+                    Text("Elo:  \(network.profiles.first(where: {$0.id == userId})?.elo ?? -69420)")
                     ProfileImage(data:network.profileImages[userId],size:44)
-                    ProfileImage(data:network.profileImages[2],size:44)
+                    
                 }
                 
               

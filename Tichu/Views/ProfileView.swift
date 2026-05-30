@@ -229,7 +229,7 @@ struct ProfileView: View {
             }
 
             Button {
-                if let url = URL(string: "mailto:straussl@student.ethz.ch") {
+                if let url = URL(string: "mailto:leon@tichu.dev") {
                     UIApplication.shared.open(url)
                 }
             } label: {

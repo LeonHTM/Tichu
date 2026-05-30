@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import UIKit
+import LinkPresentation
 
 //MARK: - From stored data do UIImage
 func dataToPhoto(data: Data?) -> UIImage? {
@@ -40,19 +41,87 @@ func ProfileImage(data: Data?, size: Int) -> some View {
     }
 }
 
-// MARK: - Activity View Controller
-struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
+final class ShareItem: NSObject, UIActivityItemSource {
 
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    let title: String
+    let message: String
+    let image: UIImage?
+
+    init(title: String, message: String, image: UIImage?) {
+        self.title = title
+        self.message = message
+        self.image = image
     }
 
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+    // Placeholder
+    func activityViewControllerPlaceholderItem(
+        _ activityViewController: UIActivityViewController
+    ) -> Any {
+        message
+    }
+
+    // Shared content
+    func activityViewController(
+        _ activityViewController: UIActivityViewController,
+        itemForActivityType activityType: UIActivity.ActivityType?
+    ) -> Any? {
+
+        if let image {
+            return image
+        }
+
+        return message
+    }
+
+    // Mail subject
+    func activityViewController(
+        _ activityViewController: UIActivityViewController,
+        subjectForActivityType activityType: UIActivity.ActivityType?
+    ) -> String {
+        title
+    }
+
+    // Rich preview
+    func activityViewControllerLinkMetadata(
+        _ activityViewController: UIActivityViewController
+    ) -> LPLinkMetadata? {
+
+        let metadata = LPLinkMetadata()
+        metadata.title = title
+
+        if let image {
+            metadata.imageProvider = NSItemProvider(object: image)
+        }
+
+        return metadata
+    }
 }
 
-extension UIImage: Identifiable {
-    public var id: ObjectIdentifier { ObjectIdentifier(self) }
+// MARK: - Activity View Controller
+struct ActivityViewController: UIViewControllerRepresentable {
+
+    let title: String
+    let message: String
+    let image: UIImage?
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+
+        let shareItem = ShareItem(
+            title: title,
+            message: message,
+            image: image
+        )
+
+        return UIActivityViewController(
+            activityItems: [shareItem],
+            applicationActivities: nil
+        )
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIActivityViewController,
+        context: Context
+    ) { }
 }
 
 

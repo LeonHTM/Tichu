@@ -16,23 +16,19 @@ struct HistoryView: View {
     @AppStorage("selectedTab") private var selectedTab = 0
     @Environment(\.colorScheme) var colorScheme
     @State private var showDebugSheetView: Bool = false
+    @State private var showLoader: Bool = false
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
-    @State private var showGameSummarySheetView: Bool = false
-    @State private var currentGameId: Int = 0
+    @State private var sheetGame: Game? = nil       // ✅ replaces showGameSummarySheetView + currentGameId
     @State private var selectedGameId: Int? = nil
 
     // MARK: - Computed
 
     private var gameHistory: [Game] {
         network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }
-    }
-
-    private func rounds(for game: Game) -> [Round] {
-        network.roundsByGame[game.id] ?? []
     }
 
     private func playerName(_ id: Int?) -> String {
@@ -62,10 +58,9 @@ struct HistoryView: View {
                             Color.clear.frame(height: centerY - rowHeight / 2 - 10)
 
                             ForEach(gameHistory, id: \.id) { game in
-                                gameRow(currentGameId: game, centerY: centerY, rowHeight: rowHeight)
+                                gameRow(game: game, centerY: centerY, rowHeight: rowHeight)
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
-                                    .scrollTargetLayout()
                                     .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
                             }
                             .task {
@@ -78,6 +73,7 @@ struct HistoryView: View {
 
                             Color.clear.frame(height: centerY - rowHeight / 2 + 20)
                         }
+                        .scrollTargetLayout()
                     }
                     .background(Color(uiColor: .systemGroupedBackground))
                     .scrollTargetBehavior(.viewAligned)
@@ -91,13 +87,17 @@ struct HistoryView: View {
             }
             .refreshable {
                 Task {
-                    await network.fetch(isLoading: .constant(true))
+                    await network.fetch()
                 }
             }
-            .sheet(isPresented: $showGameSummarySheetView) {
+            // ✅ sheet(item:) — always triggers on tap, even for the already-selected row
+            .sheet(item: $sheetGame) { game in
                 GameSummarySheetView(
-                    showGameOverViewSheetView: $showGameSummarySheetView,
-                    currentGameId: currentGameId,
+                    showGameOverViewSheetView: Binding(
+                        get: { sheetGame != nil },
+                        set: { if !$0 { sheetGame = nil } }
+                    ),
+                    currentGameId: game.id,
                     revanche: .constant(false),
                     profiles: network.profiles,
                     network: network,
@@ -142,34 +142,39 @@ struct HistoryView: View {
             }
         }
         .onAppear {
-            if selectedGameId == nil {
-                selectedGameId = gameHistory.first?.id
-            }
-
             Task {
-                for game in gameHistory {
-                    await network.fetchGameRounds(gameId: game.id)
+                showLoader = true
+                await withTaskGroup(of: Void.self) { group in
+                    for game in gameHistory {
+                        group.addTask {
+                            await network.fetchGameRounds(gameId: game.id)
+                        }
+                    }
                 }
+                if selectedGameId == nil {
+                    selectedGameId = gameHistory.first?.id
+                }
+                showLoader = false
             }
         }
     }
 
     // MARK: - Game Row
-    private func gameRow(currentGameId: Game, centerY: CGFloat, rowHeight: CGFloat) -> some View {
+    private func gameRow(game: Game, centerY: CGFloat, rowHeight: CGFloat) -> some View {
         GeometryReader { geo in
             let midY = geo.frame(in: .scrollView).midY
             let distance = abs(centerY - midY)
             let isCentered = distance < (rowHeight / 10)
-            let isSelected = selectedGameId == currentGameId.id
+            let isSelected = selectedGameId == game.id
             let opacity = max(0.35, 1 - (distance / 600))
 
-            let scoreText = "\(currentGameId.currentPointsTeam1) : \(currentGameId.currentPointsTeam2)"
-            let matchupText = "\(playerName(currentGameId.team1Player1Id)) & \(playerName(currentGameId.team1Player2Id))"
-            let opponentText = "\(playerName(currentGameId.team2Player1Id)) & \(playerName(currentGameId.team2Player2Id))"
+            let scoreText = "\(game.currentPointsTeam1) : \(game.currentPointsTeam2)"
+            let matchupText = "\(playerName(game.team1Player1Id)) & \(playerName(game.team1Player2Id))"
+            let opponentText = "\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))"
 
             Button {
-                self.currentGameId = currentGameId.id
-                showGameSummarySheetView = true
+                // ✅ Always assigns a new value — sheet always opens fresh
+                sheetGame = game
             } label: {
                 HStack {
                     Text(scoreText)
@@ -184,7 +189,7 @@ struct HistoryView: View {
                             Text(opponentText)
                         }
 
-                        Text(currentGameId.date, style: .date)
+                        Text(game.date, style: .date)
                             .fontWeight(.bold)
                     }
 
@@ -211,14 +216,14 @@ struct HistoryView: View {
                 .opacity(opacity)
             }
             .onChange(of: isCentered) { _, newValue in
-                if newValue, selectedGameId != currentGameId.id {
-                    selectedGameId = currentGameId.id
+                if newValue, selectedGameId != game.id {
+                    selectedGameId = game.id
                 }
             }
             .sensoryFeedback(.selection, trigger: isSelected)
             .onAppear {
                 if selectedGameId == nil && isCentered {
-                    selectedGameId = currentGameId.id
+                    selectedGameId = game.id
                 }
             }
         }

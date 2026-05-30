@@ -32,7 +32,7 @@ struct MainView: View {
             } else {
                 TabView(selection: $selectedTab) {
                     //PlayView(fetchTrigger: fetchTrigger)
-                    PlayView(fetchTrigger: fetchTrigger)
+                    PlayView()
                         .tabItem {
                             Label("Play", systemImage: "play")
                         }
@@ -68,8 +68,7 @@ struct MainView: View {
                 ))
                 .onAppear() {
                     Task {
-                        await network.fetch(isLoading: $isLoading)
-                        fetchTrigger += 1
+                        await network.fetch()
                     }
                 }
                 .onAppear {
@@ -85,11 +84,6 @@ struct MainView: View {
                         print("Request authorization error")
                     }
                 }
-            }
-        }.onChange(of:userId){
-            Task {
-                await network.fetch(isLoading: $isLoading)
-                fetchTrigger += 1
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in

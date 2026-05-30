@@ -22,6 +22,7 @@ class NetworkService: ObservableObject {
     @AppStorage("userElo") var userElo: Int = 1000
     @AppStorage("pendingDeviceToken") var pendingDeviceToken: String = ""
     @AppStorage("authToken") var authToken: String = ""
+    @AppStorage("isLoading") var isLoading: Bool = false
 
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
@@ -106,7 +107,9 @@ class NetworkService: ObservableObject {
                 }
 
                 if !pendingDeviceToken.isEmpty {
+                    isLoading = true
                     await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
+                    isLoading = false
                 } else {
                     print("No device token available yet")
                 }
@@ -117,6 +120,11 @@ class NetworkService: ObservableObject {
         } catch {
             print("login error: \(error)")
         }
+           
+        Task {
+            await NetworkService.shared.fetch()
+        }
+            
 
         return false
     }
@@ -145,7 +153,7 @@ class NetworkService: ObservableObject {
 
             do {
                 
-                //THIS MAKES SURE PROFILE PICTURE GET ACTUALLY LOADED 
+    
                 var request = URLRequest(url: url)
                 request.cachePolicy = .reloadIgnoringLocalCacheData
                 request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
@@ -155,7 +163,9 @@ class NetworkService: ObservableObject {
                 await MainActor.run {
                     self.profileImages[profile.id] = data
                     if profile.id == self.userId {
+                        
                         userImageData = data
+                        print("userIMageDATA: loadProfiles")
                     }
                 }
 
@@ -210,6 +220,10 @@ class NetworkService: ObservableObject {
                 self.pendingDeviceToken = ""
                 self.authToken = ""
                 self.userId = -69420
+                self.userName = "Unknown"
+                self.userImageData = nil
+                self.userElo = 1000
+                
             }
         } catch {
             print("logout error: \(error)")
@@ -305,7 +319,7 @@ class NetworkService: ObservableObject {
     // MARK: - Friends
 
     func fetchFriends(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/friends/\(profileId)/") else { return }
+        guard let url = URL(string: "\(baseURL)/friends/\(profileId)") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -470,6 +484,15 @@ class NetworkService: ObservableObject {
 
         do {
             try await URLSession.shared.data(for: request)
+
+            
+            await MainActor.run {
+                self.profileImages[profileId] = compressedData
+                if profileId == self.userId {
+                    self.userImageData = compressedData
+                    print("userImageDAta: uploadProfile")
+                }
+            }
         } catch {
             print("uploadProfileImage error: \(error)")
         }
@@ -528,10 +551,11 @@ class NetworkService: ObservableObject {
         }
     }
 
-    func fetch(isLoading: Binding<Bool>) async {
+    func fetch() async {
+        
+        isLoading = true
         let currentUserId = await MainActor.run { userId }
 
-        await MainActor.run { isLoading.wrappedValue = true }
 
         await fetchProfiles()
         await fetchFriends(profileId: currentUserId)
@@ -541,6 +565,7 @@ class NetworkService: ObservableObject {
         await MainActor.run {
             if let imageData = self.profileImages[currentUserId] {
                 self.userImageData = imageData
+                print("fetch Function just fetched userImageData")
             }
             if let name = self.profiles.first(where: { $0.id == currentUserId })?.name {
                 self.userName = name
@@ -548,7 +573,7 @@ class NetworkService: ObservableObject {
             if let elo = self.profiles.first(where: { $0.id == currentUserId })?.elo {
                 self.userElo = elo
             }
-            isLoading.wrappedValue = false
+            isLoading = false
         }
     }
 
