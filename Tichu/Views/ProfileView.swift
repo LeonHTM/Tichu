@@ -355,8 +355,9 @@ struct ProfileView: View {
                 Button(role: .destructive) {
                     withAnimation(.easeInOut(duration: 0.285)) {
                         Task{
-                            await network.logout(profileId: userId)
                             await network.deleteProfile(profileId: userId)
+                            //await network.logout(profileId: userId)
+                            
                         }
                         showDeleteAlert = false
                     

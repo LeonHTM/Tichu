@@ -41,6 +41,19 @@ func ProfileImage(data: Data?, size: Int) -> some View {
     }
 }
 
+
+struct GuestImageView: View {
+    @State private var imageName = ["dog", "phoenix", "dragon", "mahjong"].randomElement()!
+
+    var body: some View {
+        Image(imageName)
+            .resizable()
+            .scaledToFill()
+            .frame(width: 44, height: 44)
+            .clipShape(Circle())
+    }
+}
+
 final class ShareItem: NSObject, UIActivityItemSource {
 
     let title: String

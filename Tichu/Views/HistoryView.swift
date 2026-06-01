@@ -13,10 +13,11 @@ struct HistoryView: View {
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
-    @AppStorage("selectedTab") private var selectedTab = 0
+    @AppStorage("selectedTab") private var selectedTab = 1
     @Environment(\.colorScheme) var colorScheme
     @State private var showDebugSheetView: Bool = false
     @State private var showLoader: Bool = false
+    @State private var sheetSelectedTab: Int = 1
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -62,6 +63,26 @@ struct HistoryView: View {
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
                                     .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
+                                    .contextMenu{
+                                        Button{
+                                            sheetGame = game
+                                        }label:{
+                                            Image(systemName:"arrow.up.right.square")
+                                            Text("Open Game")
+                                        }
+                                        Button{}label:{
+                                            Image(systemName:"square.and.arrow.up")
+                                            Text("Share Game")
+                                        }
+                                    }preview:{
+                                        GameSummaryListView(
+                                            showGameSummarySheetView: .constant(true),
+                                            currentGameId: game.id,
+                                            profiles: network.profiles,
+                                            network: network,
+                                            allowEditing: false
+                                        )
+                                    }
                             }
                             .task {
                                 do {
@@ -90,7 +111,6 @@ struct HistoryView: View {
                     await network.fetch()
                 }
             }
-            // ✅ sheet(item:) — always triggers on tap, even for the already-selected row
             .sheet(item: $sheetGame) { game in
                 GameSummarySheetView(
                     showGameOverViewSheetView: Binding(
@@ -101,6 +121,7 @@ struct HistoryView: View {
                     revanche: .constant(false),
                     profiles: network.profiles,
                     network: network,
+                    selectedTab: $sheetSelectedTab,
                     showRevancheButton: false,
                     HistoryMode: true
                 )
@@ -173,7 +194,6 @@ struct HistoryView: View {
             let opponentText = "\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))"
 
             Button {
-                // ✅ Always assigns a new value — sheet always opens fresh
                 sheetGame = game
             } label: {
                 HStack {

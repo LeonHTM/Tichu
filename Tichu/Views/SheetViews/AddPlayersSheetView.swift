@@ -49,9 +49,12 @@ struct AddPlayersSheetView: View {
     var sortedPlayers: [Profile] {
         makeItems(
             from: network.profiles.filter {
+                guard $0.id > 0 else { return false }
                 guard $0.id != userId else { return false }
                 guard !query.isEmpty else { return true }
-                return ($0.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+
+                return ($0.name ?? "")
+                    .range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
             stat: .elo,
             sortBy: sortByPlayers
@@ -105,11 +108,11 @@ struct AddPlayersSheetView: View {
                 ProfileImage(data: nil, size: 44)
                 Button("Guest") {
                     if guestIndex == 2 {
-                        addPlayerId = guest2Profile.id
+                        addPlayerId = -3
                     } else if guestIndex == 3 {
-                        addPlayerId = guest3Profile.id
+                        addPlayerId = -3
                     } else {
-                        addPlayerId = guest4Profile.id
+                        addPlayerId = -4
                     }
                     showAddPlayersSheet = false
                 }

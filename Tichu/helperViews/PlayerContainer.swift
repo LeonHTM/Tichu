@@ -19,13 +19,12 @@ struct PlayerContainer: View {
     var player: Profile
     var teamIds: [Int]
     var allowPingus: Bool
+    var isTeam1: Bool
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Environment(\.colorScheme) var colorScheme
 
-    private var isTeam1: Bool {
-        teamIds.contains(player.id)
-    }
+    
 
     var body: some View {
         GlassEffectContainer {

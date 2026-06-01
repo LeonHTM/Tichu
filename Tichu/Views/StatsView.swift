@@ -101,6 +101,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.elo ?? 1000
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Rating")
+                }
+            }
             
             StatsContainer(
                 title: "Winner",
@@ -115,6 +124,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Winner")
+                }
+            }
             
             StatsContainer(
                 title: ("Tichumaster"),
@@ -129,6 +147,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.tichuMaster ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Tichumaster")
+                }
+            }
             
             StatsContainer(
                 title: ("Visionary"),
@@ -143,6 +170,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.visionary ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Visionary")
+                }
+            }
             
             StatsContainer(
                 title: ("Addict"),
@@ -157,6 +193,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .addict, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.addict ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Addict")
+                }
+            }
             
             StatsContainer(
                 title: ("Teamplayer"),
@@ -171,6 +216,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.teamplayer ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Teamplayer")
+                }
+            }
             
             StatsContainer(
                 title: ("Announcer"),
@@ -185,6 +239,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.announcer ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Announcer")
+                }
+            }
             
             StatsContainer(
                 title: ("Saboteur"),
@@ -199,6 +262,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.saboteur ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Saboteur")
+                }
+            }
             
             StatsContainer(
                 title: ("Gambler"),
@@ -213,6 +285,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.gambler ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Gambler")
+                }
+            }
             
             StatsContainer(
                 title: ("Big Gambler"),
@@ -227,6 +308,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.bigGambler ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Big Gambler")
+                }
+            }
             
             StatsContainer(
                 title: ("Pingu Gambler"),
@@ -241,11 +331,20 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.pinguGambler ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Pingu Gambler")
+                }
+            }
             
             StatsContainer(
                 title: ("Bomber"),
                 description: ("Bombs per Round ratio"),
-                image: ("flame"),
+                image: ("bomb"),
                 counterLeft: (1),
                 counterRight: (500),
                 value: Double(network.profiles.first { $0.id == userId }?.bomber ?? 0),
@@ -255,6 +354,15 @@ struct StatsView: View {
                 items: makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
             )
             .transition(.opacity.combined(with: .scale))
+            .contextMenu{
+                Button{
+                    let value = network.profiles.first { $0.id == userId }?.bomber ?? 0
+                            UIPasteboard.general.string = "\(value)"
+                }label:{
+                    Image(systemName: "document.on.document")
+                    Text("Copy Bomber")
+                }
+            }
         }.task {
             await network.fetchProfilesStats(profileId: userId)
         }

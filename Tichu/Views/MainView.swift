@@ -38,6 +38,7 @@ struct MainView: View {
                         }
                         .tag(0)
                     
+                    
                     if socket.connected {
                         HistoryView().tabItem {
                             Label("History", systemImage: "clock")

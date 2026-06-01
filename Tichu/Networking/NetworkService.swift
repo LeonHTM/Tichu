@@ -794,6 +794,46 @@ class NetworkService: ObservableObject {
             print("deleteRound error: \(error)")
         }
     }
+    
+    
+    func editGamePlayer(gameId: Int, playerSlot: Int) async {
+        let slotMap = [
+            1: "team1_player1_id",
+            2: "team1_player2_id",
+            3: "team2_player1_id",
+            4: "team2_player2_id"
+        ]
+
+        guard let field = slotMap[playerSlot] else {
+            print("editGamePlayer: invalid slot \(playerSlot)")
+            return
+        }
+
+        guard let url = URL(string: "\(baseURL)/game/edit_player/\(gameId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "PATCH")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [field: NSNull()])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let updated = try flexibleDateDecoder.decode(Game.self, from: data)
+            await MainActor.run {
+                if let index = self.games.firstIndex(where: { $0.id == gameId }) {
+                    self.games[index] = updated
+                }
+            }
+            print("editGamePlayer raw: \(String(data: data, encoding: .utf8) ?? "nil")")
+        } catch {
+            print("editGamePlayer error: \(error)")
+            print(url)
+            
+        }
+    }
+    
+    
+    
+    
 
     func reCalculate(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)") else { return }

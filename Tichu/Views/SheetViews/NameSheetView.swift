@@ -38,11 +38,17 @@ struct NameSheetView: View {
         return !newName.isEmpty &&
             newName.unicodeScalars.allSatisfy { allowed.contains($0) }
     }
-
-    private var isAllValid: Bool {
-        isLengthValid && isCharsetValid && isAvailable
+    
+    private var isNotGuest: Bool {
+        newName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() != "guest"
     }
 
+    
+    private var isAllValid: Bool {
+        isLengthValid && isCharsetValid && isAvailable && isNotGuest
+    }
+    
+    
     var body: some View {
         NavigationStack {
             
@@ -85,7 +91,7 @@ struct NameSheetView: View {
                         }else{
                             Task {
                                 if let id = await network.addProfile(email: email,name:newName) {
-                                    UserDefaults.standard.set(id, forKey: "userId")
+                                    await network.login(userId:id)
                                 }
                             }
                         }

@@ -158,10 +158,29 @@ func deviceModelName() -> String {
     return identifier // e.g. "iPhone14,5"
 }
 
-
+func bombView(bomb: Int) -> some View {
+    Group {
+        if bomb > 0 {
+            HStack {
+                Image("bomb.fill")
+                    .resizable()
+                    .scaledToFill()
+                    .foregroundStyle(.secondary)
+                    .frame(width: 18, height: 16)
+                    .offset(x: 52)
+                    
+                
+                Text("\(bomb)").font(.system(size: 15)).offset(x: 41, y: 7).foregroundStyle(Color.secondary)
+            }
+        }
+    }
+}
     
 
 
 #Preview{
     offlineView(showNavBar: .constant(true))
 }
+
+
+

@@ -21,7 +21,7 @@ struct GameSummarySheetView: View {
     @ObservedObject var network: NetworkService
 
     // MARK: - State
-    @State private var selectedTab: Int = 0
+    @Binding var selectedTab: Int
     @State private var showDeleteGameAlert: Bool = false
     @State private var shareImageToPresent: UIImage?
 
@@ -72,11 +72,7 @@ struct GameSummarySheetView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
-                if HistoryMode {
-                    historyContent
-                } else {
-                    gameContent
-                }
+                gameContent
             }
             .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
                 Button("Cancel", role: .cancel) { showDeleteGameAlert = false }

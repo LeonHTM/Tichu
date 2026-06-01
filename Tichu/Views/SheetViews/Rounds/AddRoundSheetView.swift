@@ -298,15 +298,19 @@ struct AddRoundSheetView: View {
                             player: player1 ?? Profile(),
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
+                            isTeam1: true,
                             hasAnnounced: $hasAnnouncedPlayer1,
-                            bombNumber: $firstBombs
+                            bombNumber: $firstBombs,
+                            
                         )
                         PlayerContainer(
                             player: player2 ?? Profile(),
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
+                            isTeam1: true,
                             hasAnnounced: $hasAnnouncedPlayer2,
-                            bombNumber: $secondBombs
+                            bombNumber: $secondBombs,
+                           
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
@@ -320,15 +324,19 @@ struct AddRoundSheetView: View {
                         player: player3 ?? Profile(),
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
+                        isTeam1: false,
                         hasAnnounced: $hasAnnouncedPlayer3,
-                        bombNumber: $thirdBombs
+                        bombNumber: $thirdBombs,
+                        
                     )
                     PlayerContainer(
                         player: player4 ?? Profile(),
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
+                        isTeam1: false,
                         hasAnnounced: $hasAnnouncedPlayer4,
-                        bombNumber: $fourthBombs
+                        bombNumber: $fourthBombs,
+                        
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))

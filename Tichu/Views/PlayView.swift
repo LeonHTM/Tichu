@@ -27,6 +27,7 @@ struct PlayView: View {
     @State private var showAddRoundSheet: Bool = false
     @State private var showDebugSheetView: Bool = false
     @State private var showGameOverSheet: Bool = false
+    @State private var selectedTab: Int = 0
 
     @State private var showPlayers: Bool = true
     @State private var showFriends: Bool = true
@@ -46,7 +47,8 @@ struct PlayView: View {
     @FocusState private var targetFieldFocused: Bool
 
     // MARK: - Computed
-
+    @State private var guestImages = ["dog", "phoenix", "dragon", "mahjong"].shuffled()
+    
     private var currentGame: Game? {
         guard let id = currentGameId else { return nil }
         return network.games.first { $0.id == id }
@@ -76,7 +78,15 @@ struct PlayView: View {
         let ids = [userId, player2Id, player3Id, player4Id].compactMap { $0 }
         guard ids.count == 4 else { return false }
         return ids.allSatisfy { id in
-            network.profiles.first { $0.id == id }?.elo != nil
+            network.profiles.first { $0.id == id }?.elo != nil &&
+            id != -4 && id != -3 && id != -2 && id != -1
+        }
+    }
+    private func isFriend(profileId: Int) -> Bool{
+        if network.friends.first(where:{$0.id == profileId}) == nil{
+            return false
+        }else{
+            return true
         }
     }
 
@@ -122,7 +132,7 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players.disabled(isLoading)
-                }
+                    }
                 
                     .refreshable {
                         await network.fetch()
@@ -223,6 +233,7 @@ struct PlayView: View {
                                 revanche: $revanche,
                                 profiles: network.profiles,
                                 network: network,
+                                selectedTab:$selectedTab,
                                 showRevancheButton: true,
                                 HistoryMode: false
                             )
@@ -266,10 +277,12 @@ struct PlayView: View {
             )
         }
         .safeAreaInset(edge: .bottom) {
-            if isGameReady {
-                gameReadyBottomBar
-            } else {
-                gameSettingsBottomBar
+            if !isLoading{
+                if isGameReady {
+                    gameReadyBottomBar
+                } else {
+                    gameSettingsBottomBar
+                }
             }
         }
     }
@@ -277,19 +290,37 @@ struct PlayView: View {
     // MARK: - Team 1 Header
     private var team1Header: some View {
         Section {
-            HStack {
-                Text("Team 1")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.accentColor)
-                Spacer()
-                if isGameReady {
-                    Text("\(currentPointsTeam1)")
+            if isLoading == false{
+                HStack {
+                    Text("Team 1")
                         .font(.title2)
                         .fontWeight(.bold)
+                        .foregroundStyle(Color.accentColor)
+                    Spacer()
+                    if isGameReady {
+                        Text("\(currentPointsTeam1)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                    }
                 }
+                .listRowBackground(Color.clear)
+            }else{
+                HStack {
+                    Text("Team 1")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.accentColor)
+                        .redacted(reason: .placeholder)
+                    Spacer()
+              
+                    Text("394")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .redacted(reason: .placeholder)
+                    
+                }
+                .listRowBackground(Color.clear)
             }
-            .listRowBackground(Color.clear)
         }
         .padding(.top, 65)
     }
@@ -303,15 +334,62 @@ struct PlayView: View {
                    let p1 = profile(for: p1Id) {
                     
                     HStack {
-                        ProfileImage(data: network.profileImages[p1Id], size: 44)
-                        Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                        if p1.id == -3 || p1.id == -2 || p1.id == -1 || p1.id == -4{
+                            Image(guestImages[0])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }else{
+                            ProfileImage(data: network.profileImages[p1Id], size: 44)
+                        }
+                        
+                        if p1.id == -3 || p1.id == -2 || p1.id == -1 || p1.id == -4{
+                            Text("Guest 1").fontWeight(.bold) //zum localizen
+                        }else{
+                            Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                        }
                         Spacer()
                         if let elo = p1.elo {
                             Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
+                    }.contextMenu{
+                            
+                            Button{}label:{
+                                Image(systemName:"person.badge.plus")
+                                Text("Send Friend Request")
+                            }.disabled(p1.id == userId || isFriend(profileId: p1.id) == true)
+                        
+                    }.swipeActions(edge: .trailing) {
+                        if isGameReady == false{
+                            Button() {
+                                 
+                                     Task{
+                                       
+                                         //await network.editGamePlayer(gameId: currentGame?.id ?? 0, playerSlot: 1)
+                                         player1Id = nil
+                                         
+                                     
+                                     
+                                 }
+                             } label: {
+                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                             }
+                        }
                     }
+                } else if isLoading{
+                    withAnimation(.easeInOut){
+                        HStack {
+                            ProfileImage(data: nil, size: 44)
+                            Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                            Spacer()
+                            Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        }
+                    }
+                    
+                    
                 } else {
                     ProfileImage(data: userImageData, size: 44)
                     VStack(alignment: .leading) {
@@ -333,40 +411,83 @@ struct PlayView: View {
             }
 
             if let p2Id = player2Id, let p2 = profile(for: p2Id) {
-                HStack {
-                    ProfileImage(data: network.profileImages[p2Id], size: 44)
-                    Text(p2.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
-                    Spacer()
-                    if let elo = p2.elo {
-                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
-                    } else {
-                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                withAnimation(.easeInOut){
+                    HStack {
+                        if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
+                            Image(guestImages[1])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }else{
+                            ProfileImage(data: network.profileImages[p2Id], size: 44)
+                        }
+                        
+                        if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
+                            Text("Guest 2").fontWeight(.bold) //zum localizen
+                        }else{
+                            Text(p2.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                        }
+                        Spacer()
+                        if let elo = p2.elo {
+                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                        } else {
+                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                        }
+                    }.contextMenu{
+                     
+                            Button{}label:{
+                                Image(systemName:"person.badge.plus")
+                                Text("Send Friend Request")
+                            }.disabled(p2.id == userId || isFriend(profileId: p2.id) == true)
+                        
                     }
+                    .swipeActions(edge: .trailing) {
+                        if isGameReady == false{
+                            Button() {
+                                 
+                                     Task{
+                                       
+                                         //await network.editGamePlayer(gameId: currentGame?.id ?? 0, playerSlot: 2)
+                                         player2Id = nil
+                                         
+                                     
+                                     
+                                 }
+                             } label: {
+                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                             }
+                        }
+                    }
+
                 }
             } else if isLoading{
-                HStack {
-                    ProfileImage(data: nil, size: 44)
-                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
-                    Spacer()
-                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
-                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                withAnimation(.easeInOut){
+                    HStack {
+                        ProfileImage(data: nil, size: 44)
+                        Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                        Spacer()
+                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                    }
                 }
                 
                 
             }else {
-                addPlayerRow(label: "Add Player 2", action: { showAddPlayersSheet2 = true })
-                    .sheet(isPresented: $showAddPlayersSheet2) {
-                        AddPlayersSheetView(
-                            showAddPlayersSheet: $showAddPlayersSheet2,
-                            addPlayerId: $player2Id,
-                            alreadyAdded: [player3Id, player4Id].compactMap { $0 },
-                            showGuest: .constant(true),
-                            showPlayers: $showPlayers,
-                            showFriends: $showFriends,
-                            guestIndex: 2
-                        )
-                        .presentationDetents([.medium, .large])
-                    }
+                withAnimation(.easeInOut){
+                    addPlayerRow(label: "Add Player 2", action: { showAddPlayersSheet2 = true })
+                        .sheet(isPresented: $showAddPlayersSheet2) {
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet2,
+                                addPlayerId: $player2Id,
+                                alreadyAdded: [player3Id, player4Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 2
+                            )
+                            .presentationDetents([.medium, .large])
+                        }
+                }
             }
         }
     }
@@ -385,12 +506,27 @@ struct PlayView: View {
     // MARK: - Team 2 Header
     private var team2Header: some View {
         Section {
-            HStack {
-                Text("Team 2")
-                Spacer()
-                if isGameReady {
-                    Text("\(currentPointsTeam2)")
+            if isLoading == false{
+                HStack {
+                    Text("Team 2")
+                    Spacer()
+                    if isGameReady {
+                        Text("\(currentPointsTeam2)")
+                    }
                 }
+            }else{
+                HStack {
+                    Text("Team 1")
+                        
+                        .redacted(reason: .placeholder)
+                    Spacer()
+              
+                    Text("394")
+                            
+                            .redacted(reason: .placeholder)
+                    
+                }
+                .listRowBackground(Color.clear)
             }
         }
         .font(.title2)
@@ -402,78 +538,160 @@ struct PlayView: View {
     private var team2Players: some View {
         Section {
             if let p3Id = player3Id, let p3 = profile(for: p3Id) {
-                HStack {
-                    ProfileImage(data: network.profileImages[p3Id], size: 44)
-                    Text(p3.name ?? "Unknown").fontWeight(.bold)
-                    Spacer()
-                    if let elo = p3.elo {
-                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
-                    } else {
-                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                withAnimation(.easeInOut){
+                    HStack {
+                        if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
+                            Image(guestImages[2])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }else{
+                            ProfileImage(data: network.profileImages[p3Id], size: 44)
+                        }
+                        
+                        if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
+                            Text("Guest 3").fontWeight(.bold) //zum localizen
+                        }else{
+                            Text(p3.name ?? "Unknown").fontWeight(.bold)
+                        }
+                        Spacer()
+                        if let elo = p3.elo {
+                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                        } else {
+                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                        }
+                    }.contextMenu{
+                    
+                            Button{}label:{
+                                Image(systemName:"person.badge.plus")
+                                Text("Send Friend Request")
+                            }.disabled(p3.id == userId || isFriend(profileId: p3.id) == true)
+                        
+                    }.swipeActions(edge: .trailing) {
+                        if isGameReady == false{
+                            Button() {
+                                 
+                                     Task{
+                                       
+                                         //await network.editGamePlayer(gameId: currentGame?.id ?? 0, playerSlot: 3)
+                                         player3Id = nil
+                                         
+                                     
+                                     
+                                 }
+                             } label: {
+                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                             }
+                        }
                     }
+
                 }
             } else if isLoading{
-                HStack {
-                    ProfileImage(data: nil, size: 44)
-                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
-                    Spacer()
-                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
-                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
-                }
-                
-                
-            }else {
-                addPlayerRow(label: "Add Player 3", action: { showAddPlayersSheet3 = true })
-                    .sheet(isPresented: $showAddPlayersSheet3) {
-                        AddPlayersSheetView(
-                            showAddPlayersSheet: $showAddPlayersSheet3,
-                            addPlayerId: $player3Id,
-                            alreadyAdded: [player2Id, player4Id].compactMap { $0 },
-                            showGuest: .constant(true),
-                            showPlayers: $showPlayers,
-                            showFriends: $showFriends,
-                            guestIndex: 3
-                        )
-                        .presentationDetents([.medium, .large])
+                withAnimation(.easeInOut){
+                    HStack {
+                        ProfileImage(data: nil, size: 44)
+                        Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
+                        Spacer()
+                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
+                    
+                }
+            }else {
+                withAnimation(.easeInOut){
+                    addPlayerRow(label: "Add Player 3", action: { showAddPlayersSheet3 = true })
+                        .sheet(isPresented: $showAddPlayersSheet3) {
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet3,
+                                addPlayerId: $player3Id,
+                                alreadyAdded: [player2Id, player4Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 3
+                            )
+                            .presentationDetents([.medium, .large])
+                        }
+                }
             }
 
             if let p4Id = player4Id, let p4 = profile(for: p4Id) {
-                HStack {
-                    ProfileImage(data: network.profileImages[p4Id], size: 44)
-                    Text(p4.name ?? "Unknown").fontWeight(.bold)
-                    Spacer()
-                    if let elo = p4.elo {
-                        Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
-                    } else {
-                        Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                withAnimation(.easeInOut){
+                    HStack {
+                        if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
+                            Image(guestImages[3])
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 44, height: 44)
+                                .clipShape(Circle())
+                        }else{
+                            ProfileImage(data: network.profileImages[p4Id], size: 44)
+                        }
+                        
+                        if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
+                            Text("Guest 4").fontWeight(.bold) //zum localizen
+                        }else{
+                            Text(p4.name ?? "Unknown").fontWeight(.bold)
+                        }
+                        Spacer()
+                        if let elo = p4.elo {
+                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                        } else {
+                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                        }
+                    }.contextMenu{
+                        
+                            Button{}label:{
+                                Image(systemName:"person.badge.plus")
+                                Text("Send Friend Request")
+                            }.disabled(p4.id == userId || isFriend(profileId: p4.id) == true)
+                        
+                    }.swipeActions(edge: .trailing) {
+                        if isGameReady == false{
+                            Button() {
+                                 
+                                     Task{
+                                       
+                                         //await network.editGamePlayer(gameId: currentGame?.id ?? 0, playerSlot: 4)
+                                         player4Id = nil
+                                         
+                                     
+                                     
+                                 }
+                             } label: {
+                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                             }
+                        }
                     }
+
                 }
                 
             } else if isLoading{
-                HStack {
-                    ProfileImage(data: nil, size: 44)
-                    Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
-                    Spacer()
-                    Text("Ranking:").foregroundStyle(.secondary).font(.system(size: 16))
-                    Text("1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                withAnimation(.easeInOut){
+                    HStack {
+                        ProfileImage(data: nil, size: 44)
+                        Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
+                        Spacer()
+                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                    }
                 }
                 
-                
             }else {
-                addPlayerRow(label: "Add Player 4", action: { showAddPlayersSheet4 = true })
-                    .sheet(isPresented: $showAddPlayersSheet4) {
-                        AddPlayersSheetView(
-                            showAddPlayersSheet: $showAddPlayersSheet4,
-                            addPlayerId: $player4Id,
-                            alreadyAdded: [player2Id, player3Id].compactMap { $0 },
-                            showGuest: .constant(true),
-                            showPlayers: $showPlayers,
-                            showFriends: $showFriends,
-                            guestIndex: 4
-                        )
-                        .presentationDetents([.medium, .large])
-                    }
+                withAnimation(.easeInOut){
+                    addPlayerRow(label: "Add Player 4", action: { showAddPlayersSheet4 = true })
+                        .sheet(isPresented: $showAddPlayersSheet4) {
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet4,
+                                addPlayerId: $player4Id,
+                                alreadyAdded: [player2Id, player3Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 4
+                            )
+                            .presentationDetents([.medium, .large])
+                        }
+                }
             }
         }
     }

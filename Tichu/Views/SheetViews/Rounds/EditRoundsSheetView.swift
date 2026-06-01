@@ -70,7 +70,21 @@ struct EditRoundsSheetView: View {
         if round.secondProfileId == profile.id { return 2 }
         if round.thirdProfileId  == profile.id { return 3 }
         if round.fourthProfileId == profile.id { return 4 }
-        return 999
+        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4{
+            if network.profiles.first(where:{$0.id == round.firstProfileId}) == nil{
+                return 1
+            }
+            if network.profiles.first(where:{$0.id == round.secondProfileId}) == nil{
+                return 2
+            }
+            if network.profiles.first(where:{$0.id == round.thirdProfileId}) == nil{
+                return 3
+            }
+            if network.profiles.first(where:{$0.id == round.fourthProfileId}) == nil{
+                return 4
+            }
+        }
+        return 0
     }
 
     private func sortedTeamProfiles(_ teamProfiles: [Profile], in round: Round) -> [Profile] {
@@ -211,6 +225,7 @@ struct EditRoundsSheetView: View {
         .animation(.easeInOut(duration: 0.25), value: showList)
         .navigationTitle("Edit Game")
         .navigationBarTitleDisplayMode(.inline)
+        .padding(.top,20)
         .toolbar { roundsListToolbar }
     }
 
@@ -241,7 +256,7 @@ struct EditRoundsSheetView: View {
         HStack {
             Text("Round \(index + 1)")
                 .fontWeight(.bold)
-                .font(.system(size: 20))
+                .font(.title3)
                 .padding(10)
             Spacer()
             if !hasExpanded {
@@ -344,17 +359,7 @@ struct EditRoundsSheetView: View {
         .offset(x: offset)
     }
 
-    // MARK: - Bomb View
-    private func bombView(bomb: Int) -> some View {
-        Group {
-            if bomb > 0 {
-                HStack {
-                    Image(systemName: "flame").offset(x: 47)
-                    Text("\(bomb)").font(.system(size: 12)).offset(x: 37, y: 7)
-                }
-            }
-        }
-    }
+  
 
     // MARK: - Empty View
     private var emptyView: some View {
@@ -369,17 +374,16 @@ struct EditRoundsSheetView: View {
         let team1 = currentGame?.currentPointsTeam1 ?? 0
         let team2 = currentGame?.currentPointsTeam2 ?? 0
         return HStack {
-            Text("Team 1:").foregroundStyle(Color.accentColor)
-            Text("\(team1)").foregroundStyle(Color.accentColor)
+            Text("Team 1: \(team1)").foregroundStyle(Color.accentColor)
             Spacer()
-            Text("Team 2:")
-            Text("\(team2)")
+            Text("Team 2: \(team2)")
+     
         }
         .fontWeight(.bold)
         .font(.title2)
         .padding(.horizontal, 30)
-        .padding(.top, 65)
-        .padding(.bottom, 20)
+        .padding(.top, 80)
+        
     }
 
     // MARK: - Delete Game Button

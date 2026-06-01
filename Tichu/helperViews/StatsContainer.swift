@@ -126,8 +126,8 @@ struct StatsContainer: View {
             .padding(.horizontal, 10)
             .padding(.bottom, 10)
         }
-            .frame(width: 165)
-            .frame(minHeight:140,alignment:.topLeading)
+        .frame(idealWidth: 165,maxWidth: 165)
+        .frame(minHeight:140,alignment:.topLeading)
             .overlay{
                 /*
                 if inTop <= 0.05 {

@@ -313,6 +313,28 @@ final class SocketService: ObservableObject {
         }
         
         
+        // GAME PLAYER UPDATED
+        socket.on("game_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else {
+                print("game_updated: failed to parse \(data)")
+                return
+            }
+            let decoder = NetworkService.shared.flexibleDateDecoder
+            guard let updated = try? decoder.decode(Game.self, from: jsonData) else {
+                print("game_updated: failed to decode Game")
+                return
+            }
+            Task { @MainActor in
+                if let index = NetworkService.shared.games.firstIndex(where: { $0.id == updated.id }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.games[index] = updated
+                    }
+                }
+            }
+        }
+        
+        
     }
 
     // MARK: - Disconnect
