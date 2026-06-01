@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlayView: View {
-
+    @Namespace private var playSpace
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
@@ -758,8 +758,9 @@ struct PlayView: View {
                         .foregroundColor(.primary)
                         .frame(width: 29, height: 29)
                         .clipShape(Circle())
-                }
+                }.matchedTransitionSource(id: "69420", in: playSpace)
                 .padding(10)
+                //.buttonStyle(.glass)
                 .glassEffect(.regular.interactive())
                 .padding(.leading, 20)
                 .padding(.bottom, 10)
@@ -771,7 +772,7 @@ struct PlayView: View {
                             profiles: network.profiles,
                             network: network
                         )
-                        .presentationDetents([.medium, .large])
+                        .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
                     }
                 }
 
@@ -784,7 +785,7 @@ struct PlayView: View {
                         .font(.system(size: 20))
                         .foregroundColor(.primary)
                     Text("Add Round").foregroundColor(.primary)
-                }
+                }.matchedTransitionSource(id: "69421", in: playSpace)
                 .padding(13)
                 .glassEffect(.regular.interactive())
                 .padding(.trailing, 20)
@@ -799,7 +800,7 @@ struct PlayView: View {
                             editMode: false,
                             roundIndex: nil,
                             editingRound: nil
-                        )
+                        ).navigationTransition(.zoom(sourceID:"69421",in:playSpace))
                     }
                 }
             }

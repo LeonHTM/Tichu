@@ -10,10 +10,11 @@ import Charts
 import TipKit
 
 struct HistoryView: View {
-
+    @State private var renderedImage: Image?
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("selectedTab") private var selectedTab = 1
+    @AppStorage("isLoading") private var isLoading = false
     @Environment(\.colorScheme) var colorScheme
     @State private var showDebugSheetView: Bool = false
     @State private var showLoader: Bool = false
@@ -41,7 +42,9 @@ struct HistoryView: View {
     var body: some View {
         if gameHistory.count > 0 {
             historyView
-        } else {
+        } else if isLoading{
+            ProgressView().scaleEffect(2)
+        }else {
             emptyStateView
         }
     }
@@ -70,9 +73,21 @@ struct HistoryView: View {
                                             Image(systemName:"arrow.up.right.square")
                                             Text("Open Game")
                                         }
-                                        Button{}label:{
-                                            Image(systemName:"square.and.arrow.up")
-                                            Text("Share Game")
+                                        if let renderedImage {
+                                            ShareLink(
+                                                item: renderedImage,
+                                                message: Text("Check my Tichu Game out."),
+                                                preview: SharePreview("Tichu game", image: renderedImage)
+                                            )
+                                            .foregroundColor(.primary)
+                                        }else{
+                                            Button{}label:{
+                                                HStack{
+                                                    Image(systemName:"square.and.arrow.up")
+                                                    Text("Share...")
+                                                    ProgressView()
+                                                }
+                                            }.disabled(true)
                                         }
                                     }preview:{
                                         GameSummaryListView(
@@ -81,7 +96,20 @@ struct HistoryView: View {
                                             profiles: network.profiles,
                                             network: network,
                                             allowEditing: false
-                                        )
+                                        ).onAppear {
+                                            let renderer = ImageRenderer(content: GameSummaryShareView(
+                                                currentGameId: game.id,
+                                                rounds: network.roundsByGame[game.id ?? 0] ?? [],
+                                                profiles: network.profiles,
+                                                accentCo: .accent
+                                            )
+                                            .environment(\.colorScheme, colorScheme)
+                                            .background(colorScheme == .dark ? Color.black : Color.white))
+                                            renderer.scale = 3
+                                            if let image = renderer.cgImage {
+                                                renderedImage = Image(decorative: image, scale: 1)
+                                            }
+                                        }
                                     }
                             }
                             .task {

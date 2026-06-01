@@ -9,12 +9,13 @@ import SwiftUI
 import UIKit
 
 struct GameSummarySheetView: View {
+    
+    @AppStorage("isLoadingShare") private var isLoadingShare: Bool = false
 
     // MARK: - Bindings
     @Binding var showGameOverViewSheetView: Bool
     var currentGameId: Int?
     @Binding var revanche: Bool
-
 
     // MARK: - Dependencies
     let profiles: [Profile]
@@ -24,18 +25,17 @@ struct GameSummarySheetView: View {
     @Binding var selectedTab: Int
     @State private var showDeleteGameAlert: Bool = false
     @State private var shareImageToPresent: UIImage?
+    @State private var renderedImage: Image?
 
     // MARK: - Props
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.displayScale) private var displayScale
     var showRevancheButton: Bool
     var HistoryMode: Bool
-    
-    private var currentGame: Game? {
-        network.games.first(where:{$0.id == currentGameId})
-    }
 
-    // MARK: - Computed
+    private var currentGame: Game? {
+        network.games.first(where: { $0.id == currentGameId })
+    }
 
     private var winnerName: String {
         guard let winnerId = currentGame?.winner else { return "Unknown" }
@@ -44,46 +44,14 @@ struct GameSummarySheetView: View {
         return "Unknown"
     }
 
-    // MARK: - Share
-    func renderShareImage() -> UIImage? {
-        let rounds = network.roundsByGame[currentGameId ?? 0] ?? []
-        let shareView = GameSummaryShareView(
-            currentGameId: currentGameId,
-            rounds: rounds,
-            profiles: profiles,
-            accentCo: .accent
-        )
-        .tint(Color.accentColor)
-        .environment(\.colorScheme, colorScheme)
-        let renderer = ImageRenderer(content: shareView)
-        renderer.colorMode = .nonLinear
-        renderer.proposedSize = ProposedViewSize(width: 500, height: 750)
-        renderer.scale = displayScale
-        return renderer.uiImage
-    }
-
-    func shareImage() {
-        guard let image = renderShareImage() else { return }
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-        DispatchQueue.main.async { self.shareImageToPresent = image }
-    }
-
     // MARK: - Body
     var body: some View {
         NavigationStack {
             ZStack(alignment: .top) {
                 gameContent
-            }
-            .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
-                Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
-                Button("Delete", role: .destructive) {
-                    Task {
-                        await network.deleteGame(gameId: currentGameId ?? 0)
-                        showGameOverViewSheetView = false
-                    }
+                if isLoadingShare {
+                    ProgressView()
                 }
-            } message: {
-                Text("This Game will be deleted")
             }
             .sheet(isPresented: Binding(
                 get: { shareImageToPresent != nil },
@@ -91,29 +59,19 @@ struct GameSummarySheetView: View {
             )) {
                 if let image = shareImageToPresent {
                     ActivityViewController(
-                        title: "Tichu Round from \(currentGame?.date.formatted(date: .numeric, time: .omitted) ?? "Unknown")",
+                        title: "Tichu Game from \(currentGame?.date.formatted(date: .numeric, time: .omitted) ?? "Unknown")",
                         message: "Made with Tichu-App.",
                         image: image
                     )
                 }
             }
-            .safeAreaInset(edge: .bottom) { bottomBar }
+            .toolbar {
+                bottomToolbar
+                toolbarContent
+            }
             .navigationTitle("\(winnerName) won!")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { toolbarContent }
         }
-    }
-
-    // MARK: - History Content
-    private var historyContent: some View {
-        GameSummaryListView(
-            showGameSummarySheetView: $showGameOverViewSheetView,
-            currentGameId: currentGameId,
-            profiles: profiles,
-            network: network,
-            allowEditing: false
-        )
-        .padding(.bottom, -50)
     }
 
     // MARK: - Game Content
@@ -122,10 +80,8 @@ struct GameSummarySheetView: View {
             switch selectedTab {
             case 0:
                 VStack {
-                    GameSummaryChartView(
-                        currentGameId: currentGameId
-                    )
-                    .frame(width: 350)
+                    GameSummaryChartView(currentGameId: currentGameId)
+                        .frame(width: 350)
                     Spacer()
                 }
             case 1:
@@ -141,6 +97,20 @@ struct GameSummarySheetView: View {
                 EmptyView()
             }
         }
+        .onAppear {
+            let renderer = ImageRenderer(content: GameSummaryShareView(
+                currentGameId: currentGameId,
+                rounds: network.roundsByGame[currentGameId ?? 0] ?? [],
+                profiles: profiles,
+                accentCo: .accent
+            )
+            .environment(\.colorScheme, colorScheme)
+            .background(colorScheme == .dark ? Color.black : Color.white))
+            renderer.scale = 3
+            if let image = renderer.cgImage {
+                renderedImage = Image(decorative: image, scale: 1)
+            }
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .top) {
             Picker("View", selection: $selectedTab) {
@@ -153,51 +123,21 @@ struct GameSummarySheetView: View {
         }
     }
 
-    // MARK: - Bottom Bar
-    private var bottomBar: some View {
-        GlassEffectContainer {
-            HStack {
-                Button {
-                    DispatchQueue.main.async { shareImage() }
-                } label: {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 22))
-                }
-                .padding(10)
-                .foregroundColor(.primary)
-                .glassEffect(.regular.interactive(), in: Circle())
-
-                Spacer()
-
-                HStack {
-                    Text("\(currentGame?.currentPointsTeam1 ?? -69420)").fontWeight(.bold).font(.title3).foregroundStyle(Color.accentColor)
-                    Text("vs").fontWeight(.bold).font(.title3)
-                    Text("\(currentGame?.currentPointsTeam2 ?? -69420)").fontWeight(.bold).font(.title3)
-                }
-                .padding(13)
-                .glassEffect(.regular.interactive())
-
-                if !HistoryMode {
-                    Spacer()
-                    Button {
-                        showDeleteGameAlert = true
-                    } label: {
-                        Image(systemName: "trash")
-                            .font(.system(size: 22))
-                            .frame(width: 29, height: 29)
-                            .clipShape(Circle())
-                    }
-                    .foregroundColor(.primary)
-                    .padding(10)
-                    .glassEffect(.regular.interactive())
-                }
-            }
-            .padding(.bottom, 10)
-            .padding(.horizontal, 20)
-        }
+    // MARK: - Bottom Toolbar
+    @ToolbarContentBuilder
+    private var bottomToolbar: some ToolbarContent {
+        GameSummaryBottomToolbar(
+            renderedImage: renderedImage,
+            currentGame: currentGame,
+            HistoryMode: HistoryMode,
+            showDeleteGameAlert: $showDeleteGameAlert,
+            showGameOverViewSheetView: $showGameOverViewSheetView,
+            network: network,
+            currentGameId: currentGameId
+        )
     }
 
-    // MARK: - Toolbar
+    // MARK: - Top Toolbar
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
@@ -215,6 +155,83 @@ struct GameSummarySheetView: View {
                 } label: {
                     Text("Revanche")
                 }
+            }
+        }
+    }
+}
+
+// MARK: - GameSummaryBottomToolbar
+
+struct GameSummaryBottomToolbar: ToolbarContent {
+    //@Namespace private var ShareSheetSpace
+    let renderedImage: Image?
+    let currentGame: Game?
+    let HistoryMode: Bool
+    @Binding var showDeleteGameAlert: Bool
+    @Binding var showGameOverViewSheetView: Bool
+    @ObservedObject var network: NetworkService
+    let currentGameId: Int?
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .bottomBar) {
+            if let renderedImage {
+                ShareLink(
+                    item: renderedImage,
+                    message: Text("Check my Tichu Game out."),
+                    preview: SharePreview("Tichu game", image: renderedImage)
+                )
+                .labelStyle(.iconOnly)
+                .imageScale(.large)
+                .foregroundColor(.primary)
+            }
+        }
+
+        ToolbarItem(placement: .bottomBar) {
+            Spacer()
+        }
+
+        ToolbarItem(placement: .bottomBar) {
+            Button {} label: {
+                HStack {
+                    Text("\(currentGame?.currentPointsTeam1 ?? 0)")
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.accentColor)
+                    Text("vs").fontWeight(.bold).font(.title3)
+                    Text("\(currentGame?.currentPointsTeam2 ?? 0)")
+                        .fontWeight(.bold)
+                }
+            }
+        }
+
+        if !HistoryMode {
+            ToolbarSpacer(placement:.bottomBar)
+            ToolbarItem(placement: .bottomBar) {
+                Button {
+                    showDeleteGameAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .foregroundColor(.primary)
+                .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
+                    fuckyouView(showDeleteGameAlert: $showDeleteGameAlert, currentGameId: currentGameId ?? 0, showGameOverViewSheetView: $showGameOverViewSheetView)//.navigationTransition(.zoom(sourceID: "69420", in: ShareSheetSpace))
+                } message: {
+                    Text("This Game will be deleted")
+                }
+            }//.matchedTransitionSource(id: "69420", in: ShareSheetSpace)
+        }
+    }
+}
+
+struct fuckyouView: View{
+    @Binding var showDeleteGameAlert: Bool
+    var currentGameId: Int
+    @Binding var showGameOverViewSheetView: Bool
+    var body: some View{
+        Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
+        Button("Delete", role: .destructive) {
+            Task {
+                await NetworkService.shared.deleteGame(gameId: currentGameId ?? 0)
+                showGameOverViewSheetView = false
             }
         }
     }

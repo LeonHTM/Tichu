@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileView: View {
+    @Namespace private var profileSpace
 
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
@@ -151,11 +152,11 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showNameSheet ? 90 : 0))
                         .foregroundStyle(.secondary)
                 }
-            }
+            }//.matchedTransitionSource(id: "69420", in: profileSpace)
             .foregroundColor(.primary)
             .sheet(isPresented: $showNameSheet) {
                 NameSheetView(showNameSheet: $showNameSheet,email: "",editMode:true,done:.constant(true))
-                    .presentationDetents([.large])
+                    .presentationDetents([.large])//.navigationTransition(.zoom(sourceID:"69420",in:profileSpace))
             }
 
             Button {

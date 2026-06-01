@@ -103,11 +103,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.elo ?? 1000
-                            UIPasteboard.general.string = "\(value)"
+                    
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Rating")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -126,11 +125,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                   
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Winner")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -149,11 +147,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.tichuMaster ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                   
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Tichumaster")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -172,11 +169,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.visionary ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                    
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Visionary")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -195,11 +191,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.addict ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                  
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Addict")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -218,11 +213,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.teamplayer ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                    
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Teamplayer")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -241,11 +235,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.announcer ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                    
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Announcer")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -264,11 +257,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.saboteur ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                   
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Saboteur")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -287,11 +279,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.gambler ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                   
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Gambler")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -310,11 +301,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.bigGambler ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                  
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Big Gambler")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -333,11 +323,10 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.pinguGambler ?? 0
-                            UIPasteboard.general.string = "\(value)"
+                   
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Pingu Gambler")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
             
@@ -356,11 +345,11 @@ struct StatsView: View {
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
                 Button{
-                    let value = network.profiles.first { $0.id == userId }?.bomber ?? 0
+                    let value = network.profiles.first { $0.id == userId }?.saboteur ?? 0
                             UIPasteboard.general.string = "\(value)"
                 }label:{
-                    Image(systemName: "document.on.document")
-                    Text("Copy Bomber")
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share your Tichu Statistics")
                 }
             }
         }.task {
