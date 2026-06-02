@@ -8,11 +8,13 @@
 import SwiftUI
 
 struct StatsView: View {
-    
+    @State private var renderedImage: Image?
     @ObservedObject private var network = NetworkService.shared
     @StateObject private var socket = SocketService.shared
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
+    @AppStorage("userName") var userName: String = "Unknown"
+    @Environment(\.colorScheme) var colorScheme
     
     // MARK: - State
     @State private var showAddPlayersSheet: Bool = false
@@ -102,11 +104,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                    
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -124,11 +137,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                   
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -146,11 +170,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                   
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -168,11 +203,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                    
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -190,11 +236,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                  
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -212,11 +269,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                    
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -234,11 +302,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                    
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -256,11 +335,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                   
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -278,11 +368,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                   
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -300,11 +401,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                  
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -322,11 +434,22 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                   
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
             
@@ -344,26 +467,74 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu{
-                Button{
-                    let value = network.profiles.first { $0.id == userId }?.saboteur ?? 0
-                            UIPasteboard.general.string = "\(value)"
-                }label:{
-                    Image(systemName: "square.and.arrow.up")
-                    Text("Share your Tichu Statistics")
+                if let renderedImage {
+                    ShareLink(
+                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                        item: renderedImage,
+                        message: Text("Check my Tichu Stats out"),
+                        preview: SharePreview("Tichu Statistics", image: renderedImage)
+                    )
+                    .foregroundColor(.primary)
+                }else{
+                    Button{}label:{
+                        HStack{
+                            Image(systemName:"square.and.arrow.up")
+                            Text("Share...")
+                            ProgressView()
+                        }
+                    }.disabled(true)
                 }
             }
         }.task {
             await network.fetchProfilesStats(profileId: userId)
+            var tags: [String] = []
+            
+            let visionary = network.profiles.first { $0.id == userId }?.visionary ?? 0
+            let addict = network.profiles.first { $0.id == userId }?.addict ?? 0
+            let teamplayer = network.profiles.first { $0.id == userId }?.teamplayer ?? 0
+            let announcer = network.profiles.first { $0.id == userId }?.announcer ?? 0
+            let saboteur = network.profiles.first { $0.id == userId }?.saboteur ?? 0
+            let gambler = network.profiles.first { $0.id == userId }?.gambler ?? 0
+            let bigGambler = network.profiles.first { $0.id == userId }?.bigGambler ?? 0
+            let pinguGambler = network.profiles.first { $0.id == userId }?.pinguGambler ?? 0
+            let bomber = network.profiles.first { $0.id == userId }?.bomber ?? 0
+            
+            tags.append("Visionary: \(visionary)")
+            tags.append("Addict: \(addict)")
+            tags.append("Teamplayer: \(teamplayer)")
+            tags.append("Announcer: \(announcer)")
+            tags.append("Saboteur: \(saboteur)")
+            tags.append("Gambler: \(gambler)")
+            tags.append("Big Gambler: \(bigGambler)")
+            tags.append("Pingu Gambler: \(pinguGambler)")
+            tags.append("Bomber: \(bomber)")
+            print(tags)
+            let renderer = ImageRenderer(content: ShareStatsView(
+                userName: network.profiles.first(where: { $0.id == userId })?.name ?? "Unknown",
+                userImageData: network.profileImages[userId],
+                elo: network.profiles.first { $0.id == userId }?.elo ?? 1000,
+                winnerPercentage: network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0,
+                tichuMaster: network.profiles.first { $0.id == userId }?.tichuMaster ?? 0,
+                accentCo: .accent,
+                Tags: .constant(tags)
+                
+            )
+            .environment(\.colorScheme, colorScheme)
+            .background(colorScheme == .dark ? Color.black : Color.white))
+            renderer.scale = 3
+            if let image = renderer.cgImage {
+                renderedImage = Image(decorative: image, scale: 1)
+            }
         }
     }
     
     // MARK: - Time Filter Chips
     private var timeFilterChips: some View {
-        ChipsView(tags: timeTags,onlyOne:true) { tag, isSelected in
-            if !socket.connected{
-                ChipView(tag:tag, isSelected: isSelected,showAlert:true)
-            }else{
-                ChipView(tag:tag, isSelected: isSelected,showAlert:false)
+        ChipsView(tags: timeTags, onlyOne: true) { tag, isSelected in
+            if !socket.connected {
+                ChipView(tag: tag, isSelected: isSelected, showAlert: true)
+            } else {
+                ChipView(tag: tag, isSelected: isSelected, showAlert: false)
             }
         } didChangeSelection: { selection in
             selectedTags = selection
@@ -420,7 +591,7 @@ struct StatsView: View {
         .labelStyle(.titleAndIcon)
         .menuOrder(.fixed)
         .padding(10)
-        .glassEffect(.regular.interactive(),in:Circle())
+        .glassEffect(.regular.interactive(), in: Circle())
         .padding(.leading, 20)
         .padding(.bottom, 10)
     }
@@ -485,9 +656,9 @@ struct StatsView: View {
                             .foregroundColor(.primary)
                     }
                 }
-                    .alert(isPresented:$showOfflineAlert){
-                        offlineView.offlineAlert()
-                    }
+                .alert(isPresented: $showOfflineAlert) {
+                    offlineView.offlineAlert()
+                }
                 .padding(10)
                 .glassEffect(.regular.interactive())
                 .padding(.trailing, 20)
@@ -500,4 +671,3 @@ struct StatsView: View {
 #Preview {
     StatsView()
 }
-

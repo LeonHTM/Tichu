@@ -356,11 +356,21 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                            
+                        if isFriend(profileId: p1.id) == true{
                             Button{}label:{
+                                Image(systemName:"person")
+                                Text("\(p1.name ?? "Unkmown") is already a Friend")
+                            }.disabled(true)
+                        }else{
+                            Button{
+                                Task{
+                                    await network.sendFriendRequest(senderId: userId, receiverId: p1.id)
+                                }
+                            }label:{
                                 Image(systemName:"person.badge.plus")
                                 Text("Send Friend Request")
-                            }.disabled(p1.id == userId || isFriend(profileId: p1.id) == true)
+                            }.disabled(p1.id == userId)
+                        }
                         
                     }.swipeActions(edge: .trailing) {
                         if isGameReady == false{
@@ -435,11 +445,21 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                     
+                        if isFriend(profileId: p2.id) == true{
                             Button{}label:{
+                                Image(systemName:"person")
+                                Text("\(p2.name ?? "Unkmown") is already a Friend")
+                            }.disabled(true)
+                        }else{
+                            Button{
+                                Task{
+                                    await network.sendFriendRequest(senderId: userId, receiverId: p2.id)
+                                }
+                            }label:{
                                 Image(systemName:"person.badge.plus")
                                 Text("Send Friend Request")
-                            }.disabled(p2.id == userId || isFriend(profileId: p2.id) == true)
+                            }.disabled(p2.id == userId)
+                        }
                         
                     }
                     .swipeActions(edge: .trailing) {
@@ -562,11 +582,22 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                    
+                        if isFriend(profileId: p3.id) == true{
                             Button{}label:{
-                                Image(systemName:"person.badge.plus")
-                                Text("Send Friend Request")
-                            }.disabled(p3.id == userId || isFriend(profileId: p3.id) == true)
+                                Image(systemName:"person")
+                                Text("\(p3.name ?? "Unkmown") is already a Friend")
+                            }.disabled(true)
+                        }else{
+                                
+                                Button{
+                                    Task{
+                                        await network.sendFriendRequest(senderId: userId, receiverId: p3.id)
+                                    }
+                                }label:{
+                                    Image(systemName:"person.badge.plus")
+                                    Text("Send Friend Request")
+                                }.disabled(p3.id == userId)
+                            }
                         
                     }.swipeActions(edge: .trailing) {
                         if isGameReady == false{
@@ -640,11 +671,21 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        
+                        if isFriend(profileId: p4.id) == true{
                             Button{}label:{
+                                Image(systemName:"person")
+                                Text("\(p4.name ?? "Unkmown") is already a Friend")
+                            }.disabled(true)
+                        }else{
+                            Button{
+                                Task{
+                                    await network.sendFriendRequest(senderId: userId, receiverId: p4.id)
+                                }
+                            }label:{
                                 Image(systemName:"person.badge.plus")
                                 Text("Send Friend Request")
-                            }.disabled(p4.id == userId || isFriend(profileId: p4.id) == true)
+                            }.disabled(p4.id == userId)
+                        }
                         
                     }.swipeActions(edge: .trailing) {
                         if isGameReady == false{

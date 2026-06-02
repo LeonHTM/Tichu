@@ -24,7 +24,7 @@ struct HistoryView: View {
     @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
-    @State private var sheetGame: Game? = nil       // ✅ replaces showGameSummarySheetView + currentGameId
+    @State private var sheetGame: Game? = nil
     @State private var selectedGameId: Int? = nil
 
     // MARK: - Computed

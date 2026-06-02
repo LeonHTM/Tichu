@@ -105,14 +105,11 @@ class NetworkService: ObservableObject {
                     self.authToken = token
                     self.userId = userId
                 }
-
-                if !pendingDeviceToken.isEmpty {
-                    isLoading = true
-                    await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
-                    isLoading = false
-                } else {
-                    print("No device token available yet")
-                }
+               
+                isLoading = true
+                await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
+                isLoading = false
+                
 
                 return true
             }
@@ -212,18 +209,20 @@ class NetworkService: ObservableObject {
     func logout(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
 
-        let request = authorizedRequest(url: url, method: "POST")
+        var request = authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "device_token": pendingDeviceToken
+        ])
 
         do {
             try await URLSession.shared.data(for: request)
             await MainActor.run {
-                self.pendingDeviceToken = ""
                 self.authToken = ""
                 self.userId = -69420
                 self.userName = "Unknown"
                 self.userImageData = nil
                 self.userElo = 1000
-                
             }
         } catch {
             print("logout error: \(error)")

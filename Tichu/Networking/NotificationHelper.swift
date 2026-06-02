@@ -24,10 +24,17 @@ class CustomAppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let stringifiedToken = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print("APNs token:", stringifiedToken)
-        onDeviceToken?(stringifiedToken)
+    func application(
+        _ application: UIApplication,
+        didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
+    ) {
+        let token = deviceToken.map {
+            String(format: "%02.2hhx", $0)
+        }.joined()
+
+        print("APNs token:", token)
+
+        UserDefaults.standard.set(token, forKey: "pendingDeviceToken")
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

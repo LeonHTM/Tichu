@@ -14,12 +14,6 @@ struct TichuApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-                .onAppear {
-                    appDelegate.onDeviceToken = { token in
-                        NetworkService.shared.pendingDeviceToken = token
-                        print("Saved device token")
-                    }
-                }
         }
     }
 }
