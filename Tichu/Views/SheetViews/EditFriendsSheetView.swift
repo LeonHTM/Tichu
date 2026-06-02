@@ -9,6 +9,7 @@ import SwiftUI
 import TipKit
 
 struct EditFriendsSheetView: View {
+    @Namespace private var FriendsSpace
 
     // MARK: - Bindings
     @Binding var showFriendsSheet: Bool
@@ -225,7 +226,7 @@ struct EditFriendsSheetView: View {
                         showFriends: .constant(false),
                         guestIndex: 0
                     )
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))
                 }
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) { doneButton }
@@ -491,7 +492,7 @@ struct EditFriendsSheetView: View {
             } label: {
                 Image(systemName: "plus")
                 Text("Request Friend")
-            }
+            }.matchedTransitionSource(id: "69420", in: FriendsSpace)
             .foregroundStyle(Color.primary)
             .padding(13)
             .glassEffect(.regular.interactive())

@@ -755,12 +755,14 @@ class NetworkService: ObservableObject {
     }
 
     func editRound(roundId: Int, updates: [String: Any]) async {
-        guard let url = URL(string: "\(baseURL)/edit_round/\(roundId)") else { return }
+        guard let url = URL(string: "\(baseURL)/edit_round/\(roundId)") else {
+            print("id fail")
+            return }
 
         var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: updates)
-
+        print("Edited Round brakk")
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             let updated = try flexibleDateDecoder.decode(Round.self, from: data)

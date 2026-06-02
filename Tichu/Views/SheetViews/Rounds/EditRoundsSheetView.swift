@@ -19,33 +19,41 @@ struct EditRoundsSheetView: View {
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
 
+    @State private var roundsCopy: [Round] = []
+    @State private var gameCopy: Game? = nil
+
+    @State private var deletedRoundIds: Set<Int> = []
+    @State private var editedRounds: [Int: Round] = [:]
+
     // MARK: - State
-    
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
     @State private var showAddRoundSheet: Bool = false
     @State private var showList: Bool = false
     @State private var editingRoundIndex: Int = 0
-    @State private var isLoading: Bool = false
+    @State private var isSaving: Bool = false
     var listSwipeTip = ListSwipeTip()
 
     @Environment(\.colorScheme) var colorScheme
 
-    // MARK: - Computed
-    
-    private var rounds: [Round]{
-        network.roundsByGame[currentGameId] ?? []
-    }
-    private var currentGame: Game? {
-        network.games.first { $0.id == currentGameId }
-    }
+    // MARK: - Computed from COPY
+
+    private var currentGame: Game? { gameCopy }
 
     private var allRounds: [Round] {
-        rounds.sorted { $0.roundOrder < $1.roundOrder }
+        roundsCopy.sorted { $0.roundOrder < $1.roundOrder }
     }
 
     private var winRounds: [Round] {
         allRounds.filter { $0.boolWinRound }
+    }
+
+    private var copyPointsTeam1: Int {
+        winRounds.reduce(0) { $0 + $1.tichuPointsTeam1 + $1.roundPointsTeam1 }
+    }
+
+    private var copyPointsTeam2: Int {
+        winRounds.reduce(0) { $0 + $1.tichuPointsTeam2 + $1.roundPointsTeam2 }
     }
 
     private func profile(for id: Int?) -> Profile? {
@@ -63,6 +71,19 @@ struct EditRoundsSheetView: View {
          profile(for: currentGame?.team2Player2Id)].compactMap { $0 }
     }
 
+    // MARK: - Sync
+
+    private func syncFromNetwork() {
+        let liveRounds = network.roundsByGame[currentGameId] ?? []
+        let liveGame   = network.games.first { $0.id == currentGameId }
+        withAnimation(.easeInOut) {
+            roundsCopy = liveRounds
+            gameCopy   = liveGame
+        }
+        deletedRoundIds = []
+        editedRounds    = [:]
+    }
+
     // MARK: - Helpers
 
     private func place(of profile: Profile, in round: Round) -> Int {
@@ -70,19 +91,11 @@ struct EditRoundsSheetView: View {
         if round.secondProfileId == profile.id { return 2 }
         if round.thirdProfileId  == profile.id { return 3 }
         if round.fourthProfileId == profile.id { return 4 }
-        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4{
-            if network.profiles.first(where:{$0.id == round.firstProfileId}) == nil{
-                return 1
-            }
-            if network.profiles.first(where:{$0.id == round.secondProfileId}) == nil{
-                return 2
-            }
-            if network.profiles.first(where:{$0.id == round.thirdProfileId}) == nil{
-                return 3
-            }
-            if network.profiles.first(where:{$0.id == round.fourthProfileId}) == nil{
-                return 4
-            }
+        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4 {
+            if network.profiles.first(where: { $0.id == round.firstProfileId  }) == nil { return 1 }
+            if network.profiles.first(where: { $0.id == round.secondProfileId }) == nil { return 2 }
+            if network.profiles.first(where: { $0.id == round.thirdProfileId  }) == nil { return 3 }
+            if network.profiles.first(where: { $0.id == round.fourthProfileId }) == nil { return 4 }
         }
         return 0
     }
@@ -108,22 +121,77 @@ struct EditRoundsSheetView: View {
             }
         )
     }
-    
+
+    // MARK: - Apply Changes (Done)
+
+    private func applyChanges() async {
+        isSaving = true
+
+        let liveRounds = network.roundsByGame[currentGameId] ?? []
 
     
-    
+        for round in roundsCopy {
+            guard !deletedRoundIds.contains(round.id) else { continue }
+            //guard let live = liveRounds.first(where: { $0.id == round.id }) else { continue }
+            //guard round != live else { continue } // skip unchanged
+
+            await network.editRound(roundId: round.id, updates: [
+                "first_profile_id":   round.firstProfileId  as Any,
+                "second_profile_id":  round.secondProfileId as Any,
+                "third_profile_id":   round.thirdProfileId  as Any,
+                "fourth_profile_id":  round.fourthProfileId as Any,
+                "first_bombs":        round.firstBombs,
+                "second_bombs":       round.secondBombs,
+                "third_bombs":        round.thirdBombs,
+                "fourth_bombs":       round.fourthBombs,
+                "tichu_points_team1": round.tichuPointsTeam1,
+                "tichu_points_team2": round.tichuPointsTeam2,
+                "double_win_team1":   round.doubleWinTeam1,
+                "double_win_team2":   round.doubleWinTeam2,
+                "announced_tichu":    round.announcedTichu,
+                "announced_big_tichu": round.announcedBigTichu,
+                "announced_pingu":    round.announcedPingu
+            ])
+        }
+
+        // Delete removed rounds
+        for roundId in deletedRoundIds {
+            await network.deleteRound(gameId: currentGameId, roundId: roundId)
+        }
+
+        await network.reCalculate(gameId: currentGameId)
+        await network.fetchGameRounds(gameId: currentGameId)
+        await network.fetchGame(gameId: currentGameId)
+
+        isSaving = false
+        showEditRoundsSheet = false
+    }
 
     // MARK: - Body
     var body: some View {
         NavigationStack {
             if !showList {
-                roundsList
+                if allRounds.count > 0 {
+                    roundsList.toolbar { roundsListToolbar }
+                } else {
+                    Text("No Rounds played yet")
+                        .foregroundStyle(.secondary)
+                        .toolbar { roundsListToolbar }
+                }
             } else {
                 emptyView
             }
         }
-        
-        .safeAreaInset(edge: .top) { scoreHeader }
+        .onAppear {
+            syncFromNetwork()
+        }
+        .onChange(of: network.roundsByGame[currentGameId]?.map(\.id)) {
+            syncFromNetwork()
+        }
+        .onChange(of: network.games.map(\.id)) {
+            syncFromNetwork()
+        }
+        .safeAreaInset(edge: .top)    { scoreHeader }
         .safeAreaInset(edge: .bottom) { deleteGameButton }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
@@ -134,7 +202,6 @@ struct EditRoundsSheetView: View {
                 Task {
                     if let gameId = currentGame?.id {
                         await network.deleteGame(gameId: gameId)
-                        
                     }
                     showEditRoundsSheet = false
                 }
@@ -142,15 +209,18 @@ struct EditRoundsSheetView: View {
         } message: {
             Text("This Game will be deleted")
         }
+        .overlay {
+            if isSaving { ProgressView() }
+        }
     }
 
     // MARK: - Rounds List
     private var roundsList: some View {
         List {
             ForEach(Array(allRounds.enumerated()), id: \.element.id) { index, currentRound in
-                let hasExpanded = expandedRows.contains(index)
+                let hasExpanded    = expandedRows.contains(index)
                 let isWinningRound = winRounds.contains { $0.id == currentRound.id }
-                let isLocked = !isWinningRound
+                let isLocked       = !isWinningRound
 
                 let sortedTeam1 = sortedTeamProfiles(team1Profiles, in: currentRound)
                 let sortedTeam2 = sortedTeamProfiles(team2Profiles, in: currentRound)
@@ -162,16 +232,9 @@ struct EditRoundsSheetView: View {
                 }
                 .opacity(isLocked ? 0.5 : 1.0)
                 .swipeActions(edge: .trailing) {
-                   Button(role: .destructive) {
+                    Button(role: .destructive) {
                         withAnimation(.easeInOut) {
-                            if allRounds.count > 1 {
-                                guard let gameId = currentGame?.id else { return }
-                                let roundId = currentRound.id
-                                Task { await handleDeleteRound(gameId: gameId, roundId: roundId) }
-                            } else {
-                                showDeleteGameAlert = true
-                                DispatchQueue.main.async { showList = true }
-                            }
+                            deleteRoundLocally(roundId: currentRound.id)
                         }
                     } label: {
                         Label("Delete", systemImage: "trash")
@@ -198,47 +261,35 @@ struct EditRoundsSheetView: View {
                 print("Error initializing TipKit \(error.localizedDescription)")
             }
         }
-        .sheet(isPresented: $showAddRoundSheet, onDismiss: {
-            Task {
-                if let gameId = currentGame?.id {
-                    await network.fetchGameRounds(gameId: gameId)
-                    await network.reCalculate(gameId: gameId)
-                }
-            }
-        }) {
-            let roundIndexValue = editingRoundIndex + 1
-            let editingRoundValue = allRounds[safe: editingRoundIndex]
-            AddRoundSheetView(
+        .sheet(isPresented: $showAddRoundSheet) {
+            AddRoundSheetLocalView(
                 showAddRoundsSheet: $showAddRoundSheet,
-                currentGameId: currentGame?.id ?? self.currentGameId,
+                rounds: $roundsCopy,
+                game: Binding(get: { gameCopy! }, set: { gameCopy = $0 }),
                 profiles: profiles,
-                network: network,
                 editMode: true,
                 roundIndex: editingRoundIndex + 1,
                 editingRound: allRounds[safe: editingRoundIndex]
             )
         }
-        .id(editingRoundIndex)
         .zIndex(0)
         .listSectionSpacing(0)
         .animation(.spring(duration: 0.25), value: expandedRows)
         .animation(.easeInOut(duration: 0.25), value: showList)
         .navigationTitle("Edit Game")
         .navigationBarTitleDisplayMode(.inline)
-        .padding(.top,20)
-        .toolbar { roundsListToolbar }
+        .padding(.top, 20)
     }
 
-    // MARK: - Actions
-    private func handleDeleteRound(gameId: Int, roundId: Int) async {
-        await network.deleteRound(gameId: gameId, roundId: roundId)
-        await network.reCalculate(gameId: gameId)
-        let updatedRounds = network.roundsByGame[gameId] ?? []
-      
-       
+    // MARK: - Local Delete
+
+    private func deleteRoundLocally(roundId: Int) {
+        deletedRoundIds.insert(roundId)
+        roundsCopy.removeAll { $0.id == roundId }
     }
 
     // MARK: - UI Helpers
+
     @ViewBuilder
     private func editButton(for index: Int) -> some View {
         Button {
@@ -303,9 +354,8 @@ struct EditRoundsSheetView: View {
         VStack(alignment: .leading, spacing: 10) {
             ForEach(players, id: \.id) { player in
                 let playerPlace = place(of: player, in: round)
-                let isFirst = round.firstProfileId == player.id
+                let isFirst     = round.firstProfileId == player.id
 
-                // Double win color: green if this player is 1st or 2nd and their teammate is also in top 2
                 let firstId  = round.firstProfileId
                 let secondId = round.secondProfileId
                 let teamIds  = [teamProfileIds.0, teamProfileIds.1]
@@ -359,8 +409,6 @@ struct EditRoundsSheetView: View {
         .offset(x: offset)
     }
 
-  
-
     // MARK: - Empty View
     private var emptyView: some View {
         Text(" ")
@@ -371,19 +419,15 @@ struct EditRoundsSheetView: View {
 
     // MARK: - Score Header
     private var scoreHeader: some View {
-        let team1 = currentGame?.currentPointsTeam1 ?? 0
-        let team2 = currentGame?.currentPointsTeam2 ?? 0
-        return HStack {
-            Text("Team 1: \(team1)").foregroundStyle(Color.accentColor)
+        HStack {
+            Text("Team 1: \(copyPointsTeam1)").foregroundStyle(Color.accentColor)
             Spacer()
-            Text("Team 2: \(team2)")
-     
+            Text("Team 2: \(copyPointsTeam2)")
         }
         .fontWeight(.bold)
         .font(.title2)
         .padding(.horizontal, 30)
         .padding(.top, 80)
-        
     }
 
     // MARK: - Delete Game Button
@@ -406,11 +450,13 @@ struct EditRoundsSheetView: View {
     @ToolbarContentBuilder
     private var roundsListToolbar: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
-            Button("Cancel", systemImage: "xmark") { showEditRoundsSheet = false }
+            Button("Cancel", systemImage: "xmark") {
+                showEditRoundsSheet = false
+            }
         }
         ToolbarItem(placement: .confirmationAction) {
             Button("Done", systemImage: "checkmark") {
-                showEditRoundsSheet = false
+                Task { await applyChanges() }
             }
         }
     }

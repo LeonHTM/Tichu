@@ -22,7 +22,7 @@ struct StatsView: View {
     @State private var selectedTags: [String] = []
     @State private var sortStat: Profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .valueDown
-    @State private var compareList: [Int] = []
+    @AppStorage("statsList") private var compareList: [Int] = []
     @State private var addPlayerId: Int?
     @State private var showOfflineAlert: Bool = false
     

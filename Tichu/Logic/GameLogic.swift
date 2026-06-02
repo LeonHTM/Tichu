@@ -32,7 +32,7 @@ struct Game: Identifiable, Decodable, Equatable {
 
 import Foundation
 
-struct Round: Identifiable, Decodable {
+struct Round: Identifiable, Decodable, Equatable {
     let id: Int
     var gameId: Int
     var roundOrder: Int
@@ -61,6 +61,12 @@ struct Round: Identifiable, Decodable {
     var announcedTichu: [Int]
     var announcedBigTichu: [Int]
     var announcedPingu: [Int]
+    
+    static func == (lhs: Round, rhs: Round) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    
 }
 
 enum tichuGameTarget: Int, CaseIterable, Identifiable {
