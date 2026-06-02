@@ -132,8 +132,8 @@ struct EditRoundsSheetView: View {
     
         for round in roundsCopy {
             guard !deletedRoundIds.contains(round.id) else { continue }
-            //guard let live = liveRounds.first(where: { $0.id == round.id }) else { continue }
-            //guard round != live else { continue } // skip unchanged
+            let live = liveRounds.first(where: { $0.id == round.id })
+            guard round != live else { continue } // skip unchanged
 
             await network.editRound(roundId: round.id, updates: [
                 "first_profile_id":   round.firstProfileId  as Any,
@@ -185,7 +185,7 @@ struct EditRoundsSheetView: View {
         .onAppear {
             syncFromNetwork()
         }
-        .onChange(of: network.roundsByGame[currentGameId]?.map(\.id)) {
+        .onChange(of: network.roundsByGame[currentGameId]) {
             syncFromNetwork()
         }
         .onChange(of: network.games.map(\.id)) {

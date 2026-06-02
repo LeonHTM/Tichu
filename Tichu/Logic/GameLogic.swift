@@ -63,10 +63,23 @@ struct Round: Identifiable, Decodable, Equatable {
     var announcedPingu: [Int]
     
     static func == (lhs: Round, rhs: Round) -> Bool {
-        lhs.id == rhs.id
+        lhs.id == rhs.id &&
+        lhs.firstProfileId == rhs.firstProfileId &&
+        lhs.secondProfileId == rhs.secondProfileId &&
+        lhs.thirdProfileId == rhs.thirdProfileId &&
+        lhs.fourthProfileId == rhs.fourthProfileId &&
+        lhs.firstBombs == rhs.firstBombs &&
+        lhs.secondBombs == rhs.secondBombs &&
+        lhs.thirdBombs == rhs.thirdBombs &&
+        lhs.fourthBombs == rhs.fourthBombs &&
+        lhs.tichuPointsTeam1 == rhs.tichuPointsTeam1 &&
+        lhs.tichuPointsTeam2 == rhs.tichuPointsTeam2 &&
+        lhs.doubleWinTeam1 == rhs.doubleWinTeam1 &&
+        lhs.doubleWinTeam2 == rhs.doubleWinTeam2 &&
+        lhs.announcedTichu == rhs.announcedTichu &&
+        lhs.announcedBigTichu == rhs.announcedBigTichu &&
+        lhs.announcedPingu == rhs.announcedPingu
     }
-    
-    
 }
 
 enum tichuGameTarget: Int, CaseIterable, Identifiable {
