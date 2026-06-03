@@ -15,7 +15,7 @@ struct ProfileView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Storage - Unknown"
-    @AppStorage("userElo") var userElo: Int = 404
+    @AppStorage("userElo") var userElo: Double = 404
     @AppStorage("selectedTab") private var selectedTab = 0
     
     // MARK: - Photo Picker
@@ -119,7 +119,7 @@ struct ProfileView: View {
                         .fontWeight(.bold)
                         .allowsHitTesting(false)
                     
-                    Text("\(userElo)")
+                    Text("\(Int(userElo))")
                         .foregroundStyle(.gray)
                         .fontWeight(.bold)
                         .allowsHitTesting(false)

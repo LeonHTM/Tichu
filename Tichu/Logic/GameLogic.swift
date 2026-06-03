@@ -96,3 +96,9 @@ enum tichuGameTarget: Int, CaseIterable, Identifiable {
 
 
 
+struct EloHistoryEntry: Identifiable, Codable {
+    var id: Int
+    var gameId: Int?
+    var eloChange: Double
+    var changedAt: Date?
+}

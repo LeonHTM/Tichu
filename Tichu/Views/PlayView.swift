@@ -13,7 +13,7 @@ struct PlayView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Storage - Unknown"
-    @AppStorage("userElo") var userElo: Int = 404
+    @AppStorage("userElo") var userElo: Double = 404
     @AppStorage("isLoading") var isLoading: Bool = false
 
     @StateObject private var socket = SocketService.shared
@@ -352,7 +352,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p1.elo {
-                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -412,7 +412,7 @@ struct PlayView: View {
                     }
                     Spacer()
                     if let ranking = player1?.elo {
-                        Text("Ranking: \(ranking)")
+                        Text("Ranking: \(Int(ranking))")
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     } else {
@@ -443,7 +443,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p2.elo {
-                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -582,7 +582,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p3.elo {
-                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -672,7 +672,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p4.elo {
-                            Text("Ranking: \(elo)").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }

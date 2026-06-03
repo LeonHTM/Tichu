@@ -12,7 +12,7 @@ struct ShareStatsView: View{
     @Environment(\.colorScheme) var colorScheme
     var userName: String
     var userImageData: Data?
-    var elo: Int?
+    var elo: Double?
     var winnerPercentage: Int
     var tichuMaster: Double
     let accentCo: Color
@@ -26,7 +26,9 @@ struct ShareStatsView: View{
                 Text("\(userName)")
                     .font(.largeTitle)
                     .fontWeight(.bold).frame(width:500)
-                Text("\(elo ?? 1000) ELO").fontWeight(.bold).foregroundStyle(accentCo)
+                Text("\(String(format: "%.2f", elo ?? 1000.00)) ELO")
+                    .fontWeight(.bold)
+                    .foregroundStyle(accentCo)
             }
             Divider()
             VStack(alignment: .leading){

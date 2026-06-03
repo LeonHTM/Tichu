@@ -19,10 +19,14 @@ class NetworkService: ObservableObject {
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("userElo") var userElo: Int = 1000
+    @AppStorage("userElo") var userElo: Double = 1000
     @AppStorage("pendingDeviceToken") var pendingDeviceToken: String = ""
     @AppStorage("authToken") var authToken: String = ""
     @AppStorage("isLoading") var isLoading: Bool = false
+    
+    
+    
+    @Published var eloHistory: [EloHistoryEntry] = []
 
     @Published var profiles: [Profile] = []
     @Published var profileImages: [Int: Data] = [:]
@@ -560,6 +564,8 @@ class NetworkService: ObservableObject {
         await fetchFriends(profileId: currentUserId)
         await fetchFriendRequests(profileId: currentUserId)
         await fetchProfileGames(profileId: currentUserId)
+        await fetchEloHistory(profileId: currentUserId)
+        await fetchEloHistory(profileId: currentUserId)
 
         await MainActor.run {
             if let imageData = self.profileImages[currentUserId] {
@@ -865,6 +871,22 @@ class NetworkService: ObservableObject {
             }
         } catch {
             print("reCalculate error: \(error)")
+        }
+    }
+    
+    
+    func fetchEloHistory(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/elo_history/\(profileId)") else { return }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let decoded = try flexibleDateDecoder.decode([EloHistoryEntry].self, from: data)
+            
+            await MainActor.run {
+                self.eloHistory = decoded
+            }
+        } catch {
+            print("fetchEloHistory error: \(error)")
         }
     }
 }

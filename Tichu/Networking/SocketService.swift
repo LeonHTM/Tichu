@@ -15,7 +15,7 @@ final class SocketService: ObservableObject {
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Unknown"
-    @AppStorage("userElo") var userElo: Int = 1000
+    @AppStorage("userElo") var userElo: Double = 1000
     static let shared = SocketService()
 
     private var manager: SocketManager!
@@ -98,6 +98,33 @@ final class SocketService: ObservableObject {
             }
         }
         
+        socket.on("elo_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let players = dict["players"] as? [[String: Any]]
+            else {
+                print("Elo: Updated Failed to parse \(data)")
+                return
+            }
+
+            Task {
+                for player in players {
+                    let id  = player["id"]  as? Int ?? 0
+                    let elo = player["elo"] as? Double ?? 0.0
+                    
+                    if id == self.userId{
+                        Task{
+                            await NetworkService.shared.fetchEloHistory(profileId: id)
+                        }
+                    }
+
+                    if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == id }) {
+                        NetworkService.shared.profiles[index].elo = elo
+                    }
+                }
+                print("ELO UPDATED")
+            }
+            
+        }
         
 
         // PROFILE DELETED

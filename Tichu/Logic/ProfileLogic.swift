@@ -14,7 +14,7 @@ struct Profile: Identifiable, Equatable, Codable {
     var imageData: Data?
 
     // Statistics
-    var elo: Int?
+    var elo: Double?
     var winnerPercentage: Int
     var tichuMaster: Double
     var visionary: Int
@@ -64,7 +64,7 @@ struct Profile: Identifiable, Equatable, Codable {
         profileImageUrl: String? = nil,
         imageData: Data? = nil,
         date: Date = Date(),
-        elo: Int? = nil,
+        elo: Double? = nil,
         winnerPercentage: Int = 50,
         tichuMaster: Double = 0,
         visionary: Int = 0,
@@ -101,7 +101,7 @@ struct Profile: Identifiable, Equatable, Codable {
         name = try c.decodeIfPresent(String.self, forKey: .name)
         profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
         
-        elo = try c.decodeIfPresent(Int.self, forKey: .elo)
+        elo = try c.decodeIfPresent(Double.self, forKey: .elo)
         winnerPercentage = try c.decodeIfPresent(Int.self, forKey: .winnerPercentage) ?? 50
         tichuMaster = try c.decodeIfPresent(Double.self, forKey: .tichuMaster) ?? 0
         visionary = try c.decodeIfPresent(Int.self, forKey: .visionary) ?? 0

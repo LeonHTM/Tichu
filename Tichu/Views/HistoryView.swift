@@ -173,23 +173,21 @@ struct HistoryView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            if let selectedId = selectedGameId {
-                GameSummaryChartView(
-                    currentGameId: selectedId
-                )
-                .frame(height: 200)
-                .padding()
-                .glassEffect(
-                    .regular.tint(
-                        colorScheme == .dark
-                        ? Color(uiColor: .tertiarySystemFill)
-                        : .white
-                    ).interactive(),
-                    in: .rect(cornerRadius: 20)
-                )
-                .padding(.top, 50)
-                .padding(.horizontal, 10)
-                .padding(.top, 5)
+            if let selectedId = selectedGameId{
+                EloHistoryChartView(profileId: userId, markedGameId: selectedId)
+                    .frame(height: 200)
+                    .padding()
+                    .glassEffect(
+                        .regular.tint(
+                            colorScheme == .dark
+                            ? Color(uiColor: .tertiarySystemFill)
+                            : .white
+                        ).interactive(),
+                        in: .rect(cornerRadius: 20)
+                    )
+                    .padding(.top, 50)
+                    .padding(.horizontal, 10)
+                    .padding(.top, 5)
             }
         }
         .onAppear {

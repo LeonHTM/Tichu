@@ -13,7 +13,7 @@ struct DebugSheetView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Storage - Unknown"
-    @AppStorage("userElo") var userElo: Int = 404
+    @AppStorage("userElo") var userElo: Double = 404
     @AppStorage("selectedTab") private var selectedTab = 0
     @ObservedObject private var network = NetworkService.shared
     @ObservedObject var config = Config.shared
@@ -54,6 +54,9 @@ struct DebugSheetView: View {
                     ProfileImage(data:userImageData,size:44)
                     
                 }
+                
+                Text("\(NetworkService.shared.eloHistory)")
+                EloHistoryChartView(profileId: userId)
                 
                 
                 

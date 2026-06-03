@@ -96,7 +96,7 @@ struct StatsView: View {
                 image: "chart.line.uptrend.xyaxis",
                 counterLeft: 1,
                 counterRight: 500,
-                value: Double(network.profiles.first { $0.id == userId }?.elo ?? 1000),
+                value: network.profiles.first { $0.id == userId }?.elo ?? 1000,
                 percentage: false,
                 inTop: 0.025,
                 stat: .elo,
@@ -512,7 +512,7 @@ struct StatsView: View {
             let renderer = ImageRenderer(content: ShareStatsView(
                 userName: network.profiles.first(where: { $0.id == userId })?.name ?? "Unknown",
                 userImageData: network.profileImages[userId],
-                elo: network.profiles.first { $0.id == userId }?.elo ?? 1000,
+                elo: network.profiles.first { $0.id == userId }?.elo ?? 1000.0,
                 winnerPercentage: network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0,
                 tichuMaster: network.profiles.first { $0.id == userId }?.tichuMaster ?? 0,
                 accentCo: .accent,

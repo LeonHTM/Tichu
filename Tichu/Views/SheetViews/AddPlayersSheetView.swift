@@ -213,7 +213,7 @@ struct AddPlayersSheetView: View {
                 Spacer()
 
                 if let elo = profile?.elo {
-                    Text("\(elo)")
+                    Text("\(Int(elo))")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 }
