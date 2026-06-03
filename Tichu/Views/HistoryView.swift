@@ -9,6 +9,16 @@ import SwiftUI
 import Charts
 import TipKit
 
+struct RowSnappingBehavior: ScrollTargetBehavior {
+    let rowHeight: CGFloat
+
+    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+        let y = target.rect.minY
+        let snapped = (y / rowHeight).rounded() * rowHeight
+        target.rect.origin.y = snapped
+    }
+}
+
 struct HistoryView: View {
     @Namespace private var historySpace
     @State private var renderedImage: Image?
@@ -20,7 +30,7 @@ struct HistoryView: View {
     @State private var showDebugSheetView: Bool = false
     @State private var showLoader: Bool = false
     @State private var sheetSelectedTab: Int = 1
-    @State private var selectedCounter: Int =  0
+    @State private var selectedCounter: Int = 0
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -28,9 +38,9 @@ struct HistoryView: View {
     // MARK: - State
     @State private var sheetGame: Game? = nil
     @State private var selectedGameId: Int? = nil
+    @State private var scrolledGameId: Int? = nil
 
     // MARK: - Computed
-
     private var gameHistory: [Game] {
         network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }
     }
@@ -44,9 +54,9 @@ struct HistoryView: View {
     var body: some View {
         if gameHistory.count > 0 {
             historyView
-        } else if isLoading{
+        } else if isLoading {
             ProgressView().scaleEffect(2)
-        }else {
+        } else {
             emptyStateView
         }
     }
@@ -57,22 +67,25 @@ struct HistoryView: View {
             GlassEffectContainer {
                 GeometryReader { outerGeo in
                     let rowHeight: CGFloat = 100
-                    let centerY = (outerGeo.size.height / 2 - 5)
+                    let centerY = outerGeo.size.height / 2 - 5
+                    let topPadding = centerY - rowHeight / 2 - 10
+                    let bottomPadding = centerY - rowHeight / 2 + 20
 
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 0) {
-                            Color.clear.frame(height: centerY - rowHeight / 2 - 10)
+                            Color.clear.frame(height: topPadding)
 
                             ForEach(gameHistory, id: \.id) { game in
-                                gameRow(game: game, centerY: centerY, rowHeight: rowHeight)
+                                gameRow(game: game, isSelected: selectedGameId == game.id)
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
+                                    .id(game.id)
                                     .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
-                                    .contextMenu{
-                                        Button{
+                                    .contextMenu {
+                                        Button {
                                             sheetGame = game
-                                        }label:{
-                                            Image(systemName:"arrow.up.right.square")
+                                        } label: {
+                                            Image(systemName: "arrow.up.right.square")
                                             Text("Open Game")
                                         }
                                         if let renderedImage {
@@ -82,16 +95,16 @@ struct HistoryView: View {
                                                 preview: SharePreview("Tichu game", image: renderedImage)
                                             )
                                             .foregroundColor(.primary)
-                                        }else{
-                                            Button{}label:{
-                                                HStack{
-                                                    Image(systemName:"square.and.arrow.up")
+                                        } else {
+                                            Button {} label: {
+                                                HStack {
+                                                    Image(systemName: "square.and.arrow.up")
                                                     Text("Share...")
                                                     ProgressView()
                                                 }
                                             }.disabled(true)
                                         }
-                                    }preview:{
+                                    } preview: {
                                         GameSummaryListView(
                                             showGameSummarySheetView: .constant(true),
                                             currentGameId: game.id,
@@ -122,12 +135,18 @@ struct HistoryView: View {
                                 }
                             }
 
-                            Color.clear.frame(height: centerY - rowHeight / 2 + 20)
+                            Color.clear.frame(height: bottomPadding)
                         }
                         .scrollTargetLayout()
                     }
+                    .scrollPosition(id: $scrolledGameId, anchor: .center)
+                    .scrollTargetBehavior(RowSnappingBehavior(rowHeight: rowHeight))
                     .background(Color(uiColor: .systemGroupedBackground))
-                    .scrollTargetBehavior(.viewAligned)
+                    .onChange(of: scrolledGameId) { _, newId in
+                        guard let newId, selectedGameId != newId else { return }
+                        selectedGameId = newId
+                        selectedCounter += 1
+                    }
                 }
             }
             .sheet(isPresented: $showDebugSheetView) {
@@ -149,12 +168,12 @@ struct HistoryView: View {
                     ),
                     currentGameId: game.id,
                     revanche: .constant(false),
-                    profiles: network.profiles, 
+                    profiles: network.profiles,
                     network: network,
                     selectedTab: $sheetSelectedTab,
                     showRevancheButton: false,
                     HistoryMode: true
-                ).navigationTransition(.zoom(sourceID:"\(game.id)",in:historySpace))
+                ).navigationTransition(.zoom(sourceID: "\(game.id)", in: historySpace))
             }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
@@ -165,7 +184,6 @@ struct HistoryView: View {
                             .foregroundStyle(socket.connected ? Color.green : Color.red)
                     }
                 }
-
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationProfileImage()
                 }
@@ -173,7 +191,7 @@ struct HistoryView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            if let selectedId = selectedGameId{
+            if let selectedId = selectedGameId {
                 EloHistoryChartView(profileId: userId, markedGameId: selectedId)
                     .frame(height: 200)
                     .padding()
@@ -200,8 +218,9 @@ struct HistoryView: View {
                         }
                     }
                 }
-                if selectedGameId == nil {
-                    selectedGameId = gameHistory.first?.id
+                if selectedGameId == nil, let first = gameHistory.first {
+                    selectedGameId = first.id
+                    scrolledGameId = first.id
                 }
                 showLoader = false
             }
@@ -209,73 +228,45 @@ struct HistoryView: View {
     }
 
     // MARK: - Game Row
-    private func gameRow(game: Game, centerY: CGFloat, rowHeight: CGFloat) -> some View {
-        GeometryReader { geo in
-            let midY = geo.frame(in: .scrollView).midY
-            let distance = abs(centerY - midY)
-            let isCentered = distance < (rowHeight / 10)
-            let isSelected = selectedGameId == game.id
-            let opacity = max(0.35, 1 - (distance / 600))
+    private func gameRow(game: Game, isSelected: Bool) -> some View {
+        Button {
+            sheetGame = game
+        } label: {
+            HStack {
+                Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
+                    .fontWeight(.bold)
+                    .font(.title2)
+                    .padding(.horizontal, 10)
 
-            let scoreText = "\(game.currentPointsTeam1) : \(game.currentPointsTeam2)"
-            let matchupText = "\(playerName(game.team1Player1Id)) & \(playerName(game.team1Player2Id))"
-            let opponentText = "\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))"
-
-            Button {
-                sheetGame = game
-            } label: {
-                HStack {
-                    Text(scoreText)
-                        .fontWeight(.bold)
-                        .font(.title2)
-                        .padding(.horizontal, 10)
-
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(matchupText).foregroundStyle(Color.primary)
-                            Text("vs").fontWeight(.bold)
-                            Text(opponentText)
-                        }
-
-                        Text(game.date, style: .date)
-                            .fontWeight(.bold)
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("\(playerName(game.team1Player1Id)) & \(playerName(game.team1Player2Id))")
+                            .foregroundStyle(Color.primary)
+                        Text("vs").fontWeight(.bold)
+                        Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
                     }
+                    Text(game.date, style: .date)
+                        .fontWeight(.bold)
+                }
 
-                    Spacer()
-                }
-                .padding(10)
-                .padding(.vertical, 13)
-                .background(
-                    colorScheme == .dark
-                    ? Color(uiColor: .tertiarySystemFill)
-                    : .white,
-                    in: .rect(cornerRadius: 24)
-                )
-                .foregroundColor(.primary)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(
-                            isSelected || isCentered
-                            ? Color.accentColor
-                            : Color.clear,
-                            lineWidth: 2
-                        )
-                }
-                .opacity(opacity)
-            }.matchedTransitionSource(id: "\(game.id)", in: historySpace)
-            .onChange(of: isCentered) { _, newValue in
-                if newValue, selectedGameId != game.id {
-                    selectedGameId = game.id
-                    selectedCounter += 1
-                }
+                Spacer()
             }
-            .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
-            .onAppear {
-                if selectedGameId == nil && isCentered {
-                    selectedGameId = game.id
-                }
+            .padding(10)
+            .padding(.vertical, 13)
+            .background(
+                colorScheme == .dark
+                ? Color(uiColor: .tertiarySystemFill)
+                : .white,
+                in: .rect(cornerRadius: 24)
+            )
+            .foregroundColor(.primary)
+            .overlay {
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
             }
         }
+        .matchedTransitionSource(id: "\(game.id)", in: historySpace)
+        .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
     }
 
     // MARK: - Empty State View
@@ -319,7 +310,6 @@ struct HistoryView: View {
                             .foregroundStyle(socket.connected ? Color.green : Color.red)
                     }
                 }
-
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationProfileImage()
                 }
