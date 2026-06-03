@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import WidgetKit
 
 class NetworkService: ObservableObject {
     static let shared = NetworkService()
@@ -565,18 +566,75 @@ class NetworkService: ObservableObject {
         await fetchFriendRequests(profileId: currentUserId)
         await fetchProfileGames(profileId: currentUserId)
         await fetchEloHistory(profileId: currentUserId)
-        await fetchEloHistory(profileId: currentUserId)
+        await fetchProfilesStats(profileId: userId)
+        
+        
 
         await MainActor.run {
+            
+            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+            
             if let imageData = self.profileImages[currentUserId] {
                 self.userImageData = imageData
                 print("fetch Function just fetched userImageData")
             }
+            
             if let name = self.profiles.first(where: { $0.id == currentUserId })?.name {
                 self.userName = name
+                defaults?.set(self.userName, forKey: "userName")
             }
             if let elo = self.profiles.first(where: { $0.id == currentUserId })?.elo {
                 self.userElo = elo
+                defaults?.set(self.userElo, forKey: "userElo")
+            }
+            
+            if let winner =  self.profiles.first(where: { $0.id == currentUserId })?.winnerPercentage {
+                defaults?.set(winner, forKey: "userWinnerPercentage")
+            }
+            
+            if let visionary = self.profiles.first(where: { $0.id == currentUserId })?.visionary {
+       
+                defaults?.set(visionary, forKey: "userVisionary")
+            }
+
+            if let addict = self.profiles.first(where: { $0.id == currentUserId })?.addict {
+                
+                defaults?.set(addict, forKey: "userAddict")
+            }
+
+            if let teamplayer = self.profiles.first(where: { $0.id == currentUserId })?.teamplayer {
+                
+                defaults?.set(teamplayer, forKey: "userTeamplayer")
+            }
+
+            if let announcer = self.profiles.first(where: { $0.id == currentUserId })?.announcer {
+                
+                defaults?.set(announcer, forKey: "userAnnouncer")
+            }
+
+            if let saboteur = self.profiles.first(where: { $0.id == currentUserId })?.saboteur {
+                
+                defaults?.set(saboteur, forKey: "userSaboteur")
+            }
+
+            if let gambler = self.profiles.first(where: { $0.id == currentUserId })?.gambler {
+                
+                defaults?.set(gambler, forKey: "userGambler")
+            }
+
+            if let bigGambler = self.profiles.first(where: { $0.id == currentUserId })?.bigGambler {
+                
+                defaults?.set(bigGambler, forKey: "userBigGambler")
+            }
+
+            if let pinguGambler = self.profiles.first(where: { $0.id == currentUserId })?.pinguGambler {
+                
+                defaults?.set(pinguGambler, forKey: "userPinguGambler")
+            }
+
+            if let bomber = self.profiles.first(where: { $0.id == currentUserId })?.bomber {
+                
+                defaults?.set(bomber, forKey: "userBomber")
             }
             isLoading = false
         }
@@ -877,14 +935,27 @@ class NetworkService: ObservableObject {
     
     func fetchEloHistory(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/elo_history/\(profileId)") else { return }
-        
+
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+
             let decoded = try flexibleDateDecoder.decode([EloHistoryEntry].self, from: data)
-            
+
+            // Save to App Group
+            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+
+            if let encoded = try? JSONEncoder().encode(decoded) {
+                defaults?.set(encoded, forKey: "eloHistory")
+                defaults?.set(self.userName, forKey: "userName")
+                defaults?.set(self.userElo, forKey: "userElo")
+            }
+
+            WidgetCenter.shared.reloadAllTimelines()
+
             await MainActor.run {
                 self.eloHistory = decoded
             }
+
         } catch {
             print("fetchEloHistory error: \(error)")
         }

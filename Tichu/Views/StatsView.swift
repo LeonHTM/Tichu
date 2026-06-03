@@ -486,7 +486,6 @@ struct StatsView: View {
                 }
             }
         }.task {
-            await network.fetchProfilesStats(profileId: userId)
             var tags: [String] = []
             
             let visionary = network.profiles.first { $0.id == userId }?.visionary ?? 0

@@ -54,9 +54,10 @@ struct DebugSheetView: View {
                     ProfileImage(data:userImageData,size:44)
                     
                 }
-                
-                Text("\(NetworkService.shared.eloHistory)")
-                EloHistoryChartView(profileId: userId)
+                ScrollView{
+                    Text("\(NetworkService.shared.eloHistory)")
+                    EloHistoryChartView(profileId: userId)
+                }
                 
                 
                 

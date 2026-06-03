@@ -86,6 +86,13 @@ struct MainView: View {
                     }
                 }
             }
+        }.onOpenURL { url in
+            if url == URL(string: "tichu://elo"){
+                selectedTab = 1
+            }
+            if url == URL(string: "tichu://stats"){
+                selectedTab = 2
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
             selectedTab = 3
