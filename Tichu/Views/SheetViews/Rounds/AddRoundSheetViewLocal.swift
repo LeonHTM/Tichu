@@ -171,8 +171,72 @@ struct AddRoundSheetLocalView: View {
         if let p4 = player4 { updateAnnouncement(playerId: p4.id, state: hasAnnouncedPlayer4) }
         applyDoubleWin()
 
+        var roundPointsTeam1 = 0
+        var roundPointsTeam2 = 0
+
+        // Helper: add points to the correct team
+        func addPoints(_ profileId: Int?, amount: Int) {
+            guard let profileId else { return }
+            if profileId == game.team1Player1Id || profileId == game.team1Player2Id {
+                roundPointsTeam1 += amount
+            } else if profileId == game.team2Player1Id || profileId == game.team2Player2Id {
+                roundPointsTeam2 += amount
+            }
+        }
+
+        // First (winner: +points)
+        if let pid = firstProfileId {
+            if announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: 100)
+            } else if announcedBigTichu.contains(pid) && !announcedTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: 200)
+            } else if announcedPingu.contains(pid) && !announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) {
+                addPoints(pid, amount: 400)
+            }
+        }
+
+        // Second (loser: -points)
+        if let pid = secondProfileId {
+            if announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -100)
+            } else if announcedBigTichu.contains(pid) && !announcedTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -200)
+            } else if announcedPingu.contains(pid) && !announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) {
+                addPoints(pid, amount: -400)
+            }
+        }
+
+        // Third (loser: -points)
+        if let pid = thirdProfileId {
+            if announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -100)
+            } else if announcedBigTichu.contains(pid) && !announcedTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -200)
+            } else if announcedPingu.contains(pid) && !announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) {
+                addPoints(pid, amount: -400)
+            }
+        }
+
+        // Fourth (loser: -points)
+        if let pid = fourthProfileId {
+            if announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -100)
+            } else if announcedBigTichu.contains(pid) && !announcedTichu.contains(pid) && !announcedPingu.contains(pid) {
+                addPoints(pid, amount: -200)
+            } else if announcedPingu.contains(pid) && !announcedTichu.contains(pid) && !announcedBigTichu.contains(pid) {
+                addPoints(pid, amount: -400)
+            }
+        }
+
+        // Double win bonus
+        if hasDoubleWinTeam1 && tichuPointsTeam1 == 100 {
+            roundPointsTeam1 += 100
+        }
+        if hasDoubleWinTeam2 && tichuPointsTeam2 == 100 {
+            roundPointsTeam2 += 100
+        }
+
         if editMode, let round = editingRound {
-            // Apply edits to the local rounds binding
             if let idx = rounds.firstIndex(where: { $0.id == round.id }) {
                 rounds[idx].firstProfileId   = firstProfileId
                 rounds[idx].secondProfileId  = secondProfileId
@@ -184,6 +248,8 @@ struct AddRoundSheetLocalView: View {
                 rounds[idx].fourthBombs      = fourthBombs
                 rounds[idx].tichuPointsTeam1 = tichuPointsTeam1
                 rounds[idx].tichuPointsTeam2 = tichuPointsTeam2
+                rounds[idx].roundPointsTeam1 = roundPointsTeam1
+                rounds[idx].roundPointsTeam2 = roundPointsTeam2
                 rounds[idx].doubleWinTeam1   = hasDoubleWinTeam1
                 rounds[idx].doubleWinTeam2   = hasDoubleWinTeam2
                 rounds[idx].announcedTichu    = announcedTichu
@@ -191,10 +257,9 @@ struct AddRoundSheetLocalView: View {
                 rounds[idx].announcedPingu    = announcedPingu
             }
         } else {
-            // Append a new round locally
             let nextOrder = (rounds.map { $0.roundOrder }.max() ?? 0) + 1
             let newRound = Round(
-                id: Int.random(in: -999_999 ... -1), // temporary negative ID; server will assign real one
+                id: Int.random(in: -999_999 ... -1),
                 gameId: game.id,
                 roundOrder: nextOrder,
                 firstProfileId: firstProfileId,
@@ -207,8 +272,8 @@ struct AddRoundSheetLocalView: View {
                 fourthBombs: fourthBombs,
                 tichuPointsTeam1: tichuPointsTeam1,
                 tichuPointsTeam2: tichuPointsTeam2,
-                roundPointsTeam1: 0,
-                roundPointsTeam2: 0,
+                roundPointsTeam1: roundPointsTeam1,
+                roundPointsTeam2: roundPointsTeam2,
                 doubleWinTeam1: hasDoubleWinTeam1,
                 doubleWinTeam2: hasDoubleWinTeam2,
                 boolWinRound: true,

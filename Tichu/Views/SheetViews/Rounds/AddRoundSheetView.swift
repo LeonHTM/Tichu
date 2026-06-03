@@ -19,6 +19,7 @@ struct AddRoundSheetView: View {
     // MARK: - Dependencies
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
+    @StateObject private var socket = SocketService.shared
 
     // MARK: - Props
     var editMode: Bool
@@ -78,13 +79,13 @@ struct AddRoundSheetView: View {
     }
 
     private var displayTeam1Points: Int {
-        if hasDoubleWinTeam1 { return 100 }
+        if hasDoubleWinTeam1 { return 200 }
         if hasDoubleWinTeam2 { return 0 }
         return tichuPointsTeam1
     }
 
     private var displayTeam2Points: Int {
-        if hasDoubleWinTeam2 { return 100 }
+        if hasDoubleWinTeam2 { return 200 }
         if hasDoubleWinTeam1 { return 0 }
         return tichuPointsTeam2
     }
@@ -253,6 +254,7 @@ struct AddRoundSheetView: View {
                             showAddRoundsSheet = false
                         }
                         .disabled(dragMode ? false : !rankingList.allSatisfy({ $0 != 0 }))
+                        .disabled(socket.connected == false)
                     }
                 }
             }
@@ -283,6 +285,11 @@ struct AddRoundSheetView: View {
                 hasAnnouncedPlayer2 = announcement(for: player2)
                 hasAnnouncedPlayer3 = announcement(for: player3)
                 hasAnnouncedPlayer4 = announcement(for: player4)
+            }
+            .onChange(of:socket.connected){
+                if socket.connected == false{
+                    showAddRoundsSheet = false
+                }
             }
         }
     }

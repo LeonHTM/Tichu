@@ -18,6 +18,7 @@ struct EditRoundsSheetView: View {
     // MARK: - Dependencies
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
+    @StateObject private var socket = SocketService.shared
 
     @State private var roundsCopy: [Round] = []
     @State private var gameCopy: Game? = nil
@@ -190,6 +191,11 @@ struct EditRoundsSheetView: View {
         }
         .onChange(of: network.games.map(\.id)) {
             syncFromNetwork()
+        }
+        .onChange(of: socket.connected){
+            if socket.connected == false{
+                showEditRoundsSheet = false
+            }
         }
         .safeAreaInset(edge: .top)    { scoreHeader }
         .safeAreaInset(edge: .bottom) { deleteGameButton }
@@ -457,7 +463,7 @@ struct EditRoundsSheetView: View {
         ToolbarItem(placement: .confirmationAction) {
             Button("Done", systemImage: "checkmark") {
                 Task { await applyChanges() }
-            }
+            }.disabled(socket.connected == false)
         }
     }
 

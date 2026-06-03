@@ -10,6 +10,7 @@ import Charts
 import TipKit
 
 struct HistoryView: View {
+    @Namespace private var historySpace
     @State private var renderedImage: Image?
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
@@ -19,6 +20,7 @@ struct HistoryView: View {
     @State private var showDebugSheetView: Bool = false
     @State private var showLoader: Bool = false
     @State private var sheetSelectedTab: Int = 1
+    @State private var selectedCounter: Int =  0
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -147,12 +149,12 @@ struct HistoryView: View {
                     ),
                     currentGameId: game.id,
                     revanche: .constant(false),
-                    profiles: network.profiles,
+                    profiles: network.profiles, 
                     network: network,
                     selectedTab: $sheetSelectedTab,
                     showRevancheButton: false,
                     HistoryMode: true
-                )
+                ).navigationTransition(.zoom(sourceID:"\(game.id)",in:historySpace))
             }
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
@@ -262,13 +264,14 @@ struct HistoryView: View {
                         )
                 }
                 .opacity(opacity)
-            }
+            }.matchedTransitionSource(id: "\(game.id)", in: historySpace)
             .onChange(of: isCentered) { _, newValue in
                 if newValue, selectedGameId != game.id {
                     selectedGameId = game.id
+                    selectedCounter += 1
                 }
             }
-            .sensoryFeedback(.selection, trigger: isSelected)
+            .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
             .onAppear {
                 if selectedGameId == nil && isCentered {
                     selectedGameId = game.id

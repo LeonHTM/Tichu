@@ -27,6 +27,7 @@ struct PlayView: View {
     @State private var showAddRoundSheet: Bool = false
     @State private var showDebugSheetView: Bool = false
     @State private var showGameOverSheet: Bool = false
+    @State private var showOfflineAlert: Bool = false
     @State private var selectedTab: Int = 0
 
     @State private var showPlayers: Bool = true
@@ -356,20 +357,22 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if isFriend(profileId: p1.id) == true{
-                            Button{}label:{
-                                Image(systemName:"person")
-                                Text("\(p1.name ?? "Unkmown") is already a Friend")
-                            }.disabled(true)
-                        }else{
-                            Button{
-                                Task{
-                                    await network.sendFriendRequest(senderId: userId, receiverId: p1.id)
-                                }
-                            }label:{
-                                Image(systemName:"person.badge.plus")
-                                Text("Send Friend Request")
-                            }.disabled(p1.id == userId)
+                        if socket.connected{
+                            if isFriend(profileId: p1.id) == true{
+                                Button{}label:{
+                                    Image(systemName:"person")
+                                    Text("\(p1.name ?? "Unkmown") is already a Friend")
+                                }.disabled(true)
+                            }else{
+                                Button{
+                                    Task{
+                                        await network.sendFriendRequest(senderId: userId, receiverId: p1.id)
+                                    }
+                                }label:{
+                                    Image(systemName:"person.badge.plus")
+                                    Text("Send Friend Request")
+                                }.disabled(p1.id == userId)
+                            }
                         }
                         
                     }.swipeActions(edge: .trailing) {
@@ -445,20 +448,22 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if isFriend(profileId: p2.id) == true{
-                            Button{}label:{
-                                Image(systemName:"person")
-                                Text("\(p2.name ?? "Unkmown") is already a Friend")
-                            }.disabled(true)
-                        }else{
-                            Button{
-                                Task{
-                                    await network.sendFriendRequest(senderId: userId, receiverId: p2.id)
-                                }
-                            }label:{
-                                Image(systemName:"person.badge.plus")
-                                Text("Send Friend Request")
-                            }.disabled(p2.id == userId)
+                        if socket.connected{
+                            if isFriend(profileId: p2.id) == true{
+                                Button{}label:{
+                                    Image(systemName:"person")
+                                    Text("\(p2.name ?? "Unkmown") is already a Friend")
+                                }.disabled(true)
+                            }else{
+                                Button{
+                                    Task{
+                                        await network.sendFriendRequest(senderId: userId, receiverId: p2.id)
+                                    }
+                                }label:{
+                                    Image(systemName:"person.badge.plus")
+                                    Text("Send Friend Request")
+                                }.disabled(p2.id == userId)
+                            }
                         }
                         
                     }
@@ -582,12 +587,13 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if isFriend(profileId: p3.id) == true{
-                            Button{}label:{
-                                Image(systemName:"person")
-                                Text("\(p3.name ?? "Unkmown") is already a Friend")
-                            }.disabled(true)
-                        }else{
+                        if socket.connected{
+                            if isFriend(profileId: p3.id) == true{
+                                Button{}label:{
+                                    Image(systemName:"person")
+                                    Text("\(p3.name ?? "Unkmown") is already a Friend")
+                                }.disabled(true)
+                            }else{
                                 
                                 Button{
                                     Task{
@@ -598,7 +604,7 @@ struct PlayView: View {
                                     Text("Send Friend Request")
                                 }.disabled(p3.id == userId)
                             }
-                        
+                        }
                     }.swipeActions(edge: .trailing) {
                         if isGameReady == false{
                             Button() {
@@ -671,20 +677,22 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if isFriend(profileId: p4.id) == true{
-                            Button{}label:{
-                                Image(systemName:"person")
-                                Text("\(p4.name ?? "Unkmown") is already a Friend")
-                            }.disabled(true)
-                        }else{
-                            Button{
-                                Task{
-                                    await network.sendFriendRequest(senderId: userId, receiverId: p4.id)
-                                }
-                            }label:{
-                                Image(systemName:"person.badge.plus")
-                                Text("Send Friend Request")
-                            }.disabled(p4.id == userId)
+                        if socket.connected{
+                            if isFriend(profileId: p4.id) == true{
+                                Button{}label:{
+                                    Image(systemName:"person")
+                                    Text("\(p4.name ?? "Unkmown") is already a Friend")
+                                }.disabled(true)
+                            }else{
+                                Button{
+                                    Task{
+                                        await network.sendFriendRequest(senderId: userId, receiverId: p4.id)
+                                    }
+                                }label:{
+                                    Image(systemName:"person.badge.plus")
+                                    Text("Send Friend Request")
+                                }.disabled(p4.id == userId)
+                            }
                         }
                         
                     }.swipeActions(edge: .trailing) {
@@ -791,7 +799,8 @@ struct PlayView: View {
     private var gameReadyBottomBar: some View {
         GlassEffectContainer {
             HStack {
-                Button {
+                if socket.connected{
+                    Button {
                     showEditRoundsSheet = true
                 } label: {
                     Image(systemName: "list.bullet.badge.ellipsis")
@@ -800,26 +809,45 @@ struct PlayView: View {
                         .frame(width: 29, height: 29)
                         .clipShape(Circle())
                 }.matchedTransitionSource(id: "69420", in: playSpace)
-                .padding(10)
+                    .padding(10)
                 //.buttonStyle(.glass)
-                .glassEffect(.regular.interactive())
-                .padding(.leading, 20)
-                .padding(.bottom, 10)
-                .sheet(isPresented: $showEditRoundsSheet) {
-                    if let game = currentGame {
-                        EditRoundsSheetView(
-                            showEditRoundsSheet: $showEditRoundsSheet,
-                            currentGameId: game.id,
-                            profiles: network.profiles,
-                            network: network
-                        )
-                        .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
+                    .glassEffect(.regular.interactive())
+                    .padding(.leading, 20)
+                    .padding(.bottom, 10)
+                    .sheet(isPresented: $showEditRoundsSheet) {
+                        if let game = currentGame {
+                            EditRoundsSheetView(
+                                showEditRoundsSheet: $showEditRoundsSheet,
+                                currentGameId: game.id,
+                                profiles: network.profiles,
+                                network: network
+                            )
+                            .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
+                        }
                     }
+                }else{
+                    Button {
+                    showOfflineAlert = true
+                } label: {
+                    Image(systemName: "list.bullet.badge.ellipsis")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                        .frame(width: 29, height: 29)
+                        .clipShape(Circle())
                 }
-
+                    .padding(10)
+                //.buttonStyle(.glass)
+                    .glassEffect(.regular.interactive())
+                    .padding(.leading, 20)
+                    .padding(.bottom, 10)
+                    .alert(isPresented: $showOfflineAlert) {
+                                        offlineView.offlineAlert()
+                                    }
+                }
+                
                 Spacer()
-
-                Button {
+                if socket.connected{
+                    Button {
                     showAddRoundSheet = true
                 } label: {
                     Image(systemName: "plus")
@@ -827,21 +855,39 @@ struct PlayView: View {
                         .foregroundColor(.primary)
                     Text("Add Round").foregroundColor(.primary)
                 }.matchedTransitionSource(id: "69421", in: playSpace)
-                .padding(13)
-                .glassEffect(.regular.interactive())
-                .padding(.trailing, 20)
-                .padding(.bottom, 10)
-                .sheet(isPresented: $showAddRoundSheet) {
-                    if let game = currentGame {
-                        AddRoundSheetView(
-                            showAddRoundsSheet: $showAddRoundSheet,
-                            currentGameId: game.id,
-                            profiles: network.profiles,
-                            network: network,
-                            editMode: false,
-                            roundIndex: nil,
-                            editingRound: nil
-                        ).navigationTransition(.zoom(sourceID:"69421",in:playSpace))
+                    .padding(13)
+                    .glassEffect(.regular.interactive())
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 10)
+                
+                    .sheet(isPresented: $showAddRoundSheet) {
+                        if let game = currentGame {
+                            AddRoundSheetView(
+                                showAddRoundsSheet: $showAddRoundSheet,
+                                currentGameId: game.id,
+                                profiles: network.profiles,
+                                network: network,
+                                editMode: false,
+                                roundIndex: nil,
+                                editingRound: nil
+                            ).navigationTransition(.zoom(sourceID:"69421",in:playSpace))
+                        }
+                    }
+                }else{
+                    Button {
+                    showOfflineAlert = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 20))
+                        .foregroundColor(.primary)
+                    Text("Add Round").foregroundColor(.primary)
+                }
+                    .padding(13)
+                    .glassEffect(.regular.interactive())
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 10)
+                    .alert(isPresented: $showOfflineAlert) {
+                        offlineView.offlineAlert()
                     }
                 }
             }
