@@ -15,17 +15,17 @@ struct Profile: Identifiable, Equatable, Codable {
 
     // Statistics
     var elo: Double?
-    var winnerPercentage: Int
+    var winnerPercentage: Double
     var tichuMaster: Double
-    var visionary: Int
-    var addict: Int
-    var teamplayer: Int
-    var announcer: Int
-    var saboteur: Int
-    var gambler: Int
-    var bigGambler: Int
-    var pinguGambler: Int
-    var bomber: Int
+    var visionary: Double
+    var addict: Double
+    var teamplayer: Double
+    var announcer: Double
+    var saboteur: Double
+    var gambler: Double
+    var bigGambler: Double
+    var pinguGambler: Double
+    var bomber: Double
 
     enum CodingKeys: String, CodingKey {
         case id, name
@@ -65,17 +65,17 @@ struct Profile: Identifiable, Equatable, Codable {
         imageData: Data? = nil,
         date: Date = Date(),
         elo: Double? = nil,
-        winnerPercentage: Int = 50,
+        winnerPercentage: Double = 0.5,
         tichuMaster: Double = 0,
-        visionary: Int = 0,
-        addict: Int = 0,
-        teamplayer: Int = 0,
-        announcer: Int = 0,
-        saboteur: Int = 0,
-        gambler: Int = 0,
-        bigGambler: Int = 0,
-        pinguGambler: Int = 0,
-        bomber: Int = 0
+        visionary: Double = 0,
+        addict: Double = 0,
+        teamplayer: Double = 0,
+        announcer: Double = 0,
+        saboteur: Double = 0,
+        gambler: Double = 0,
+        bigGambler: Double = 0,
+        pinguGambler: Double = 0,
+        bomber: Double = 0
     ) {
         self.id = id
         self.name = name
@@ -102,17 +102,17 @@ struct Profile: Identifiable, Equatable, Codable {
         profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
         
         elo = try c.decodeIfPresent(Double.self, forKey: .elo)
-        winnerPercentage = try c.decodeIfPresent(Int.self, forKey: .winnerPercentage) ?? 50
+        winnerPercentage = try c.decodeIfPresent(Double.self, forKey: .winnerPercentage) ?? 50
         tichuMaster = try c.decodeIfPresent(Double.self, forKey: .tichuMaster) ?? 0
-        visionary = try c.decodeIfPresent(Int.self, forKey: .visionary) ?? 0
-        addict = try c.decodeIfPresent(Int.self, forKey: .addict) ?? 0
-        teamplayer = try c.decodeIfPresent(Int.self, forKey: .teamplayer) ?? 0
-        announcer = try c.decodeIfPresent(Int.self, forKey: .announcer) ?? 0
-        saboteur = try c.decodeIfPresent(Int.self, forKey: .saboteur) ?? 0
-        gambler = try c.decodeIfPresent(Int.self, forKey: .gambler) ?? 0
-        bigGambler = try c.decodeIfPresent(Int.self, forKey: .bigGambler) ?? 0
-        pinguGambler = try c.decodeIfPresent(Int.self, forKey: .pinguGambler) ?? 0
-        bomber = try c.decodeIfPresent(Int.self, forKey: .bomber) ?? 0
+        visionary = try c.decodeIfPresent(Double.self, forKey: .visionary) ?? 0
+        addict = try c.decodeIfPresent(Double.self, forKey: .addict) ?? 0
+        teamplayer = try c.decodeIfPresent(Double.self, forKey: .teamplayer) ?? 0
+        announcer = try c.decodeIfPresent(Double.self, forKey: .announcer) ?? 0
+        saboteur = try c.decodeIfPresent(Double.self, forKey: .saboteur) ?? 0
+        gambler = try c.decodeIfPresent(Double.self, forKey: .gambler) ?? 0
+        bigGambler = try c.decodeIfPresent(Double.self, forKey: .bigGambler) ?? 0
+        pinguGambler = try c.decodeIfPresent(Double.self, forKey: .pinguGambler) ?? 0
+        bomber = try c.decodeIfPresent(Double.self, forKey: .bomber) ?? 0
         // These are local only, never from server
         imageData = nil
     }
@@ -120,17 +120,17 @@ struct Profile: Identifiable, Equatable, Codable {
     func getStat(for stat: playerStat) -> Double {
         switch stat {
         case .elo: return Double(elo ?? 0)
-        case .winnerPercentage: return Double(winnerPercentage)
+        case .winnerPercentage: return winnerPercentage
         case .tichuMaster: return tichuMaster
-        case .visionary: return Double(visionary)
-        case .addict: return Double(addict)
-        case .teamplayer: return Double(teamplayer)
-        case .announcer: return Double(announcer)
-        case .saboteur: return Double(saboteur)
-        case .gambler: return Double(gambler)
-        case .bigGambler: return Double(bigGambler)
-        case .pinguGambler: return Double(pinguGambler)
-        case .bomber: return Double(bomber)
+        case .visionary: return visionary
+        case .addict: return addict
+        case .teamplayer: return teamplayer
+        case .announcer: return announcer
+        case .saboteur: return saboteur
+        case .gambler: return gambler
+        case .bigGambler: return bigGambler
+        case .pinguGambler: return pinguGambler
+        case .bomber: return bomber
         case .dateAdded: return 0
         }
     }

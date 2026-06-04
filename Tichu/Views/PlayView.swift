@@ -83,13 +83,7 @@ struct PlayView: View {
             id != -4 && id != -3 && id != -2 && id != -1
         }
     }
-    private func isFriend(profileId: Int) -> Bool{
-        if network.friends.first(where:{$0.id == profileId}) == nil{
-            return false
-        }else{
-            return true
-        }
-    }
+    
 
     private var currentPointsTeam1: Int { currentGame?.currentPointsTeam1 ?? -69402 }
     private var currentPointsTeam2: Int { currentGame?.currentPointsTeam2 ?? 0 }

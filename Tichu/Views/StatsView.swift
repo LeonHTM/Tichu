@@ -57,7 +57,6 @@ struct StatsView: View {
                 .presentationDetents([.medium, .large])
             }
             
-            
             .onChange(of:socket.connected){
                 if !socket.connected{
                     showAddPlayersSheet = false
@@ -65,9 +64,9 @@ struct StatsView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {
-                if socket.connected{
-                    for profileId in compareList {
-                        await network.fetchProfilesStats(profileId: profileId)
+                if socket.connected {
+                    Task{
+                        await network.fetchSelectedProfilesStats()
                     }
                 }
             }
@@ -129,7 +128,7 @@ struct StatsView: View {
                 image: ("trophy"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0),
+                value: network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0,
                 percentage: (true),
                 inTop: 0.1,
                 stat: .winnerPercentage,
@@ -162,7 +161,7 @@ struct StatsView: View {
                 image: ("number"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.tichuMaster ?? 0),
+                value: network.profiles.first { $0.id == userId }?.tichuMaster ?? 0,
                 percentage: (false),
                 inTop: 0.75,
                 stat: .tichuMaster,
@@ -195,7 +194,7 @@ struct StatsView: View {
                 image: ("checkmark.circle"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.visionary ?? 0),
+                value: network.profiles.first { $0.id == userId }?.visionary ?? 0,
                 percentage: (true),
                 inTop: 0.025,
                 stat: .visionary,
@@ -228,7 +227,7 @@ struct StatsView: View {
                 image: ("pill"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.addict ?? 0),
+                value: network.profiles.first { $0.id == userId }?.addict ?? 0,
                 percentage: (false),
                 inTop: 0.9,
                 stat: .addict,
@@ -261,7 +260,7 @@ struct StatsView: View {
                 image: ("hands.clap"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.teamplayer ?? 0),
+                value: network.profiles.first { $0.id == userId }?.teamplayer ?? 0,
                 percentage: (true),
                 inTop: 0.06,
                 stat: .teamplayer,
@@ -294,7 +293,7 @@ struct StatsView: View {
                 image: ("megaphone"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.announcer ?? 0),
+                value: network.profiles.first { $0.id == userId }?.announcer ?? 0,
                 percentage: (true),
                 inTop: 0.76,
                 stat: .announcer,
@@ -327,7 +326,7 @@ struct StatsView: View {
                 image: ("xmark.circle"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.saboteur ?? 0),
+                value: network.profiles.first { $0.id == userId }?.saboteur ?? 0,
                 percentage: (true),
                 inTop: 0.87,
                 stat: .saboteur,
@@ -360,7 +359,7 @@ struct StatsView: View {
                 image: ("exclamationmark.circle"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.gambler ?? 0),
+                value: network.profiles.first { $0.id == userId }?.gambler ?? 0,
                 percentage: (true),
                 inTop: 0.9,
                 stat: .gambler,
@@ -393,7 +392,7 @@ struct StatsView: View {
                 image: ("exclamationmark.2.circle"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.bigGambler ?? 0),
+                value: network.profiles.first { $0.id == userId }?.bigGambler ?? 0,
                 percentage: (true),
                 inTop: 0.1,
                 stat: .bigGambler,
@@ -426,7 +425,7 @@ struct StatsView: View {
                 image: ("exclamationmark.3.circle"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.pinguGambler ?? 0),
+                value: network.profiles.first { $0.id == userId }?.pinguGambler ?? 0,
                 percentage: (true),
                 inTop: 0.1,
                 stat: .pinguGambler,
@@ -459,7 +458,7 @@ struct StatsView: View {
                 image: ("bomb"),
                 counterLeft: (1),
                 counterRight: (500),
-                value: Double(network.profiles.first { $0.id == userId }?.bomber ?? 0),
+                value: network.profiles.first { $0.id == userId }?.bomber ?? 0,
                 percentage: (true),
                 inTop: 0.9,
                 stat: .bomber,

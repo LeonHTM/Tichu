@@ -218,6 +218,32 @@ struct AddPlayersSheetView: View {
                         .font(.system(size: 16))
                 }
             }
+        }.contextMenu{
+            if socket.connected{
+                if isFriend(profileId: profileId) == true{
+                    Button(role:.destructive){
+                      
+                            Task{
+                            
+                                await network.removeFriend(profileId: userId, friendId: profileId)
+                            }
+                        
+                    }label:{
+                        Image(systemName:"person.badge.minus")
+                        Text("Remove Friend")
+                    }
+                }else{
+                    Button{
+                        Task{
+                            await network.sendFriendRequest(senderId: userId, receiverId: profileId)
+                        }
+                    }label:{
+                        Image(systemName:"person.badge.plus")
+                        Text("Send Friend Request")
+                    }.disabled(profileId == userId)
+                }
+            }
+            
         }
         .disabled(isAdded)
         .foregroundColor(isAdded ? .secondary : .primary)

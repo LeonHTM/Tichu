@@ -76,7 +76,7 @@ struct EloHistoryChartView: View {
                     x: .value("Date", marked.date),
                     y: .value("Elo", marked.elo)
                 )
-                .symbolSize(150)
+                //.symbolSize(150)
                 .foregroundStyle(Color.primary)
                 .annotation(position: .top) {
                     Text(String(format: "%.0f", marked.elo))

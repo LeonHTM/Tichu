@@ -200,7 +200,13 @@ extension Array: RawRepresentable where Element: Codable {
     }
 }
 
-
+func isFriend(profileId: Int) -> Bool{
+    if NetworkService.shared.friends.first(where:{$0.id == profileId}) == nil{
+        return false
+    }else{
+        return true
+    }
+}
 
 #Preview{
     offlineView(showNavBar: .constant(true))

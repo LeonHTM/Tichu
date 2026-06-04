@@ -57,7 +57,7 @@ struct StatsContainer: View {
                 if percentage == false{
                     Text("\(Int(value))").font(.title3).fontWeight(.bold)
                 }else{
-                    Text("\(Int(value))%").font(.title3).fontWeight(.bold)
+                    Text("\(Int(value*100))%").font(.title3).fontWeight(.bold)
                 }
                 
             }
@@ -75,7 +75,7 @@ struct StatsContainer: View {
 
                     VStack(spacing: 0) {
                         HStack {
-                            if Int(itemValue) > Int(value) {
+                            if itemValue > value {
                                 HStack{
                                     Image(systemName: "chevron.up.2")
                                         .resizable()
@@ -89,7 +89,7 @@ struct StatsContainer: View {
                                 
                                     
 
-                            } else if Int(itemValue) == Int(value) {
+                            } else if itemValue.isEqual(to: value) || itemValue == value {
                                 Image(systemName: "equal")
                                     .offset(x: -1)
 
@@ -113,7 +113,7 @@ struct StatsContainer: View {
 
                             Spacer()
 
-                            Text(percentage ? "\(Int(itemValue))%" : "\(Int(itemValue))")
+                            Text(percentage ? "\(Int(itemValue*100))%" : "\(Int(itemValue))")
                                 .font(.system(size: 14))
                         }
 

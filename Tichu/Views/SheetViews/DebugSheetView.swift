@@ -59,6 +59,12 @@ struct DebugSheetView: View {
                     EloHistoryChartView(profileId: userId)
                 }
                 
+                ScrollView{
+                    ForEach(network.profiles ,id:\.id){profile in
+                        Text("\(profile)")
+                    }
+                }
+                
                 
                 
                 HStack{Text("Id:\(userId)")

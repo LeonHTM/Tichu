@@ -13,7 +13,7 @@ struct ShareStatsView: View{
     var userName: String
     var userImageData: Data?
     var elo: Double?
-    var winnerPercentage: Int
+    var winnerPercentage: Double
     var tichuMaster: Double
     let accentCo: Color
     

@@ -24,6 +24,7 @@ class NetworkService: ObservableObject {
     @AppStorage("pendingDeviceToken") var pendingDeviceToken: String = ""
     @AppStorage("authToken") var authToken: String = ""
     @AppStorage("isLoading") var isLoading: Bool = false
+    @AppStorage("statsList") private var statsList: [Int] = []
     
     
     
@@ -184,7 +185,15 @@ class NetworkService: ObservableObject {
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
             await MainActor.run {
                 withAnimation(.easeInOut) {
-                    self.profiles = decoded
+                    for newProfile in decoded {
+                        if let index = self.profiles.firstIndex(where: { $0.id == newProfile.id }) {
+                            self.profiles[index].name = newProfile.name
+                            self.profiles[index].profileImageUrl = newProfile.profileImageUrl
+                            self.profiles[index].elo = newProfile.elo
+                        } else {
+                            self.profiles.append(newProfile)
+                        }
+                    }
                 }
             }
             await loadProfileImages()
@@ -192,7 +201,6 @@ class NetworkService: ObservableObject {
             print("fetchProfiles error: \(error)")
         }
     }
-
     func fetchProfilesStats(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
 
@@ -203,6 +211,7 @@ class NetworkService: ObservableObject {
                 if let index = self.profiles.firstIndex(where: { $0.id == decoded.id }) {
                     withAnimation(.easeInOut) {
                         self.profiles[index] = decoded
+                        print("Fetch Stats for : \(self.profiles[index].name)")
                     }
                 }
             }
@@ -389,9 +398,13 @@ class NetworkService: ObservableObject {
 
         do {
             try await URLSession.shared.data(for: request)
+
             await MainActor.run {
-                self.friends.removeAll { $0.id == friendId }
+                withAnimation(.easeInOut) {
+                    self.friends.removeAll { $0.id == friendId }
+                }
             }
+
         } catch {
             print("removeFriend error: \(error)")
         }
@@ -554,7 +567,19 @@ class NetworkService: ObservableObject {
             print("fetchFriendRequests error: \(error)")
         }
     }
-
+    
+    func fetchSelectedProfilesStats() async {
+        await withTaskGroup(of: Void.self) { group in
+            var statsCopy = statsList
+            statsCopy.append(userId)
+            for profileId in statsCopy {
+                group.addTask {
+                    await self.fetchProfilesStats(profileId: profileId)
+                }
+            }
+        }
+    }
+    
     func fetch() async {
         
         isLoading = true
@@ -566,7 +591,9 @@ class NetworkService: ObservableObject {
         await fetchFriendRequests(profileId: currentUserId)
         await fetchProfileGames(profileId: currentUserId)
         await fetchEloHistory(profileId: currentUserId)
-        await fetchProfilesStats(profileId: userId)
+        
+        await fetchSelectedProfilesStats()
+        
         
         
 
