@@ -202,21 +202,42 @@ class NetworkService: ObservableObject {
         }
     }
     func fetchProfilesStats(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)") else { return }
+        let timeframes = ["all_time", "year", "month", "week", "day"]
 
-        do {
-            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-            let decoded = try JSONDecoder().decode(Profile.self, from: data)
-            await MainActor.run {
-                if let index = self.profiles.firstIndex(where: { $0.id == decoded.id }) {
-                    withAnimation(.easeInOut) {
-                        self.profiles[index] = decoded
-                        print("Fetch Stats for : \(self.profiles[index].name)")
+        await withTaskGroup(of: (String, ProfileStats?).self) { group in
+            for timeframe in timeframes {
+                group.addTask {
+                    guard let url = URL(string: "\(self.baseURL)/profilesstats/\(profileId)?timeframe=\(timeframe)") else {
+                        return (timeframe, nil)
+                    }
+                    do {
+                        let (data, _) = try await URLSession.shared.data(for: self.authorizedRequest(url: url))
+                        let decoded = try JSONDecoder().decode(ProfileStats.self, from: data)
+                        return (timeframe, decoded)
+                    } catch {
+                        print("fetchProfilesStats error (\(timeframe)): \(error)")
+                        return (timeframe, nil)
                     }
                 }
             }
-        } catch {
-            print("fetchProfilesstats error: \(error)")
+
+            var results: [String: ProfileStats] = [:]
+            for await (timeframe, stats) in group {
+                if let stats { results[timeframe] = stats }
+            }
+
+            await MainActor.run {
+                if let index = self.profiles.firstIndex(where: { $0.id == profileId }) {
+                    withAnimation(.easeInOut) {
+                        if let s = results["all_time"] { self.profiles[index].allTime = s }
+                        if let s = results["year"]     { self.profiles[index].year    = s }
+                        if let s = results["month"]    { self.profiles[index].month   = s }
+                        if let s = results["week"]     { self.profiles[index].week    = s }
+                        if let s = results["day"]      { self.profiles[index].day     = s }
+                        print("Fetched stats for: \(self.profiles[index].name ?? "Unknown")")
+                    }
+                }
+            }
         }
     }
 
@@ -575,6 +596,49 @@ class NetworkService: ObservableObject {
             for profileId in statsCopy {
                 group.addTask {
                     await self.fetchProfilesStats(profileId: profileId)
+
+                    if await profileId == self.userId {
+                        await MainActor.run {
+                            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+
+                            guard let profile = self.profiles.first(where: { $0.id == self.userId }) else { return }
+
+                            if let imageData = self.profileImages[profileId] {
+                                self.userImageData = imageData
+                            }
+
+                            if let name = profile.name {
+                                self.userName = name
+                                defaults?.set(name, forKey: "userName")
+                            }
+
+                            if let elo = profile.elo {
+                                self.userElo = elo
+                                defaults?.set(elo, forKey: "userElo")
+                            }
+
+                            // Helper to save all timeframes for a stat
+                            func save(_ base: String, _ keyPath: KeyPath<ProfileStats, Double>) {
+                                defaults?.set(profile.allTime[keyPath: keyPath], forKey: "user\(base)")
+                                defaults?.set(profile.year[keyPath: keyPath],    forKey: "user\(base)Year")
+                                defaults?.set(profile.month[keyPath: keyPath],   forKey: "user\(base)Month")
+                                defaults?.set(profile.week[keyPath: keyPath],    forKey: "user\(base)Week")
+                                defaults?.set(profile.day[keyPath: keyPath],     forKey: "user\(base)Day")
+                            }
+
+                            save("WinnerPercentage", \.winnerPercentage)
+                            save("TichuMaster",      \.tichuMaster)
+                            save("Visionary",        \.visionary)
+                            save("Addict",           \.addict)
+                            save("Teamplayer",       \.teamplayer)
+                            save("Announcer",        \.announcer)
+                            save("Saboteur",         \.saboteur)
+                            save("Gambler",          \.gambler)
+                            save("BigGambler",       \.bigGambler)
+                            save("PinguGambler",     \.pinguGambler)
+                            save("Bomber",           \.bomber)
+                        }
+                    }
                 }
             }
         }
@@ -597,74 +661,7 @@ class NetworkService: ObservableObject {
         
         
 
-        await MainActor.run {
-            
-            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
-            
-            if let imageData = self.profileImages[currentUserId] {
-                self.userImageData = imageData
-                print("fetch Function just fetched userImageData")
-            }
-            
-            if let name = self.profiles.first(where: { $0.id == currentUserId })?.name {
-                self.userName = name
-                defaults?.set(self.userName, forKey: "userName")
-            }
-            if let elo = self.profiles.first(where: { $0.id == currentUserId })?.elo {
-                self.userElo = elo
-                defaults?.set(self.userElo, forKey: "userElo")
-            }
-            
-            if let winner =  self.profiles.first(where: { $0.id == currentUserId })?.winnerPercentage {
-                defaults?.set(winner, forKey: "userWinnerPercentage")
-            }
-            
-            if let visionary = self.profiles.first(where: { $0.id == currentUserId })?.visionary {
-       
-                defaults?.set(visionary, forKey: "userVisionary")
-            }
-
-            if let addict = self.profiles.first(where: { $0.id == currentUserId })?.addict {
-                
-                defaults?.set(addict, forKey: "userAddict")
-            }
-
-            if let teamplayer = self.profiles.first(where: { $0.id == currentUserId })?.teamplayer {
-                
-                defaults?.set(teamplayer, forKey: "userTeamplayer")
-            }
-
-            if let announcer = self.profiles.first(where: { $0.id == currentUserId })?.announcer {
-                
-                defaults?.set(announcer, forKey: "userAnnouncer")
-            }
-
-            if let saboteur = self.profiles.first(where: { $0.id == currentUserId })?.saboteur {
-                
-                defaults?.set(saboteur, forKey: "userSaboteur")
-            }
-
-            if let gambler = self.profiles.first(where: { $0.id == currentUserId })?.gambler {
-                
-                defaults?.set(gambler, forKey: "userGambler")
-            }
-
-            if let bigGambler = self.profiles.first(where: { $0.id == currentUserId })?.bigGambler {
-                
-                defaults?.set(bigGambler, forKey: "userBigGambler")
-            }
-
-            if let pinguGambler = self.profiles.first(where: { $0.id == currentUserId })?.pinguGambler {
-                
-                defaults?.set(pinguGambler, forKey: "userPinguGambler")
-            }
-
-            if let bomber = self.profiles.first(where: { $0.id == currentUserId })?.bomber {
-                
-                defaults?.set(bomber, forKey: "userBomber")
-            }
-            isLoading = false
-        }
+        isLoading = false
     }
 
     // MARK: - Games

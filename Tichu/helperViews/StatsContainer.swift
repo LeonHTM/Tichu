@@ -18,6 +18,7 @@ struct StatsContainer: View {
     var percentage: Bool
     var inTop: Double
     var stat: Profile.playerStat
+    var timeframe: Timeframe = .allTime
     @Environment(\.colorScheme) var colorScheme
     //Computed Vars
     var items: [Profile]
@@ -71,7 +72,7 @@ struct StatsContainer: View {
                 
                 //For loop over all indices, id:value itssself,index is index
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    let itemValue = item.getStat(for: stat)
+                    let itemValue = item.getStat(for: stat,timeframe:timeframe)
 
                     VStack(spacing: 0) {
                         HStack {

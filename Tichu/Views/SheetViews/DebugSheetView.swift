@@ -18,12 +18,13 @@ struct DebugSheetView: View {
     @ObservedObject private var network = NetworkService.shared
     @ObservedObject var config = Config.shared
     @State private var reCalculate: String = "0"
+    @AppStorage("statsList") private var statsList: [Int] = []
  
     
     
     var body: some View {
         NavigationStack{
-            VStack{
+            ScrollView{
                 TextField("Target",value: $currentGame.target, format: .number)
                     .multilineTextAlignment(.trailing)
                     .frame(width: 60)
@@ -54,15 +55,23 @@ struct DebugSheetView: View {
                     ProfileImage(data:userImageData,size:44)
                     
                 }
-                ScrollView{
+                /*ScrollView{
                     Text("\(NetworkService.shared.eloHistory)")
                     EloHistoryChartView(profileId: userId)
-                }
+                }*/
                 
-                ScrollView{
-                    ForEach(network.profiles ,id:\.id){profile in
-                        Text("\(profile)")
-                    }
+                ForEach(statsList, id: \.self){profileId in
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.name)").fontWeight(.bold)
+                    Text("All Time:")
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.allTime)")
+                    Text("Year:")
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.year)")
+                    Text("Month:")
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.month)")
+                    Text("Week:")
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.week)")
+                    Text("Day: ")
+                    Text("\(network.profiles.first(where:{$0.id == profileId})?.day)")
                 }
                 
                 

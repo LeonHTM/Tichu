@@ -70,9 +70,9 @@ struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Choose Statistic" }
     static var description: IntentDescription { "This is an example widget." }
 
-    @Parameter(title: "Statistic")
+    @Parameter(title: "Elo")
     var stat: PlayerStat?
     
-    @Parameter(title: "Time Frame")
+    @Parameter(title: "All Time")
     var timeframe: PlayerStatsTimeFrameD?
 }

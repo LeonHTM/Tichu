@@ -19,7 +19,7 @@ struct StatsView: View {
     // MARK: - State
     @State private var showAddPlayersSheet: Bool = false
     @State private var timeTags: [String] = ["All Time", "Year", "Month", "Week", "Today"]
-    @State private var selectedTags: [String] = []
+    @State private var selectedTags: [String] = ["All Time"]
     @State private var sortStat: Profile.playerStat = .elo
     @State private var sortBy: sortBy.sortBy = .valueDown
     @AppStorage("statsList") private var compareList: [Int] = []
@@ -28,19 +28,30 @@ struct StatsView: View {
     
     // MARK: - Computed
     var filterActive: Bool { sortBy != .valueDown }
+
+    var selectedTimeframe: Timeframe {
+        withAnimation(.easeInOut){
+            switch selectedTags.first {
+            case "Year":  return .year
+            case "Month": return .month
+            case "Week":  return .week
+            case "Today": return .day
+            default:      return .allTime
+            }
+        }
+    }
     
     // MARK: - Body
     var body: some View {
         NavigationStack {
-            
             ScrollView {
                 statsGrid
-                    .animation(.easeInOut, value: compareList.map { $0})
+                    .animation(.easeInOut, value: compareList.map { $0 })
                     .padding()
-            }.sheet(isPresented: $showAddPlayersSheet, onDismiss: {
+            }
+            .sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                 withAnimation(.easeInOut) {
-                    if !compareList.contains(where: { $0 == addPlayerId}) && addPlayerId != nil
-                      {
+                    if !compareList.contains(where: { $0 == addPlayerId }) && addPlayerId != nil {
                         compareList.append(addPlayerId!)
                     }
                 }
@@ -56,16 +67,16 @@ struct StatsView: View {
                 )
                 .presentationDetents([.medium, .large])
             }
-            
-            .onChange(of:socket.connected){
-                if !socket.connected{
+           
+            .onChange(of: socket.connected) {
+                if !socket.connected {
                     showAddPlayersSheet = false
                 }
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {
                 if socket.connected {
-                    Task{
+                    Task {
                         await network.fetchSelectedProfilesStats()
                     }
                 }
@@ -99,423 +110,210 @@ struct StatsView: View {
                 percentage: false,
                 inTop: 0.025,
                 stat: .elo,
-                items: makeItems(from: compareList, stat: .elo, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .elo, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
                 title: "Winner",
-                description: ("Percentage of Games won"),
-                image: ("trophy"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0,
-                percentage: (true),
+                description: "Percentage of Games won",
+                image: "trophy",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .winnerPercentage, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.1,
                 stat: .winnerPercentage,
-                items: makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .winnerPercentage, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Tichumaster"),
-                description: ("Points from Tichu per Round"),
-                image: ("number"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.tichuMaster ?? 0,
-                percentage: (false),
+                title: "Tichumaster",
+                description: "Points from Tichu per Round",
+                image: "number",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .tichuMaster, timeframe: selectedTimeframe) ?? 0,
+                percentage: false,
                 inTop: 0.75,
                 stat: .tichuMaster,
-                items: makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .tichuMaster, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Visionary"),
-                description: ("Tichu announced when finished first"),
-                image: ("checkmark.circle"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.visionary ?? 0,
-                percentage: (true),
+                title: "Visionary",
+                description: "Tichu announced when finished first",
+                image: "checkmark.circle",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.025,
                 stat: .visionary,
-                items: makeItems(from: compareList, stat: .visionary, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .visionary, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Addict"),
-                description: ("Games played"),
-                image: ("pill"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.addict ?? 0,
-                percentage: (false),
+                title: "Addict",
+                description: "Games played",
+                image: "pill",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0,
+                percentage: false,
                 inTop: 0.9,
                 stat: .addict,
-                items: makeItems(from: compareList, stat: .addict, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .addict, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Teamplayer"),
-                description: ("Double Win Rate"),
-                image: ("hands.clap"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.teamplayer ?? 0,
-                percentage: (true),
+                title: "Teamplayer",
+                description: "Double Win Rate",
+                image: "hands.clap",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.06,
                 stat: .teamplayer,
-                items: makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .teamplayer, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Announcer"),
-                description: ("Big and Small Tichus announced per Round"),
-                image: ("megaphone"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.announcer ?? 0,
-                percentage: (true),
+                title: "Announcer",
+                description: "Big and Small Tichus announced per Round",
+                image: "megaphone",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.76,
                 stat: .announcer,
-                items: makeItems(from: compareList, stat: .announcer, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .announcer, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Saboteur"),
-                description: ("Tichu prevented ratio"),
-                image: ("xmark.circle"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.saboteur ?? 0,
-                percentage: (true),
+                title: "Saboteur",
+                description: "Tichu prevented ratio",
+                image: "xmark.circle",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.87,
                 stat: .saboteur,
-                items: makeItems(from: compareList, stat: .saboteur, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .saboteur, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Gambler"),
-                description: ("Tichu success ratio"),
-                image: ("exclamationmark.circle"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.gambler ?? 0,
-                percentage: (true),
+                title: "Gambler",
+                description: "Tichu success ratio",
+                image: "exclamationmark.circle",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.9,
                 stat: .gambler,
-                items: makeItems(from: compareList, stat: .gambler, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .gambler, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Big Gambler"),
-                description: ("Big Tichu success ratio"),
-                image: ("exclamationmark.2.circle"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.bigGambler ?? 0,
-                percentage: (true),
+                title: "Big Gambler",
+                description: "Big Tichu success ratio",
+                image: "exclamationmark.2.circle",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.1,
                 stat: .bigGambler,
-                items: makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .bigGambler, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Pingu Gambler"),
-                description: ("Pingu success ratio"),
-                image: ("exclamationmark.3.circle"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.pinguGambler ?? 0,
-                percentage: (true),
+                title: "Pingu Gambler",
+                description: "Pingu success ratio",
+                image: "exclamationmark.3.circle",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.1,
                 stat: .pinguGambler,
-                items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-            
+            .contextMenu { shareContextMenu }
+
             StatsContainer(
-                title: ("Bomber"),
-                description: ("Bombs per Round ratio"),
-                image: ("bomb"),
-                counterLeft: (1),
-                counterRight: (500),
-                value: network.profiles.first { $0.id == userId }?.bomber ?? 0,
-                percentage: (true),
+                title: "Bomber",
+                description: "Bombs per Round ratio",
+                image: "bomb",
+                counterLeft: 1,
+                counterRight: 500,
+                value: network.profiles.first { $0.id == userId }?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0,
+                percentage: true,
                 inTop: 0.9,
                 stat: .bomber,
-                items: makeItems(from: compareList, stat: .bomber, sortBy: sortBy)
+                timeframe: selectedTimeframe,
+                items: makeItems(from: compareList, stat: .bomber, sortBy: sortBy, timeframe: selectedTimeframe)
             )
             .transition(.opacity.combined(with: .scale))
-            .contextMenu{
-                if let renderedImage {
-                    ShareLink(
-                        userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
-                        item: renderedImage,
-                        message: Text("Check my Tichu Stats out"),
-                        preview: SharePreview("Tichu Statistics", image: renderedImage)
-                    )
-                    .foregroundColor(.primary)
-                }else{
-                    Button{}label:{
-                        HStack{
-                            Image(systemName:"square.and.arrow.up")
-                            Text("Share...")
-                            ProgressView()
-                        }
-                    }.disabled(true)
-                }
-            }
-        }.task {
+            .contextMenu { shareContextMenu }
+        }
+        .task {
+            let profile = network.profiles.first { $0.id == userId }
             var tags: [String] = []
-            
-            let visionary = network.profiles.first { $0.id == userId }?.visionary ?? 0
-            let addict = network.profiles.first { $0.id == userId }?.addict ?? 0
-            let teamplayer = network.profiles.first { $0.id == userId }?.teamplayer ?? 0
-            let announcer = network.profiles.first { $0.id == userId }?.announcer ?? 0
-            let saboteur = network.profiles.first { $0.id == userId }?.saboteur ?? 0
-            let gambler = network.profiles.first { $0.id == userId }?.gambler ?? 0
-            let bigGambler = network.profiles.first { $0.id == userId }?.bigGambler ?? 0
-            let pinguGambler = network.profiles.first { $0.id == userId }?.pinguGambler ?? 0
-            let bomber = network.profiles.first { $0.id == userId }?.bomber ?? 0
-            
-            tags.append("Visionary: \(visionary)")
-            tags.append("Addict: \(addict)")
-            tags.append("Teamplayer: \(teamplayer)")
-            tags.append("Announcer: \(announcer)")
-            tags.append("Saboteur: \(saboteur)")
-            tags.append("Gambler: \(gambler)")
-            tags.append("Big Gambler: \(bigGambler)")
-            tags.append("Pingu Gambler: \(pinguGambler)")
-            tags.append("Bomber: \(bomber)")
-            print(tags)
+
+            tags.append("Visionary: \(profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Addict: \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Teamplayer: \(profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Announcer: \(profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Saboteur: \(profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Gambler: \(profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Big Gambler: \(profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Pingu Gambler: \(profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("Bomber: \(profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0)")
+
             let renderer = ImageRenderer(content: ShareStatsView(
-                userName: network.profiles.first(where: { $0.id == userId })?.name ?? "Unknown",
+                userName: profile?.name ?? "Unknown",
                 userImageData: network.profileImages[userId],
-                elo: network.profiles.first { $0.id == userId }?.elo ?? 1000.0,
-                winnerPercentage: network.profiles.first { $0.id == userId }?.winnerPercentage ?? 0,
-                tichuMaster: network.profiles.first { $0.id == userId }?.tichuMaster ?? 0,
+                elo: profile?.elo ?? 1000.0,
+                winnerPercentage: profile?.getStat(for: .winnerPercentage, timeframe: selectedTimeframe) ?? 0,
+                tichuMaster: profile?.getStat(for: .tichuMaster, timeframe: selectedTimeframe) ?? 0,
                 accentCo: .accent,
                 Tags: .constant(tags)
-                
             )
             .environment(\.colorScheme, colorScheme)
             .background(colorScheme == .dark ? Color.black : Color.white))
@@ -523,6 +321,28 @@ struct StatsView: View {
             if let image = renderer.cgImage {
                 renderedImage = Image(decorative: image, scale: 1)
             }
+        }
+    }
+
+    // MARK: - Share Context Menu
+    @ViewBuilder
+    private var shareContextMenu: some View {
+        if let renderedImage {
+            ShareLink(
+                userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                item: renderedImage,
+                message: Text("Check my Tichu Stats out"),
+                preview: SharePreview("Tichu Statistics", image: renderedImage)
+            )
+            .foregroundColor(.primary)
+        } else {
+            Button {} label: {
+                HStack {
+                    Image(systemName: "square.and.arrow.up")
+                    Text("Share...")
+                    ProgressView()
+                }
+            }.disabled(true)
         }
     }
     
@@ -535,7 +355,11 @@ struct StatsView: View {
                 ChipView(tag: tag, isSelected: isSelected, showAlert: false)
             }
         } didChangeSelection: { selection in
-            selectedTags = selection
+            if selection.isEmpty {
+                selectedTags = ["All Time"]
+            } else {
+                selectedTags = selection
+            }
         }
         .padding(.leading, 10)
     }

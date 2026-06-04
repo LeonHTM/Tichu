@@ -302,7 +302,7 @@ struct TichuWidgetsEntryView : View {
                     Text("\(Int(entry.value))").font(.system(size:
                                                         40, weight: .heavy))
                 }else{
-                    Text("\(Int(entry.value))%").font(.system(size:
+                    Text("\(Int(entry.value*100))%").font(.system(size:
                                                             40, weight: .heavy))
                 }
                 

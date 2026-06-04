@@ -28,7 +28,9 @@ struct ChipsView<Content: View, Tag: Hashable>: View {
                             withAnimation(animation) {
                                 if onlyOne {
                                     if selectedTags.contains(tag) {
-                                        selectedTags.removeAll()
+                                        if let first = tags.first {
+                                            selectedTags = [first]
+                                        }
                                     } else {
                                         selectedTags = [tag]
                                     }
@@ -43,6 +45,12 @@ struct ChipsView<Content: View, Tag: Hashable>: View {
                             didChangeSelection(selectedTags)
                         }
                 }
+            }
+        }
+        .onAppear {
+            if onlyOne && selectedTags.isEmpty, let first = tags.first {
+                selectedTags = [first]
+                didChangeSelection(selectedTags)
             }
         }
     }
@@ -110,10 +118,10 @@ struct ChipView: View {
                     }
                 }
 
-            if isSelected && (showAlert == false) {
+            /*if isSelected && (showAlert == false) {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.white)
-            }
+            }*/
         }
         .padding(12)
         .glassEffect(isSelected && showAlert == false ? .regular.tint(.accentColor).interactive() : .regular.interactive())

@@ -50,12 +50,18 @@ struct MainView: View {
                         }
                         .tag(1)
                     }
-                    
-                    StatsView()
-                        .tabItem {
-                            Label("Stats", systemImage: "chart.bar")
+                    if socket.connected {
+                        StatsView()
+                            .tabItem {
+                                Label("Stats", systemImage: "chart.bar")
+                            }
+                            .tag(2)
+                    }else{
+                        offlineView(showNavBar: .constant(true)).tabItem {
+                            Label("History", systemImage: "clock")
                         }
                         .tag(2)
+                    }
                     
                     ProfileView()
                         .tabItem {
