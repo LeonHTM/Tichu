@@ -179,8 +179,17 @@ struct PlayView: View {
                     }
                     .onChange(of: socket.connected) {
                         if !socket.connected {
+                            //Sheet should not show Friend and Player
                             showFriends = false
                             showPlayers = false
+                            
+                            showAddRoundSheet = false
+                            showEditRoundsSheet = false
+                            
+                            showAddPlayersSheet2 = false
+                            showAddPlayersSheet3 = false
+                            showAddPlayersSheet4 = false
+                            
                         } else {
                             showFriends = true
                             showPlayers = true
@@ -237,7 +246,10 @@ struct PlayView: View {
                         }
                     }
                     .scrollContentBackground(.hidden)
-                    .background(alignment: .center) { vsBackground }
+                    .background(alignment: .center) {
+                        
+                        vsBackground
+                    }
                     .edgesIgnoringSafeArea(.all)
                     .background(Color(uiColor: .systemGroupedBackground))
                     .listSectionSpacing(0)
@@ -277,7 +289,9 @@ struct PlayView: View {
                 if isGameReady {
                     gameReadyBottomBar
                 } else {
-                    gameSettingsBottomBar
+                    if socket.connected{
+                        gameSettingsBottomBar
+                    }
                 }
             }
         }
@@ -751,11 +765,30 @@ struct PlayView: View {
             }
             HStack{
                 Spacer()
-                Image(systemName: "plus.circle.fill")
-                Button(label, action: action)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .padding(.vertical, 10.6)
+                if socket.connected{
+                    Image(systemName: "plus.circle.fill")
+                    Button(label, action: action)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .padding(.vertical, 10.6)
+                }else{
+                    Image(systemName: "plus.circle.fill")
+                        .foregroundColor(.secondary)
+                    Button{
+                        showOfflineAlert = true
+                    }label:{
+                        Text("\(label)")
+                    }
+                        .foregroundColor(.secondary)
+                        .fontWeight(.bold)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 10.6)
+                        .alert(isPresented: $showOfflineAlert) {
+                                            offlineView.offlineAlert()
+                                        }
+                    
+                    
+                }
                 Spacer()
             }
         }
@@ -764,7 +797,7 @@ struct PlayView: View {
     // MARK: - VS Background
     private var vsBackground: some View {
         Group {
-            if isLoading == false {
+            if isLoading == false && socket.connected {
                 withAnimation(.easeInOut){
                     VStack {
                         Text("VS")
@@ -783,7 +816,21 @@ struct PlayView: View {
                         }
                     }
                 }
-            } else {
+            } else if !socket.connected {
+                VStack(alignment:.center,spacing:10){
+                    
+                    
+                    Text("No Internet Connection").font(.title2).fontWeight(.bold).foregroundStyle(.primary)
+                    
+                    
+                    
+                    Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
+                    
+                    
+                    
+                }
+                
+            }else {
                 withAnimation(.easeInOut){
                     VStack(spacing:10){
                         ProgressView()

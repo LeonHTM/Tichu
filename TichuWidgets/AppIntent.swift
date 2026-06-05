@@ -142,6 +142,6 @@ struct GameConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Choose Game" }
     static var description: IntentDescription { "Pick a game to display its score chart." }
 
-    @Parameter(title: "Game")
+    @Parameter(title: "Favorize a Game inside the App")
     var game: GameEntity?
 }

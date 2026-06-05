@@ -394,18 +394,19 @@ struct HistoryView: View {
     private var sortMenu: some View {
         Menu {
             Button {
+                switchToAll()
+            } label: {
+                if showOnlyFavorites == false{ Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
+                Text("All Rounds")
+            }
+            Button {
                 switchToFav()
                 
             } label: {
                 if showOnlyFavorites == true{ Image(systemName: "checkmark") } else { Image(systemName: "star") }
                 Text("Favorites")
             }.disabled(network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }.filter {$0.favorite}.count == 0)
-            Button {
-                switchToAll()
-            } label: {
-                if showOnlyFavorites == false{ Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
-                Text("All Rounds")
-            }
+            
             Divider()
             Button {
                 withAnimation(.easeInOut){
