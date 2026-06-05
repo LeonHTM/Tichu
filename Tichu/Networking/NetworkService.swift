@@ -25,7 +25,7 @@ class NetworkService: ObservableObject {
     @AppStorage("authToken") var authToken: String = ""
     @AppStorage("isLoading") var isLoading: Bool = false
     @AppStorage("statsList") private var statsList: [Int] = []
-    
+    @AppStorage("favDic") private var favDic: [Int:Int] = [:]
     
     
     @Published var eloHistory: [EloHistoryEntry] = []
@@ -710,6 +710,7 @@ class NetworkService: ObservableObject {
             await MainActor.run {
                 self.games.removeAll { $0.id == gameId }
                 self.roundsByGame.removeValue(forKey: gameId)
+                favDic.removeValue(forKey: gameId)
             }
         } catch {
             print("deleteGame error: \(error)")
@@ -730,10 +731,54 @@ class NetworkService: ObservableObject {
 
             await MainActor.run {
                 self.games = decoded.games
+
+                let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+
+                var existingGames: [WidgetGameData] = []
+
+                if let data = defaults?.data(forKey: "widgetGames"),
+                   let decodedExisting = try? JSONDecoder().decode([WidgetGameData].self, from: data) {
+                    existingGames = decodedExisting
+                }
+
+                let updatedGames = decoded.games.map { game in
+                    withAnimation(.easeInOut) {
+                        
+                        //isFavorite is Local
+                        let isFavorite: Bool
+                        isFavorite = favDic[game.id].map { $0 == 1 } ?? false
+                        
+
+                        if let existing = existingGames.first(where: { $0.id == game.id }) {
+                            return WidgetGameData(
+                                winner: game.winner,
+                                favorite: isFavorite,
+                                id: game.id,
+                                date: game.date,
+                                team1Score: game.currentPointsTeam1,
+                                team2Score: game.currentPointsTeam2,
+                                rounds: existing.rounds
+                            )
+                        } else {
+                            return WidgetGameData(
+                                winner: game.winner,
+                                favorite: isFavorite,
+                                id: game.id,
+                                date: game.date,
+                                team1Score: game.currentPointsTeam1,
+                                team2Score: game.currentPointsTeam2,
+                                rounds: []
+                            )
+                        }
+                    }
+                }
+
+                if let encoded = try? JSONEncoder().encode(updatedGames) {
+                    defaults?.set(encoded, forKey: "widgetGames")
+                }
             }
         } catch {
             print("fetchProfileGames error: \(error)")
-            
         }
     }
 
@@ -836,6 +881,25 @@ class NetworkService: ObservableObject {
 
             await MainActor.run {
                 self.roundsByGame[gameId] = decoded.rounds
+
+                let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+                if let existing = defaults?.data(forKey: "widgetGames"),
+                   var widgetGames = try? JSONDecoder().decode([WidgetGameData].self, from: existing),
+                   let index = widgetGames.firstIndex(where: { $0.id == gameId }) {
+                    widgetGames[index] = WidgetGameData(
+                        winner: widgetGames[index].winner,
+                        favorite: widgetGames[index].favorite,
+                        id: widgetGames[index].id,
+                        date: widgetGames[index].date,
+                        team1Score: widgetGames[index].team1Score,
+                        team2Score: widgetGames[index].team2Score,
+                        rounds: decoded.rounds.map { WidgetRound(from: $0) }
+                    )
+                    if let encoded = try? JSONEncoder().encode(widgetGames) {
+                        defaults?.set(encoded, forKey: "widgetGames")
+                        WidgetCenter.shared.reloadTimelines(ofKind: "favGameWidget")
+                    }
+                }
             }
         } catch {
             print("fetchGameRounds error: \(error)")
@@ -868,6 +932,31 @@ class NetworkService: ObservableObject {
             print("editRound error: \(error)")
         }
     }
+    
+    func updateGameFavorite(gameId: Int, favorite: Bool) async {
+        await MainActor.run {
+            // ✅ persist to local dictionary
+            favDic[gameId] = favorite ? 1 : 0
+
+            // Update local games array
+            if let index = self.games.firstIndex(where: { $0.id == gameId }) {
+                self.games[index].favorite = favorite
+            }
+
+            // Update widget storage
+            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+            guard let existing = defaults?.data(forKey: "widgetGames"),
+                  var widgetGames = try? JSONDecoder().decode([WidgetGameData].self, from: existing),
+                  let index = widgetGames.firstIndex(where: { $0.id == gameId }) else { return }
+
+            widgetGames[index].favorite = favorite
+
+            if let encoded = try? JSONEncoder().encode(widgetGames) {
+                defaults?.set(encoded, forKey: "widgetGames")
+                WidgetCenter.shared.reloadTimelines(ofKind: "favGameWidget")
+            }
+        }
+    }
 
     func deleteRound(gameId: Int, roundId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_round/\(roundId)") else { return }
@@ -883,7 +972,6 @@ class NetworkService: ObservableObject {
             print("deleteRound error: \(error)")
         }
     }
-    
     
     func editGamePlayer(gameId: Int, playerSlot: Int) async {
         let slotMap = [

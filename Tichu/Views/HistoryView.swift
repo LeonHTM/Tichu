@@ -37,12 +37,19 @@ struct HistoryView: View {
 
     // MARK: - State
     @State private var sheetGame: Game? = nil
-    @State private var selectedGameId: Int? = nil
-    @State private var scrolledGameId: Int? = nil
+    @Binding var selectedGameId: Int?
+    @Binding var scrolledGameId: Int?
+    @State private var showOnlyFavorites: Bool = false
+    @State private var dateUp: Bool = false
+    @State private var switchedGameId: Int? = nil
+    @State private var switchedGameIdFav: Int? = nil
 
     // MARK: - Computed
     private var gameHistory: [Game] {
-        network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }
+        network.games
+            .sorted { dateUp ? $0.date < $1.date : $0.date > $1.date }
+            .filter { $0.winner != nil }
+            .filter { !showOnlyFavorites || $0.favorite}
     }
 
     private func playerName(_ id: Int?) -> String {
@@ -55,7 +62,10 @@ struct HistoryView: View {
         if gameHistory.count > 0 {
             historyView
         } else if isLoading {
-            ProgressView().scaleEffect(2)
+            VStack(spacing:10){
+                ProgressView()
+                Text("Loading history...")
+            }.foregroundStyle(.secondary)
         } else {
             emptyStateView
         }
@@ -80,13 +90,32 @@ struct HistoryView: View {
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
                                     .id(game.id)
+                                    
                                     .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
+                                    .sensoryFeedback(.success, trigger: game.favorite)
                                     .contextMenu {
+                                        
+                                        
                                         Button {
                                             sheetGame = game
                                         } label: {
                                             Image(systemName: "arrow.up.right.square")
                                             Text("Open Game")
+                                            Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
+                                        }
+                                        Button{
+                                            
+                                                Task{
+                                                    if showOnlyFavorites == true && game.favorite == true{
+                                                        switchToAll()
+                                                    }
+                                                    await network.updateGameFavorite(gameId: game.id, favorite: !game.favorite)
+                                                    
+                                                }
+                                            
+                                        }label:{
+                                            Image(systemName: game.favorite ? "star.slash.fill" :"star.fill")
+                                            Text(game.favorite ? "Undo favorite" : "Favorite")
                                         }
                                         if let renderedImage {
                                             ShareLink(
@@ -112,6 +141,7 @@ struct HistoryView: View {
                                             network: network,
                                             allowEditing: false
                                         ).onAppear {
+                                            print("\(game.id)")
                                             let renderer = ImageRenderer(content: GameSummaryShareView(
                                                 currentGameId: game.id,
                                                 rounds: network.roundsByGame[game.id ?? 0] ?? [],
@@ -207,6 +237,8 @@ struct HistoryView: View {
                     .padding(.horizontal, 10)
                     .padding(.top, 5)
             }
+        }.safeAreaInset(edge: .bottom) {
+            bottomBar
         }
         .onAppear {
             Task {
@@ -245,8 +277,10 @@ struct HistoryView: View {
                         Text("vs").fontWeight(.bold)
                         Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
                     }
-                    Text(game.date, style: .date)
-                        .fontWeight(.bold)
+                    HStack{
+                        Text(game.date, style: .date)
+                            .fontWeight(.bold)
+                    }
                 }
 
                 Spacer()
@@ -280,6 +314,7 @@ struct HistoryView: View {
                             currentGame: .constant(
                                 network.games.first ??
                                 Game(
+                                    favorite: false,
                                     id: 0,
                                     date: Date(),
                                     target: 1000,
@@ -317,8 +352,95 @@ struct HistoryView: View {
             }
         }
     }
+    
+    private var bottomBar: some View {
+        GlassEffectContainer {
+            HStack {
+                
+                if gameHistory.count > 1 || showOnlyFavorites == true {
+                    sortMenu
+                }
+                Spacer()
+            }
+        }
+    }
+    
+    private func switchToFav() {
+        withAnimation(.easeInOut){
+            if switchedGameIdFav != nil {
+                showOnlyFavorites = true
+                switchedGameId = selectedGameId
+                selectedGameId = switchedGameIdFav
+                scrolledGameId = switchedGameIdFav
+            } else {
+                showOnlyFavorites = true
+                switchedGameId = selectedGameId
+                let firstId = gameHistory.first?.id
+                selectedGameId = firstId
+                scrolledGameId = firstId
+            }
+        }
+    }
+
+    private func switchToAll() {
+        withAnimation(.easeInOut){
+            showOnlyFavorites = false
+            switchedGameIdFav = selectedGameId
+            selectedGameId = switchedGameId
+            scrolledGameId = switchedGameId
+        }
+    }
+    
+    private var sortMenu: some View {
+        Menu {
+            Button {
+                switchToFav()
+                
+            } label: {
+                if showOnlyFavorites == true{ Image(systemName: "checkmark") } else { Image(systemName: "star") }
+                Text("Favorites")
+            }.disabled(network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }.filter {$0.favorite}.count == 0)
+            Button {
+                switchToAll()
+            } label: {
+                if showOnlyFavorites == false{ Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
+                Text("All Rounds")
+            }
+            Divider()
+            Button {
+                withAnimation(.easeInOut){
+                    dateUp = false
+                    selectedGameId = gameHistory.first?.id
+                }
+            } label: {
+                if dateUp == false{ Image(systemName: "checkmark") } else { Image("clock.down") }
+                Text("By Date (New-Old)")
+            }
+            Button {
+                withAnimation(.easeInOut){
+                    dateUp = true
+                    selectedGameId = gameHistory.first?.id
+                }
+            } label: {
+                if dateUp == true{ Image(systemName: "checkmark") } else { Image("clock.false") }
+                Text("By Date (Old-New)")
+            }
+            
+        } label: {
+            Image(systemName: "line.3.horizontal.decrease.circle")
+                .font(.system(size: 22))
+                .foregroundColor(showOnlyFavorites == true ? Color.accent : Color.primary)
+        }
+        .labelStyle(.titleAndIcon)
+        .menuOrder(.fixed)
+        .padding(10)
+        .glassEffect(.regular.interactive(), in: Circle())
+        .padding(.leading, 20)
+        .padding(.bottom, 10)
+    }
+    
 }
 
 #Preview {
-    HistoryView()
+    HistoryView(selectedGameId: .constant(nil),scrolledGameId: .constant(nil))
 }

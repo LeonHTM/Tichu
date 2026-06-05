@@ -142,6 +142,7 @@ struct StatsContainer: View {
                         .stroke(Color.bronce, lineWidth: 1)
                 }*/
                 }
+        
             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
             //.glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24))
             

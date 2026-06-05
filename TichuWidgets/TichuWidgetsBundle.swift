@@ -13,6 +13,7 @@ struct TichuWidgetsBundle: WidgetBundle {
     var body: some Widget {
         GraphWidget()
         TichuWidgets()
+        GameWidget()
         TichuWidgetsControl()
         TichuWidgetsLiveActivity()
     }

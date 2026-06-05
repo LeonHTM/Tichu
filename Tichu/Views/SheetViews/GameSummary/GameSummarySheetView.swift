@@ -218,6 +218,20 @@ struct GameSummaryBottomToolbar: ToolbarContent {
                     Text("This Game will be deleted")
                 }
             }//.matchedTransitionSource(id: "69420", in: ShareSheetSpace)
+        }else{
+            ToolbarSpacer(placement:.bottomBar)
+            ToolbarItem(placement: .bottomBar) {
+                Button{
+                    
+                        Task{
+                            await network.updateGameFavorite(gameId: currentGameId ?? 0, favorite: !currentGame!.favorite )
+                        }
+                    
+                }label:{
+                    Image(systemName: currentGame!.favorite ? "star.slash.fill" :"star.fill")
+                }.sensoryFeedback(.success,trigger:currentGame!.favorite)
+                
+            }
         }
     }
 }

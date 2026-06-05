@@ -200,6 +200,33 @@ extension Array: RawRepresentable where Element: Codable {
     }
 }
 
+extension Dictionary: RawRepresentable where Key == Int, Value == Int {
+    public init?(rawValue: String) {
+        guard let data = rawValue.data(using: .utf8),
+              let result = try? JSONDecoder().decode([Int: Int].self, from: data)
+        else {
+            return nil
+        }
+        self = result
+    }
+
+    public var rawValue: String {
+        guard let data = try? JSONEncoder().encode(self),
+              let result = String(data: data, encoding: .utf8)
+        else {
+            return "{}"
+        }
+        return result
+    }
+}
+
+
+
+
+
+
+
+
 func isFriend(profileId: Int) -> Bool{
     if NetworkService.shared.friends.first(where:{$0.id == profileId}) == nil{
         return false
@@ -211,6 +238,7 @@ func isFriend(profileId: Int) -> Bool{
 #Preview{
     offlineView(showNavBar: .constant(true))
 }
+
 
 
 

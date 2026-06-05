@@ -114,6 +114,7 @@ struct PlayView: View {
             player2Id = nil
             player3Id = nil
             player4Id = nil
+            target = 1000
         }
     }
 
@@ -265,7 +266,7 @@ struct PlayView: View {
         .sheet(isPresented: $showDebugSheetView) {
             DebugSheetView(
                 currentGame: Binding(
-                    get: { currentGame ?? Game(id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
+                    get: { currentGame ?? Game(favorite: false,id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
                     set: { currentGameId = $0.id }
                 ),
                 showDebugSheetView: $showDebugSheetView
@@ -741,14 +742,22 @@ struct PlayView: View {
 
     // MARK: - Add Player Row
     private func addPlayerRow(label: String, action: @escaping () -> Void) -> some View {
-        HStack {
-            Spacer()
-            Image(systemName: "plus.circle.fill")
-            Button(label, action: action)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-                .padding(.vertical, 10.6)
-            Spacer()
+        ZStack{
+            HStack {
+                //To make List Lines Consistnt
+                ProfileImage(data: nil, size: 44).opacity(0)
+                Text("P").opacity(0)
+                Spacer()
+            }
+            HStack{
+                Spacer()
+                Image(systemName: "plus.circle.fill")
+                Button(label, action: action)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .padding(.vertical, 10.6)
+                Spacer()
+            }
         }
     }
 
@@ -761,10 +770,12 @@ struct PlayView: View {
                         Text("VS")
                             .font(.system(size: 120, weight: .bold))
                         HStack {
-                            Text(isRated ? "Rated" : "Unrated")
-                                .fontWeight(.bold)
-                                .font(.title3)
-                                .offset(y: -15)
+                            if isGameReady{
+                                Text(isRated ? "Rated" : "Unrated")
+                                    .fontWeight(.bold)
+                                    .font(.title3)
+                                    .offset(y: -15)
+                            }
                             Text(isGameReady ? " \(currentGame?.target ?? target)" : " \(target)")
                                 .fontWeight(.bold)
                                 .font(.title3)
@@ -774,12 +785,9 @@ struct PlayView: View {
                 }
             } else {
                 withAnimation(.easeInOut){
-                    VStack{
-                        ProgressView().scaleEffect(2)
+                    VStack(spacing:10){
+                        ProgressView()
                         Text("Loading game...")
-                            .fontWeight(.bold)
-                            .font(.title3)
-                            .offset(y: 15)
                     }
                     
                 }

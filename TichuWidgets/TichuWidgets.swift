@@ -58,19 +58,19 @@ struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> TichuWidgetEntry {
         TichuWidgetEntry(
             date: Date(),
-            title: "Big Gambler",
-            description: "Success ratio",
-            image: "exclamationmark.2.circle",
-            value: 11,
-            percentage: true
+            title: "Rating",
+            description: "All time Rating",
+            image: "chart.line.uptrend.xyaxis",
+            value: 1000,
+            percentage: false
         )
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> TichuWidgetEntry {
+    func snapshot(for configuration: GraphConfigurationAppIntent, in context: Context) async -> TichuWidgetEntry {
         makeEntry(for: configuration)
     }
 
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<TichuWidgetEntry> {
+    func timeline(for configuration: GraphConfigurationAppIntent, in context: Context) async -> Timeline<TichuWidgetEntry> {
 
         let entry = makeEntry(for: configuration)
         let next = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
@@ -78,7 +78,7 @@ struct Provider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(next))
     }
 
-    private func makeEntry(for configuration: ConfigurationAppIntent) -> TichuWidgetEntry {
+    private func makeEntry(for configuration: GraphConfigurationAppIntent) -> TichuWidgetEntry {
         var value: Double
         var title: String
         var description: String
@@ -259,61 +259,102 @@ struct Provider: AppIntentTimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let configuration: GraphConfigurationAppIntent
 }
 
-struct TichuWidgetsEntryView : View {
+struct TichuWidgetsEntryView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.widgetFamily) var family
     var entry: TichuWidgetEntry
 
+    var valueText: String {
+        entry.percentage ? "\(Int(entry.value * 100))%" : "\(Int(entry.value))"
+    }
+
     var body: some View {
-        
-        
-        VStack(){
-            HStack{
-                
-                if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
-                    Image(entry.image
-                    )
-                    .renderingMode(.template)
-                    .resizable()
-                    .foregroundStyle(.accent)
-                    .frame(width: 20, height: 20)
-                }else{
-                    Image(systemName:entry.image
-                    )
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .scaledToFit()
-                    .foregroundStyle(.accent)
+        switch family {
+
+        case .systemSmall:
+            VStack() {
+                HStack {
+                    if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+                        Image(entry.image)
+                            .renderingMode(.template)
+                            .resizable()
+                            .foregroundStyle(.accent)
+                            .frame(width: 20, height: 20)
+                        
+                    } else {
+                        Image(systemName: entry.image)
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .scaledToFit()
+                            .foregroundStyle(.accent)
+                    }
+                    Text(entry.title)
+                        .font(.system(size: 17))
+                        .fontWeight(.bold)
+                }.opacity(0.8)
+                Spacer()
+                HStack {
+                    Text(valueText)
+                        .font(.system(size: 40, weight: .heavy))
                 }
-                
-                Text(entry.title)
-                    .font(.system(size:17))
-                    .fontWeight(.bold)
-           
-                
-            }.opacity(0.8)
-            Spacer()
-   
+                Spacer()
+                Text(entry.description)
+                    .font(.system(size: 16))
+                    .multilineTextAlignment(.leading)
+                    .opacity(0.8)
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+            .widgetURL(URL(string: "tichu://stats")!)
+
+        case .accessoryRectangular:
             
             HStack{
-                if entry.percentage == false{
-                    Text("\(Int(entry.value))").font(.system(size:
-                                                        40, weight: .heavy))
+                if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+                    Image(entry.image)
+                        .font(.system(size: 32))
+                        .symbolVariant(.fill)
+                } else {
+                    Image(systemName: entry.image)
+                        .font(.system(size: 32))
+                        .symbolVariant(.fill)
+                }
+                
+                VStack(alignment:.leading){
+                    Text(entry.title)
+                        .font(.system(size: 13))
+                    Text(valueText)
+                        .font(.system(size: 20, weight: .heavy))
+                    
+                }
+            }
+            .containerBackground(.fill.tertiary, for: .widget)
+
+       
+
+        case .accessoryInline:
+            HStack{
+                if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+                    Image(entry.image)
+                        
+                } else {
+                    Image(systemName: entry.image)
+                       
+                }
+                if entry.percentage == true {
+                    Text("\(entry.title): \(Int(entry.value*100))%")
                 }else{
-                    Text("\(Int(entry.value*100))%").font(.system(size:
-                                                            40, weight: .heavy))
+                    Text("\(entry.title): \(Int(entry.value))")
                 }
                 
             }
-            Spacer()
-            Text("\(entry.description)").font(.system(size:16)).multilineTextAlignment(.leading).opacity(0.8)
-       
-           
-            
-            
-        }.containerBackground(.fill.tertiary, for: .widget).widgetURL(URL(string: "tichu://stats")!)
+            .containerBackground(.fill.tertiary, for: .widget)
+
+        default:
+            EmptyView()
+        }
     }
 }
 
@@ -321,18 +362,20 @@ struct TichuWidgets: Widget {
     let kind: String = "StatWidgets"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: GraphConfigurationAppIntent.self, provider: Provider()) { entry in
             TichuWidgetsEntryView(entry:entry
             )
         }.configurationDisplayName("Statistics")
             .description("Tichu Statistics of your Choice")
-            .supportedFamilies([.systemSmall])
+            .supportedFamilies([.systemSmall,.accessoryCircular,
+                                .accessoryRectangular,
+                                .accessoryInline])
     }
        
 }
 
 
-#Preview(as: .systemSmall) {
+#Preview(as: .accessoryRectangular) {
     TichuWidgets()
 } timeline: {
     TichuWidgetEntry(
@@ -340,7 +383,7 @@ struct TichuWidgets: Widget {
         title: "Big Gambler",
         description: "Success ratio",
         image: "exclamationmark.2.circle",
-        value: 11,
+        value: 0.1,
         percentage: true
     )
 }

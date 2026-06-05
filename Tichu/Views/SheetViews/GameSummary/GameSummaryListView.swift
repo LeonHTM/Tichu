@@ -7,15 +7,12 @@
 
 import SwiftUI
 
-/*struct GameSummaryListView: View {
+struct GameSummaryListView: View {
     @Binding var showGameSummarySheetView: Bool
     var currentGameId: Int?
 
     let profiles: [Profile]
     @ObservedObject var network: NetworkService
-
-    // All round data is read directly from network.roundsByGame, which is
-    // @Published so SwiftUI re-renders automatically when fetchGameRounds finishes.
 
     @State private var expandedRows: Set<Int> = []
     @State private var showDeleteGameAlert: Bool = false
@@ -47,13 +44,13 @@ import SwiftUI
     }
 
     private var team1Profiles: [Profile] {
-        [profile(for: currentGame?.team1Player1Id ?? 0),
-         profile(for: currentGame?.team1Player2Id ?? 0)].compactMap { $0 }
+        [profile(for: currentGame?.team1Player1Id ?? -1),
+         profile(for: currentGame?.team1Player2Id ?? -2)].compactMap { $0 }
     }
 
     private var team2Profiles: [Profile] {
-        [profile(for: currentGame?.team2Player1Id ?? 0),
-         profile(for: currentGame?.team2Player2Id ?? 0)].compactMap { $0 }
+        [profile(for: currentGame?.team2Player1Id ?? -3),
+         profile(for: currentGame?.team2Player2Id ?? -4)].compactMap { $0 }
     }
 
     var gameDone: Bool {
@@ -71,7 +68,21 @@ import SwiftUI
         if round.secondProfileId == profile.id { return 2 }
         if round.thirdProfileId  == profile.id { return 3 }
         if round.fourthProfileId == profile.id { return 4 }
-        return 999
+        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4{
+            if network.profiles.first(where:{$0.id == round.firstProfileId}) == nil{
+                return 1
+            }
+            if network.profiles.first(where:{$0.id == round.secondProfileId}) == nil{
+                return 2
+            }
+            if network.profiles.first(where:{$0.id == round.thirdProfileId}) == nil{
+                return 3
+            }
+            if network.profiles.first(where:{$0.id == round.fourthProfileId}) == nil{
+                return 4
+            }
+        }
+        return 0
     }
 
     private func sortedTeamProfiles(_ teamProfiles: [Profile], in round: Round) -> [Profile] {
@@ -102,14 +113,23 @@ import SwiftUI
         NavigationStack {
             if !showList {
                 List {
-                    ForEach(Array(allRounds.enumerated()), id: \.element.id) { index, currentRound in
+                    let cumulative = allRounds.enumerated().map { (index, round) -> (index: Int, round: Round, cum1: Int, cum2: Int) in
+                        let sum1 = allRounds.prefix(index + 1).reduce(0) { $0 + $1.tichuPointsTeam1 + $1.roundPointsTeam1 }
+                        let sum2 = allRounds.prefix(index + 1).reduce(0) { $0 + $1.tichuPointsTeam2 + $1.roundPointsTeam2 }
+                        return (index, round, sum1, sum2)
+                    }
+
+                    ForEach(cumulative, id: \.round.id) { item in
+                        Section{
+                        let index = item.index
+                        let currentRound = item.round
                         let hasExpanded = expandedRows.contains(index)
                         let isWinningRound = winRounds.contains { $0.id == currentRound.id }
                         let isLocked = !isWinningRound
-
+                        
                         let sortedTeam1 = sortedTeamProfiles(team1Profiles, in: currentRound)
                         let sortedTeam2 = sortedTeamProfiles(team2Profiles, in: currentRound)
-
+                        
                         DisclosureGroup(isExpanded: bindingForExpanded(row: index, disabled: isLocked)) {
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading) {
@@ -119,34 +139,98 @@ import SwiftUI
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
-
+                                    
                                     playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame!.team1Player1Id, currentGame!.team1Player2Id))
-
+                                    
                                     HStack {
                                         Text("Team 2").fontWeight(.bold)
                                         Spacer()
                                     }
                                     .padding(.top)
                                     .padding(.horizontal)
-
+                                    
                                     playerRows(players: sortedTeam2, round: currentRound, teamProfileIds: (currentGame!.team2Player1Id, currentGame!.team2Player2Id))
                                 }
                                 Spacer()
                             }
                             .padding(.leading, -20)
                             .padding(.trailing, 5)
-
+                            
                         } label: {
                             HStack {
-                                Text("Round \(index + 1)")
-                                    .fontWeight(.bold)
-                                    .font(.system(size: 20))
-                                    .padding(10)
-                                Spacer()
                                 if !hasExpanded {
-                                    Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
-                                    Text("vs").fontWeight(.bold)
-                                    Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
+                                    // Team 1 indicators
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        let allPlayers = sortedTeam1
+                                        ForEach(allPlayers, id: \.id) { player in
+                                            let isFirst = currentRound.firstProfileId == player.id
+                                            let tichu = currentRound.announcedTichu.contains(player.id)
+                                            let bigTichu = currentRound.announcedBigTichu.contains(player.id)
+                                            let pingu = currentRound.announcedPingu.contains(player.id)
+                                            
+                                            if tichu || bigTichu || pingu {
+                                                Text(bigTichu ? "T" : pingu ? "P" : "t")
+                                                    .fontWeight(.bold)
+                                                    .foregroundStyle(isFirst ? .green : .red)
+                                            }
+                                        }
+                                    }
+                                    .frame(width: 20)
+
+                                    VStack(alignment: .center, spacing: 0) {
+                                        let delta1 = item.round.tichuPointsTeam1 + item.round.roundPointsTeam1
+                                        if delta1 >= 0 {
+                                            Text("+\(delta1) ")
+                                        } else {
+                                            Text("\(delta1)")
+                                        }
+                                        Divider().background(Color.primary).frame(width: 40).frame(height: 2)
+                                        Text("\(item.cum1)")
+                                    }
+                                    .frame(width: 50, alignment: .leading)
+                                    .foregroundStyle(item.round.doubleWinTeam1 ? .green : .primary)
+                                    
+                                }
+
+                                if !hasExpanded {
+                                    Spacer()
+                                }
+
+                                Text("Round \(item.index + 1)")
+                                    .fontWeight(.bold)
+                                Spacer()
+
+                                if !hasExpanded {
+                                    VStack(alignment: .center, spacing: 0) {
+                                        let delta2 = item.round.tichuPointsTeam2 + item.round.roundPointsTeam2
+                                        if delta2 >= 0 {
+                                            Text("+\(delta2) ")
+                                        } else {
+                                            Text("\(delta2)")
+                                        }
+                                        Divider().frame(width: 40).background(Color.primary).frame(height: 2)
+                                        Text("\(item.cum2)")
+                                    }
+                                    .frame(width: 50, alignment: .leading)
+                                    .foregroundStyle(item.round.doubleWinTeam2 ? .green : .primary)
+
+                                    // Team 2 indicators
+                                    VStack(alignment: .trailing, spacing: 2) {
+                                        let allPlayers = sortedTeam2
+                                        ForEach(allPlayers, id: \.id) { player in
+                                            let isFirst = currentRound.firstProfileId == player.id
+                                            let tichu = currentRound.announcedTichu.contains(player.id)
+                                            let bigTichu = currentRound.announcedBigTichu.contains(player.id)
+                                            let pingu = currentRound.announcedPingu.contains(player.id)
+                                            
+                                            if tichu || bigTichu || pingu {
+                                                Text(bigTichu ? "T" : pingu ? "P" : "t")
+                                                    .fontWeight(.bold)
+                                                    .foregroundStyle(isFirst ? .green : .red)
+                                            }
+                                        }
+                                    }
+                                    .frame(width: 20)
                                 }
                             }
                         }
@@ -156,10 +240,10 @@ import SwiftUI
                                 Button(role: .destructive) {
                                     if allRounds.count > 1 {
                                         /*Task {
-                                            await network.deleteRound(gameId: currentGame.id, roundId: currentRound.id)
-                                            await network.reCalculate(gameId: currentGame.id)
-                                            let updatedGames: [Game] = network.games
-                                        }*/
+                                         await network.deleteRound(gameId: currentGame.id, roundId: currentRound.id)
+                                         await network.reCalculate(gameId: currentGame.id)
+                                         let updatedGames: [Game] = network.games
+                                         }*/
                                     } else {
                                         showDeleteGameAlert = true
                                         showList = true
@@ -167,7 +251,7 @@ import SwiftUI
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
-
+                                
                                 if !isLocked {
                                     Button {
                                         editingRoundIndex = index
@@ -179,6 +263,7 @@ import SwiftUI
                                 }
                             }
                         }
+                    }
                     }
 
                     if allRounds.count != winRounds.count {
@@ -193,14 +278,13 @@ import SwiftUI
                         Section {
                             HStack {
                                 Spacer()
-                                Text("Played on")
-                                Text(currentGame?.date ?? Date(), style: .date)
+                                Text("Played on \(currentGame?.date ?? Date(), style: .date)")
                                 Spacer()
                             }
                             .foregroundStyle(Color.secondary)
                         }
                         .listRowBackground(Color.clear)
-                        .fontWeight(.bold)
+                
                     }
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss: {
@@ -212,7 +296,7 @@ import SwiftUI
                     /*AddRoundSheetView(...)*/
                 }
                 .id(editingRoundIndex)
-                .listSectionSpacing(0)
+                .listSectionSpacing(5)
                 .animation(.spring(duration: 0.25), value: expandedRows)
                 .animation(.easeInOut(duration: 0.25), value: showList)
 
@@ -221,8 +305,6 @@ import SwiftUI
             }
         }
         .onAppear {
-            // If rounds aren't loaded yet (e.g. sheet opened before HistoryView fetch),
-            // trigger a fetch. Otherwise allRounds already has data immediately.
             if network.roundsByGame[currentGameId ?? 0] == nil {
                 Task {
                     await network.fetchGameRounds(gameId: currentGameId ?? 0)
@@ -270,6 +352,7 @@ import SwiftUI
                 HStack {
                     Text("\(playerPlace).").fontWeight(.bold).foregroundStyle(placeColor)
                     Text(player.name ?? "Unknown")
+                  
                     Spacer()
 
                     if tichu || bigTichu || pingu {
@@ -283,15 +366,13 @@ import SwiftUI
                     }
 
                     if bomb > 0 {
-                        HStack {
-                            Image(systemName: "flame").offset(x: 47)
-                            Text("\(bomb)").font(.system(size: 12)).offset(x: 37, y: 7)
-                        }
+                        bombView(bomb:bomb)
                     }
                 }
             }
+            
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 20).fill(Color(uiColor: .systemGroupedBackground)))
     }
-}*/
+}

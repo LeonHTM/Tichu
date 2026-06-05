@@ -13,6 +13,8 @@ struct MainView: View {
     @AppStorage("userId") private var userId = -69420
     @State private var isLoading: Bool = false
     @State private var fetchTrigger: Int = 0
+    @State private var selectedGameId: Int? = nil
+    @State private var scrolledGameId: Int? = nil
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
     let notificationCenter = UNUserNotificationCenter.current()
@@ -40,7 +42,7 @@ struct MainView: View {
                     
                     
                     if socket.connected {
-                        HistoryView().tabItem {
+                        HistoryView(selectedGameId:$selectedGameId,scrolledGameId: $scrolledGameId).tabItem {
                             Label("History", systemImage: "clock")
                         }
                         .tag(1)
@@ -99,6 +101,19 @@ struct MainView: View {
             if url == URL(string: "tichu://stats"){
                 selectedTab = 2
             }
+            if url.scheme == "tichu",
+                   url.host == "game" {
+                    
+                    // extract game id from path
+                    let gameId = url.lastPathComponent
+                    
+                    
+                    selectedTab = 1
+                    selectedGameId = Int(gameId)
+                    scrolledGameId = Int(gameId)
+                    
+                  
+                }
         }
         .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
             selectedTab = 3

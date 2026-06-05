@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
-
+import Foundation
 
 struct Game: Identifiable, Decodable, Equatable {
+    var favorite: Bool = false
     let id: Int
     var date: Date
 
@@ -24,13 +25,67 @@ struct Game: Identifiable, Decodable, Equatable {
     var currentPointsTeam2: Int
 
     var winner: Int?
-    
+
+    enum CodingKeys: String, CodingKey {
+        case favorite
+        case id, date, target, allowPingus
+        case team1Player1Id, team1Player2Id
+        case team2Player1Id, team2Player2Id
+        case currentPointsTeam1, currentPointsTeam2
+        case winner
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        favorite             = try container.decodeIfPresent(Bool.self,   forKey: .favorite)          ?? false
+        id                   = try container.decode(Int.self,             forKey: .id)
+        date                 = try container.decode(Date.self,            forKey: .date)
+        target               = try container.decode(Int.self,             forKey: .target)
+        allowPingus          = try container.decode(Bool.self,            forKey: .allowPingus)
+        team1Player1Id       = try container.decodeIfPresent(Int.self,    forKey: .team1Player1Id)
+        team1Player2Id       = try container.decodeIfPresent(Int.self,    forKey: .team1Player2Id)
+        team2Player1Id       = try container.decodeIfPresent(Int.self,    forKey: .team2Player1Id)
+        team2Player2Id       = try container.decodeIfPresent(Int.self,    forKey: .team2Player2Id)
+        currentPointsTeam1   = try container.decode(Int.self,             forKey: .currentPointsTeam1)
+        currentPointsTeam2   = try container.decode(Int.self,             forKey: .currentPointsTeam2)
+        winner               = try container.decodeIfPresent(Int.self,    forKey: .winner)
+    }
+
+    // Memberwise init still needed for places that construct Game directly
+    init(
+        favorite: Bool = false,
+        id: Int,
+        date: Date,
+        target: Int,
+        allowPingus: Bool,
+        team1Player1Id: Int? = nil,
+        team1Player2Id: Int? = nil,
+        team2Player1Id: Int? = nil,
+        team2Player2Id: Int? = nil,
+        currentPointsTeam1: Int,
+        currentPointsTeam2: Int,
+        winner: Int? = nil
+    ) {
+        self.favorite           = favorite
+        self.id                 = id
+        self.date               = date
+        self.target             = target
+        self.allowPingus        = allowPingus
+        self.team1Player1Id     = team1Player1Id
+        self.team1Player2Id     = team1Player2Id
+        self.team2Player1Id     = team2Player1Id
+        self.team2Player2Id     = team2Player2Id
+        self.currentPointsTeam1 = currentPointsTeam1
+        self.currentPointsTeam2 = currentPointsTeam2
+        self.winner             = winner
+    }
+
     static func == (lhs: Game, rhs: Game) -> Bool {
         lhs.id == rhs.id
     }
 }
 
-import Foundation
+
 
 struct Round: Identifiable, Decodable, Equatable {
     let id: Int
@@ -102,3 +157,5 @@ struct EloHistoryEntry: Identifiable, Codable {
     var eloChange: Double
     var changedAt: Date?
 }
+
+
