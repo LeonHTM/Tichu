@@ -559,11 +559,13 @@ struct PlayView: View {
                             .presentationDetents([.medium, .large])
                         }
                         .contextMenu{
-                            Button{
-                                showAddPlayersSheet2 = true
-                            }label:{
-                                Image(systemName: "arrow.up.right.square")
-                                Text("Add Player 2")
+                            if socket.connected{
+                                Button{
+                                    showAddPlayersSheet2 = true
+                                }label:{
+                                    Image(systemName: "arrow.up.right.square")
+                                    Text("Add Player 2")
+                                }
                             }
                         }preview:{
                             AddPlayersSheetView(
@@ -722,11 +724,13 @@ struct PlayView: View {
                             )
                             .presentationDetents([.medium, .large])
                         }.contextMenu{
-                            Button{
-                                showAddPlayersSheet3 = true
-                            }label:{
-                                Image(systemName: "arrow.up.right.square")
-                                Text("Add Player 3")
+                            if socket.connected{
+                                Button{
+                                    showAddPlayersSheet3 = true
+                                }label:{
+                                    Image(systemName: "arrow.up.right.square")
+                                    Text("Add Player 3")
+                                }
                             }
                         }preview:{
                             AddPlayersSheetView(
@@ -840,11 +844,13 @@ struct PlayView: View {
                             .presentationDetents([.medium, .large])
                         }
                         .contextMenu{
-                            Button{
-                                showAddPlayersSheet4 = true
-                            }label:{
-                                Image(systemName: "arrow.up.right.square")
-                                Text("Add Player 4")
+                            if socket.connected{
+                                Button{
+                                    showAddPlayersSheet4 = true
+                                }label:{
+                                    Image(systemName: "arrow.up.right.square")
+                                    Text("Add Player 4")
+                                }
                             }
                         }preview:{
                             AddPlayersSheetView(

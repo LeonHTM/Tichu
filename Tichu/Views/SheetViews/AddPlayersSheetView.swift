@@ -84,7 +84,7 @@ struct AddPlayersSheetView: View {
                     playersRows
                 }
             }
-            .padding(.top, showGuest ? 0 : -45)
+            .padding(.top, showMenu ? 0 : showGuest ? 0 : -45)
             .listSectionSpacing(0)
             .animation(.easeInOut, value: searchText)
             .navigationTitle(
@@ -105,7 +105,7 @@ struct AddPlayersSheetView: View {
             }
             
         }
-        .searchable(text: $searchText,isPresented: .constant(showMenu))
+        .searchable(text: $searchText)
     }
 
     // MARK: - Guest Row
