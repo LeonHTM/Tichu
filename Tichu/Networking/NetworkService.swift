@@ -28,6 +28,9 @@ class NetworkService: ObservableObject {
     @AppStorage("favDic") private var favDic: [Int:Int] = [:]
     
     
+    @Published var currentGameId: Int? = nil
+    
+    @Published var finishGameEditing: Bool = true
     @Published var eloHistory: [EloHistoryEntry] = []
 
     @Published var profiles: [Profile] = []
@@ -692,14 +695,29 @@ class NetworkService: ObservableObject {
             let decoder = flexibleDateDecoder
             decoder.keyDecodingStrategy = .convertFromSnakeCase
             let game = try decoder.decode(Game.self, from: data)
-            await MainActor.run { self.games.append(game) }
+            //await MainActor.run { self.games.append(game) } will get appended in the socket
             return game
         } catch {
             print("addGame error: \(error)")
             return nil
         }
     }
+    
+    func isInOpenGame(profileId: Int) async -> Bool {
+        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/in_open_game") else { return false }
 
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            return try JSONDecoder().decode(Bool.self, from: data)
+        } catch {
+            print("isInOpenGame error: \(error)")
+            return false
+        }
+    }
+    
+    
+    
+    
     func deleteGame(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_game/\(gameId)") else { return }
 
@@ -955,6 +973,19 @@ class NetworkService: ObservableObject {
                 defaults?.set(encoded, forKey: "widgetGames")
                 WidgetCenter.shared.reloadTimelines(ofKind: "favGameWidget")
             }
+        }
+    }
+    
+    func finishGame(gameId: Int) async {
+        guard let url = URL(string: "\(baseURL)/finish_game/\(gameId)") else { return }
+
+        let request = authorizedRequest(url: url, method: "POST")
+
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            guard (response as? HTTPURLResponse)?.statusCode == 200 else { return }
+        } catch {
+            print("finishGame error: \(error)")
         }
     }
 

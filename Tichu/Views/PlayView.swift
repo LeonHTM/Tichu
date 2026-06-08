@@ -33,7 +33,6 @@ struct PlayView: View {
     @State private var showPlayers: Bool = true
     @State private var showFriends: Bool = true
 
-    @State private var currentGameId: Int? = nil
 
     @State private var revanche: Bool = false
 
@@ -51,7 +50,7 @@ struct PlayView: View {
     @State private var guestImages = ["dog", "phoenix", "dragon", "mahjong"].shuffled()
     
     private var currentGame: Game? {
-        guard let id = currentGameId else { return nil }
+        guard let id = network.currentGameId else { return nil }
         return network.games.first { $0.id == id }
     }
 
@@ -69,6 +68,7 @@ struct PlayView: View {
     }
 
     private var gameDone: Bool {
+        
         guard let game = currentGame else { return false }
         if game.currentPointsTeam1 >= game.target && game.currentPointsTeam1 > game.currentPointsTeam2 { return true }
         if game.currentPointsTeam2 >= game.target && game.currentPointsTeam2 > game.currentPointsTeam1 { return true }
@@ -91,7 +91,7 @@ struct PlayView: View {
     // MARK: - Methods
 
     private func startGame() {
-        if currentGameId == nil {
+        if network.currentGameId == nil {
             Task {
                 let game = await network.addGame(
                     target: target,
@@ -102,7 +102,7 @@ struct PlayView: View {
                     team2Player2Id: player4Id
                 )
                 await MainActor.run {
-                    currentGameId = game?.id
+                    network.currentGameId = game?.id
                 }
             }
         }
@@ -110,7 +110,7 @@ struct PlayView: View {
 
     private func resetGame() {
         withAnimation(.easeInOut) {
-            currentGameId = nil
+            network.currentGameId = nil
             player2Id = nil
             player3Id = nil
             player4Id = nil
@@ -133,21 +133,29 @@ struct PlayView: View {
                     .refreshable {
                         await network.fetch()
                     }
+                    .onChange(of:gameDone){
+            
+                         network.finishGameEditing = true
+                        
+                    }
                     .onChange(of: network.games) {
                         // currentGame is now computed, nothing to sync
                     }.onChange(of: network.games) {
                         let openGames = network.games.filter { $0.winner == nil }
                         print("OPEN GAMES: \(openGames.count)")
+                        for games in openGames{
+                            print("\(games.id)")
+                        }
                         print("GAMES: \(network.games.count)")
                         if openGames.count == 1 {
                             withAnimation(.easeInOut) {
-                                currentGameId = openGames.first?.id
+                                network.currentGameId = openGames.first?.id
                                 player1Id = openGames.first?.team1Player1Id
                                 player2Id = openGames.first?.team1Player2Id
                                 player3Id = openGames.first?.team2Player1Id
                                 player4Id = openGames.first?.team2Player2Id
                                 Task {
-                                    if let id = currentGameId {
+                                    if let id = network.currentGameId {
                                         await network.fetchGameRounds(gameId: id)
                                     }
                                 }
@@ -159,13 +167,13 @@ struct PlayView: View {
                         let openGames = network.games.filter { $0.winner == nil }
                         if openGames.count == 1 {
                             withAnimation(.easeInOut) {
-                                currentGameId = openGames.first?.id
+                                network.currentGameId = openGames.first?.id
                                 player1Id = openGames.first?.team1Player1Id
                                 player2Id = openGames.first?.team1Player2Id
                                 player3Id = openGames.first?.team2Player1Id
                                 player4Id = openGames.first?.team2Player2Id
                                 Task {
-                                    if let id = currentGameId {
+                                    if let id = network.currentGameId {
                                         await network.fetchGameRounds(gameId: id)
                                     }
                                 }
@@ -196,7 +204,7 @@ struct PlayView: View {
                         }
                     }
                     .onChange(of: network.games.map(\.id)) {
-                        guard let id = currentGameId else { return }
+                        guard let id = network.currentGameId else { return }
                         
                         if network.games.first(where: { $0.id == id }) == nil {
                             showEditRoundsSheet = false
@@ -204,16 +212,26 @@ struct PlayView: View {
                         }
                     }
                     .onChange(of: gameDone) {
-                        if gameDone { showGameOverSheet = true }
+                        if gameDone { showGameOverSheet = true
+                        }else if gameDone == false{
+                            showGameOverSheet = false
+                        }
                     }
                     .sheet(isPresented: $showGameOverSheet, onDismiss: {
-                        if revanche {
-                            guard let game = currentGame else { return }
-                            let p1 = game.team1Player1Id
-                            let p2 = game.team1Player2Id
-                            let p3 = game.team2Player1Id
-                            let p4 = game.team2Player2Id
-                            Task {
+                        guard gameDone else { return }
+
+                        let gameId = currentGame?.id ?? 0
+                        let game = currentGame
+
+                        Task {
+                            // ✅ finish first, wait for it, then create revanche
+                            await network.finishGame(gameId: gameId)
+
+                            if revanche, let game = game {
+                                let p1 = game.team1Player1Id
+                                let p2 = game.team1Player2Id
+                                let p3 = game.team2Player1Id
+                                let p4 = game.team2Player2Id
                                 let newGame = await network.addGame(
                                     target: game.target,
                                     allowPingus: game.allowPingus,
@@ -223,24 +241,28 @@ struct PlayView: View {
                                     team2Player2Id: p4
                                 )
                                 await MainActor.run {
-                                    currentGameId = newGame?.id
+                                    network.currentGameId = newGame?.id
+                                    player1Id = p1
+                                    player2Id = p2
+                                    player3Id = p3
+                                    player4Id = p4
                                     revanche = false
                                 }
+                            } else if !revanche {
+                                await MainActor.run { resetGame() }
                             }
-                        } else {
-                            resetGame()
                         }
                     }) {
                         if let game = currentGame {
                             GameSummarySheetView(
                                 showGameOverViewSheetView: $showGameOverSheet,
-                                currentGameId: currentGameId,
+                                currentGameId: network.currentGameId,
                                 revanche: $revanche,
                                 profiles: network.profiles,
                                 network: network,
                                 selectedTab:$selectedTab,
                                 showRevancheButton: true,
-                                HistoryMode: false
+                                allowEditing: $network.finishGameEditing
                             )
                             .presentationDetents([.medium, .large])
                         }
@@ -279,7 +301,7 @@ struct PlayView: View {
             DebugSheetView(
                 currentGame: Binding(
                     get: { currentGame ?? Game(favorite: false,id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
-                    set: { currentGameId = $0.id }
+                    set: { network.currentGameId = $0.id }
                 ),
                 showDebugSheetView: $showDebugSheetView
             )
@@ -340,7 +362,7 @@ struct PlayView: View {
         Section {
             HStack {
                 if let p1Id = player1Id,
-                   currentGameId != nil,
+                   network.currentGameId != nil,
                    let p1 = profile(for: p1Id) {
                     
                     HStack {
@@ -366,12 +388,19 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected{
+                        if socket.connected && p1.id != userId && p1.id > 0{
                             if isFriend(profileId: p1.id) == true{
-                                Button{}label:{
-                                    Image(systemName:"person")
-                                    Text("\(p1.name ?? "Unkmown") is already a Friend")
-                                }.disabled(true)
+                                Button(role:.destructive){
+                                  
+                                        Task{
+                                        
+                                            await network.removeFriend(profileId: userId, friendId: p1.id)
+                                        }
+                                    
+                                }label:{
+                                    Image(systemName:"person.badge.minus")
+                                    Text("Remove Friend")
+                                }
                             }else{
                                 Button{
                                     Task{
@@ -457,12 +486,19 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected{
+                        if socket.connected && p2.id != userId && p2.id > 0{
                             if isFriend(profileId: p2.id) == true{
-                                Button{}label:{
-                                    Image(systemName:"person")
-                                    Text("\(p2.name ?? "Unkmown") is already a Friend")
-                                }.disabled(true)
+                                Button(role:.destructive){
+                                  
+                                        Task{
+                                        
+                                            await network.removeFriend(profileId: userId, friendId: p2.id)
+                                        }
+                                    
+                                }label:{
+                                    Image(systemName:"person.badge.minus")
+                                    Text("Remove Friend")
+                                }
                             }else{
                                 Button{
                                     Task{
@@ -517,9 +553,29 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
-                                guestIndex: 2
+                                guestIndex: 2,
+                                showMenu: true
                             )
                             .presentationDetents([.medium, .large])
+                        }
+                        .contextMenu{
+                            Button{
+                                showAddPlayersSheet2 = true
+                            }label:{
+                                Image(systemName: "arrow.up.right.square")
+                                Text("Add Player 2")
+                            }
+                        }preview:{
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet4,
+                                addPlayerId: $player4Id,
+                                alreadyAdded: [player2Id, player3Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 2,
+                                showMenu: false
+                            )
                         }
                 }
             }
@@ -596,14 +652,20 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected{
+                        if socket.connected && p3.id != userId && p3.id > 0{
                             if isFriend(profileId: p3.id) == true{
-                                Button{}label:{
-                                    Image(systemName:"person")
-                                    Text("\(p3.name ?? "Unkmown") is already a Friend")
-                                }.disabled(true)
+                                Button(role:.destructive){
+                                  
+                                        Task{
+                                        
+                                            await network.removeFriend(profileId: userId, friendId: p3.id)
+                                        }
+                                    
+                                }label:{
+                                    Image(systemName:"person.badge.minus")
+                                    Text("Remove Friend")
+                                }
                             }else{
-                                
                                 Button{
                                     Task{
                                         await network.sendFriendRequest(senderId: userId, receiverId: p3.id)
@@ -614,6 +676,7 @@ struct PlayView: View {
                                 }.disabled(p3.id == userId)
                             }
                         }
+                        
                     }.swipeActions(edge: .trailing) {
                         if isGameReady == false{
                             Button() {
@@ -654,9 +717,28 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
-                                guestIndex: 3
+                                guestIndex: 3,
+                                showMenu: true
                             )
                             .presentationDetents([.medium, .large])
+                        }.contextMenu{
+                            Button{
+                                showAddPlayersSheet3 = true
+                            }label:{
+                                Image(systemName: "arrow.up.right.square")
+                                Text("Add Player 3")
+                            }
+                        }preview:{
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet4,
+                                addPlayerId: $player4Id,
+                                alreadyAdded: [player2Id, player3Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 3,
+                                showMenu: false
+                            )
                         }
                 }
             }
@@ -686,12 +768,19 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected{
+                        if socket.connected && p4.id != userId && p4.id > 0{
                             if isFriend(profileId: p4.id) == true{
-                                Button{}label:{
-                                    Image(systemName:"person")
-                                    Text("\(p4.name ?? "Unkmown") is already a Friend")
-                                }.disabled(true)
+                                Button(role:.destructive){
+                                  
+                                        Task{
+                                        
+                                            await network.removeFriend(profileId: userId, friendId: p4.id)
+                                        }
+                                    
+                                }label:{
+                                    Image(systemName:"person.badge.minus")
+                                    Text("Remove Friend")
+                                }
                             }else{
                                 Button{
                                     Task{
@@ -745,9 +834,29 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
-                                guestIndex: 4
+                                guestIndex: 4,
+                                showMenu: true
                             )
                             .presentationDetents([.medium, .large])
+                        }
+                        .contextMenu{
+                            Button{
+                                showAddPlayersSheet4 = true
+                            }label:{
+                                Image(systemName: "arrow.up.right.square")
+                                Text("Add Player 4")
+                            }
+                        }preview:{
+                            AddPlayersSheetView(
+                                showAddPlayersSheet: $showAddPlayersSheet4,
+                                addPlayerId: $player4Id,
+                                alreadyAdded: [player2Id, player3Id].compactMap { $0 },
+                                showGuest: .constant(true),
+                                showPlayers: $showPlayers,
+                                showFriends: $showFriends,
+                                guestIndex: 4,
+                                showMenu: false
+                            )
                         }
                 }
             }

@@ -262,7 +262,7 @@ struct SimpleEntry: TimelineEntry {
     let configuration: GraphConfigurationAppIntent
 }
 
-struct TichuWidgetsEntryView: View {
+struct StatsWidgetsEntryView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.widgetFamily) var family
     var entry: TichuWidgetEntry
@@ -330,6 +330,7 @@ struct TichuWidgetsEntryView: View {
                     
                 }
             }
+            .widgetURL(URL(string: "tichu://stats")!)
             .containerBackground(.fill.tertiary, for: .widget)
 
        
@@ -350,7 +351,24 @@ struct TichuWidgetsEntryView: View {
                 }
                 
             }
+            .widgetURL(URL(string: "tichu://stats")!)
             .containerBackground(.fill.tertiary, for: .widget)
+            
+        case .accessoryCircular:
+            VStack(alignment:.center){
+                HStack{
+                    
+                    Text(entry.title)
+                    
+                }
+                    .font(.system(size: 13))
+                Text(valueText)
+                    .font(.system(size: 20, weight: .heavy))
+                
+            }
+            .widgetURL(URL(string: "tichu://stats")!)
+            .containerBackground(.fill.tertiary, for: .widget)
+            
 
         default:
             EmptyView()
@@ -363,7 +381,7 @@ struct TichuWidgets: Widget {
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: GraphConfigurationAppIntent.self, provider: Provider()) { entry in
-            TichuWidgetsEntryView(entry:entry
+            StatsWidgetsEntryView(entry:entry
             )
         }.configurationDisplayName("Statistics")
             .description("Tichu Statistics of your Choice")

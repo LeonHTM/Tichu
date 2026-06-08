@@ -64,7 +64,8 @@ struct StatsView: View {
                     showGuest: .constant(false),
                     showPlayers: .constant(true),
                     showFriends: .constant(true),
-                    guestIndex: 2
+                    guestIndex: 2,
+                    showMenu: true
                 )
                 .presentationDetents([.medium, .large])
             }

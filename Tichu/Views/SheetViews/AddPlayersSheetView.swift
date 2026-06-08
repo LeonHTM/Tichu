@@ -17,6 +17,7 @@ struct AddPlayersSheetView: View {
     @Binding var showPlayers: Bool
     @Binding var showFriends: Bool
     var guestIndex: Int
+    var showMenu: Bool
     @AppStorage("userId") var userId: Int = -69420
     @StateObject private var socket = SocketService.shared
 
@@ -26,6 +27,8 @@ struct AddPlayersSheetView: View {
     @State private var searchText: String = ""
     @State private var sortByFriends: sortBy.sortBy = .nameDown
     @State private var sortByPlayers: sortBy.sortBy = .nameDown
+    @State private var showPlayerInGameAlert: Bool = false
+    @State private var inGameStatus: [Int: Bool] = [:]
 
     // MARK: - Computed
     var friendsFilterActive: Bool { sortByFriends != .nameDown }
@@ -85,20 +88,24 @@ struct AddPlayersSheetView: View {
             .listSectionSpacing(0)
             .animation(.easeInOut, value: searchText)
             .navigationTitle(
-                showPlayers && showFriends ? "Add Players" :
-                !showFriends ? "Request Friend" : "Edit Friends"
+
+                showMenu == false ? "" : showPlayers && showFriends ? "Add Players" :
+                        !showFriends ? "Request Friend" : "Edit Friends"
+                
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel", systemImage: "xmark") {
-                        showAddPlayersSheet = false
+                if showMenu == true{
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel", systemImage: "xmark") {
+                            showAddPlayersSheet = false
+                        }
                     }
                 }
             }
             
         }
-        .searchable(text: $searchText)
+        .searchable(text: $searchText,isPresented: .constant(showMenu))
     }
 
     // MARK: - Guest Row
@@ -108,7 +115,7 @@ struct AddPlayersSheetView: View {
                 ProfileImage(data: nil, size: 44)
                 Button("Guest") {
                     if guestIndex == 2 {
-                        addPlayerId = -3
+                        addPlayerId = -2
                     } else if guestIndex == 3 {
                         addPlayerId = -3
                     } else {
@@ -178,6 +185,14 @@ struct AddPlayersSheetView: View {
     private var playersRows: some View {
         ForEach(sortedPlayers) { profile in
             playerButton(profileId: profile.id)
+                .alert("Delete this Game?", isPresented: $showPlayerInGameAlert) {
+                    Button("Cancel", role: .cancel) {
+                        showPlayerInGameAlert = false
+                    }
+                  
+                } message: {
+                    Text("This Player is already playing a game.")
+                }
                 .transition(.move(edge: .top).combined(with: .opacity))
         }
     }
@@ -185,68 +200,77 @@ struct AddPlayersSheetView: View {
     // MARK: - Player Button
     private func playerButton(profileId: Int) -> some View {
         let isAdded = alreadyAdded.contains(where: { $0 == profileId })
-
         let profile = network.profiles.first(where: { $0.id == profileId })
+        let inGame = inGameStatus[profileId] ?? false
 
         return Button {
-
             if showGuest == false {
                 Task {
                     await network.fetchProfilesStats(profileId: profileId)
                     addPlayerId = profileId
+                    showAddPlayersSheet = false
                 }
             } else {
+                guard !inGame else {
+                    showPlayerInGameAlert = true
+                    return
+                }
                 addPlayerId = profileId
+                showAddPlayersSheet = false
             }
-
-            showAddPlayersSheet = false
-
         } label: {
             HStack {
                 ProfileImage(
                     data: network.profileImages[profileId],
                     size: 44
                 )
-
                 Text(profile?.name ?? "Unknown")
-
                 Spacer()
-
-                if let elo = profile?.elo {
+                if inGame || isAdded {
+                    Text("Currently in a Game")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 16))
+                } else if let elo = profile?.elo {
                     Text("\(Int(elo))")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 }
             }
-        }.contextMenu{
-            if socket.connected{
-                if isFriend(profileId: profileId) == true{
-                    Button(role:.destructive){
-                      
-                            Task{
-                            
-                                await network.removeFriend(profileId: userId, friendId: profileId)
-                            }
-                        
-                    }label:{
-                        Image(systemName:"person.badge.minus")
+        }
+        .contextMenu {
+            if socket.connected {
+                if isFriend(profileId: profileId) == true {
+                    Button(role: .destructive) {
+                        Task {
+                            await network.removeFriend(profileId: userId, friendId: profileId)
+                        }
+                    } label: {
+                        Image(systemName: "person.badge.minus")
                         Text("Remove Friend")
                     }
-                }else{
-                    Button{
-                        Task{
+                } else {
+                    Button {
+                        Task {
                             await network.sendFriendRequest(senderId: userId, receiverId: profileId)
                         }
-                    }label:{
-                        Image(systemName:"person.badge.plus")
+                    } label: {
+                        Image(systemName: "person.badge.plus")
                         Text("Send Friend Request")
-                    }.disabled(profileId == userId)
+                    }
+                    .disabled(profileId == userId)
+                    .disabled(inGame)
                 }
             }
-            
         }
-        .disabled(isAdded)
-        .foregroundColor(isAdded ? .secondary : .primary)
+        .disabled(isAdded || inGame)
+        .foregroundColor((isAdded || inGame) ? .secondary : .primary)
+        .task {
+
+            let status = await network.isInOpenGame(profileId: profileId)
+            await MainActor.run {
+                inGameStatus[profileId] = status
+            }
+        }
     }
 
     // MARK: - Sort Menu

@@ -103,6 +103,11 @@ struct EloHistoryChartView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal)
+        .onChange(of:network.games){
+            Task{
+                await network.fetchEloHistory(profileId: profileId)
+            }
+        }
         .task {
             await network.fetchEloHistory(profileId: profileId)
         }

@@ -399,6 +399,15 @@ struct AddRoundSheetView: View {
                             counter += 1
                             rankingList[index] = counter
                             hasPushedList[index] = true
+
+                            
+                            let unsetIndices = hasPushedList.indices.filter { !hasPushedList[$0] }
+                            if unsetIndices.count == 1, let lastIndex = unsetIndices.first {
+                                counter += 1
+                                rankingList[lastIndex] = counter
+                                hasPushedList[lastIndex] = true
+                            }
+
                             if rankingList.allSatisfy({ $0 != 0 }) {
                                 withAnimation(.easeInOut) {
                                     if let i1 = rankingList.firstIndex(of: 1) { firstProfileId  = players[i1]?.id }
@@ -423,6 +432,7 @@ struct AddRoundSheetView: View {
                             Text("\(rankingList[index]).").fontWeight(.bold)
                                 .foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
                             Text(player?.name ?? "Unknown")
+                            //Text((player?.id ?? 0) > 0 ? player?.name ?? "Unknown" : "Guest")
                             Spacer()
                         }
                     }

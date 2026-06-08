@@ -21,7 +21,7 @@ struct GameSummaryListView: View {
     @State private var editingRoundIndex: Int = 0
 
     @Environment(\.colorScheme) var colorScheme
-    var allowEditing: Bool
+    @Binding var allowEditing: Bool
 
     // MARK: - Computed
 
@@ -238,16 +238,16 @@ struct GameSummaryListView: View {
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             if allowEditing {
                                 Button(role: .destructive) {
-                                    if allRounds.count > 1 {
-                                        /*Task {
-                                         await network.deleteRound(gameId: currentGame.id, roundId: currentRound.id)
-                                         await network.reCalculate(gameId: currentGame.id)
-                                         let updatedGames: [Game] = network.games
-                                         }*/
-                                    } else {
-                                        showDeleteGameAlert = true
-                                        showList = true
-                                    }
+                                   
+                                    Task {
+                                        guard let gameId = currentGame?.id else {
+                                            print("no game id")
+                                            return
+                                        }
+                                            await network.deleteRound(gameId: gameId, roundId: currentRound.id)
+                                            await network.reCalculate(gameId: gameId)
+                                        }
+                                    
                                 } label: {
                                     Label("Delete", systemImage: "trash")
                                 }
@@ -293,7 +293,15 @@ struct GameSummaryListView: View {
                         await network.reCalculate(gameId: currentGame?.id ?? 0)
                     }
                 }) {
-                    /*AddRoundSheetView(...)*/
+                    AddRoundSheetView(
+                                    showAddRoundsSheet: $showAddRoundSheet,
+                                    currentGameId: currentGame?.id ?? 0,
+                                    profiles: profiles,
+                                    network: network,
+                                    editMode: true,
+                                    roundIndex: editingRoundIndex + 1,
+                                    editingRound: allRounds[safe: editingRoundIndex]
+                                )
                 }
                 .id(editingRoundIndex)
                 .listSectionSpacing(5)
@@ -302,6 +310,10 @@ struct GameSummaryListView: View {
 
             } else {
                 Text(" ")
+            }
+        }.onChange(of:allowEditing){
+            if allowEditing == false{
+                showAddRoundSheet = false
             }
         }
         .onAppear {

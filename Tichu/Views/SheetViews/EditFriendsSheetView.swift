@@ -224,7 +224,8 @@ struct EditFriendsSheetView: View {
                         showGuest: .constant(false),
                         showPlayers: .constant(true),
                         showFriends: .constant(false),
-                        guestIndex: 0
+                        guestIndex: 0,
+                        showMenu: true
                     )
                     .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))
                 }

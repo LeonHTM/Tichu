@@ -156,7 +156,7 @@
                         x: .value("Date", point.date),
                         y: .value("Elo", point.elo)
                     )
-                    //.interpolationMethod(.monotone)
+                    .interpolationMethod(.monotone)
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     .foregroundStyle(.accent)
 

@@ -31,7 +31,7 @@ struct GameSummarySheetView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.displayScale) private var displayScale
     var showRevancheButton: Bool
-    var HistoryMode: Bool
+    @Binding var allowEditing: Bool
 
     private var currentGame: Game? {
         network.games.first(where: { $0.id == currentGameId })
@@ -90,7 +90,7 @@ struct GameSummarySheetView: View {
                     currentGameId: currentGameId,
                     profiles: profiles,
                     network: network,
-                    allowEditing: !HistoryMode
+                    allowEditing: $allowEditing
                 )
                 .padding(.bottom, -50)
             default:
@@ -129,7 +129,7 @@ struct GameSummarySheetView: View {
         GameSummaryBottomToolbar(
             renderedImage: renderedImage,
             currentGame: currentGame,
-            HistoryMode: HistoryMode,
+            allowEditing: $allowEditing,
             showDeleteGameAlert: $showDeleteGameAlert,
             showGameOverViewSheetView: $showGameOverViewSheetView,
             network: network,
@@ -150,6 +150,7 @@ struct GameSummarySheetView: View {
         if showRevancheButton {
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
+                    
                     revanche = true
                     showGameOverViewSheetView = false
                 } label: {
@@ -166,7 +167,7 @@ struct GameSummaryBottomToolbar: ToolbarContent {
     //@Namespace private var ShareSheetSpace
     let renderedImage: Image?
     let currentGame: Game?
-    let HistoryMode: Bool
+    @Binding var allowEditing: Bool
     @Binding var showDeleteGameAlert: Bool
     @Binding var showGameOverViewSheetView: Bool
     @ObservedObject var network: NetworkService
@@ -203,7 +204,7 @@ struct GameSummaryBottomToolbar: ToolbarContent {
             }
         }
 
-        if !HistoryMode {
+        if allowEditing {
             ToolbarSpacer(placement:.bottomBar)
             ToolbarItem(placement: .bottomBar) {
                 Button {

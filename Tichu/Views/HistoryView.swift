@@ -139,7 +139,7 @@ struct HistoryView: View {
                                             currentGameId: game.id,
                                             profiles: network.profiles,
                                             network: network,
-                                            allowEditing: false
+                                            allowEditing: .constant(false)
                                         ).onAppear {
                                             print("\(game.id)")
                                             let renderer = ImageRenderer(content: GameSummaryShareView(
@@ -202,7 +202,7 @@ struct HistoryView: View {
                     network: network,
                     selectedTab: $sheetSelectedTab,
                     showRevancheButton: false,
-                    HistoryMode: true
+                    allowEditing: .constant(false)
                 ).navigationTransition(.zoom(sourceID: "\(game.id)", in: historySpace))
             }
             .toolbarTitleDisplayMode(.inlineLarge)

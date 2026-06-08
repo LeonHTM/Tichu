@@ -25,6 +25,7 @@ struct Game: Identifiable, Decodable, Equatable {
     var currentPointsTeam2: Int
 
     var winner: Int?
+    var calculated: Bool = false
 
     enum CodingKeys: String, CodingKey {
         case favorite
@@ -33,25 +34,26 @@ struct Game: Identifiable, Decodable, Equatable {
         case team2Player1Id, team2Player2Id
         case currentPointsTeam1, currentPointsTeam2
         case winner
+        case calculated
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        favorite             = try container.decodeIfPresent(Bool.self,   forKey: .favorite)          ?? false
-        id                   = try container.decode(Int.self,             forKey: .id)
-        date                 = try container.decode(Date.self,            forKey: .date)
-        target               = try container.decode(Int.self,             forKey: .target)
-        allowPingus          = try container.decode(Bool.self,            forKey: .allowPingus)
-        team1Player1Id       = try container.decodeIfPresent(Int.self,    forKey: .team1Player1Id)
-        team1Player2Id       = try container.decodeIfPresent(Int.self,    forKey: .team1Player2Id)
-        team2Player1Id       = try container.decodeIfPresent(Int.self,    forKey: .team2Player1Id)
-        team2Player2Id       = try container.decodeIfPresent(Int.self,    forKey: .team2Player2Id)
-        currentPointsTeam1   = try container.decode(Int.self,             forKey: .currentPointsTeam1)
-        currentPointsTeam2   = try container.decode(Int.self,             forKey: .currentPointsTeam2)
-        winner               = try container.decodeIfPresent(Int.self,    forKey: .winner)
+        favorite           = try container.decodeIfPresent(Bool.self, forKey: .favorite)          ?? false
+        id                 = try container.decode(Int.self,           forKey: .id)
+        date               = try container.decode(Date.self,          forKey: .date)
+        target             = try container.decode(Int.self,           forKey: .target)
+        allowPingus        = try container.decode(Bool.self,          forKey: .allowPingus)
+        team1Player1Id     = try container.decodeIfPresent(Int.self,  forKey: .team1Player1Id)
+        team1Player2Id     = try container.decodeIfPresent(Int.self,  forKey: .team1Player2Id)
+        team2Player1Id     = try container.decodeIfPresent(Int.self,  forKey: .team2Player1Id)
+        team2Player2Id     = try container.decodeIfPresent(Int.self,  forKey: .team2Player2Id)
+        currentPointsTeam1 = try container.decode(Int.self,           forKey: .currentPointsTeam1)
+        currentPointsTeam2 = try container.decode(Int.self,           forKey: .currentPointsTeam2)
+        winner             = try container.decodeIfPresent(Int.self,  forKey: .winner)
+        calculated         = try container.decodeIfPresent(Bool.self, forKey: .calculated) ?? false
     }
 
-    // Memberwise init still needed for places that construct Game directly
     init(
         favorite: Bool = false,
         id: Int,
@@ -64,7 +66,8 @@ struct Game: Identifiable, Decodable, Equatable {
         team2Player2Id: Int? = nil,
         currentPointsTeam1: Int,
         currentPointsTeam2: Int,
-        winner: Int? = nil
+        winner: Int? = nil,
+        calculated: Bool = false
     ) {
         self.favorite           = favorite
         self.id                 = id
@@ -78,6 +81,7 @@ struct Game: Identifiable, Decodable, Equatable {
         self.currentPointsTeam1 = currentPointsTeam1
         self.currentPointsTeam2 = currentPointsTeam2
         self.winner             = winner
+        self.calculated         = calculated
     }
 
     static func == (lhs: Game, rhs: Game) -> Bool {

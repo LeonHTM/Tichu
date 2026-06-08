@@ -242,6 +242,7 @@ final class SocketService: ObservableObject {
             Task { @MainActor in
                 if !NetworkService.shared.games.contains(where: { $0.id == game.id }) {
                     withAnimation(.easeInOut) {
+                        print("game created: appening now \(game.id)")
                         NetworkService.shared.games.append(game)
                     }
                 }
@@ -335,6 +336,17 @@ final class SocketService: ObservableObject {
                 Task {
                     await NetworkService.shared.fetchGame(gameId: gameId)
                     await NetworkService.shared.fetchGameRounds(gameId: gameId)
+                }
+            }
+        }
+        
+        
+        socket.on("game_finished") { data, _ in
+            guard let gameId = (data.first as? [String: Any])?["game_id"] as? Int else { return }
+            Task {
+                if gameId == NetworkService.shared.currentGameId{
+                    NetworkService.shared.finishGameEditing = false
+                    print("RECIEVED GAME FINISHED CALL ")
                 }
             }
         }
