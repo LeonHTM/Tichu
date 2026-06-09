@@ -84,7 +84,7 @@ struct AddPlayersSheetView: View {
                     playersRows
                 }
             }
-            .padding(.top, showMenu ? 0 : showGuest ? 0 : -45)
+            //.padding(.top, showMenu == false ? 0 : showGuest ? 0 : -45)
             .listSectionSpacing(0)
             .animation(.easeInOut, value: searchText)
             .navigationTitle(
@@ -99,13 +99,13 @@ struct AddPlayersSheetView: View {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", systemImage: "xmark") {
                             showAddPlayersSheet = false
-                        }
+                        }.searchable(text: $searchText)
                     }
                 }
             }
             
         }
-        .searchable(text: $searchText)
+        
     }
 
     // MARK: - Guest Row
@@ -151,7 +151,7 @@ struct AddPlayersSheetView: View {
                     sortMenu(active: friendsFilterActive, binding: $sortByFriends, showDateOptions: false)
                 }
             }
-            .padding(.top, 20)
+            //.padding(.top, 20)
         }
         .listRowBackground(Color.clear)
     }
@@ -176,7 +176,7 @@ struct AddPlayersSheetView: View {
                     sortMenu(active: playersFilterActive, binding: $sortByPlayers, showDateOptions: false)
                 }
             }
-            .padding(.top, 20)
+            //.padding(.top,showFriends == true && !sortedFriends.isEmpty ? 20 : 0)
         }
         .listRowBackground(Color.clear)
     }
@@ -226,11 +226,14 @@ struct AddPlayersSheetView: View {
                 )
                 Text(profile?.name ?? "Unknown")
                 Spacer()
-                if inGame || isAdded {
+                if (inGame || isAdded) && showGuest {
                     Text("Currently in a Game")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
-                } else if let elo = profile?.elo {
+                } else if showGuest == false && isAdded {
+                    Text("Currently comparing") .foregroundStyle(.secondary)
+                        .font(.system(size: 16))
+                }else if let elo = profile?.elo {
                     Text("\(Int(elo))")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))

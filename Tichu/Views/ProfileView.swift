@@ -25,9 +25,6 @@ struct ProfileView: View {
     @ObservedObject private var network = NetworkService.shared
     @StateObject private var socket = SocketService.shared
 
-
-  
-    
     // MARK: - Sheet & Alert Presentation
     @State private var showNameSheet: Bool = false
     @State private var showFriendsSheet: Bool = false
@@ -65,16 +62,14 @@ struct ProfileView: View {
             Spacer()
             VStack {
                 ZStack {
-                    
-                        ZStack{
-                            ProfileImage(data: userImageData, size: 100)
-                                .shadow(radius: 10)
-                                .allowsHitTesting(false)
-                            if isUploadingImage{
-                                ProgressView().scaleEffect(2)
-                            }
+                    ZStack{
+                        ProfileImage(data: userImageData, size: 100)
+                            .shadow(radius: 10)
+                            .allowsHitTesting(false)
+                        if isUploadingImage{
+                            ProgressView().scaleEffect(2)
                         }
-                    
+                    }
                     
                     PhotosPicker(selection: $pickerItem, matching: .images) {
                         Image(systemName: "camera.fill")
@@ -91,18 +86,13 @@ struct ProfileView: View {
                                 isUploadingImage = false
                                 return
                             }
-                            
                             if let data = try? await pickerItem.loadTransferable(type: Data.self) {
-                                
                                 await network.uploadProfileImage(profileId: userId, imageData: data)
-                                
-                                
-                            }else{
+                            } else {
                                 showImageFailAlert = true
                                 isUploadingImage = false
                             }
                             isUploadingImage = false
-                            
                         }
                     }.alert(isPresented:$showImageFailAlert){
                         Alert(
@@ -111,19 +101,15 @@ struct ProfileView: View {
                             dismissButton: .default(Text("OK"))
                         )
                     }
-                      
                 }
-                 
-                    Text("\(userName)")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .allowsHitTesting(false)
-                    
-                    Text("\(Int(userElo))")
-                        .foregroundStyle(.gray)
-                        .fontWeight(.bold)
-                        .allowsHitTesting(false)
-                
+                Text("\(userName)")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .allowsHitTesting(false)
+                Text("\(Int(userElo))")
+                    .foregroundStyle(.gray)
+                    .fontWeight(.bold)
+                    .allowsHitTesting(false)
             }
             Spacer()
         }
@@ -135,11 +121,9 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                if socket.connected{
-                    
+                    if socket.connected {
                         showNameSheet = true
-                        
-                    }else{
+                    } else {
                         showOfflineAlert = true
                     }
                 }
@@ -152,18 +136,18 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showNameSheet ? 90 : 0))
                         .foregroundStyle(.secondary)
                 }
-            }//.matchedTransitionSource(id: "69420", in: profileSpace)
+            }
             .foregroundColor(.primary)
             .sheet(isPresented: $showNameSheet) {
-                NameSheetView(showNameSheet: $showNameSheet,email: "",editMode:true,done:.constant(true))
-                    .presentationDetents([.large])//.navigationTransition(.zoom(sourceID:"69420",in:profileSpace))
+                NameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
+                    .presentationDetents([.large])
             }
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected{
+                    if socket.connected {
                         showFriendsSheet = true
-                    }else{
+                    } else {
                         showOfflineAlert = true
                     }
                 }
@@ -189,14 +173,22 @@ struct ProfileView: View {
             }
             .foregroundStyle(.primary)
             .sheet(isPresented: $showFriendsSheet) {
-                EditFriendsSheetView(
-                    showFriendsSheet: $showFriendsSheet
-                
-                )
-                .presentationDetents([.medium, .large])
+                EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
+                    .presentationDetents([.medium, .large])
             }
+            
+            NavigationLink {
+                GameSettingsView()
+            } label: {
+                Label("Game Settings", systemImage: "gamecontroller.fill")
+                    .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
+            }
+            .foregroundStyle(.primary)
+            
         }
     }
+
+ 
 
     // MARK: - Support Section
     private var supportSection: some View {
@@ -219,7 +211,6 @@ struct ProfileView: View {
             .alert("Tichu App doesnt collect any Data!", isPresented: $showPrivacyAlert) {
                 Button(role: .cancel) {
                     withAnimation(.easeInOut(duration: 0.285)) {
-                        
                         showPrivacyAlert = false
                     }
                 } label: {
@@ -279,17 +270,16 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected{
-                        Task{
+                    if socket.connected {
+                        Task {
                             await network.logout(profileId: userId)
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            Task{
-                                await network.login(userId:2)
+                            Task {
+                                await network.login(userId: 2)
                             }
-                            
                         }
-                    }else{
+                    } else {
                         showOfflineAlert = true
                     }
                 }
@@ -307,12 +297,11 @@ struct ProfileView: View {
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected{
-                        Task{
+                    if socket.connected {
+                        Task {
                             await network.logout(profileId: userId)
-                            
                         }
-                    }else{
+                    } else {
                         showOfflineAlert = true
                     }
                 }
@@ -334,9 +323,9 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected{
+                    if socket.connected {
                         showDeleteAlert = true
-                    }else{
+                    } else {
                         showOfflineAlert = true
                     }
                 }
@@ -355,13 +344,10 @@ struct ProfileView: View {
             .alert("Do you really want to delete your Account?", isPresented: $showDeleteAlert) {
                 Button(role: .destructive) {
                     withAnimation(.easeInOut(duration: 0.285)) {
-                        Task{
+                        Task {
                             await network.deleteProfile(profileId: userId)
-                            //await network.logout(profileId: userId)
-                            
                         }
                         showDeleteAlert = false
-                    
                     }
                 } label: {
                     Text("Delete")
@@ -393,6 +379,99 @@ struct ProfileView: View {
         }
         .listRowBackground(Color.clear)
     }
+}
+
+// MARK: - Game Settings View
+struct GameSettingsView: View {
+    @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
+    @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
+    @AppStorage("showRoundAnimations") private var showRoundAnimations: Bool = true
+    @AppStorage("hapticFeedback") private var hapticFeedback: Bool = true
+    @AppStorage("dragMode") var dragMode: Bool = false
+
+    var body: some View {
+        List {
+
+            Section("Defaults") {
+                Picker("Default Target", selection: $defaultTarget) {
+                    Text("250").tag(250)
+                    Text("500").tag(500)
+                    Text("1000").tag(1000)
+                    Text("2000").tag(2000)
+                    Text("10000").tag(10000)
+                }
+            }
+
+            Section {
+                Toggle("Show Pingus", isOn: $defaultAllowPingus)
+            } footer: {
+                Text("Show the option to announce drunken Pingus")
+            }
+
+            Section {
+                Toggle("Drag Mode", isOn: $dragMode)
+            } footer: {
+                Text("When adding a round instead of tapping on Players to set their order, you drag them in a list.")
+            }
+            /*
+            Section() {
+                Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
+                    HStack {
+                        Text("Notification Settings")
+                        Spacer()
+                       
+                    }
+                }
+            }*/
+            
+            Section("How to Play?") {
+                NavigationLink {
+                    TichuRulesPDFView()
+                } label: {
+                    Label("Official Tichu Rules", systemImage: "book.fill").labelStyle(ColorfulIconLabelStyle(color: .green, fontSize: 14))
+                }
+            }
+
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle("Game Settings")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+import SwiftUI
+import PDFKit
+
+struct TichuRulesPDFView: View {
+    var body: some View {
+        PDFKitView()
+            .navigationTitle("Tichu Rules")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PDFKitView: UIViewRepresentable {
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+
+        pdfView.autoScales = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displayDirection = .vertical
+
+
+        if let url = Bundle.main.url(
+            forResource: "spielregeln-tichu",
+            withExtension: "pdf"
+        ) {
+            pdfView.document = PDFDocument(url: url)
+        }
+        
+        pdfView.displayBox = .cropBox
+        
+        return pdfView
+    }
+
+    func updateUIView(_ uiView: PDFView, context: Context) {}
 }
 
 #Preview {

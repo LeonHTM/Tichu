@@ -168,7 +168,7 @@ struct HistoryView: View {
                             Color.clear.frame(height: bottomPadding)
                         }
                         .scrollTargetLayout()
-                    }
+                    }.scrollEdgeEffectStyle(.soft, for: .all)
                     .scrollPosition(id: $scrolledGameId, anchor: .center)
                     .scrollTargetBehavior(RowSnappingBehavior(rowHeight: rowHeight))
                     .background(Color(uiColor: .systemGroupedBackground))
@@ -267,7 +267,7 @@ struct HistoryView: View {
             HStack {
                 Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
                     .fontWeight(.bold)
-                    .font(.title2)
+                    .font(.title3)
                     .padding(.horizontal, 10)
 
                 VStack(alignment: .leading) {
@@ -445,3 +445,4 @@ struct HistoryView: View {
 #Preview {
     HistoryView(selectedGameId: .constant(nil),scrolledGameId: .constant(nil))
 }
+

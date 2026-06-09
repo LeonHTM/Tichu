@@ -393,14 +393,14 @@ struct TichuWidgets: Widget {
 }
 
 
-#Preview(as: .accessoryRectangular) {
+#Preview(as: .accessoryInline) {
     TichuWidgets()
 } timeline: {
     TichuWidgetEntry(
         date: .now,
         title: "Big Gambler",
         description: "Success ratio",
-        image: "exclamationmark.2.circle",
+        image: "bomb.fill",
         value: 0.1,
         percentage: true
     )

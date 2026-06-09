@@ -15,6 +15,8 @@ struct PlayView: View {
     @AppStorage("userName") var userName: String = "Storage - Unknown"
     @AppStorage("userElo") var userElo: Double = 404
     @AppStorage("isLoading") var isLoading: Bool = false
+    @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
+    @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
 
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
@@ -42,7 +44,7 @@ struct PlayView: View {
     @State private var player4Id: Int?
 
     @State private var target: Int = 1000
-    @State private var allowPingus: Bool = true
+    @State private var allowPingusState: Bool = true
 
     @FocusState private var targetFieldFocused: Bool
 
@@ -53,7 +55,7 @@ struct PlayView: View {
         guard let id = network.currentGameId else { return nil }
         return network.games.first { $0.id == id }
     }
-
+    
     private var player1: Profile? {
         network.profiles.first { $0.id == userId }
     }
@@ -95,7 +97,7 @@ struct PlayView: View {
             Task {
                 let game = await network.addGame(
                     target: target,
-                    allowPingus: allowPingus,
+                    allowPingus: allowPingusState,
                     team1Player1Id: userId,
                     team1Player2Id: player2Id,
                     team2Player1Id: player3Id,
@@ -128,8 +130,11 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players.disabled(isLoading)
+                    }.scrollEdgeEffectStyle(.soft, for: .all)
+                    .onAppear {
+                        allowPingusState = defaultAllowPingus
+                        target = defaultTarget
                     }
-                
                     .refreshable {
                         await network.fetch()
                     }
@@ -1070,8 +1075,10 @@ struct PlayView: View {
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
                 }
-                Toggle(isOn: $allowPingus) {
-                    Text("Allow Pingus")
+                if defaultAllowPingus == true{
+                    Toggle(isOn: $allowPingusState) {
+                        Text("Allow Pingus")
+                    }
                 }
             } label: {
                 Image(systemName: "gear").font(.system(size: 24))
@@ -1084,3 +1091,4 @@ struct PlayView: View {
         }
     }
 }
+

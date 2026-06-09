@@ -346,6 +346,9 @@ final class SocketService: ObservableObject {
             Task {
                 if gameId == NetworkService.shared.currentGameId{
                     NetworkService.shared.finishGameEditing = false
+                    Task{
+                        await NetworkService.shared.fetchSelectedProfilesStats()
+                    }
                     print("RECIEVED GAME FINISHED CALL ")
                 }
             }

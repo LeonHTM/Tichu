@@ -11,6 +11,7 @@ struct NameSheetView: View {
 
     // MARK: - Bindings
     @Binding var showNameSheet: Bool
+    @State private var loginWait: Bool = false
     var email: String
     var editMode: Bool
     @Binding var done: Bool
@@ -54,6 +55,10 @@ struct NameSheetView: View {
 
     
     private var isAllValid: Bool {
+        isLengthValid && isCharsetValid && isAvailable && isNotGuest
+    }
+    
+    private var isAllValidEdit: Bool {
         isLengthValid && isCharsetValid && isAvailable && isNotGuest && downTime <= 0
     }
     
@@ -122,14 +127,19 @@ struct NameSheetView: View {
                         }else{
                             Task {
                                 if let id = await network.addProfile(email: email,name:newName) {
+                                    loginWait = true
                                     await network.login(userId:id)
+                                    loginWait = false
                                 }
                             }
                         }
                     }label:{
                         HStack{
                             Spacer()
-                            Text("Create Account")
+                            if loginWait{
+                                ProgressView()
+                            }
+                            Text(loginWait ? "Creating Account..." :"Create Account")
                             Spacer()
                         }
                     }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
@@ -161,7 +171,7 @@ struct NameSheetView: View {
                                 showNameSheet = false
                             }
                         }
-                        .disabled(!isAllValid)
+                        .disabled(!isAllValidEdit)
                         
                     }
                 }

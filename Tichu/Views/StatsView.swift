@@ -49,7 +49,7 @@ struct StatsView: View {
                 statsGrid
                     .animation(.easeInOut, value: compareList.map { $0 })
                     .padding()
-            }
+            }.scrollEdgeEffectStyle(.soft, for: .all)
             .sheet(isPresented: $showAddPlayersSheet, onDismiss: {
                 withAnimation(.easeInOut) {
                     if !compareList.contains(where: { $0 == addPlayerId }) && addPlayerId != nil {

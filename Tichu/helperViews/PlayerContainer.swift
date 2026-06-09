@@ -41,44 +41,67 @@ struct PlayerContainer: View {
                     } label: {
                         Text("Tichu").foregroundColor(.primary)
                     }
+                    
                     .padding(10)
                     .glassEffect(hasAnnounced == .tichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
 
                     Button {
                         hasAnnounced = hasAnnounced == .bigTichu ? .none : .bigTichu
                     } label: {
+      
                         Text("Big Tichu").foregroundColor(.primary)
+           
                     }
+                    
                     .padding(10)
                     .glassEffect(hasAnnounced == .bigTichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
 
                 HStack {
-                    Button {
-                        hasAnnounced = hasAnnounced == .pingu ? .none : .pingu
-                    } label: {
-                        Text("Pingu").foregroundColor(.primary)
-                    }
-                    .padding(10)
-                    .glassEffect(
-                        hasAnnounced == .pingu
+                    if allowPingus{
+                        Button {
+                            hasAnnounced = hasAnnounced == .pingu ? .none : .pingu
+                        } label: {
+                            Text("Pingu").foregroundColor(.primary)
+                        }
+                        .padding(10)
+                        .glassEffect(
+                            hasAnnounced == .pingu
                             ? .regular.tint(.accentColor).interactive()
                             : !allowPingus
-                                ? .regular.tint(.secondary).interactive()
-                                : .regular.interactive()
-                    )
-                    .disabled(!allowPingus)
+                            ? .regular.tint(.secondary).interactive()
+                            : .regular.interactive()
+                        )
+                        .disabled(!allowPingus)
+                    }
 
                     Button {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
+                        
                         Text("Bombs: \(bombNumber)").foregroundColor(.primary)
+                       
                     }
                     .padding(10)
                     .glassEffect(bombNumber > 0 ? .regular.tint(.accentColor).interactive() : .regular.interactive())
+                  
                 }
+                
             }
             .padding(10)
         }
     }
+}
+
+
+#Preview {
+    PlayerContainer(
+        player: Profile(),
+        teamIds: [12,13],
+        allowPingus: true,
+        isTeam1: true,
+        hasAnnounced: .constant(.tichu),
+        bombNumber: .constant(1)
+    )
+    .environment(\.colorScheme, .light)
 }
