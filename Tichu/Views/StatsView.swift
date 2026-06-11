@@ -15,6 +15,7 @@ struct StatsView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userName") var userName: String = "Unknown"
     @Environment(\.colorScheme) var colorScheme
+    @State private var showDebugSheetView: Bool = false
     
     // MARK: - State
     @State private var showAddPlayersSheet: Bool = false
@@ -86,10 +87,26 @@ struct StatsView: View {
             .navigationTitle("Statistics")
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
+                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                    ToolbarItem {
+                        Button { showDebugSheetView = true } label: {
+                            Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     NavigationProfileImage()
                 }
                 .sharedBackgroundVisibility(.hidden)
+            }
+            .sheet(isPresented: $showDebugSheetView) {
+                DebugSheetView(
+                    currentGame: Binding(
+                        get: { network.games.first(where: { $0.id == network.currentGameId }) ?? Game(favorite: false,id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0) },
+                        set: { network.currentGameId = $0.id }
+                    ),
+                    showDebugSheetView: $showDebugSheetView
+                )
             }
             .safeAreaInset(edge: .top) { timeFilterChips }
             .safeAreaInset(edge: .bottom) { bottomBar }

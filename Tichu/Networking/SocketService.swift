@@ -172,6 +172,25 @@ final class SocketService: ObservableObject {
                 }
             }
         }
+        
+        socket.on("admin_updated"){data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let profileId = dict["profile_id"] as? Int,
+                  let isAdmin = dict["admin"] as? Bool else {
+                      print("failed")
+                      return }
+            
+            DispatchQueue.main.async {
+                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.profiles[index].isAdmin = isAdmin
+                       
+                    }
+                }
+            }
+            
+            
+        }
     
         // FRIEND REQUEST SENT
         socket.on("friend_request_sent") { data, ack in

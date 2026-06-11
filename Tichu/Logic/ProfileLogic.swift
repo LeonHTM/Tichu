@@ -53,6 +53,7 @@ struct Profile: Identifiable, Equatable, Codable {
     var profileImageUrl: String?
     var imageData: Data?
     var elo: Double?
+    var isAdmin: Bool?
 
     var allTime: ProfileStats
     var year:    ProfileStats
@@ -64,6 +65,7 @@ struct Profile: Identifiable, Equatable, Codable {
         case id, name
         case profileImageUrl = "profile_image_url"
         case elo
+        case isAdmin = "is_admin"
         case allTime = "all_time"
         case year, month, week, day
     }
@@ -90,6 +92,7 @@ struct Profile: Identifiable, Equatable, Codable {
         profileImageUrl: String? = nil,
         imageData: Data? = nil,
         elo: Double? = nil,
+        isAdmin: Bool? = nil,
         allTime: ProfileStats = .empty,
         year:    ProfileStats = .empty,
         month:   ProfileStats = .empty,
@@ -101,6 +104,7 @@ struct Profile: Identifiable, Equatable, Codable {
         self.profileImageUrl = profileImageUrl
         self.imageData = imageData
         self.elo = elo
+        self.isAdmin = isAdmin
         self.allTime = allTime
         self.year    = year
         self.month   = month
@@ -110,16 +114,17 @@ struct Profile: Identifiable, Equatable, Codable {
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        id             = try c.decode(Int.self, forKey: .id)
-        name           = try c.decodeIfPresent(String.self, forKey: .name)
+        id              = try c.decode(Int.self, forKey: .id)
+        name            = try c.decodeIfPresent(String.self, forKey: .name)
         profileImageUrl = try c.decodeIfPresent(String.self, forKey: .profileImageUrl)
-        elo            = try c.decodeIfPresent(Double.self, forKey: .elo)
-        allTime        = try c.decodeIfPresent(ProfileStats.self, forKey: .allTime) ?? .empty
-        year           = try c.decodeIfPresent(ProfileStats.self, forKey: .year)    ?? .empty
-        month          = try c.decodeIfPresent(ProfileStats.self, forKey: .month)   ?? .empty
-        week           = try c.decodeIfPresent(ProfileStats.self, forKey: .week)    ?? .empty
-        day            = try c.decodeIfPresent(ProfileStats.self, forKey: .day)     ?? .empty
-        imageData      = nil
+        elo             = try c.decodeIfPresent(Double.self, forKey: .elo)
+        isAdmin         = try c.decodeIfPresent(Bool.self, forKey: .isAdmin)
+        allTime         = try c.decodeIfPresent(ProfileStats.self, forKey: .allTime) ?? .empty
+        year            = try c.decodeIfPresent(ProfileStats.self, forKey: .year)    ?? .empty
+        month           = try c.decodeIfPresent(ProfileStats.self, forKey: .month)   ?? .empty
+        week            = try c.decodeIfPresent(ProfileStats.self, forKey: .week)    ?? .empty
+        day             = try c.decodeIfPresent(ProfileStats.self, forKey: .day)     ?? .empty
+        imageData       = nil
     }
 
     func stats(for timeframe: Timeframe) -> ProfileStats {

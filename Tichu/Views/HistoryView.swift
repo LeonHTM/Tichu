@@ -208,10 +208,11 @@ struct HistoryView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
             .toolbar {
-                ToolbarItem {
-                    Button { showDebugSheetView = true } label: {
-                        Image(systemName: "ant")
-                            .foregroundStyle(socket.connected ? Color.green : Color.red)
+                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                    ToolbarItem {
+                        Button { showDebugSheetView = true } label: {
+                            Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -339,10 +340,11 @@ struct HistoryView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
             .toolbar {
-                ToolbarItem {
-                    Button { showDebugSheetView = true } label: {
-                        Image(systemName: "ant")
-                            .foregroundStyle(socket.connected ? Color.green : Color.red)
+                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                    ToolbarItem {
+                        Button { showDebugSheetView = true } label: {
+                            Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarTrailing) {

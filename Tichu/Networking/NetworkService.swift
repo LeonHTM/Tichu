@@ -26,6 +26,11 @@ class NetworkService: ObservableObject {
     @AppStorage("isLoading") var isLoading: Bool = false
     @AppStorage("statsList") private var statsList: [Int] = []
     @AppStorage("favDic") private var favDic: [Int:Int] = [:]
+    @AppStorage("defaultTarget") var defaultTarget: Int = 1000
+    @AppStorage("defaultAllowPingus") var defaultAllowPingus: Bool = true
+    @AppStorage("dragMode") var dragMode: Bool = false
+    @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    
     
     
     @Published var currentGameId: Int? = nil
@@ -114,10 +119,12 @@ class NetworkService: ObservableObject {
                     self.authToken = token
                     self.userId = userId
                 }
-               
-                isLoading = true
-                await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
-                isLoading = false
+                Task{
+                    isLoading = true
+                    await registerDevice(profileId: userId, deviceToken: pendingDeviceToken)
+                    await NetworkService.shared.fetch()
+                    isLoading = false
+                }
                 
 
                 return true
@@ -126,10 +133,7 @@ class NetworkService: ObservableObject {
         } catch {
             print("login error: \(error)")
         }
-           
-        Task {
-            await NetworkService.shared.fetch()
-        }
+      
             
 
         return false
@@ -193,6 +197,15 @@ class NetworkService: ObservableObject {
                             self.profiles[index].name = newProfile.name
                             self.profiles[index].profileImageUrl = newProfile.profileImageUrl
                             self.profiles[index].elo = newProfile.elo
+                            
+                            if newProfile.id == userId{
+                               
+                                self.userImageData = newProfile.imageData
+                                self.userName = newProfile.name ?? "Unknown"
+                                self.userElo = newProfile.elo ?? 1000
+                                
+                            }
+                            
                         } else {
                             self.profiles.append(newProfile)
                         }
@@ -261,11 +274,83 @@ class NetworkService: ObservableObject {
                 self.userName = "Unknown"
                 self.userImageData = nil
                 self.userElo = 1000
+                self.statsList = []
+                self.defaultTarget = 1000
+                self.dragMode = false
+                self.defaultAllowPingus = true
+                
             }
         } catch {
             print("logout error: \(error)")
         }
     }
+    
+    
+    // MARK: - Profile Settings
+
+    func fetchProfileSettings(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+
+            await MainActor.run {
+                if let target = json?["default_target"] as? Int {
+                    self.defaultTarget = target
+                }
+                if let showPingu = json?["show_pingu"] as? Bool {
+                    self.defaultAllowPingus = showPingu
+                }
+                if let drag = json?["drag_mode"] as? Bool {
+                    self.dragMode = drag
+                }
+                if let showAllPlayers = json?["show_all_players"] as? Bool {
+                    self.showAllPlayers = showAllPlayers
+                }
+            }
+        } catch {
+            print("fetchProfileSettings error: \(error)")
+        }
+    }
+
+    func updateProfileSettings(profileId: Int, target: Int, showPingu: Bool, dragMode: Bool, showAllPlayers: Bool) async {
+        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
+
+        let body: [String: Any] = [
+            "default_target": target,
+            "show_pingu": showPingu,
+            "drag_mode": dragMode,
+            "show_all_players": showAllPlayers
+        ]
+
+        var request = authorizedRequest(url: url, method: "PATCH")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+
+        do {
+            try await URLSession.shared.data(for: request)
+        } catch {
+            print("updateProfileSettings error: \(error)")
+        }
+    }
+    
+    
+    
+    
+    func isAdmin(profileId: Int) async -> Bool {
+        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/is_admin") else { return false }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            return json?["is_admin"] as? Bool ?? false
+        } catch {
+            print("isAdmin error: \(error)")
+            return false
+        }
+    }
+    
 
     func addProfile(email: String, name: String) async -> Int? {
         guard let url = URL(string: "\(baseURL)/add_profile") else { return nil }
@@ -604,19 +689,16 @@ class NetworkService: ObservableObject {
                         await MainActor.run {
                             let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
 
+                            
+                            //Store information in Shared Storgare
                             guard let profile = self.profiles.first(where: { $0.id == self.userId }) else { return }
 
-                            if let imageData = self.profileImages[profileId] {
-                                self.userImageData = imageData
-                            }
 
                             if let name = profile.name {
-                                self.userName = name
                                 defaults?.set(name, forKey: "userName")
                             }
 
                             if let elo = profile.elo {
-                                self.userElo = elo
                                 defaults?.set(elo, forKey: "userElo")
                             }
 
@@ -648,21 +730,21 @@ class NetworkService: ObservableObject {
     }
     
     func fetch() async {
-        
         isLoading = true
         let currentUserId = await MainActor.run { userId }
 
+        // Wave 1: all independent fetches in parallel
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await self.fetchProfiles() }
+            group.addTask { await self.fetchFriends(profileId: currentUserId) }
+            group.addTask { await self.fetchFriendRequests(profileId: currentUserId) }
+            group.addTask { await self.fetchProfileGames(profileId: currentUserId) }
+            group.addTask { await self.fetchEloHistory(profileId: currentUserId) }
+            group.addTask { await self.fetchProfileSettings(profileId: currentUserId) }
+        }
 
-        await fetchProfiles()
-        await fetchFriends(profileId: currentUserId)
-        await fetchFriendRequests(profileId: currentUserId)
-        await fetchProfileGames(profileId: currentUserId)
-        await fetchEloHistory(profileId: currentUserId)
-        
+        // Wave 2: depends on profiles being loaded
         await fetchSelectedProfilesStats()
-        
-        
-        
 
         isLoading = false
     }

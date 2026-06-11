@@ -1,5 +1,5 @@
 //
-//  AdPlayersSheetView.swift
+//  AddPlayersSheetView.swift
 //  Tichu
 //
 //  Created by Leon on 23.04.2026.
@@ -19,6 +19,7 @@ struct AddPlayersSheetView: View {
     var guestIndex: Int
     var showMenu: Bool
     @AppStorage("userId") var userId: Int = -69420
+    @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
     @StateObject private var socket = SocketService.shared
 
     // MARK: - State
@@ -29,10 +30,13 @@ struct AddPlayersSheetView: View {
     @State private var sortByPlayers: sortBy.sortBy = .nameDown
     @State private var showPlayerInGameAlert: Bool = false
     @State private var inGameStatus: [Int: Bool] = [:]
+    @State private var isLoadingStatus: Bool = true
+    @State private var hideUnavailableFriends: Bool = true
+    @State private var hideUnavailablePlayers: Bool = true
 
     // MARK: - Computed
-    var friendsFilterActive: Bool { sortByFriends != .nameDown }
-    var playersFilterActive: Bool { sortByPlayers != .nameDown }
+    var friendsFilterActive: Bool { sortByFriends != .nameDown || hideUnavailableFriends }
+    var playersFilterActive: Bool { sortByPlayers != .nameDown || hideUnavailablePlayers }
 
     var query: String {
         searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -41,6 +45,12 @@ struct AddPlayersSheetView: View {
     var sortedFriends: [Friend] {
         makeItems(
             from: network.friends.filter {
+                if hideUnavailableFriends {
+                    let isAdded = alreadyAdded.contains($0.id)
+                    let inGame = inGameStatus[$0.id] ?? false
+                    if showGuest && (isAdded || inGame) { return false }
+                    if !showGuest && isAdded { return false }
+                }
                 guard !query.isEmpty else { return true }
                 return ($0.profile.name ?? "").range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
@@ -54,8 +64,13 @@ struct AddPlayersSheetView: View {
             from: network.profiles.filter {
                 guard $0.id > 0 else { return false }
                 guard $0.id != userId else { return false }
+                if hideUnavailablePlayers {
+                    let isAdded = alreadyAdded.contains($0.id)
+                    let inGame = inGameStatus[$0.id] ?? false
+                    if showGuest && (isAdded || inGame) { return false }
+                    if !showGuest && isAdded { return false }
+                }
                 guard !query.isEmpty else { return true }
-
                 return ($0.name ?? "")
                     .range(of: query, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             },
@@ -64,38 +79,54 @@ struct AddPlayersSheetView: View {
         )
     }
 
+    // MARK: - Hide unavailable label depending on mode
+    var hideUnavailableLabel: String {
+        if showGuest { return "Hide players in a game" }
+        if showFriends { return "Hide already comparing" }
+        return "Hide existing friends"
+    }
+
     // MARK: - Body
     var body: some View {
         NavigationStack {
             List {
-                if query.isEmpty {
-                    if showGuest { guestRow }
-                } else if sortedFriends.isEmpty && sortedPlayers.isEmpty {
-                    noResultsRow
-                }
+                if isLoadingStatus && showGuest {
+                    Section {
+                        HStack {
+                            Spacer()
+                            ProgressView()
+                            Spacer()
+                        }
+                    }
+                    .listRowBackground(Color.clear)
+                } else {
+                    if query.isEmpty {
+                        if showGuest { guestRow }
+                    } else if sortedFriends.isEmpty && sortedPlayers.isEmpty {
+                        noResultsRow
+                    }
 
-                if showFriends {
-                    if !sortedFriends.isEmpty { friendsHeader }
-                    friendsRows
-                }
+                    if showFriends {
+                        if !sortedFriends.isEmpty { friendsHeader }
+                        friendsRows
+                    }
 
-                if showPlayers {
-                    if !sortedPlayers.isEmpty { playersHeader }
-                    playersRows
+                    if showPlayers {
+                        if !sortedPlayers.isEmpty { playersHeader }
+                        playersRows
+                    }
                 }
             }
-            //.padding(.top, showMenu == false ? 0 : showGuest ? 0 : -45)
             .listSectionSpacing(0)
             .animation(.easeInOut, value: searchText)
+            .animation(.easeInOut, value: isLoadingStatus)
             .navigationTitle(
-
                 showMenu == false ? "" : showPlayers && showFriends ? "Add Players" :
                         !showFriends ? "Request Friend" : "Edit Friends"
-                
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                if showMenu == true{
+                if showMenu == true {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("Cancel", systemImage: "xmark") {
                             showAddPlayersSheet = false
@@ -103,9 +134,40 @@ struct AddPlayersSheetView: View {
                     }
                 }
             }
-            
+            .task {
+                guard showGuest else {
+                    isLoadingStatus = false
+                    return
+                }
+                hideUnavailableFriends = !showAllPlayers
+                hideUnavailablePlayers = !showAllPlayers
+                await preloadInGameStatus()
+            }
         }
-        
+    }
+
+    // MARK: - Preload in-game status (only for round-adding mode)
+    private func preloadInGameStatus() async {
+        let ids = network.profiles.map { $0.id } + network.friends.map { $0.id }
+        let uniqueIds = Array(Set(ids)).filter { $0 > 0 && $0 != userId }
+
+        await withTaskGroup(of: (Int, Bool).self) { group in
+            for id in uniqueIds {
+                group.addTask {
+                    let status = await network.isInOpenGame(profileId: id)
+                    return (id, status)
+                }
+            }
+            for await (id, status) in group {
+                await MainActor.run {
+                    inGameStatus[id] = status
+                }
+            }
+        }
+
+        await MainActor.run {
+            isLoadingStatus = false
+        }
     }
 
     // MARK: - Guest Row
@@ -148,10 +210,14 @@ struct AddPlayersSheetView: View {
                 Text("Friends").fontWeight(.bold)
                 Spacer()
                 if sortedFriends.count != 1 {
-                    sortMenu(active: friendsFilterActive, binding: $sortByFriends, showDateOptions: false)
+                    sortMenu(
+                        active: friendsFilterActive,
+                        binding: $sortByFriends,
+                        hideUnavailable: $hideUnavailableFriends,
+                        showDateOptions: false
+                    )
                 }
             }
-            //.padding(.top, 20)
         }
         .listRowBackground(Color.clear)
     }
@@ -173,10 +239,14 @@ struct AddPlayersSheetView: View {
                 Text("All Players").fontWeight(.bold)
                 Spacer()
                 if sortedPlayers.count != 1 {
-                    sortMenu(active: playersFilterActive, binding: $sortByPlayers, showDateOptions: false)
+                    sortMenu(
+                        active: playersFilterActive,
+                        binding: $sortByPlayers,
+                        hideUnavailable: $hideUnavailablePlayers,
+                        showDateOptions: false
+                    )
                 }
             }
-            //.padding(.top,showFriends == true && !sortedFriends.isEmpty ? 20 : 0)
         }
         .listRowBackground(Color.clear)
     }
@@ -189,7 +259,6 @@ struct AddPlayersSheetView: View {
                     Button("Cancel", role: .cancel) {
                         showPlayerInGameAlert = false
                     }
-                  
                 } message: {
                     Text("This Player is already playing a game.")
                 }
@@ -230,16 +299,22 @@ struct AddPlayersSheetView: View {
                     Text("Currently in a Game")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
-                } else if showGuest == false && isAdded {
-                    Text("Currently comparing") .foregroundStyle(.secondary)
+                } else if showGuest == false && showFriends == true && isAdded {
+                    Text("Currently comparing")
+                        .foregroundStyle(.secondary)
                         .font(.system(size: 16))
-                }else if let elo = profile?.elo {
+                } else if showGuest == false && showFriends == false && isAdded {
+                    Text("Already a friend")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 16))
+                } else if let elo = profile?.elo {
                     Text("\(Int(elo))")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 }
             }
         }
+        .disabled(isAdded || (showGuest == true && inGame == true))
         .contextMenu {
             if socket.connected {
                 if isFriend(profileId: profileId) == true {
@@ -261,23 +336,14 @@ struct AddPlayersSheetView: View {
                         Text("Send Friend Request")
                     }
                     .disabled(profileId == userId)
-                    .disabled(inGame)
                 }
             }
         }
-        .disabled(isAdded || inGame)
-        .foregroundColor((isAdded || inGame) ? .secondary : .primary)
-        .task {
-
-            let status = await network.isInOpenGame(profileId: profileId)
-            await MainActor.run {
-                inGameStatus[profileId] = status
-            }
-        }
+        .foregroundColor(((isAdded && showGuest) || (inGame && showGuest)) ? .secondary : .primary)
     }
 
     // MARK: - Sort Menu
-    private func sortMenu(active: Bool, binding: Binding<sortBy.sortBy>, showDateOptions: Bool) -> some View {
+    private func sortMenu(active: Bool, binding: Binding<sortBy.sortBy>, hideUnavailable: Binding<Bool>, showDateOptions: Bool) -> some View {
         Menu {
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .nameDown }
@@ -304,21 +370,16 @@ struct AddPlayersSheetView: View {
                 if binding.wrappedValue == .valueUp { Image(systemName: "checkmark") } else { Image("123.up") }
                 Text("By Value (Low-High)")
             }
+            Divider()
+            Button {
+                withAnimation(.easeInOut) { hideUnavailable.wrappedValue.toggle() }
+            } label: {
+                if hideUnavailable.wrappedValue { Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
+                Text(hideUnavailableLabel)
+            }
         } label: {
             Image(systemName: "line.3.horizontal.decrease.circle").font(.system(size: 20))
         }
         .foregroundColor(active ? .accentColor : .primary)
     }
 }
-
-/*#Preview {
-    AddPlayersSheetView(
-        showAddPlayersSheet: .constant(true),
-        addPlayer: .constant(exampleProfiles[0]),
-        alreadyAdded: [],
-        showGuest: .constant(true),
-        showPlayers: .constant(true),
-        showFriends: .constant(true),
-        guestIndex: 2
-    )
-}*/

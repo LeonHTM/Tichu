@@ -133,8 +133,10 @@ struct ProfileView: View {
                         .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 17))
                     Spacer()
                     Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                            .padding(.trailing,1.2)
                         .rotationEffect(.degrees(showNameSheet ? 90 : 0))
-                        .foregroundStyle(.secondary)
                 }
             }
             .foregroundColor(.primary)
@@ -167,7 +169,9 @@ struct ProfileView: View {
                             .padding(.trailing)
                     }
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                            .padding(.trailing,1.2)
                         .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
             }
@@ -181,14 +185,12 @@ struct ProfileView: View {
                 GameSettingsView()
             } label: {
                 Label("Game Settings", systemImage: "gamecontroller.fill")
-                    .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
+                    .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 11))
             }
             .foregroundStyle(.primary)
             
         }
     }
-
- 
 
     // MARK: - Support Section
     private var supportSection: some View {
@@ -203,7 +205,9 @@ struct ProfileView: View {
                         .labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 15))
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                            .padding(.trailing,1.2)
                         .rotationEffect(.degrees(showPrivacyAlert ? 90 : 0))
                 }
             }
@@ -268,7 +272,7 @@ struct ProfileView: View {
     // MARK: - Auth Section
     private var authSection: some View {
         Section {
-            Button {
+            /*Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if socket.connected {
                         Task {
@@ -293,7 +297,7 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
                 .foregroundStyle(Color.primary)
-            }
+            }*/
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
@@ -311,7 +315,10 @@ struct ProfileView: View {
                         .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                            .padding(.trailing,1.2)
+                      
                 }
                 .foregroundColor(.primary)
             }
@@ -336,8 +343,10 @@ struct ProfileView: View {
                         .foregroundStyle(.red)
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(showDeleteAlert ? 90 : 0))
+                        .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.tertiary)
+                            .padding(.trailing,1.2)
+                        .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
             }
             .foregroundStyle(.secondary)
@@ -385,14 +394,14 @@ struct ProfileView: View {
 struct GameSettingsView: View {
     @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
     @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
-    @AppStorage("showRoundAnimations") private var showRoundAnimations: Bool = true
-    @AppStorage("hapticFeedback") private var hapticFeedback: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
+    @AppStorage("userId") private var userId: Int = -69420
+    @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    private let network = NetworkService.shared
 
     var body: some View {
         List {
-
-            Section("Defaults") {
+            Section {
                 Picker("Default Target", selection: $defaultTarget) {
                     Text("250").tag(250)
                     Text("500").tag(500)
@@ -400,42 +409,79 @@ struct GameSettingsView: View {
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
                 }
-            }
-
-            Section {
-                Toggle("Show Pingus", isOn: $defaultAllowPingus)
-            } footer: {
-                Text("Show the option to announce drunken Pingus")
-            }
-
-            Section {
+                Toggle("Show drunken Pingus", isOn: $defaultAllowPingus)
                 Toggle("Drag Mode", isOn: $dragMode)
+            } header: {
+                Text("Game - Defaults")
             } footer: {
-                Text("When adding a round instead of tapping on Players to set their order, you drag them in a list.")
+                Text("When adding a round instead of tapping on Players to set their order, drag them in a list.")
             }
-            /*
-            Section() {
-                Link(destination: URL(string: UIApplication.openSettingsURLString)!) {
-                    HStack {
-                        Text("Notification Settings")
-                        Spacer()
-                       
-                    }
-                }
-            }*/
-            
+
+            Section {
+                Toggle("Show All Players", isOn: $showAllPlayers)
+            } header: {
+                Text("Players - Defaults")
+            }footer: {
+                Text("Always show all Players when viewing Players in the app, even when they are not avialable because they are in a game, being already compared or already a friend.")
+            }
+
             Section("How to Play?") {
                 NavigationLink {
                     TichuRulesPDFView()
                 } label: {
-                    Label("Official Tichu Rules", systemImage: "book.fill").labelStyle(ColorfulIconLabelStyle(color: .green, fontSize: 14))
+                    Label("Official Tichu Rules", systemImage: "book.fill")
+                        .labelStyle(ColorfulIconLabelStyle(color: .green, fontSize: 14))
                 }
             }
-
         }
         .listStyle(.insetGrouped)
         .navigationTitle("Game Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: defaultTarget) { _, newValue in
+            Task {
+                await network.updateProfileSettings(
+                    profileId: userId,
+                    target: newValue,
+                    showPingu: defaultAllowPingus,
+                    dragMode: dragMode,
+                    showAllPlayers: showAllPlayers
+                )
+            }
+        }
+        .onChange(of: defaultAllowPingus) { _, newValue in
+            Task {
+                await network.updateProfileSettings(
+                    profileId: userId,
+                    target: defaultTarget,
+                    showPingu: newValue,
+                    dragMode: dragMode,
+                    showAllPlayers: showAllPlayers
+                )
+            }
+        }
+        .onChange(of: dragMode) { _, newValue in
+            Task {
+                await network.updateProfileSettings(
+                    profileId: userId,
+                    target: defaultTarget,
+                    showPingu: defaultAllowPingus,
+                    dragMode: newValue,
+                    showAllPlayers: showAllPlayers
+                )
+            }
+        }
+        
+        .onChange(of: showAllPlayers) { _, newValue in
+            Task {
+                await network.updateProfileSettings(
+                    profileId: userId,
+                    target: defaultTarget,
+                    showPingu: defaultAllowPingus,
+                    dragMode: dragMode,
+                    showAllPlayers: newValue
+                )
+            }
+        }
     }
 }
 
@@ -445,6 +491,7 @@ import PDFKit
 struct TichuRulesPDFView: View {
     var body: some View {
         PDFKitView()
+            .ignoresSafeArea(edges: .bottom)  // ← extend to bottom edge
             .navigationTitle("Tichu Rules")
             .navigationBarTitleDisplayMode(.inline)
     }
@@ -457,7 +504,8 @@ struct PDFKitView: UIViewRepresentable {
         pdfView.autoScales = true
         pdfView.displayMode = .singlePageContinuous
         pdfView.displayDirection = .vertical
-
+        pdfView.backgroundColor = .systemBackground
+        pdfView.displayBox = .cropBox
 
         if let url = Bundle.main.url(
             forResource: "spielregeln-tichu",
@@ -465,15 +513,22 @@ struct PDFKitView: UIViewRepresentable {
         ) {
             pdfView.document = PDFDocument(url: url)
         }
-        
-        pdfView.displayBox = .cropBox
-        
+
         return pdfView
     }
 
-    func updateUIView(_ uiView: PDFView, context: Context) {}
+    func updateUIView(_ pdfView: PDFView, context: Context) {
+        DispatchQueue.main.async {
+            let scale = pdfView.scaleFactorForSizeToFit
+
+            pdfView.scaleFactor = scale
+            pdfView.minScaleFactor = scale
+            pdfView.maxScaleFactor = scale * 5
+        }
+    }
 }
 
 #Preview {
     ProfileView()
 }
+

@@ -19,6 +19,9 @@ struct DebugSheetView: View {
     @ObservedObject var config = Config.shared
     @State private var reCalculate: String = "0"
     @AppStorage("statsList") private var statsList: [Int] = []
+    @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
+    @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
+    @AppStorage("dragMode") var dragMode: Bool = false
  
     
     
@@ -55,10 +58,15 @@ struct DebugSheetView: View {
                     ProfileImage(data:userImageData,size:44)
                     
                 }
+               
                 /*ScrollView{
                     Text("\(NetworkService.shared.eloHistory)")
                     EloHistoryChartView(profileId: userId)
                 }*/
+                Text("Defaults").fontWeight(.bold)
+                Text("Target: \(defaultTarget)")
+                Text("Allow Pingus: \(defaultAllowPingus)")
+                Text("dragMode: \(dragMode)")
                 
                 ForEach(statsList, id: \.self){profileId in
                     Text("\(network.profiles.first(where:{$0.id == profileId})?.name)").fontWeight(.bold)

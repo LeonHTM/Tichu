@@ -92,14 +92,39 @@ struct ColorfulIconLabelStyle: LabelStyle {
     }
 }
 
-struct NavigationProfileImage:View{
+struct NavigationProfileImage: View {
     @AppStorage("userImageData") var userImageData: Data?
-    
-    var body: some View{
-        
+    @AppStorage("selectedTab") var selectedTab: Int?
+    @AppStorage("userId") var userId: Int?
+
+    var body: some View {
+        Button {
+            selectedTab = 3
+        } label: {
             ProfileImage(data: userImageData, size: 44)
+                
+                
+        }.frame(width: 44, height: 44)
+            .contentShape(.contextMenuPreview,.circle)
+            .contextMenu{
+            Button{
+                if SocketService.shared.connected{
+                    Task {
+                        if let id = userId{
+                            
+                            
+                            await NetworkService.shared.logout(profileId: id)
+                        }
+                    }
+                }
+            }label:{
+                Image(systemName:"rectangle.portrait.and.arrow.right.fill")
+                Text("Log out")
+            }
+        }
+               
     }
-}
+} 
 
 
 struct offlineView: View{
@@ -238,7 +263,4 @@ func isFriend(profileId: Int) -> Bool{
 #Preview{
     offlineView(showNavBar: .constant(true))
 }
-
-
-
 
