@@ -87,7 +87,7 @@ struct LoginView: View {
                 .foregroundColor(.primary)
                 .focused($isEmailFocused)
                 .alert(isPresented:$showOfflineAlert){
-                    offlineView.offlineAlert()
+                    OfflineView.offlineAlert()
                 }
                 .onChange(of: userEmail) {
 
@@ -157,14 +157,14 @@ struct LoginView: View {
     @ViewBuilder
     private func destinationView() -> some View {
         if socket.connected {
-            NameSheetView(
+            EditNameSheetView(
                 showNameSheet: .constant(true),
                 email: userEmail,
                 editMode: false,
                 done: .constant(false)
             )
         } else {
-            offlineView(showNavBar: .constant(false))
+            OfflineView(showNavBar: .constant(false))
         }
     }
 

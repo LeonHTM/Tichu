@@ -1,5 +1,5 @@
 //
-//  NameSheetView.swift
+//  EditNameSheetView.swift
 //  Tichu
 //
 //  Created by Leon on 21.04.2026.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-struct NameSheetView: View {
+struct EditNameSheetView: View {
 
     // MARK: - Bindings
     @Binding var showNameSheet: Bool
@@ -199,5 +199,5 @@ struct NameSheetView: View {
 }
 
 #Preview {
-    NameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false,done:.constant(true) )
+    EditNameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false,done:.constant(true) )
 }

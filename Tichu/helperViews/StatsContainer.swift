@@ -6,9 +6,9 @@
 //
 
 import SwiftUI
-//StatsContainer -> The class of Conatiners used in StatsView
+//MARK: - StatsContainer used in StatsView
 struct StatsContainer: View {
-    //Bindings
+    //MARK: Vars
     var title: String
     var description: String
     var image: String
@@ -20,30 +20,27 @@ struct StatsContainer: View {
     var stat: Profile.playerStat
     var timeframe: Timeframe = .allTime
     @Environment(\.colorScheme) var colorScheme
-    //Computed Vars
+    //MARK: Computed Vars
     var items: [Profile]
     
-    
+    //MARK: Body
     var body: some View {
-        
         VStack(){
             HStack{
+                //For certain Image insteady of loading systeImage load custom Image
                 if image == "exclamationmark.2.circle" || image == "bomb" || image == "exclamationmark.3.circle" {
-                    Image(image
-                    )
+                    Image(image)
                     .renderingMode(.template)
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundColor(.accentColor)
                 }else{
-                    Image(systemName:image
-                    )
+                    Image(systemName:image)
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundColor(.accentColor)
                     .scaledToFit()
                 }
-                
                 Text(title)
                     .font(.system(size:20))
                     .fontWeight(.bold)
@@ -55,14 +52,22 @@ struct StatsContainer: View {
             .padding(.bottom,10)
             
             HStack{
-                if percentage == false{
-                    Text("\(Int(value))").font(.title3).fontWeight(.bold)
+                if percentage == false {
+                    Text("\(Int(value))")
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }else{
-                    Text("\(Int(value*100))%").font(.title3).fontWeight(.bold)
+                    Text("\(Int(value*100))%")
+                        .font(.title3)
+                        .fontWeight(.bold)
                 }
                 
             }
-            Text(description).font(.system(size:16)).multilineTextAlignment(.leading).padding(.top,10).padding(.horizontal,10)
+            Text(description)
+                .font(.system(size:16))
+                .multilineTextAlignment(.leading)
+                .padding(.top,10)
+                .padding(.horizontal,10)
             if !items.isEmpty{
                 Divider().padding(.horizontal, 10)
             }
@@ -73,7 +78,6 @@ struct StatsContainer: View {
                 //For loop over all indices, id:value itssself,index is index
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     let itemValue = item.getStat(for: stat,timeframe:timeframe)
-
                     VStack(spacing: 0) {
                         HStack {
                             if itemValue > value {
@@ -83,75 +87,47 @@ struct StatsContainer: View {
                                         .frame(width: 12, height: 12)
                                     
                                     Text(item.name ?? "")
-                                        //.fontWeight(.semibold)
                                         .font(.system(size: 14))
                                         .padding(.bottom, 3)
                                 }.lineLimit(.max)
-                                
-                                    
-
                             } else if itemValue.isEqual(to: value) || itemValue == value {
                                 Image(systemName: "equal")
                                     .offset(x: -1)
-
                                 Text(item.name ?? "")
-                                    //.fontWeight(.semibold)
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
                                     .offset(x: -2)
-
                             } else {
                                 Image(systemName: "chevron.down.2")
                                     .resizable()
                                     .frame(width: 12, height: 12)
-
                                 Text(item.name ?? "")
-                                    //.fontWeight(.semibold)
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
-                                    
                             }
-
                             Spacer()
-
                             Text(percentage ? "\(Int(itemValue*100))%" : "\(Int(itemValue))")
                                 .font(.system(size: 14))
                         }
-
                         if index != items.count - 1 {
                             Divider()
                         }
                     }
                 }
-            }.animation(.easeInOut, value: items)
+            }
+            .animation(.easeInOut, value: items)
             .padding(.horizontal, 10)
             .padding(.bottom, 10)
         }
         .frame(idealWidth: 165,maxWidth: 165)
         .frame(minHeight:140,alignment:.topLeading)
-            .overlay{
-                /*
-                if inTop <= 0.05 {
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.accentColor, lineWidth: 1)
-                }else if inTop <= 0.075{
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.silver, lineWidth: 1)
-                }else if inTop <= 0.1{
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(Color.bronce, lineWidth: 1)
-                }*/
-                }
-        
-            .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
-            //.glassEffect(.regular.tint(.gray.opacity(0.2)).interactive(),in:.rect(cornerRadius:24))
-            
+        .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
     }
 }
 
 
 
-//Sortby enum inside its own class
+//MARK: - Sortby enum inside its own class
 struct sortBy{
     enum sortBy {
         case valueUp
@@ -162,20 +138,3 @@ struct sortBy{
 }
 
 
-
-
-
-
-/*#Preview {
-    StatsContainer(
-        title: .constant("Rating"),
-        description: .constant("All Time Elo Rating"),
-        image: .constant("exclamationmark.2.circle"),
-        counterLeft: .constant(1),
-        counterRight: .constant(5000),
-        value: .constant(1000),
-        percentage: .constant(false),
-        compareList: .constant(["Jo":1000,"Luis":570,"Sorin":5000]),
-        sortBy:.constant("alphabeticalUp")
-    )
-}*/

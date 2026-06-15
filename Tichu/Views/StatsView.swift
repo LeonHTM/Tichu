@@ -498,7 +498,7 @@ struct StatsView: View {
                     }
                 }
                 .alert(isPresented: $showOfflineAlert) {
-                    offlineView.offlineAlert()
+                    OfflineView.offlineAlert()
                 }
                 .padding(10)
                 .glassEffect(.regular.interactive())

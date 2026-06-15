@@ -7,41 +7,26 @@
 
 import SwiftUI
 
-//Used in NameSheet
+//MARK: - RequirementRow used in EditNameSheet
 @ViewBuilder
 func requirementRow(
     text: String,
     isValid: Bool
 ) -> some View {
-    
     HStack(spacing: 10) {
-        
         Image(systemName: isValid ? "checkmark.circle.fill" : "xmark.circle.fill")
-        
         Text(text)
-        
         Spacer()
     }
     .foregroundStyle(isValid ? .green : .red)
 }
 
-
-
-func formattedDate(_ date: Date) -> String {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "de_DE") // European style
-    formatter.dateFormat = "dd.MM.yyyy"
-    return formatter.string(from: date)
-}
-
-
-
-import SwiftUI
-
+//MARK: - LabelStyle used in ProfilesView
 struct ColorfulIconLabelStyle: LabelStyle {
+    //MARK: Varibles
     var color: Color
     var fontSize: CGFloat
-    
+    //MARK: Function
     func makeBody(configuration: Configuration) -> some View {
         Label {
             configuration.title
@@ -85,34 +70,36 @@ struct ColorfulIconLabelStyle: LabelStyle {
                                     lineWidth: 0.5
                                 )
                         )
-                        // Depth shadow (important for “app icon” feel)
+                        // Depth shadow
                         .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
                 )
         }
     }
 }
 
+
+//MARK: - NavigationsProfileImage used in the NavigationBar in PlayView, HistoryView, StatsView and ProfileView
 struct NavigationProfileImage: View {
+    //MARK: Vars
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("selectedTab") var selectedTab: Int?
     @AppStorage("userId") var userId: Int?
-
+    //MARK: Body
     var body: some View {
+        //Button switches to ProfileView
         Button {
             selectedTab = 3
         } label: {
             ProfileImage(data: userImageData, size: 44)
-                
-                
-        }.frame(width: 44, height: 44)
-            .contentShape(.contextMenuPreview,.circle)
-            .contextMenu{
+        }
+        .frame(width: 44, height: 44)
+        //Makes sure that the Preview is a circle
+        .contentShape(.contextMenuPreview,.circle)
+        .contextMenu{
             Button{
                 if SocketService.shared.connected{
                     Task {
                         if let id = userId{
-                            
-                            
                             await NetworkService.shared.logout(profileId: id)
                         }
                     }
@@ -126,41 +113,37 @@ struct NavigationProfileImage: View {
     }
 } 
 
-
-struct offlineView: View{
+//MARK: - OfflineView. The View that gets Shown when the socket is not connected.
+//Shown in LoginView,and MainView for StatsView and HistoryView
+//Alert is Used in ChipsView, ShareStatsView, LoginView, MainView, PlayeView, ProfileView and StatsView
+struct OfflineView: View{
+    //MARK: Variables
     @Binding  var showNavBar: Bool
     @ObservedObject private var network = NetworkService.shared
     @AppStorage("userId") private var userId = -69420
+    
+    //MARK: Body
     var body: some View{
         NavigationStack{
             VStack(alignment:.center,spacing:10){
-                
-                
+                //Offline Text
                 Text("No Internet Connection").font(.title2).fontWeight(.bold)
-                
-                
-                
                 Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
-                
-                
-                
+            
             }.toolbarTitleDisplayMode(.inlineLarge)
                 .navigationTitle(showNavBar ? "History" : "" )
                 .toolbar {
+                    //Shows NavBar everywhere except LoginView
                     if showNavBar{
-                        ToolbarItem {
-                            
-                        }
                         ToolbarItem(placement: .topBarTrailing) {
                             ProfileImage(data: network.profileImages[userId], size: 44)
                         }
                         .sharedBackgroundVisibility(.hidden)
                     }
                 }
+            }
         }
-            
-        
-    }
+    //Alert that is used
     static func offlineAlert() -> Alert {
         Alert(
             title: Text("No Internet Connection"),
@@ -172,17 +155,22 @@ struct offlineView: View{
 
 import UIKit
 
-func deviceModelName() -> String {
+//MARK: - DeviceModelName used in Contact Form to send the Device Model Name for exmaple iPhone 14,5
+func DeviceModelName() -> String {
+    //Mark: Vars
     var systemInfo = utsname()
     uname(&systemInfo)
     let machineMirror = Mirror(reflecting: systemInfo.machine)
+    //Mark: Build Identifier
     let identifier = machineMirror.children.reduce("") { identifier, element in
         guard let value = element.value as? Int8, value != 0 else { return identifier }
         return identifier + String(UnicodeScalar(UInt8(value)))
     }
-    return identifier // e.g. "iPhone14,5"
+    return identifier
 }
 
+
+//MARK: - BombView used in GameSummaryListView and EditRoundsShettView to show the little Grpahic for the bomb and the counter
 func bombView(bomb: Int) -> some View {
     Group {
         if bomb > 0 {
@@ -193,18 +181,14 @@ func bombView(bomb: Int) -> some View {
                     .foregroundStyle(.secondary)
                     .frame(width: 18, height: 16)
                     .offset(x: 52)
-                    
-                
                 Text("\(bomb)").font(.system(size: 15)).offset(x: 41, y: 7).foregroundStyle(Color.secondary)
             }
         }
     }
 }
-    
+  
+//MARK: - Extension to save Array in AppStorage used to Store the List of Players in StatsView
 // Source - https://stackoverflow.com/a/65598711
-// Posted by pawello2222
-// Retrieved 2026-06-02, License - CC BY-SA 4.0
-
 extension Array: RawRepresentable where Element: Codable {
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),
@@ -225,6 +209,8 @@ extension Array: RawRepresentable where Element: Codable {
     }
 }
 
+
+//MARK: - Extension to save Dictionaries in AppStorage
 extension Dictionary: RawRepresentable where Key == Int, Value == Int {
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),
@@ -246,21 +232,12 @@ extension Dictionary: RawRepresentable where Key == Int, Value == Int {
 }
 
 
-
-
-
-
-
-
+//MARK: - Function to check if user isFriend user in contextMenus in AddPlayersSheetView and PlayView
 func isFriend(profileId: Int) -> Bool{
     if NetworkService.shared.friends.first(where:{$0.id == profileId}) == nil{
         return false
     }else{
         return true
     }
-}
-
-#Preview{
-    offlineView(showNavBar: .constant(true))
 }
 

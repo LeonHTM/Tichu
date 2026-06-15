@@ -909,7 +909,7 @@ struct PlayView: View {
                         .foregroundColor(.secondary)
                         .padding(.vertical, 10.6)
                         .alert(isPresented: $showOfflineAlert) {
-                                            offlineView.offlineAlert()
+                                            OfflineView.offlineAlert()
                                         }
                     
                     
@@ -1013,7 +1013,7 @@ struct PlayView: View {
                     .padding(.leading, 20)
                     .padding(.bottom, 10)
                     .alert(isPresented: $showOfflineAlert) {
-                                        offlineView.offlineAlert()
+                                        OfflineView.offlineAlert()
                                     }
                 }
                 
@@ -1059,7 +1059,7 @@ struct PlayView: View {
                     .padding(.trailing, 20)
                     .padding(.bottom, 10)
                     .alert(isPresented: $showOfflineAlert) {
-                        offlineView.offlineAlert()
+                        OfflineView.offlineAlert()
                     }
                 }
             }

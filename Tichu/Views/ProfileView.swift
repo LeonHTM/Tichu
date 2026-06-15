@@ -44,7 +44,7 @@ struct ProfileView: View {
                 deleteAccountSection
                 footerSection
             }.alert(isPresented:$showOfflineAlert){
-                offlineView.offlineAlert()
+                OfflineView.offlineAlert()
             }
             .padding(.top, -20)
             .navigationTitle("Profile")
@@ -141,7 +141,7 @@ struct ProfileView: View {
             }
             .foregroundColor(.primary)
             .sheet(isPresented: $showNameSheet) {
-                NameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
+                EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
                     .presentationDetents([.large])
             }
 
@@ -241,7 +241,7 @@ struct ProfileView: View {
                     
                     App Version: \(appVersion) (\(buildNumber))
                     iOS: \(iosVersion) (\(iosBuild))
-                    Device: \(deviceModelName())
+                    Device: \(DeviceModelName())
                     User ID: \(userId)356af6d-ec96-49e1-a7e8-e372ce3c6363
                     """
                 let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""

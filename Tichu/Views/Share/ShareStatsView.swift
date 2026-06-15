@@ -99,7 +99,7 @@ struct ChipViewShare: View {
                 .font(.callout)
                 .foregroundStyle(.white)
                 .alert(isPresented: $showOfflineAlert) {
-                    offlineView.offlineAlert()
+                    OfflineView.offlineAlert()
                 }
                 .onChange(of: isSelected) { _, _ in
                     if showAlert == true {

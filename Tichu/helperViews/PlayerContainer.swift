@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+//MARK: - Possible Cases of Announcements
 enum CanAnnounce: Equatable {
     case none
     case tichu
@@ -14,8 +15,9 @@ enum CanAnnounce: Equatable {
     case pingu
 }
 
+//MARK: - PlayerContainer used in AddRounds and AddRoundsLocal
 struct PlayerContainer: View {
-
+    //MARK: Variables
     var player: Profile
     var teamIds: [Int]
     var allowPingus: Bool
@@ -23,16 +25,15 @@ struct PlayerContainer: View {
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Environment(\.colorScheme) var colorScheme
-
-    
-
+    //MARK: Body
     var body: some View {
         GlassEffectContainer {
             VStack(alignment: .leading) {
+                //Title
                 Text(player.name ?? "Unknown")
                     .fontWeight(.bold)
                     .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
-
+                //Row of Tichu and Big Tichu
                 HStack {
                     Button {
                         DispatchQueue.main.async {
@@ -52,11 +53,10 @@ struct PlayerContainer: View {
                         Text("Big Tichu").foregroundColor(.primary)
            
                     }
-                    
                     .padding(10)
                     .glassEffect(hasAnnounced == .bigTichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
-
+                //Row of Bombs and Pingus, only shown when allowPingus
                 HStack {
                     if allowPingus{
                         Button {
@@ -74,7 +74,6 @@ struct PlayerContainer: View {
                         )
                         .disabled(!allowPingus)
                     }
-
                     Button {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
@@ -84,7 +83,6 @@ struct PlayerContainer: View {
                     }
                     .padding(10)
                     .glassEffect(bombNumber > 0 ? .regular.tint(.accentColor).interactive() : .regular.interactive())
-                  
                 }
                 
             }

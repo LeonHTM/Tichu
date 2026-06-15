@@ -47,7 +47,7 @@ struct MainView: View {
                         }
                         .tag(1)
                     } else {
-                        offlineView(showNavBar: .constant(true)).tabItem {
+                        OfflineView(showNavBar: .constant(true)).tabItem {
                             Label("History", systemImage: "clock")
                         }
                         .tag(1)
@@ -59,7 +59,7 @@ struct MainView: View {
                             }
                             .tag(2)
                     }else{
-                        offlineView(showNavBar: .constant(true)).tabItem {
+                        OfflineView(showNavBar: .constant(true)).tabItem {
                             Label("History", systemImage: "clock")
                         }
                         .tag(2)
@@ -84,7 +84,7 @@ struct MainView: View {
                     selectedTab = 0
                 }
                 .alert(isPresented: isDisconnected) {
-                    offlineView.offlineAlert()
+                    OfflineView.offlineAlert()
                 }
                 .task {
                     do {

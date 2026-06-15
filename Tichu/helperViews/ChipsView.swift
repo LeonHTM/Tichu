@@ -8,8 +8,9 @@
 
 import SwiftUI
 
-struct ChipsView<Content: View, Tag: Hashable>: View {
 
+struct ChipsView<Content: View, Tag: Hashable>: View {
+    //MARK: Variables
     var tags: [Tag]
     var spacing: CGFloat = 10
     var animation: Animation = .easeInOut(duration: 0.2)
@@ -17,7 +18,7 @@ struct ChipsView<Content: View, Tag: Hashable>: View {
     @ViewBuilder var content: (Tag, Bool) -> Content
     var didChangeSelection: ([Tag]) -> ()
     @State private var selectedTags: [Tag] = []
-
+    //MARK: BODY
     var body: some View {
         GlassEffectContainer {
             CustomChipLayout(spacing: spacing) {
@@ -57,7 +58,7 @@ struct ChipsView<Content: View, Tag: Hashable>: View {
 }
 
 // MARK: - Custom Layout
-
+//Calculates Layout for the Chips
 fileprivate struct CustomChipLayout: Layout {
     var spacing: CGFloat
 
@@ -96,8 +97,8 @@ fileprivate struct CustomChipLayout: Layout {
     }
 }
 
-// MARK: - Chip Views
-
+// MARK: - Chip View
+//View for the Single Chips, gets called by Chipsview
 struct ChipView: View {
     let tag: String
     let isSelected: Bool
@@ -110,14 +111,14 @@ struct ChipView: View {
                 .font(.callout)
                 .foregroundStyle(isSelected ? .white : .primary)
                 .alert(isPresented: $showOfflineAlert) {
-                    offlineView.offlineAlert()
+                    OfflineView.offlineAlert()
                 }
                 .onChange(of: isSelected) { _, _ in
                     if showAlert == true {
                         showOfflineAlert = true
                     }
                 }
-
+            //Show Checkmark if Selected
             /*if isSelected && (showAlert == false) {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.white)
@@ -128,17 +129,3 @@ struct ChipView: View {
     }
 }
 
-@ViewBuilder
-func ChipView2(_ tag: String, isSelected: Bool) -> some View {
-    HStack(spacing: 10) {
-        Text(tag)
-            .font(.callout)
-            .foregroundStyle(isSelected ? .white : .primary)
-    }
-    .padding(12)
-    .glassEffect(isSelected ? .regular.tint(.accentColor).interactive() : .regular.interactive())
-}
-
-#Preview {
-    TestView()
-}

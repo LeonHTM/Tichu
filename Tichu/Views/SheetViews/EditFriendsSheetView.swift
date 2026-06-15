@@ -376,7 +376,7 @@ struct EditFriendsSheetView: View {
                     VStack(alignment: .leading) {
                         Text(friend.profile.name ?? "Unknown")
                         if let date = friend.friendsSince {
-                            Text("Friends since \(formattedDate(date))")
+                            Text("Friends since \(date.formatted(date: .complete, time: .omitted))")
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         } else {
