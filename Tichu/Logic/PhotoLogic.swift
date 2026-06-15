@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 import LinkPresentation
 
-//MARK: - From stored data do UIImage
+//MARK: - dataToPhoto used to translate from stored data do UIImage used in ProfileIamge
 func dataToPhoto(data: Data?) -> UIImage? {
    
     if let data,
@@ -20,7 +20,7 @@ func dataToPhoto(data: Data?) -> UIImage? {
     return nil
 }
             
-//MARK: - Render photo from UIImage + Fallback if no photo exists
+//MARK: - ProfileImage render photo from UIImage + Fallback if no photo exists used in NavigationProfileImage, ShareSats, AddPlayersSheetview, EditFriendsSheetView, HistoryView, PlayView, ProfileView and StatsView
 @ViewBuilder
 func ProfileImage(data: Data?, size: Int) -> some View {
     
@@ -41,10 +41,46 @@ func ProfileImage(data: Data?, size: Int) -> some View {
     }
 }
 
+//MARK: - NavigationsProfileImage used in the NavigationBar in PlayView, HistoryView, StatsView and ProfileView
+struct NavigationProfileImage: View {
+    //MARK: Vars
+    @AppStorage("userImageData") var userImageData: Data?
+    @AppStorage("selectedTab") var selectedTab: Int?
+    @AppStorage("userId") var userId: Int?
+    //MARK: Body
+    var body: some View {
+        //Button switches to ProfileView
+        Button {
+            selectedTab = 3
+        } label: {
+            ProfileImage(data: userImageData, size: 44)
+        }
+        .frame(width: 44, height: 44)
+        //Makes sure that the Preview is a circle
+        .contentShape(.contextMenuPreview,.circle)
+        .contextMenu{
+            Button{
+                if SocketService.shared.connected{
+                    Task {
+                        if let id = userId{
+                            await NetworkService.shared.logout(profileId: id)
+                        }
+                    }
+                }
+            }label:{
+                Image(systemName:"rectangle.portrait.and.arrow.right.fill")
+                Text("Log out")
+            }
+        }
+               
+    }
+}
 
+//MARK: - GuestImageView used in PlayView to show random ProfileImage for Guest
 struct GuestImageView: View {
+    //MARK: Vars
     @State private var imageName = ["dog", "phoenix", "dragon", "mahjong"].randomElement()!
-
+    //MARK: Body
     var body: some View {
         Image(imageName)
             .resizable()
@@ -54,12 +90,14 @@ struct GuestImageView: View {
     }
 }
 
+//MARK: - ShareItem used in ActivityViewControler
 final class ShareItem: NSObject, UIActivityItemSource {
-
+    //MARK: Vars
     let title: String
     let message: String
     let image: UIImage?
-
+    
+    //MARK: Init
     init(title: String, message: String, image: UIImage?) {
         self.title = title
         self.message = message
@@ -78,11 +116,9 @@ final class ShareItem: NSObject, UIActivityItemSource {
         _ activityViewController: UIActivityViewController,
         itemForActivityType activityType: UIActivity.ActivityType?
     ) -> Any? {
-
         if let image {
             return image
         }
-
         return message
     }
 
@@ -105,12 +141,11 @@ final class ShareItem: NSObject, UIActivityItemSource {
         if let image {
             metadata.imageProvider = NSItemProvider(object: image)
         }
-
         return metadata
     }
 }
 
-// MARK: - Activity View Controller
+// MARK: - ActivityViewController used in GameSummarySheetView
 struct ActivityViewController: UIViewControllerRepresentable {
 
     let title: String
@@ -138,6 +173,7 @@ struct ActivityViewController: UIViewControllerRepresentable {
 }
 
 
+//MARK: - UImage used in UploadProfileImage
 extension UIImage {
     func resized(to maxDimension: CGFloat) -> UIImage {
         let aspectRatio = size.width / size.height

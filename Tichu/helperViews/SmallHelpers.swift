@@ -78,40 +78,7 @@ struct ColorfulIconLabelStyle: LabelStyle {
 }
 
 
-//MARK: - NavigationsProfileImage used in the NavigationBar in PlayView, HistoryView, StatsView and ProfileView
-struct NavigationProfileImage: View {
-    //MARK: Vars
-    @AppStorage("userImageData") var userImageData: Data?
-    @AppStorage("selectedTab") var selectedTab: Int?
-    @AppStorage("userId") var userId: Int?
-    //MARK: Body
-    var body: some View {
-        //Button switches to ProfileView
-        Button {
-            selectedTab = 3
-        } label: {
-            ProfileImage(data: userImageData, size: 44)
-        }
-        .frame(width: 44, height: 44)
-        //Makes sure that the Preview is a circle
-        .contentShape(.contextMenuPreview,.circle)
-        .contextMenu{
-            Button{
-                if SocketService.shared.connected{
-                    Task {
-                        if let id = userId{
-                            await NetworkService.shared.logout(profileId: id)
-                        }
-                    }
-                }
-            }label:{
-                Image(systemName:"rectangle.portrait.and.arrow.right.fill")
-                Text("Log out")
-            }
-        }
-               
-    }
-} 
+
 
 //MARK: - OfflineView. The View that gets Shown when the socket is not connected.
 //Shown in LoginView,and MainView for StatsView and HistoryView

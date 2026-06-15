@@ -7,6 +7,7 @@
 
 import WidgetKit
 
+//MARK: WidgetRound used in NetworkService and AppIntents
 struct WidgetRound: Codable, Identifiable {
     let id: Int
     let roundOrder: Int
@@ -15,9 +16,7 @@ struct WidgetRound: Codable, Identifiable {
     let roundPointsTeam1: Int
     let roundPointsTeam2: Int
     let boolWinRound: Bool
-}
 
-extension WidgetRound {
     init(from round: Round) {
         self.id = round.id
         self.roundOrder = round.roundOrder
@@ -29,6 +28,7 @@ extension WidgetRound {
     }
 }
 
+//MARK: - WidgetGameData used in NetWorkService, AppIntent and FavGameWidget
 struct WidgetGameData: Codable {
     let winner: Int?
     var favorite: Bool

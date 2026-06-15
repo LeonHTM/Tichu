@@ -8,7 +8,9 @@
 import SwiftUI
 import Foundation
 
+//MARK: - Struct Game
 struct Game: Identifiable, Decodable, Equatable {
+    //MARK: Vars
     var favorite: Bool = false
     let id: Int
     var date: Date
@@ -26,7 +28,8 @@ struct Game: Identifiable, Decodable, Equatable {
 
     var winner: Int?
     var calculated: Bool = false
-
+    
+    //MARK: CodingKeys
     enum CodingKeys: String, CodingKey {
         case favorite
         case id, date, target, allowPingus
@@ -37,6 +40,7 @@ struct Game: Identifiable, Decodable, Equatable {
         case calculated
     }
 
+    //MARK: Decoder
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         favorite           = try container.decodeIfPresent(Bool.self, forKey: .favorite)          ?? false
@@ -54,6 +58,7 @@ struct Game: Identifiable, Decodable, Equatable {
         calculated         = try container.decodeIfPresent(Bool.self, forKey: .calculated) ?? false
     }
 
+    //MARK: Init
     init(
         favorite: Bool = false,
         id: Int,
@@ -83,14 +88,14 @@ struct Game: Identifiable, Decodable, Equatable {
         self.winner             = winner
         self.calculated         = calculated
     }
-
+    
     static func == (lhs: Game, rhs: Game) -> Bool {
         lhs.id == rhs.id
     }
 }
 
 
-
+//MARK: - ROUND
 struct Round: Identifiable, Decodable, Equatable {
     let id: Int
     var gameId: Int
@@ -121,6 +126,7 @@ struct Round: Identifiable, Decodable, Equatable {
     var announcedBigTichu: [Int]
     var announcedPingu: [Int]
     
+    //MARK: Has to compare every Value or otherwise some Views won't register when a Round changes with .onChange
     static func == (lhs: Round, rhs: Round) -> Bool {
         lhs.id == rhs.id &&
         lhs.firstProfileId == rhs.firstProfileId &&
@@ -141,6 +147,7 @@ struct Round: Identifiable, Decodable, Equatable {
     }
 }
 
+//MARK: - Possible Targets for TichuGames
 enum tichuGameTarget: Int, CaseIterable, Identifiable {
     case xs = 250
     case s = 500
@@ -149,12 +156,11 @@ enum tichuGameTarget: Int, CaseIterable, Identifiable {
     case xxl = 2000
     case xxxl = 5000
     case xxxxl = 10000
-    
     var id: Int { self.rawValue }
 }
 
 
-
+//MARK: - EloHistoryEntry used in NetworkService
 struct EloHistoryEntry: Identifiable, Codable {
     var id: Int
     var gameId: Int?

@@ -7,7 +7,10 @@
 
 import SwiftUI
 
+//MARK: - ProfileStats used in Profiles
+
 struct ProfileStats: Codable {
+    //MARK: Vars
     var winnerPercentage: Double
     var tichuMaster: Double
     var visionary: Double
@@ -19,7 +22,8 @@ struct ProfileStats: Codable {
     var bigGambler: Double
     var pinguGambler: Double
     var bomber: Double
-
+    
+    //MARK: CodingKeys
     enum CodingKeys: String, CodingKey {
         case winnerPercentage = "winner_percentage"
         case tichuMaster = "tichu_master"
@@ -29,7 +33,8 @@ struct ProfileStats: Codable {
         case pinguGambler = "pingu_gambler"
         case bomber
     }
-
+    
+    //Fallback
     static var empty: ProfileStats {
         ProfileStats(
             winnerPercentage: 0, tichuMaster: 0, visionary: 0,
@@ -39,6 +44,7 @@ struct ProfileStats: Codable {
     }
 }
 
+//MARK: Possible Timeframes
 enum Timeframe: String, CaseIterable {
     case allTime = "All Time"
     case year    = "Year"
@@ -47,7 +53,9 @@ enum Timeframe: String, CaseIterable {
     case day     = "Today"
 }
 
+//MARK: - Profile
 struct Profile: Identifiable, Equatable, Codable {
+    //MARK: Vars
     var id: Int
     var name: String?
     var profileImageUrl: String?
@@ -60,7 +68,8 @@ struct Profile: Identifiable, Equatable, Codable {
     var month:   ProfileStats
     var week:    ProfileStats
     var day:     ProfileStats
-
+    
+    //MARK: CodingKeys
     enum CodingKeys: String, CodingKey {
         case id, name
         case profileImageUrl = "profile_image_url"
@@ -69,7 +78,8 @@ struct Profile: Identifiable, Equatable, Codable {
         case allTime = "all_time"
         case year, month, week, day
     }
-
+    
+    //Mark: Possible PlayerStats
     enum playerStat {
         case elo
         case winnerPercentage
@@ -85,7 +95,8 @@ struct Profile: Identifiable, Equatable, Codable {
         case bomber
         case dateAdded
     }
-
+    
+    //MARK: Init
     init(
         id: Int = 0,
         name: String? = nil,
@@ -112,6 +123,7 @@ struct Profile: Identifiable, Equatable, Codable {
         self.day     = day
     }
 
+    //MARK: Decoder
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id              = try c.decode(Int.self, forKey: .id)
@@ -127,6 +139,7 @@ struct Profile: Identifiable, Equatable, Codable {
         imageData       = nil
     }
 
+    //MARK: returns ProfileStats for given TimeFrame
     func stats(for timeframe: Timeframe) -> ProfileStats {
         switch timeframe {
         case .allTime: return allTime
@@ -182,6 +195,7 @@ func makeItems(
     }
 }
 
+//MARK: - MakeItem Function and overloads to create Items for StatsContainer in StatsView
 func makeItems(
     from compareList: [Int],
     stat: Profile.playerStat,
@@ -251,13 +265,13 @@ func makeItems(
 }
 
 
-// MARK: - Friend
-
+// MARK: - Friend used to Store Friends
 struct Friend: Identifiable, Equatable {
+    //MARK: Vars
     let id: Int
     let profile: Profile
     let friendsSince: Date?
-
+    //MARK: Compare
     static func == (lhs: Friend, rhs: Friend) -> Bool {
         lhs.id == rhs.id
     }
