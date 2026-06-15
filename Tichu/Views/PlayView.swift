@@ -130,7 +130,9 @@ struct PlayView: View {
                     centerSpacer
                     team2Header
                     team2Players.disabled(isLoading)
-                    }.scrollEdgeEffectStyle(.soft, for: .all)
+                    }
+                   
+                    .scrollEdgeEffectStyle(.soft, for: .all)
                     .onAppear {
                         allowPingusState = defaultAllowPingus
                         target = defaultTarget
@@ -277,6 +279,7 @@ struct PlayView: View {
                         
                         vsBackground
                     }
+                
                     .edgesIgnoringSafeArea(.all)
                     .background(Color(uiColor: .systemGroupedBackground))
                     .listSectionSpacing(0)
@@ -920,50 +923,48 @@ struct PlayView: View {
     private var vsBackground: some View {
         Group {
             if isLoading == false && socket.connected {
-                withAnimation(.easeInOut){
-                    VStack {
-                        Text("VS")
-                            .font(.system(size: 120, weight: .bold))
-                        HStack {
-                            if isGameReady{
-                                Text(isRated ? "Rated" : "Unrated")
-                                    .fontWeight(.bold)
-                                    .font(.title3)
-                                    .offset(y: -15)
-                            }
-                            Text(isGameReady ? " \(currentGame?.target ?? target)" : " \(target)")
+                VStack {
+                    Text("VS")
+                        .font(.system(size: 120, weight: .bold))
+                    HStack {
+                        if isGameReady {
+                            /*Text(isRated ? "Rated" : "Unrated")
                                 .fontWeight(.bold)
                                 .font(.title3)
-                                .offset(y: -15)
+                                .offset(y: -15)*/
                         }
+                        Text(isGameReady ? " Target: \(currentGame?.target ?? target)" : " Target: \(target)")
+                            .fontWeight(.bold)
+                            .font(.title3)
+                            .offset(y: -15)
                     }
                 }
+                .transition(.opacity)
             } else if !socket.connected {
-                VStack(alignment:.center,spacing:10){
-                    
-                    
-                    Text("No Internet Connection").font(.title2).fontWeight(.bold).foregroundStyle(.primary)
-                    
-                    
-                    
-                    Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
-                    
-                    
-                    
+                VStack(alignment: .center, spacing: 10) {
+                    Text("No Internet Connection")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
+
+                    Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.")
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 }
-                
-            }else {
-                withAnimation(.easeInOut){
-                    VStack(spacing:10){
-                        ProgressView()
-                        Text("Loading game...")
-                    }
-                    
+                .transition(.opacity)
+            } else {
+                VStack(spacing: 10) {
+                    ProgressView()
+                    Text("Loading game...")
                 }
+                .transition(.opacity)
             }
         }
         .foregroundStyle(Color.secondary)
         .allowsHitTesting(false)
+        .animation(.easeInOut, value: isLoading)
+        .animation(.easeInOut, value: socket.connected)
     }
 
     // MARK: - Game Ready Bottom Bar
@@ -1070,13 +1071,15 @@ struct PlayView: View {
         HStack {
             Spacer()
             Menu {
-                Picker("Game Target", selection: $target) {
-                    Text("250").tag(250)
-                    Text("500").tag(500)
-                    Text("1000").tag(1000)
-                    Text("2000").tag(2000)
-                    Text("10000").tag(10000)
-                }
+
+                    Picker("Game Target", selection: $target) {
+                        Text("250").tag(250)
+                        Text("500").tag(500)
+                        Text("1000").tag(1000)
+                        Text("2000").tag(2000)
+                        Text("10000").tag(10000)
+                    }
+                
                 if defaultAllowPingus == true{
                     Toggle(isOn: $allowPingusState) {
                         Text("Allow drunken Pingus")

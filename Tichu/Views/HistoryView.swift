@@ -103,20 +103,6 @@ struct HistoryView: View {
                                             Text("Open Game")
                                             Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
                                         }
-                                        Button{
-                                            
-                                                Task{
-                                                    if showOnlyFavorites == true && game.favorite == true{
-                                                        switchToAll()
-                                                    }
-                                                    await network.updateGameFavorite(gameId: game.id, favorite: !game.favorite)
-                                                    
-                                                }
-                                            
-                                        }label:{
-                                            Image(systemName: game.favorite ? "star.slash.fill" :"star.fill")
-                                            Text(game.favorite ? "Undo favorite" : "Favorite")
-                                        }
                                         if let renderedImage {
                                             ShareLink(
                                                 item: renderedImage,
@@ -248,13 +234,16 @@ struct HistoryView: View {
                     for game in gameHistory {
                         group.addTask {
                             await network.fetchGameRounds(gameId: game.id)
+                            await MainActor.run {
+                                if selectedGameId == nil, let first = gameHistory.first {
+                                    selectedGameId = first.id
+                                    scrolledGameId = first.id
+                                }
+                            }
                         }
                     }
                 }
-                if selectedGameId == nil, let first = gameHistory.first {
-                    selectedGameId = first.id
-                    scrolledGameId = first.id
-                }
+                
                 showLoader = false
             }
         }
@@ -277,12 +266,12 @@ struct HistoryView: View {
                             .foregroundStyle(Color.primary)
                         Text("vs").fontWeight(.bold)
                         Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
-                    }
+                    }.lineLimit(1)
                     HStack{
                         Text(game.date, style: .date)
                             .fontWeight(.bold)
                     }
-                }
+                }.font(.system(size: 15))
 
                 Spacer()
             }

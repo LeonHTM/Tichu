@@ -14,7 +14,5 @@ struct TichuWidgetsBundle: WidgetBundle {
         GraphWidget()
         TichuWidgets()
         GameWidget()
-        TichuWidgetsControl()
-        TichuWidgetsLiveActivity()
     }
 }

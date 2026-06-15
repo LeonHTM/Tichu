@@ -22,6 +22,7 @@ struct DebugSheetView: View {
     @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
     @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
+    @AppStorage("favDic") var favDic: [Int:Int] = [:]
  
     
     
@@ -63,6 +64,8 @@ struct DebugSheetView: View {
                     Text("\(NetworkService.shared.eloHistory)")
                     EloHistoryChartView(profileId: userId)
                 }*/
+                Text("Fav Dictionary: ").fontWeight(.bold)
+                Text("\(favDic)")
                 Text("Defaults").fontWeight(.bold)
                 Text("Target: \(defaultTarget)")
                 Text("Allow Pingus: \(defaultAllowPingus)")

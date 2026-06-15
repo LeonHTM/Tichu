@@ -25,11 +25,30 @@ class NetworkService: ObservableObject {
     @AppStorage("authToken") var authToken: String = ""
     @AppStorage("isLoading") var isLoading: Bool = false
     @AppStorage("statsList") private var statsList: [Int] = []
-    @AppStorage("favDic") private var favDic: [Int:Int] = [:]
+    
     @AppStorage("defaultTarget") var defaultTarget: Int = 1000
     @AppStorage("defaultAllowPingus") var defaultAllowPingus: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
     @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    
+
+    // With this:
+    private var favDic: [Int: Int] {
+        get {
+            guard let str = UserDefaults.standard.string(forKey: "favDic"),
+                  let data = str.data(using: .utf8),
+                  let result = try? JSONDecoder().decode([Int: Int].self, from: data)
+            else { return [:] }
+            return result
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue),
+                  let str = String(data: data, encoding: .utf8)
+            else { return }
+            UserDefaults.standard.set(str, forKey: "favDic")
+        }
+    }
+    
     
     
     
@@ -735,7 +754,10 @@ class NetworkService: ObservableObject {
 
         // Wave 1: all independent fetches in parallel
         await withTaskGroup(of: Void.self) { group in
-            group.addTask { await self.fetchProfiles() }
+            group.addTask {
+                await self.fetchProfiles()
+                await self.fetchSelectedProfilesStats()
+            }
             group.addTask { await self.fetchFriends(profileId: currentUserId) }
             group.addTask { await self.fetchFriendRequests(profileId: currentUserId) }
             group.addTask { await self.fetchProfileGames(profileId: currentUserId) }
@@ -744,7 +766,7 @@ class NetworkService: ObservableObject {
         }
 
         // Wave 2: depends on profiles being loaded
-        await fetchSelectedProfilesStats()
+        
 
         isLoading = false
     }
@@ -830,46 +852,44 @@ class NetworkService: ObservableObject {
             let decoded = try flexibleDateDecoder.decode(Response.self, from: data)
 
             await MainActor.run {
-                self.games = decoded.games
+                // Apply local favorite state from favDic before storing
+                self.games = decoded.games.map { game in
+                    var g = game
+                    g.favorite = favDic[game.id].map { $0 == 1 } ?? false
+                    return g
+                }
 
                 let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
 
                 var existingGames: [WidgetGameData] = []
-
                 if let data = defaults?.data(forKey: "widgetGames"),
                    let decodedExisting = try? JSONDecoder().decode([WidgetGameData].self, from: data) {
                     existingGames = decodedExisting
                 }
 
                 let updatedGames = decoded.games.map { game in
-                    withAnimation(.easeInOut) {
-                        
-                        //isFavorite is Local
-                        let isFavorite: Bool
-                        isFavorite = favDic[game.id].map { $0 == 1 } ?? false
-                        
+                    let isFavorite = favDic[game.id].map { $0 == 1 } ?? false
 
-                        if let existing = existingGames.first(where: { $0.id == game.id }) {
-                            return WidgetGameData(
-                                winner: game.winner,
-                                favorite: isFavorite,
-                                id: game.id,
-                                date: game.date,
-                                team1Score: game.currentPointsTeam1,
-                                team2Score: game.currentPointsTeam2,
-                                rounds: existing.rounds
-                            )
-                        } else {
-                            return WidgetGameData(
-                                winner: game.winner,
-                                favorite: isFavorite,
-                                id: game.id,
-                                date: game.date,
-                                team1Score: game.currentPointsTeam1,
-                                team2Score: game.currentPointsTeam2,
-                                rounds: []
-                            )
-                        }
+                    if let existing = existingGames.first(where: { $0.id == game.id }) {
+                        return WidgetGameData(
+                            winner: game.winner,
+                            favorite: isFavorite,
+                            id: game.id,
+                            date: game.date,
+                            team1Score: game.currentPointsTeam1,
+                            team2Score: game.currentPointsTeam2,
+                            rounds: existing.rounds
+                        )
+                    } else {
+                        return WidgetGameData(
+                            winner: game.winner,
+                            favorite: isFavorite,
+                            id: game.id,
+                            date: game.date,
+                            team1Score: game.currentPointsTeam1,
+                            team2Score: game.currentPointsTeam2,
+                            rounds: []
+                        )
                     }
                 }
 
