@@ -159,7 +159,6 @@ struct EditFriendsSheetView: View {
                     }
                 }
                 .task {
-                    await network.fetchProfiles()
                     await network.fetchFriends(profileId: userId)
                     await network.fetchFriendRequests(profileId: userId)
                 }

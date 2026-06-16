@@ -80,7 +80,7 @@ class NetworkService: ObservableObject {
         return decoder
     }
     
-    // MARK: - Auth Header Helpers
+    // MARK: - Authentification Section
     
     // Used for endpoints that require a logged-in user
     private func authorizedRequest(url: URL, method: String = "GET") -> URLRequest {
@@ -97,6 +97,38 @@ class NetworkService: ObservableObject {
         request.setValue("Bearer \(Config.shared.appToken)", forHTTPHeaderField: "Authorization")
         return request
     }
+    
+    // MARK: resetClientData used in Config to forcefully reconnect to other Server
+    func resetClientData() {
+        self.profiles = []
+        self.friendRequestProfiles = []
+        self.friends = []
+        self.profileImages = [:]
+        self.sentRequests = []
+        self.friendRequestImages = [:]
+        self.friendRequests = []
+        self.sentRequests = []
+        self.authToken = ""
+    }
+    
+    //MARK: - Login and Logout Section
+    
+    //MARK: registerDevice used to register a device for APNs on login
+    func registerDevice(profileId: Int, deviceToken: String) async {
+        guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": deviceToken])
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+            print("Device token registered successfully")
+        } catch {
+            print("registerDevice error: \(error)")
+        }
+    }
+    
 
     // MARK: Login used in EditNameSheetView on creating Account, LoginView and ProfileView
     func login(userId: Int) async -> Bool {
@@ -126,44 +158,110 @@ class NetworkService: ObservableObject {
         }
         return false
     }
+    
+    //MARK: logout used in NavigationProfileImage, SocketService and ProfileView
+    func logout(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
 
-    // MARK: resetClientData used in Config to forcefully reconnect to other Server
-    func resetClientData() {
-        self.profiles = []
-        self.friendRequestProfiles = []
-        self.friends = []
-        self.profileImages = [:]
-        self.sentRequests = []
-        self.friendRequestImages = [:]
-        self.friendRequests = []
-        self.sentRequests = []
-        self.authToken = ""
+        var request = authorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": pendingDeviceToken])
+        do {
+            _ = try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                self.authToken = ""
+                self.userId = -69420
+                self.userName = "Unknown"
+                self.userImageData = nil
+                self.userElo = 1000
+                self.statsList = []
+                self.defaultTarget = 1000
+                self.dragMode = false
+                self.defaultAllowPingus = true
+            }
+        } catch {
+            print("logout error: \(error)")
+        }
     }
     
-    //MARK: loadProfileImages used in fetchProfiles
-    func loadProfileImages() async {
-        let snapshot = await MainActor.run { profiles }
-        for profile in snapshot {
-            guard let urlString = profile.profileImageUrl,
-                  let filename = urlString.components(separatedBy: "/").last,
-                  let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
-            do {
-                var request = URLRequest(url: url)
-                request.cachePolicy = .reloadIgnoringLocalCacheData
-                request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-                let (data, _) = try await URLSession.shared.data(for: request)
-                await MainActor.run {
-                    self.profileImages[profile.id] = data
-                    if profile.id == self.userId {
-                        userImageData = data
-                    }
-                }
-            } catch {
-                print("loadProfileImages error for profile \(profile.id): \(error)")
+    //MARK: addProfile used in EditNameSheetView on login when creating Profile
+    func addProfile(email: String, name: String) async -> Int? {
+        guard let url = URL(string: "\(baseURL)/add_profile") else { return nil }
+
+        var request = appAuthorizedRequest(url: url, method: "POST")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: [
+            "email": email,
+            "name": name
+        ])
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            if let token = json?["token"] as? String {
+                await MainActor.run { self.authToken = token }
             }
+            return json?["id"] as? Int
+        } catch {
+            print("createAccount error: \(error)")
+            return nil
+        }
+    }
+    
+    //MARK: checkUserName used in EditNameSheetView to check if name is available
+    func checkUsername(username: String) async -> Bool {
+        guard let encoded = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            return json?["available"] as? Bool ?? false
+        } catch {
+            print("checkUsername error: \(error)")
+            return false
         }
     }
 
+    //MARK: updateUserName used in EditNameSheetView
+    func updateUsername(profileId: Int, name: String) async {
+        guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "PATCH")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["name": name])
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                if let index = self.profiles.firstIndex(where: { $0.id == profileId }) {
+                    self.profiles[index].name = name
+                }
+            }
+        } catch {
+            print("updateUsername error: \(error)")
+        }
+    }
+
+    //MARK: checkMail used in LoginView to check if mail is available
+    func checkEmail(email: String) async -> Int? {
+        guard let encoded = email.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
+              let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
+
+        do {
+            let request = appAuthorizedRequest(url: url)
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            return json?["id"] as? Int
+        } catch {
+            print("checkEmail error: \(error)")
+            return nil
+        }
+    }
+    
+    
+    //MARK: - Profile Section
+    
     //MARK: fetchProfiles used in fetch(), SocketService, Socket reconnect, Socket pfp updated and EditFriendsSheetView
     func fetchProfiles() async {
         guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
@@ -194,19 +292,47 @@ class NetworkService: ObservableObject {
         }
     }
     
-    //MARK: - fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
+    //MARK: loadProfileImages used in fetchProfiles
+    func loadProfileImages() async {
+        let snapshot = await MainActor.run { profiles }
+        for profile in snapshot {
+            guard let urlString = profile.profileImageUrl,
+                  let filename = urlString.components(separatedBy: "/").last,
+                  let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
+            do {
+                var request = URLRequest(url: url)
+                request.cachePolicy = .reloadIgnoringLocalCacheData
+                request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+                let (data, _) = try await URLSession.shared.data(for: request)
+                await MainActor.run {
+                    self.profileImages[profile.id] = data
+                    if profile.id == self.userId {
+                        userImageData = data
+                    }
+                }
+            } catch {
+                print("loadProfileImages error for profile \(profile.id): \(error)")
+            }
+        }
+    }
+
+    //MARK: fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
+    //MARK: fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
     func fetchProfilesStats(profileId: Int) async {
         let timeframes = ["all_time", "year", "month", "week", "day"]
+        let baseURL = self.baseURL
 
         await withTaskGroup(of: (String, ProfileStats?).self) { group in
             for timeframe in timeframes {
                 group.addTask {
-                    guard let url = URL(string: "\(self.baseURL)/profilesstats/\(profileId)?timeframe=\(timeframe)") else {
+                    guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)?timeframe=\(timeframe)") else {
                         return (timeframe, nil)
                     }
                     do {
                         let (data, _) = try await URLSession.shared.data(for: self.authorizedRequest(url: url))
-                        let decoded = try JSONDecoder().decode(ProfileStats.self, from: data)
+                        let decoded = try await MainActor.run {
+                            try JSONDecoder().decode(ProfileStats.self, from: data)
+                        }
                         return (timeframe, decoded)
                     } catch {
                         print("fetchProfilesStats error (\(timeframe)): \(error)")
@@ -235,32 +361,7 @@ class NetworkService: ObservableObject {
         }
     }
     
-    //MARK: logout used in NavigationProfileImage, SocketService and ProfileView
-    func logout(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
-
-        var request = authorizedRequest(url: url, method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": pendingDeviceToken])
-        do {
-            try await URLSession.shared.data(for: request)
-            await MainActor.run {
-                self.authToken = ""
-                self.userId = -69420
-                self.userName = "Unknown"
-                self.userImageData = nil
-                self.userElo = 1000
-                self.statsList = []
-                self.defaultTarget = 1000
-                self.dragMode = false
-                self.defaultAllowPingus = true
-            }
-        } catch {
-            print("logout error: \(error)")
-        }
-    }
-    
-    // MARK: - Profile Settings used in fetch
+    // MARK: fetchProfileSettings used in fetch
     func fetchProfileSettings(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
         do {
@@ -301,7 +402,7 @@ class NetworkService: ObservableObject {
         request.httpBody = try? JSONSerialization.data(withJSONObject: body)
 
         do {
-            try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
         } catch {
             print("updateProfileSettings error: \(error)")
         }
@@ -320,30 +421,6 @@ class NetworkService: ObservableObject {
         }
     }
     
-    //MARK: addProfile used in EditNameSheetView when creating Profile
-    func addProfile(email: String, name: String) async -> Int? {
-        guard let url = URL(string: "\(baseURL)/add_profile") else { return nil }
-
-        var request = appAuthorizedRequest(url: url, method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "email": email,
-            "name": name
-        ])
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            if let token = json?["token"] as? String {
-                await MainActor.run { self.authToken = token }
-            }
-            return json?["id"] as? Int
-        } catch {
-            print("createAccount error: \(error)")
-            return nil
-        }
-    }
-
     //MARK: deleteProfile used in ProfileView
     func deleteProfile(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_profile/\(profileId)") else { return }
@@ -351,7 +428,7 @@ class NetworkService: ObservableObject {
         let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
-            try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
             await MainActor.run {
                 self.profiles.removeAll { $0.id == profileId }
             }
@@ -359,191 +436,8 @@ class NetworkService: ObservableObject {
             print("deleteProfile error: \(error)")
         }
     }
-
-    //MARK: checkUserName used in EditNameSheetView to check if name is available
-    func checkUsername(username: String) async -> Bool {
-        guard let encoded = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-              let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            return json?["available"] as? Bool ?? false
-        } catch {
-            print("checkUsername error: \(error)")
-            return false
-        }
-    }
-
-    //MARK: updateUserName used in EditNameSheetView
-    func updateUsername(profileId: Int, name: String) async {
-        guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
-
-        var request = authorizedRequest(url: url, method: "PATCH")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["name": name])
-
-        do {
-            try await URLSession.shared.data(for: request)
-            await MainActor.run {
-                if let index = self.profiles.firstIndex(where: { $0.id == profileId }) {
-                    self.profiles[index].name = name
-                }
-            }
-        } catch {
-            print("updateUsername error: \(error)")
-        }
-    }
-
-    //MARK: checkMail used in LoginView to check if mail is available
-    func checkEmail(email: String) async -> Int? {
-        guard let encoded = email.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-              let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
-
-        do {
-            let request = appAuthorizedRequest(url: url)
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            return json?["id"] as? Int
-        } catch {
-            print("checkEmail error: \(error)")
-            return nil
-        }
-    }
-
-    // MARK: - Friends
-
-    func fetchFriends(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/friends/\(profileId)") else { return }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-
-            let fetchedFriends: [Friend] = raw.compactMap { dict in
-                guard let jsonData = try? JSONSerialization.data(withJSONObject: dict),
-                      let profile = try? JSONDecoder().decode(Profile.self, from: jsonData) else { return nil }
-
-                var date: Date? = nil
-                if let dateStr = dict["friends_since"] as? String {
-                    let formatter = DateFormatter()
-                    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-                    formatter.locale = Locale(identifier: "en_US_POSIX")
-                    date = formatter.date(from: dateStr)
-                }
-
-                return Friend(id: profile.id, profile: profile, friendsSince: date)
-            }
-
-            await MainActor.run {
-                withAnimation(.easeInOut) {
-                    self.friends = fetchedFriends
-                }
-            }
-        } catch {
-            print("fetchFriends error: \(error)")
-        }
-    }
-
-    func registerDevice(profileId: Int, deviceToken: String) async {
-        guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
-
-        var request = authorizedRequest(url: url, method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": deviceToken])
-
-        do {
-            try await URLSession.shared.data(for: request)
-            print("Device token registered successfully")
-        } catch {
-            print("registerDevice error: \(error)")
-        }
-    }
-
-    func addFriend(profileId: Int, friendId: Int) async {
-        guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
-
-        let request = authorizedRequest(url: url, method: "POST")
-
-        do {
-            try await URLSession.shared.data(for: request)
-        } catch {
-            print("addFriend error: \(error)")
-        }
-        removeFriendRequestNotification(fromSenderId: friendId)
-    }
-
-    func removeFriend(profileId: Int, friendId: Int) async {
-        guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
-
-        let request = authorizedRequest(url: url, method: "DELETE")
-
-        do {
-            try await URLSession.shared.data(for: request)
-            await MainActor.run {
-                withAnimation(.easeInOut) {
-                    self.friends.removeAll { $0.id == friendId }
-                }
-            }
-        } catch {
-            print("removeFriend error: \(error)")
-        }
-    }
-
-    func fetchSentRequests(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)/") else { return }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
-            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
-
-            let parsed = raw.compactMap { dict -> (id: Int, receiverId: Int)? in
-                guard let id = dict["id"] as? Int,
-                      let receiverId = dict["receiver_id"] as? Int else { return nil }
-                return (id: id, receiverId: receiverId)
-            }
-
-            await MainActor.run {
-                self.sentRequests = parsed
-            }
-        } catch {
-            print("fetchSentRequests error: \(error)")
-        }
-    }
-
-    func sendFriendRequest(senderId: Int, receiverId: Int) async {
-        guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
-
-        let request = authorizedRequest(url: url, method: "POST")
-
-        do {
-            try await URLSession.shared.data(for: request)
-        } catch {
-            print("sendFriendRequest error: \(error)")
-        }
-    }
-
-    func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
-        guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
-
-        var request = authorizedRequest(url: url, method: "PATCH")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": action])
-
-        do {
-            try await URLSession.shared.data(for: request)
-            await MainActor.run {
-                self.friendRequests.removeAll { $0.senderId == senderId }
-                self.friendRequestProfiles.removeAll { $0.id == senderId }
-            }
-            removeFriendRequestNotification(fromSenderId: senderId)
-        } catch {
-            print("respondToFriendRequest error: \(error)")
-        }
-    }
-
-    // MARK: - Profile Image
-
+    
+    //MARK: uploadProfileImage used in ProfileView
     func uploadProfileImage(
         profileId: Int,
         imageData: Data,
@@ -579,7 +473,7 @@ class NetworkService: ObservableObject {
         request.httpBody = body
 
         do {
-            try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
             await MainActor.run {
                 self.profileImages[profileId] = compressedData
                 if profileId == self.userId {
@@ -588,6 +482,175 @@ class NetworkService: ObservableObject {
             }
         } catch {
             print("uploadProfileImage error: \(error)")
+        }
+    }
+    
+    //fetchSelectedProfilesStats used in SocketService and Statsview fetches the Stats for selectedProfiles in StatsList which is configured in StatsView
+    func fetchSelectedProfilesStats() async {
+        await withTaskGroup(of: Void.self) { group in
+            var statsCopy = statsList
+            statsCopy.append(userId)
+            for profileId in statsCopy {
+                group.addTask {
+                    await self.fetchProfilesStats(profileId: profileId)
+
+                    if await profileId == self.userId {
+                        await MainActor.run {
+                            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+                            guard let profile = self.profiles.first(where: { $0.id == self.userId }) else { return }
+
+                            if let name = profile.name {
+                                defaults?.set(name, forKey: "userName")
+                            }
+                            if let elo = profile.elo {
+                                defaults?.set(elo, forKey: "userElo")
+                            }
+
+                            func save(_ base: String, _ keyPath: KeyPath<ProfileStats, Double>) {
+                                defaults?.set(profile.allTime[keyPath: keyPath], forKey: "user\(base)")
+                                defaults?.set(profile.year[keyPath: keyPath], forKey: "user\(base)Year")
+                                defaults?.set(profile.month[keyPath: keyPath], forKey: "user\(base)Month")
+                                defaults?.set(profile.week[keyPath: keyPath], forKey: "user\(base)Week")
+                                defaults?.set(profile.day[keyPath: keyPath], forKey: "user\(base)Day")
+                            }
+
+                            save("WinnerPercentage", \.winnerPercentage)
+                            save("TichuMaster",      \.tichuMaster)
+                            save("Visionary",        \.visionary)
+                            save("Addict",           \.addict)
+                            save("Teamplayer",       \.teamplayer)
+                            save("Announcer",        \.announcer)
+                            save("Saboteur",         \.saboteur)
+                            save("Gambler",          \.gambler)
+                            save("BigGambler",       \.bigGambler)
+                            save("PinguGambler",     \.pinguGambler)
+                            save("Bomber",           \.bomber)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    // MARK: - Friends Section
+
+    //MARK: fetchFriends used in fetch(), SocketService and EditFriendsSHeetView
+    func fetchFriends(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/friends/\(profileId)") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            let fetchedFriends: [Friend] = raw.compactMap { dict in
+                guard let jsonData = try? JSONSerialization.data(withJSONObject: dict),
+                      let profile = try? JSONDecoder().decode(Profile.self, from: jsonData) else { return nil }
+
+                var date: Date? = nil
+                if let dateStr = dict["friends_since"] as? String {
+                    let formatter = DateFormatter()
+                    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                    formatter.locale = Locale(identifier: "en_US_POSIX")
+                    date = formatter.date(from: dateStr)
+                }
+
+                return Friend(id: profile.id, profile: profile, friendsSince: date)
+            }
+
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.friends = fetchedFriends
+                }
+            }
+        } catch {
+            print("fetchFriends error: \(error)")
+        }
+    }
+
+    //MARK: addFriend not used because can only become friends after requesting which the server manages
+    func addFriend(profileId: Int, friendId: Int) async {
+        guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
+
+        let request = authorizedRequest(url: url, method: "POST")
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+        } catch {
+            print("addFriend error: \(error)")
+        }
+        removeFriendRequestNotification(fromSenderId: friendId)
+    }
+    
+    //MARK: removeFriend used in PlayView and AddPlayersSheetview ContextMenus, EditFriendsSheetView and SocketService
+    func removeFriend(profileId: Int, friendId: Int) async {
+        guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
+
+        let request = authorizedRequest(url: url, method: "DELETE")
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                withAnimation(.easeInOut) {
+                    self.friends.removeAll { $0.id == friendId }
+                }
+            }
+        } catch {
+            print("removeFriend error: \(error)")
+        }
+    }
+
+    //MARK: fetchSentRequests used SocketService and EditFriendsSheetView
+    func fetchSentRequests(profileId: Int) async {
+        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)/") else { return }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
+            let raw = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] ?? []
+
+            let parsed = raw.compactMap { dict -> (id: Int, receiverId: Int)? in
+                guard let id = dict["id"] as? Int,
+                      let receiverId = dict["receiver_id"] as? Int else { return nil }
+                return (id: id, receiverId: receiverId)
+            }
+
+            await MainActor.run {
+                self.sentRequests = parsed
+            }
+        } catch {
+            print("fetchSentRequests error: \(error)")
+        }
+    }
+    
+    //MARK: sendFriendRequest used in ContextMenus in AddPlayersSheetVeiw and PlayView and EditFriendSheetView
+    func sendFriendRequest(senderId: Int, receiverId: Int) async {
+        guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
+
+        let request = authorizedRequest(url: url, method: "POST")
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+        } catch {
+            print("sendFriendRequest error: \(error)")
+        }
+    }
+    
+    //MARK: respondToFriendRequest used in EditFriendsSheet
+    func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
+        guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
+
+        var request = authorizedRequest(url: url, method: "PATCH")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["action": action])
+
+        do {
+            _ = try await URLSession.shared.data(for: request)
+            await MainActor.run {
+                self.friendRequests.removeAll { $0.senderId == senderId }
+                self.friendRequestProfiles.removeAll { $0.id == senderId }
+            }
+            removeFriendRequestNotification(fromSenderId: senderId)
+        } catch {
+            print("respondToFriendRequest error: \(error)")
         }
     }
 
@@ -603,8 +666,7 @@ class NetworkService: ObservableObject {
         }
     }
 
-    // MARK: - Friend Requests
-
+    //MARK: fetchFriendRequests used in EditFriendsSheetview and SocketService
     func fetchFriendRequests(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/requests/\(profileId)/") else { return }
 
@@ -644,52 +706,8 @@ class NetworkService: ObservableObject {
         }
     }
     
-    func fetchSelectedProfilesStats() async {
-        await withTaskGroup(of: Void.self) { group in
-            var statsCopy = statsList
-            statsCopy.append(userId)
-            for profileId in statsCopy {
-                group.addTask {
-                    await self.fetchProfilesStats(profileId: profileId)
-
-                    if await profileId == self.userId {
-                        await MainActor.run {
-                            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
-                            guard let profile = self.profiles.first(where: { $0.id == self.userId }) else { return }
-
-                            if let name = profile.name {
-                                defaults?.set(name, forKey: "userName")
-                            }
-                            if let elo = profile.elo {
-                                defaults?.set(elo, forKey: "userElo")
-                            }
-
-                            func save(_ base: String, _ keyPath: KeyPath<ProfileStats, Double>) {
-                                defaults?.set(profile.allTime[keyPath: keyPath], forKey: "user\(base)")
-                                defaults?.set(profile.year[keyPath: keyPath],    forKey: "user\(base)Year")
-                                defaults?.set(profile.month[keyPath: keyPath],   forKey: "user\(base)Month")
-                                defaults?.set(profile.week[keyPath: keyPath],    forKey: "user\(base)Week")
-                                defaults?.set(profile.day[keyPath: keyPath],     forKey: "user\(base)Day")
-                            }
-
-                            save("WinnerPercentage", \.winnerPercentage)
-                            save("TichuMaster",      \.tichuMaster)
-                            save("Visionary",        \.visionary)
-                            save("Addict",           \.addict)
-                            save("Teamplayer",       \.teamplayer)
-                            save("Announcer",        \.announcer)
-                            save("Saboteur",         \.saboteur)
-                            save("Gambler",          \.gambler)
-                            save("BigGambler",       \.bigGambler)
-                            save("PinguGambler",     \.pinguGambler)
-                            save("Bomber",           \.bomber)
-                        }
-                    }
-                }
-            }
-        }
-    }
     
+    //MARK: - Main Fetch Funciton used in PlayView, HistoryView Section
     func fetch() async {
         isLoading = true
         let currentUserId = await MainActor.run { userId }
@@ -708,9 +726,20 @@ class NetworkService: ObservableObject {
 
         isLoading = false
     }
-
-    // MARK: - Games
-
+    
+    //MARK: - Games and Rounds Section
+    
+    //MARK: fetchGamesHistory used in HistoryView to refresh the History
+    func fetchGamesHistory() async {
+        isLoading = true
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await self.fetchFriendRequests(profileId: self.userId) }
+            group.addTask { await self.fetchProfileGames(profileId: self.userId) }
+        }
+        isLoading = false
+    }
+   
+    // MARK: addGame used in PlayView
     func addGame(
         target: Int,
         allowPingus: Bool,
@@ -744,6 +773,7 @@ class NetworkService: ObservableObject {
         }
     }
     
+    //MARK: isInOpenGame used in AddPlayersSheetView
     func isInOpenGame(profileId: Int) async -> Bool {
         guard let url = URL(string: "\(baseURL)/profile/\(profileId)/in_open_game") else { return false }
 
@@ -756,13 +786,14 @@ class NetworkService: ObservableObject {
         }
     }
 
+    //MARK: deleteGame used in EditRoundsSheetView, GameSummarySheetView and GameSummaryListview
     func deleteGame(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_game/\(gameId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
-            try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
             await MainActor.run {
                 self.games.removeAll { $0.id == gameId }
                 self.roundsByGame.removeValue(forKey: gameId)
@@ -772,7 +803,8 @@ class NetworkService: ObservableObject {
             print("deleteGame error: \(error)")
         }
     }
-
+    
+    //MARK: fetchProfileGames used in SocketService
     func fetchProfileGames(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/profile/\(profileId)/games") else { return }
 
@@ -835,6 +867,7 @@ class NetworkService: ObservableObject {
         }
     }
 
+    //MARK: fetchGame used in SocketService, GameSummaryListview, EditRoundsSheetView, HistoryView and PlayView
     func fetchGame(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/game/\(gameId)") else { return }
 
@@ -853,8 +886,7 @@ class NetworkService: ObservableObject {
         }
     }
 
-    // MARK: - Rounds
-
+    //MARK: addRound used in AddRoundsSheetView, GameSummaryListView, AddRoundSheetViewLocal, EditRoundsSheetView and PlayView
     func addRound(
         gameId: Int,
         roundOrder: Int = 1,
@@ -917,7 +949,8 @@ class NetworkService: ObservableObject {
             return nil
         }
     }
-
+    
+    //MARK: fetchGameRounds used in SocketService, GameSummaryListview, EditRoundsSheetView, HistoryView and PlayView
     func fetchGameRounds(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/game/\(gameId)/rounds") else { return }
 
@@ -957,7 +990,8 @@ class NetworkService: ObservableObject {
             print("fetchGameRounds error: \(error)")
         }
     }
-
+    
+    //MARK: editRound used in AddRoundsSheetView, EditRoundsSheetView and PlayView
     func editRound(roundId: Int, updates: [String: Any]) async {
         guard let url = URL(string: "\(baseURL)/edit_round/\(roundId)") else { return }
 
@@ -983,6 +1017,7 @@ class NetworkService: ObservableObject {
         }
     }
     
+    //updateGameFavorite used in GameSummarySheetView (and if not bugged in HistoryView but that doesn't work reliable)
     func updateGameFavorite(gameId: Int, favorite: Bool) async {
         await MainActor.run {
             favDic[gameId] = favorite ? 1 : 0
@@ -1004,7 +1039,8 @@ class NetworkService: ObservableObject {
             }
         }
     }
-    
+
+    //MARK: finishGame used in SocketService and PlayView
     func finishGame(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/finish_game/\(gameId)") else { return }
 
@@ -1017,14 +1053,15 @@ class NetworkService: ObservableObject {
             print("finishGame error: \(error)")
         }
     }
-
+    
+    //MARK: deleteRound used in GameSummaryListView and EditRoundsSheetview
     func deleteRound(gameId: Int, roundId: Int) async {
         guard let url = URL(string: "\(baseURL)/delete_round/\(roundId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
         do {
-            try await URLSession.shared.data(for: request)
+            _ = try await URLSession.shared.data(for: request)
             await MainActor.run {
                 self.roundsByGame[gameId]?.removeAll { $0.id == roundId }
             }
@@ -1033,6 +1070,7 @@ class NetworkService: ObservableObject {
         }
     }
     
+    //MARK: editGamePlayer not being used
     func editGamePlayer(gameId: Int, playerSlot: Int) async {
         let slotMap = [
             1: "team1_player1_id",
@@ -1064,7 +1102,8 @@ class NetworkService: ObservableObject {
             print("editGamePlayer error: \(error)")
         }
     }
-
+    
+    //MARK: reCalculate used in GameSumamryListView, AddRoundSheetView, EditRoundsSheetView and DebugSheetView
     func reCalculate(gameId: Int) async {
         guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)") else { return }
 
@@ -1096,6 +1135,7 @@ class NetworkService: ObservableObject {
         }
     }
     
+    //MARK: fetchEloHistory used in SocketService and EloHistoryChart
     func fetchEloHistory(profileId: Int) async {
         guard let url = URL(string: "\(baseURL)/elo_history/\(profileId)") else { return }
 

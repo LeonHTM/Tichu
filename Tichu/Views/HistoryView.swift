@@ -173,7 +173,7 @@ struct HistoryView: View {
             }
             .refreshable {
                 Task {
-                    await network.fetch()
+                    await network.fetchGamesHistory()
                 }
             }
             .sheet(item: $sheetGame) { game in
@@ -297,8 +297,8 @@ struct HistoryView: View {
     private var emptyStateView: some View {
         NavigationStack {
             VStack {
-                Text("Your History of Tichu Games will appear here once you've played a game.")
-                    .padding()
+                Text("No Games played").font(.title2).fontWeight(.bold)
+                Text("Your History of Tichu Games will appear here once you've played a game.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
                     .sheet(isPresented: $showDebugSheetView) {
                         DebugSheetView(
                             currentGame: .constant(
@@ -323,7 +323,7 @@ struct HistoryView: View {
                     Text("Play Tichu")
                 }
                 .padding(13)
-                .glassEffect(.regular.interactive())
+                .glassEffect(.regular.tint(.accentColor).interactive())
                 .foregroundStyle(.primary)
             }
             .toolbarTitleDisplayMode(.inlineLarge)

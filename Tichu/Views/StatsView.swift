@@ -80,7 +80,9 @@ struct StatsView: View {
             .refreshable {
                 if socket.connected {
                     Task {
+                        network.isLoading = true
                         await network.fetchSelectedProfilesStats()
+                        network.isLoading = false
                     }
                 }
             }

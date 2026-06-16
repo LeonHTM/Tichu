@@ -41,9 +41,7 @@ struct DebugSheetView: View {
                     Text("Switch Server Current: \(Config.shared.baseURL)")
                 }
                 .id(Config.shared.baseURL)
-                /*ForEach(Array(network.profileImages.keys.sorted()), id: \.self) { id in
-                    ProfileImage(data: network.profileImages[id], size: 44)
-                }*/
+      
                 TextField("Round to recalculate", text: $reCalculate)
                 Button{
                     Task{
@@ -84,15 +82,7 @@ struct DebugSheetView: View {
                     Text("Day: ")
                     Text("\(network.profiles.first(where:{$0.id == profileId})?.day)")
                 }
-                
-                
-                
-                HStack{Text("Id:\(userId)")
-                    Text("Elo:  \(network.profiles.first(where: {$0.id == userId})?.name ?? "Error")")
-                    Text("Elo:  \(network.profiles.first(where: {$0.id == userId})?.elo ?? -69420)")
-                    ProfileImage(data:network.profileImages[userId],size:44)
-                    
-                }
+              
                 
               
             }

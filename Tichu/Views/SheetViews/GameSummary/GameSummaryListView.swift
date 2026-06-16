@@ -278,7 +278,7 @@ struct GameSummaryListView: View {
                         Section {
                             HStack {
                                 Spacer()
-                                Text("Played on \(currentGame?.date ?? Date(), style: .date)")
+                                Text("Played on \(currentGame?.date.formatted(date: .complete, time: .omitted) ?? "Unknown Date")")
                                 Spacer()
                             }
                             .foregroundStyle(Color.secondary)

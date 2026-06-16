@@ -68,13 +68,23 @@ struct AddRoundSheetView: View {
 
     // MARK: - Computed
 
+    /// In drag mode, first/second are derived live from the players array order.
+    /// In tap mode, they come from the stored firstProfileId/secondProfileId.
+    private var effectiveFirstProfileId: Int? {
+        dragMode ? players[safe: 0]??.id : firstProfileId
+    }
+
+    private var effectiveSecondProfileId: Int? {
+        dragMode ? players[safe: 1]??.id : secondProfileId
+    }
+
     private var hasDoubleWinTeam1: Bool {
-        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        guard let f = effectiveFirstProfileId, let s = effectiveSecondProfileId else { return false }
         return team1Ids.contains(f) && team1Ids.contains(s)
     }
 
     private var hasDoubleWinTeam2: Bool {
-        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        guard let f = effectiveFirstProfileId, let s = effectiveSecondProfileId else { return false }
         return team2Ids.contains(f) && team2Ids.contains(s)
     }
 
@@ -165,10 +175,10 @@ struct AddRoundSheetView: View {
 
     func saveRound() {
         if dragMode {
-            firstProfileId  = players[0]?.id
-            secondProfileId = players[1]?.id
-            thirdProfileId  = players[2]?.id
-            fourthProfileId = players[3]?.id
+            firstProfileId  = players[safe: 0]??.id
+            secondProfileId = players[safe: 1]??.id
+            thirdProfileId  = players[safe: 2]??.id
+            fourthProfileId = players[safe: 3]??.id
         }
         if let p1 = player1 { updateAnnouncement(playerId: p1.id, state: hasAnnouncedPlayer1) }
         if let p2 = player2 { updateAnnouncement(playerId: p2.id, state: hasAnnouncedPlayer2) }
@@ -272,7 +282,7 @@ struct AddRoundSheetView: View {
                     thirdBombs      = round.thirdBombs
                     fourthBombs     = round.fourthBombs
                     tichuPointsTeam1 = round.tichuPointsTeam1
-                    tichuPointsTeam2 = round.tichuPointsTeam2 
+                    tichuPointsTeam2 = round.tichuPointsTeam2
                     announcedTichu    = round.announcedTichu
                     announcedBigTichu = round.announcedBigTichu
                     announcedPingu    = round.announcedPingu
@@ -286,8 +296,8 @@ struct AddRoundSheetView: View {
                 hasAnnouncedPlayer3 = announcement(for: player3)
                 hasAnnouncedPlayer4 = announcement(for: player4)
             }
-            .onChange(of:socket.connected){
-                if socket.connected == false{
+            .onChange(of: socket.connected) {
+                if socket.connected == false {
                     showAddRoundsSheet = false
                 }
             }
@@ -307,8 +317,7 @@ struct AddRoundSheetView: View {
                             allowPingus: currentGame.allowPingus,
                             isTeam1: true,
                             hasAnnounced: $hasAnnouncedPlayer1,
-                            bombNumber: $firstBombs,
-                            
+                            bombNumber: $firstBombs
                         )
                         PlayerContainer(
                             player: player2 ?? Profile(),
@@ -316,8 +325,7 @@ struct AddRoundSheetView: View {
                             allowPingus: currentGame.allowPingus,
                             isTeam1: true,
                             hasAnnounced: $hasAnnouncedPlayer2,
-                            bombNumber: $secondBombs,
-                           
+                            bombNumber: $secondBombs
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
@@ -333,8 +341,7 @@ struct AddRoundSheetView: View {
                         allowPingus: currentGame.allowPingus,
                         isTeam1: false,
                         hasAnnounced: $hasAnnouncedPlayer3,
-                        bombNumber: $thirdBombs,
-                        
+                        bombNumber: $thirdBombs
                     )
                     PlayerContainer(
                         player: player4 ?? Profile(),
@@ -342,8 +349,7 @@ struct AddRoundSheetView: View {
                         allowPingus: currentGame.allowPingus,
                         isTeam1: false,
                         hasAnnounced: $hasAnnouncedPlayer4,
-                        bombNumber: $fourthBombs,
-                        
+                        bombNumber: $fourthBombs
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
@@ -400,7 +406,6 @@ struct AddRoundSheetView: View {
                             rankingList[index] = counter
                             hasPushedList[index] = true
 
-                            
                             let unsetIndices = hasPushedList.indices.filter { !hasPushedList[$0] }
                             if unsetIndices.count == 1, let lastIndex = unsetIndices.first {
                                 counter += 1
@@ -432,7 +437,6 @@ struct AddRoundSheetView: View {
                             Text("\(rankingList[index]).").fontWeight(.bold)
                                 .foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
                             Text(player?.name ?? "Unknown")
-                            //Text((player?.id ?? 0) > 0 ? player?.name ?? "Unknown" : "Guest")
                             Spacer()
                         }
                     }
