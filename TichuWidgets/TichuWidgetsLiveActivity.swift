@@ -9,6 +9,8 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+
+//Template for Live Activity
 struct TichuWidgetsAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         // Dynamic stateful properties about your activity go here!

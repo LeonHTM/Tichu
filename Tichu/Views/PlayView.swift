@@ -937,6 +937,7 @@ struct PlayView: View {
                             .fontWeight(.bold)
                             .font(.title3)
                             .offset(y: -15)
+
                     }
                 }
                 .transition(.opacity)
@@ -952,13 +953,22 @@ struct PlayView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
-                .transition(.opacity)
             } else {
                 VStack(spacing: 10) {
-                    ProgressView()
-                    Text("Loading game...")
+                    VStack {
+                        Text("VS")
+                            .font(.system(size: 120, weight: .bold))
+                        HStack {
+                           
+                            Text(" Target: 1000 ")
+                                .fontWeight(.bold)
+                                .font(.title3)
+                                .offset(y: -15)
+                                .redacted(reason: .placeholder)
+                        }
+                    }
                 }
-                .transition(.opacity)
+                
             }
         }
         .foregroundStyle(Color.secondary)

@@ -341,13 +341,13 @@ struct EditFriendsSheetView: View {
                             Button {
                                 withAnimation(.easeInOut) { sortByFriends = .valueDown; friendsFilterActive = true }
                             } label: {
-                                if sortByFriends == .valueDown { Image(systemName: "checkmark") } else { Image("Date.down") }
+                                if sortByFriends == .valueDown { Image(systemName: "checkmark") } else { Image("date.down") }
                                 Text("Date Added (New - Old)")
                             }
                             Button {
                                 withAnimation(.easeInOut) { sortByFriends = .valueUp; friendsFilterActive = true }
                             } label: {
-                                if sortByFriends == .valueUp { Image(systemName: "checkmark") } else { Image("Date.up") }
+                                if sortByFriends == .valueUp { Image(systemName: "checkmark") } else { Image("date.up") }
                                 Text("Date Added (Old - New)")
                             }
                         } label: {
@@ -433,13 +433,13 @@ struct EditFriendsSheetView: View {
                         Button {
                             withAnimation(.easeInOut) { sortBySentRequests = .valueDown; friendsFilterActive = true }
                         } label: {
-                            if sortBySentRequests == .valueDown { Image(systemName: "checkmark") } else { Image("Date.down") }
+                            if sortBySentRequests == .valueDown { Image(systemName: "checkmark") } else { Image("date.down") }
                             Text("Date Added (New - Old)")
                         }
                         Button {
                             withAnimation(.easeInOut) { sortBySentRequests = .valueUp; friendsFilterActive = true }
                         } label: {
-                            if sortBySentRequests == .valueUp { Image(systemName: "checkmark") } else { Image("Date.up") }
+                            if sortBySentRequests == .valueUp { Image(systemName: "checkmark") } else { Image("date.up") }
                             Text("Date Added (Old - New)")
                         }
                     } label: {

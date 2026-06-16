@@ -68,7 +68,7 @@ class NotificationService: UNNotificationServiceExtension {
                 attachments: nil
             )
 
-            // ✅ Required per Apple docs: donate BEFORE calling updating(from:)
+            // Required per Apple docs
             let interaction = INInteraction(intent: intent, response: nil)
             interaction.direction = .incoming
 
@@ -76,17 +76,17 @@ class NotificationService: UNNotificationServiceExtension {
                 guard let self else { return }
 
                 if let error {
-                    print("❌ Interaction donation failed: \(error)")
+                    print("Interaction donation failed: \(error)")
                     contentHandler(bestAttemptContent)
                     return
                 }
 
                 do {
-                    // ✅ Update content AFTER successful donation
+                    //Update content AFTER successful donation
                     let updatedContent = try bestAttemptContent.updating(from: intent)
                     contentHandler(updatedContent)
                 } catch {
-                    print("❌ Content update failed: \(error)")
+                    print("Content update failed: \(error)")
                     contentHandler(bestAttemptContent)
                 }
             }

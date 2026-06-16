@@ -5,10 +5,11 @@
 //  Created by Leon on 03.06.2026.
 //
 
+
 import AppIntents
 import SwiftUI
 import WidgetKit
-
+//Template for a Control Center Control
 struct TichuWidgetsControl: ControlWidget {
     static let kind: String = "com.Drakynem.Tichu.TichuWidgets"
 
