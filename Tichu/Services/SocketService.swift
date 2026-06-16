@@ -11,26 +11,23 @@ import Combine
 import SwiftUI
 
 final class SocketService: ObservableObject {
-
+    
+    //MARK: Vars
     @AppStorage("userId") private var userId = -69420
     @AppStorage("userImageData") var userImageData: Data?
     @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Double = 1000
     static let shared = SocketService()
-
     private var manager: SocketManager!
     private var socket: SocketIOClient!
-
     @Published var connected = true
     var baseURL: String { Config.shared.baseURL }
-
 
     private init() {
         setupSocket()
     }
 
-    // MARK: - Setup Socket
-
+    // MARK: - Setup Socket Section
     private func setupSocket() {
         guard let url = URL(string: baseURL) else { return }
 
@@ -49,7 +46,7 @@ final class SocketService: ObservableObject {
         socket.connect()
     }
 
-    // MARK: - Reconnect with new URL
+    // MARK: Reconnect with new URL
     func reconnect() {
         socket.disconnect()
         socket.removeAllHandlers()
@@ -61,11 +58,8 @@ final class SocketService: ObservableObject {
             await NetworkService.shared.fetchFriendRequests(profileId: userId)
         }
     }
-
-    // MARK: - Setup Events
-
+    
     private func setupHandlers() {
-
         socket.on(clientEvent: .connect) { [weak self] data, ack in
             print("Socket connected")
             DispatchQueue.main.async { self?.connected = true }
@@ -81,7 +75,11 @@ final class SocketService: ObservableObject {
             DispatchQueue.main.async { self?.connected = false }
         }
 
-        // PROFILE CREATED
+        
+        
+        //MARK: - Profiles Section
+        
+        //MARK: Profile Created
         socket.on("profile_created") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let jsonData = try? JSONSerialization.data(withJSONObject: dict),
@@ -98,6 +96,59 @@ final class SocketService: ObservableObject {
             }
         }
         
+        //MARK: Profile Deleted
+        socket.on("profile_deleted") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let id = dict["id"] as? Int else {
+                print("profile_deleted: failed to parse \(data)")
+                return
+            }
+            DispatchQueue.main.async {
+                withAnimation(.easeInOut) {
+                    NetworkService.shared.profiles.removeAll { $0.id == id }
+                    if id == self.userId {
+                        self.userId = -69420
+                    }
+                }
+            }
+        }
+        
+        //MARK: Username updated
+        socket.on("username_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let profileId = dict["profile_id"] as? Int,
+                  let name = dict["name"] as? String else { return }
+            DispatchQueue.main.async {
+                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.profiles[index].name = name
+                        if profileId == self.userId {
+                            self.userName = name
+                        }
+                    }
+                }
+            }
+        }
+        
+        //MARK: Admin State updated
+        socket.on("admin_updated"){data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let profileId = dict["profile_id"] as? Int,
+                  let isAdmin = dict["admin"] as? Bool else {
+                      print("failed")
+                      return }
+            
+            DispatchQueue.main.async {
+                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
+                    withAnimation(.easeInOut) {
+                        NetworkService.shared.profiles[index].isAdmin = isAdmin
+                       
+                    }
+                }
+            }
+        }
+        
+        //MARK: Elo State Updated
         socket.on("elo_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let players = dict["players"] as? [[String: Any]]
@@ -126,26 +177,16 @@ final class SocketService: ObservableObject {
             
         }
         
-
-        // PROFILE DELETED
-        socket.on("profile_deleted") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let id = dict["id"] as? Int else {
-                print("profile_deleted: failed to parse \(data)")
-                return
-            }
-            DispatchQueue.main.async {
-                withAnimation(.easeInOut) {
-                    NetworkService.shared.profiles.removeAll { $0.id == id }
-                    if id == self.userId {
-                        self.userId = -69420
-                    }
-                }
+        //MARK: Profile Image updated
+        socket.on("profile_image_updated") { data, ack in
+            print("profile_image_updated: \(data)")
+            Task {
+                await NetworkService.shared.fetchProfiles()
             }
         }
-
-        // REMOVE FRIENDSHIP NOTIFICATION
-        socket.on("remove_friend_request_notification") { [weak self] data, _ in
+    
+        //MARK: Remove Friend Request Nortification
+        socket.on("remove_friend_request_notification") { data, _ in
             guard let dict = data.first as? [String: Any],
                   let userId = dict["user_id"] as? Int,
                   let senderId = dict["sender_id"] as? Int else { return }
@@ -155,44 +196,8 @@ final class SocketService: ObservableObject {
             }
             removeFriendRequestNotification(fromSenderId: senderId)
         }
-
-        // USERNAME UPDATED
-        socket.on("username_updated") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let profileId = dict["profile_id"] as? Int,
-                  let name = dict["name"] as? String else { return }
-            DispatchQueue.main.async {
-                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
-                    withAnimation(.easeInOut) {
-                        NetworkService.shared.profiles[index].name = name
-                        if profileId == self.userId {
-                            self.userName = name
-                        }
-                    }
-                }
-            }
-        }
-        
-        socket.on("admin_updated"){data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let profileId = dict["profile_id"] as? Int,
-                  let isAdmin = dict["admin"] as? Bool else {
-                      print("failed")
-                      return }
-            
-            DispatchQueue.main.async {
-                if let index = NetworkService.shared.profiles.firstIndex(where: { $0.id == profileId }) {
-                    withAnimation(.easeInOut) {
-                        NetworkService.shared.profiles[index].isAdmin = isAdmin
-                       
-                    }
-                }
-            }
-            
-            
-        }
-    
-        // FRIEND REQUEST SENT
+ 
+        //MARK: Friend Request sent
         socket.on("friend_request_sent") { data, ack in
             Task {
                 await NetworkService.shared.fetchSentRequests(profileId: self.userId)
@@ -200,7 +205,7 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // FRIEND REQUEST UPDATED
+        //MARK: Friend Request Updated
         socket.on("friend_request_updated") { data, ack in
             Task {
                 await NetworkService.shared.fetchSentRequests(profileId: self.userId)
@@ -209,7 +214,7 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // FRIENDSHIP ADDED
+        //MARK: Friendship added
         socket.on("friendship_added") { [weak self] data, ack in
             print("friendship_added: \(data)")
             Task { [weak self] in
@@ -219,7 +224,7 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // FRIENDSHIP REMOVED
+        //MARK: Friendship removed
         socket.on("friendship_removed") { [weak self] data, ack in
             print("friendship_removed: \(data)")
             Task { [weak self] in
@@ -228,15 +233,9 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // IMAGE UPDATED
-        socket.on("profile_image_updated") { data, ack in
-            print("profile_image_updated: \(data)")
-            Task {
-                await NetworkService.shared.fetchProfiles()
-            }
-        }
+        
 
-        // AUTH FAILED
+        //MARK: Auth Failed
         socket.on("auth_failed") { data, ack in
             
             Task {
@@ -244,9 +243,9 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // MARK: - Game Events
+        // MARK: - Game and Rounds Section
 
-        // GAME CREATED
+        //MARK: Game created
         socket.on("game_created") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let jsonData = try? JSONSerialization.data(withJSONObject: dict) else {
@@ -268,81 +267,22 @@ final class SocketService: ObservableObject {
             }
         }
 
-        // GAME DELETED
+        //MARK: Game deleted
         socket.on("game_deleted") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let gameId = dict["game_id"] as? Int else {
                 print("game_deleted: failed to parse \(data)")
                 return
             }
-            withAnimation(.easeInOut){
                 Task{
                     print("Game Deleted: \(gameId)")
-                    await NetworkService.shared.games.removeAll { $0.id == gameId }
-                    await NetworkService.shared.roundsByGame.removeValue(forKey: gameId)
+                    NetworkService.shared.games.removeAll { $0.id == gameId }
+                    NetworkService.shared.roundsByGame.removeValue(forKey: gameId)
                 }
-            }
-        }
-
-        // MARK: - Round Events
-
-        // ROUND CREATED
-        // ROUND UPDATED
-        socket.on("round_updated") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            guard let updated = try? decoder.decode(Round.self, from: jsonData) else { return }
-            DispatchQueue.main.async {
-                let gameId = updated.gameId
-                if var rounds = NetworkService.shared.roundsByGame[gameId],
-                   let index = rounds.firstIndex(where: { $0.id == updated.id }) {
-                    rounds[index] = updated
-                    NetworkService.shared.roundsByGame[gameId] = rounds
-                }
-            }
-            withAnimation(.easeInOut){
-                Task { await NetworkService.shared.fetchProfileGames(profileId: self.userId) }
-            }
-        }
-
-        // ROUND DELETED
-        socket.on("round_deleted") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let roundId = dict["round_id"] as? Int,
-                  let gameId = dict["game_id"] as? Int else { return }
-            withAnimation(.easeInOut){
-                Task{
-                    await NetworkService.shared.reCalculate(gameId: gameId)
-                }
-            }
-        }
-
-        // ROUND CREATED
-        socket.on("round_created") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            guard let round = try? decoder.decode(Round.self, from: jsonData) else { return }
-            let gameId = round.gameId
-            DispatchQueue.main.async {
-                var list = NetworkService.shared.roundsByGame[gameId] ?? []
-                if !list.contains(where: { $0.id == round.id }) {
-                    list.append(round)
-                    list.sort { $0.roundOrder < $1.roundOrder }
-                    NetworkService.shared.roundsByGame[gameId] = list
-                }
-            }
-            withAnimation(.easeInOut){
-                Task {
-                    await NetworkService.shared.reCalculate(gameId: gameId)
-                }
-            }
+            
         }
         
-        // GAME RECALCULATED
+        //MARK: Game recalculated
         socket.on("game_recalculated") { data, ack in
             guard let dict = data.first as? [String: Any],
                   let gameId = dict["game_id"] as? Int else {
@@ -351,15 +291,14 @@ final class SocketService: ObservableObject {
             }
 
             print("game_recalculated for game \(gameId)")
-            withAnimation(.easeInOut){
                 Task {
                     await NetworkService.shared.fetchGame(gameId: gameId)
                     await NetworkService.shared.fetchGameRounds(gameId: gameId)
                 }
-            }
+            
         }
         
-        
+        //MARK: GAME finished
         socket.on("game_finished") { data, _ in
             guard let gameId = (data.first as? [String: Any])?["game_id"] as? Int else { return }
             Task {
@@ -373,8 +312,7 @@ final class SocketService: ObservableObject {
             }
         }
         
-        
-        // GAME PLAYER UPDATED
+        //MARK: Game updated not in use because Players can't be changed
         socket.on("game_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
                   let jsonData = try? JSONSerialization.data(withJSONObject: dict) else {
@@ -394,12 +332,60 @@ final class SocketService: ObservableObject {
                 }
             }
         }
-        
-        
+
+        //MARK: Round updated
+        socket.on("round_updated") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            guard let updated = try? decoder.decode(Round.self, from: jsonData) else { return }
+            DispatchQueue.main.async {
+                let gameId = updated.gameId
+                if var rounds = NetworkService.shared.roundsByGame[gameId],
+                   let index = rounds.firstIndex(where: { $0.id == updated.id }) {
+                    rounds[index] = updated
+                    NetworkService.shared.roundsByGame[gameId] = rounds
+                }
+            }
+            
+                Task { await NetworkService.shared.fetchProfileGames(profileId: self.userId) }
+            
+        }
+
+        //MARK: Round deleted
+        socket.on("round_deleted") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let gameId = dict["game_id"] as? Int else { return }
+                Task{
+                    await NetworkService.shared.reCalculate(gameId: gameId)
+                }
+        }
+
+        //MARK: Round created
+        socket.on("round_created") { data, ack in
+            guard let dict = data[0] as? [String: Any],
+                  let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return }
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            guard let round = try? decoder.decode(Round.self, from: jsonData) else { return }
+            let gameId = round.gameId
+            DispatchQueue.main.async {
+                var list = NetworkService.shared.roundsByGame[gameId] ?? []
+                if !list.contains(where: { $0.id == round.id }) {
+                    list.append(round)
+                    list.sort { $0.roundOrder < $1.roundOrder }
+                    NetworkService.shared.roundsByGame[gameId] = list
+                }
+            }
+                Task {
+                    await NetworkService.shared.reCalculate(gameId: gameId)
+                }
+        }
+ 
     }
 
     // MARK: - Disconnect
-
     func disconnect() {
         socket.disconnect()
     }
