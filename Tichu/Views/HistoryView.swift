@@ -130,7 +130,7 @@ struct HistoryView: View {
                                             print("\(game.id)")
                                             let renderer = ImageRenderer(content: GameSummaryShareView(
                                                 currentGameId: game.id,
-                                                rounds: network.roundsByGame[game.id ?? 0] ?? [],
+                                                rounds: network.roundsByGame[game.id] ?? [],
                                                 profiles: network.profiles,
                                                 accentCo: .accent
                                             )

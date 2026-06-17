@@ -245,7 +245,7 @@ struct fuckyouView: View{
         Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
         Button("Delete", role: .destructive) {
             Task {
-                await NetworkService.shared.deleteGame(gameId: currentGameId ?? 0)
+                await NetworkService.shared.deleteGame(gameId: currentGameId)
                 showGameOverViewSheetView = false
             }
         }

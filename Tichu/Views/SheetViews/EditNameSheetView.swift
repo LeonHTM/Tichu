@@ -128,7 +128,7 @@ struct EditNameSheetView: View {
                             Task {
                                 if let id = await network.addProfile(email: email,name:newName) {
                                     loginWait = true
-                                    await network.login(userId:id)
+                                    _ = await network.login(userId:id)
                                     loginWait = false
                                 }
                             }
@@ -177,7 +177,7 @@ struct EditNameSheetView: View {
                 }
                 
             }
-            .onChange(of: newName) { _ in
+            .onChange(of: newName) {
                 if isLengthValid && isCharsetValid{
                     isAvailable = false
                     guard isLengthValid && isCharsetValid else { return }

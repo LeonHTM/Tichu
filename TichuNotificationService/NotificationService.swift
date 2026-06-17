@@ -72,8 +72,7 @@ class NotificationService: UNNotificationServiceExtension {
             let interaction = INInteraction(intent: intent, response: nil)
             interaction.direction = .incoming
 
-            interaction.donate { [weak self] error in
-                guard let self else { return }
+            interaction.donate { error in
 
                 if let error {
                     print("Interaction donation failed: \(error)")

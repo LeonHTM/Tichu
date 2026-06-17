@@ -62,29 +62,6 @@ struct DebugSheetView: View {
                     Text("\(NetworkService.shared.eloHistory)")
                     EloHistoryChartView(profileId: userId)
                 }*/
-                Text("Fav Dictionary: ").fontWeight(.bold)
-                Text("\(favDic)")
-                Text("Defaults").fontWeight(.bold)
-                Text("Target: \(defaultTarget)")
-                Text("Allow Pingus: \(defaultAllowPingus)")
-                Text("dragMode: \(dragMode)")
-                
-                ForEach(statsList, id: \.self){profileId in
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.name)").fontWeight(.bold)
-                    Text("All Time:")
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.allTime)")
-                    Text("Year:")
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.year)")
-                    Text("Month:")
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.month)")
-                    Text("Week:")
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.week)")
-                    Text("Day: ")
-                    Text("\(network.profiles.first(where:{$0.id == profileId})?.day)")
-                }
-              
-                
-              
             }
             .navigationTitle(Text("Debug View"))
             .navigationBarTitleDisplayMode(.inline)
@@ -100,7 +77,3 @@ struct DebugSheetView: View {
         }
     }
 }
-
-/*#Preview {
-    DebugSheetView(currentGame:.constant(exampleGame),showDebugSheetView: .constant(true),exampleGameHistory: .constant([]))
-}*/

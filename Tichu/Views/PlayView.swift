@@ -260,7 +260,6 @@ struct PlayView: View {
                             }
                         }
                     }) {
-                        if let game = currentGame {
                             GameSummarySheetView(
                                 showGameOverViewSheetView: $showGameOverSheet,
                                 currentGameId: network.currentGameId,
@@ -272,7 +271,7 @@ struct PlayView: View {
                                 allowEditing: $network.finishGameEditing
                             )
                             .presentationDetents([.medium, .large])
-                        }
+                        
                     }
                     .scrollContentBackground(.hidden)
                     .background(alignment: .center) {

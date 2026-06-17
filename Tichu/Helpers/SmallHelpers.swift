@@ -156,7 +156,7 @@ func bombView(bomb: Int) -> some View {
   
 //MARK: - Extension to save Array in AppStorage used to Store the List of Players in StatsView
 // Source - https://stackoverflow.com/a/65598711
-extension Array: RawRepresentable where Element: Codable {
+extension Array: @retroactive RawRepresentable where Element: Codable {
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),
               let result = try? JSONDecoder().decode([Element].self, from: data)
@@ -178,7 +178,7 @@ extension Array: RawRepresentable where Element: Codable {
 
 
 //MARK: - Extension to save Dictionaries in AppStorage
-extension Dictionary: RawRepresentable where Key == Int, Value == Int {
+extension Dictionary: @retroactive RawRepresentable where Key == Int, Value == Int {
     public init?(rawValue: String) {
         guard let data = rawValue.data(using: .utf8),
               let result = try? JSONDecoder().decode([Int: Int].self, from: data)

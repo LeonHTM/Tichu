@@ -208,7 +208,7 @@ struct AddRoundSheetView: View {
                     "announced_pingu":     announcedPingu
                 ])
             } else {
-                await network.addRound(
+                _ = await network.addRound(
                     gameId:           currentGame.id,
                     roundOrder:       nextOrder,
                     firstProfileId:   firstProfileId,
@@ -225,9 +225,9 @@ struct AddRoundSheetView: View {
                     roundPointsTeam2: 0,
                     doubleWinTeam1:   hasDoubleWinTeam1,
                     doubleWinTeam2:   hasDoubleWinTeam2,
-                    announcedTichu:     announcedTichu,
-                    announcedBigTichu:  announcedBigTichu,
-                    announcedPingu:     announcedPingu
+                    announcedTichu:   announcedTichu,
+                    announcedBigTichu: announcedBigTichu,
+                    announcedPingu:   announcedPingu
                 )
             }
             await network.reCalculate(gameId: currentGame.id)
