@@ -380,7 +380,7 @@ struct AddRoundSheetView: View {
             ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
                 let golden = isGolden(index: index)
                 HStack {
-                    Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.accentColor : Color.primary)
+                    Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
                     Text(player?.name ?? "Unknown")
                     Spacer()
                 }

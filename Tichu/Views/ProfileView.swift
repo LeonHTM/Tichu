@@ -139,7 +139,7 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showNameSheet ? 90 : 0))
                 }
             }
-            .foregroundColor(.primary)
+            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             .sheet(isPresented: $showNameSheet) {
                 EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
                     .presentationDetents([.large])
@@ -175,19 +175,26 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
             }
-            .foregroundStyle(.primary)
+            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             .sheet(isPresented: $showFriendsSheet) {
                 EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
                     .presentationDetents([.medium, .large])
             }
             
             NavigationLink {
-                GameSettingsView()
+                if SocketService.shared.connected{
+                    GameSettingsView()
+                }
+                else{
+                    OfflineView(showNavBar: .constant(false))
+                }
+                
+               
             } label: {
                 Label("Game Settings", systemImage: "gamecontroller.fill")
                     .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 11))
             }
-            .foregroundStyle(.primary)
+            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             
         }
     }
@@ -255,7 +262,7 @@ struct ProfileView: View {
                         .labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 14))
                 }
                 .foregroundStyle(Color.primary)
-            }
+            }.foregroundColor(.primary)
 
             Button {
                 if let url = URL(string: "https://github.com/LeonHTM/Tichu") {
@@ -265,7 +272,7 @@ struct ProfileView: View {
                 Label("Source Code", image: "github")
                     .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 17))
             }
-            .foregroundStyle(Color.primary)
+            .foregroundColor(.primary)
         }
     }
 
@@ -320,7 +327,7 @@ struct ProfileView: View {
                             .padding(.trailing,1.2)
                       
                 }
-                .foregroundColor(.primary)
+                .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             }
         }
     }
@@ -427,7 +434,9 @@ struct GameSettingsView: View {
 
             Section("How to Play?") {
                 NavigationLink {
-                    TichuRulesPDFView()
+                   
+                        TichuRulesPDFView()
+                    
                 } label: {
                     Label("Official Tichu Rules", systemImage: "book.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .green, fontSize: 14))
@@ -508,7 +517,7 @@ struct PDFKitView: UIViewRepresentable {
         pdfView.displayBox = .cropBox
 
         if let url = Bundle.main.url(
-            forResource: "spielregeln-tichu",
+            forResource: "tichu-rules-en",
             withExtension: "pdf"
         ) {
             pdfView.document = PDFDocument(url: url)

@@ -262,3 +262,7 @@ struct GameSummaryShareView: View {
         }.frame(width: 500).background(colorScheme == .dark ? Color.black : Color.white)
     }
 }
+
+#Preview{
+    GameSummaryShareView(currentGameId:20,rounds:[],profiles: [],accentCo: .accentColor,)
+}

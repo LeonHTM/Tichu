@@ -83,9 +83,9 @@ struct MainView: View {
                 .onAppear {
                     selectedTab = 0
                 }
-                .alert(isPresented: isDisconnected) {
+                /*.alert(isPresented: isDisconnected) {
                     OfflineView.offlineAlert()
-                }
+                }*/
                 .task {
                     do {
                         try await notificationCenter.requestAuthorization(options: [.alert, .badge, .sound])

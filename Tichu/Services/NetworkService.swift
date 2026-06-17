@@ -276,7 +276,6 @@ class NetworkService: ObservableObject {
                             self.profiles[index].profileImageUrl = newProfile.profileImageUrl
                             self.profiles[index].elo = newProfile.elo
                             if newProfile.id == userId {
-                                self.userImageData = newProfile.imageData
                                 self.userName = newProfile.name ?? "Unknown"
                                 self.userElo = newProfile.elo ?? 1000
                             }
@@ -286,14 +285,14 @@ class NetworkService: ObservableObject {
                     }
                 }
             }
-            await loadProfileImages()
+            await fetchProfileImages()
         } catch {
             print("fetchProfiles error: \(error)")
         }
     }
     
-    //MARK: loadProfileImages used in fetchProfiles
-    func loadProfileImages() async {
+    //MARK: fetchProfileImages used in fetchProfiles
+    func fetchProfileImages(replace:Bool = false) async {
         let snapshot = await MainActor.run { profiles }
         for profile in snapshot {
             guard let urlString = profile.profileImageUrl,
@@ -308,6 +307,7 @@ class NetworkService: ObservableObject {
                     self.profileImages[profile.id] = data
                     if profile.id == self.userId {
                         userImageData = data
+                        self.userImageData = data
                     }
                 }
             } catch {

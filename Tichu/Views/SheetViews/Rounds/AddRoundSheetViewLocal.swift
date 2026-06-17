@@ -63,24 +63,34 @@ struct AddRoundSheetLocalView: View {
 
     // MARK: - Computed
 
+    /// In drag mode, first/second are derived live from the players array order.
+    /// In tap mode, they come from the stored firstProfileId/secondProfileId.
+    private var effectiveFirstProfileId: Int? {
+        dragMode ? players[safe: 0]??.id : firstProfileId
+    }
+
+    private var effectiveSecondProfileId: Int? {
+        dragMode ? players[safe: 1]??.id : secondProfileId
+    }
+
     private var hasDoubleWinTeam1: Bool {
-        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        guard let f = effectiveFirstProfileId, let s = effectiveSecondProfileId else { return false }
         return team1Ids.contains(f) && team1Ids.contains(s)
     }
 
     private var hasDoubleWinTeam2: Bool {
-        guard let f = firstProfileId, let s = secondProfileId else { return false }
+        guard let f = effectiveFirstProfileId, let s = effectiveSecondProfileId else { return false }
         return team2Ids.contains(f) && team2Ids.contains(s)
     }
 
     private var displayTeam1Points: Int {
-        if hasDoubleWinTeam1 { return 100 }
+        if hasDoubleWinTeam1 { return 200 }
         if hasDoubleWinTeam2 { return 0 }
         return tichuPointsTeam1
     }
 
     private var displayTeam2Points: Int {
-        if hasDoubleWinTeam2 { return 100 }
+        if hasDoubleWinTeam2 { return 200 }
         if hasDoubleWinTeam1 { return 0 }
         return tichuPointsTeam2
     }
@@ -160,10 +170,10 @@ struct AddRoundSheetLocalView: View {
 
     func saveRound() {
         if dragMode {
-            firstProfileId  = players[0]?.id
-            secondProfileId = players[1]?.id
-            thirdProfileId  = players[2]?.id
-            fourthProfileId = players[3]?.id
+            firstProfileId  = players[safe: 0]??.id
+            secondProfileId = players[safe: 1]??.id
+            thirdProfileId  = players[safe: 2]??.id
+            fourthProfileId = players[safe: 3]??.id
         }
         if let p1 = player1 { updateAnnouncement(playerId: p1.id, state: hasAnnouncedPlayer1) }
         if let p2 = player2 { updateAnnouncement(playerId: p2.id, state: hasAnnouncedPlayer2) }
@@ -416,7 +426,7 @@ struct AddRoundSheetLocalView: View {
             ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
                 let golden = isGolden(index: index)
                 HStack {
-                    Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.accentColor : Color.primary)
+                    Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
                     Text(player?.name ?? "Unknown")
                     Spacer()
                 }
@@ -441,6 +451,14 @@ struct AddRoundSheetLocalView: View {
                             counter += 1
                             rankingList[index] = counter
                             hasPushedList[index] = true
+
+                            let unsetIndices = hasPushedList.indices.filter { !hasPushedList[$0] }
+                            if unsetIndices.count == 1, let lastIndex = unsetIndices.first {
+                                counter += 1
+                                rankingList[lastIndex] = counter
+                                hasPushedList[lastIndex] = true
+                            }
+
                             if rankingList.allSatisfy({ $0 != 0 }) {
                                 withAnimation(.easeInOut) {
                                     if let i1 = rankingList.firstIndex(of: 1) { firstProfileId  = players[i1]?.id }
