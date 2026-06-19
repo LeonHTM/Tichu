@@ -87,12 +87,8 @@ final class SocketService: ObservableObject {
                 print("profile_created: failed to parse \(data)")
                 return
             }
-            DispatchQueue.main.async {
-                if !NetworkService.shared.profiles.contains(where: { $0.id == profile.id }) {
-                    withAnimation(.easeInOut) {
-                        NetworkService.shared.profiles.append(profile)
-                    }
-                }
+            Task {
+                await NetworkService.shared.fetchProfiles()
             }
         }
         
@@ -103,12 +99,10 @@ final class SocketService: ObservableObject {
                 print("profile_deleted: failed to parse \(data)")
                 return
             }
-            DispatchQueue.main.async {
-                withAnimation(.easeInOut) {
-                    NetworkService.shared.profiles.removeAll { $0.id == id }
-                    if id == self.userId {
-                        self.userId = -69420
-                    }
+            Task{
+                await NetworkService.shared.fetch(load:false)
+                if id == self.userId {
+                    self.userId = -69420
                 }
             }
         }

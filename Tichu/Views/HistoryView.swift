@@ -36,7 +36,7 @@ struct HistoryView: View {
     @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
-    @State private var sheetGame: Game? = nil
+    @Binding var sheetGame: Game? 
     @Binding var selectedGameId: Int?
     @Binding var scrolledGameId: Int?
     @State private var showOnlyFavorites: Bool = false
@@ -228,22 +228,21 @@ struct HistoryView: View {
             bottomBar
         }
         .onAppear {
+            
+            if selectedGameId == nil, let first = gameHistory.first {
+                selectedGameId = first.id
+                scrolledGameId = first.id
+            }
+            
             Task {
                 showLoader = true
                 await withTaskGroup(of: Void.self) { group in
                     for game in gameHistory {
                         group.addTask {
                             await network.fetchGameRounds(gameId: game.id)
-                            await MainActor.run {
-                                if selectedGameId == nil, let first = gameHistory.first {
-                                    selectedGameId = first.id
-                                    scrolledGameId = first.id
-                                }
-                            }
                         }
                     }
                 }
-                
                 showLoader = false
             }
         }
@@ -434,6 +433,6 @@ struct HistoryView: View {
 }
 
 #Preview {
-    HistoryView(selectedGameId: .constant(nil),scrolledGameId: .constant(nil))
+    HistoryView(sheetGame: .constant(nil),selectedGameId: .constant(nil),scrolledGameId: .constant(nil))
 }
 

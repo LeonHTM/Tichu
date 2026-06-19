@@ -138,7 +138,7 @@ struct PlayView: View {
                         target = defaultTarget
                     }
                     .refreshable {
-                        await network.fetch()
+                        await network.fetch(load:false)
                     }
                     .onChange(of:gameDone){
             
@@ -921,7 +921,22 @@ struct PlayView: View {
     // MARK: - VS Background
     private var vsBackground: some View {
         Group {
-            if isLoading == false && socket.connected {
+            
+            if isLoading {
+                VStack(spacing: 10) {
+                    VStack {
+                        Text("VS")
+                            .font(.system(size: 120, weight: .bold))
+                        HStack {
+                            Text(" Target: 1000 ")
+                                .fontWeight(.bold)
+                                .font(.title3)
+                                .offset(y: -15)
+                                .redacted(reason: .placeholder)
+                        }
+                    }
+                }
+            }else if isLoading == false && socket.connected {
                 VStack {
                     Text("VS")
                         .font(.system(size: 120, weight: .bold))
@@ -952,23 +967,10 @@ struct PlayView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
                 }
-            } else {
-                VStack(spacing: 10) {
-                    VStack {
-                        Text("VS")
-                            .font(.system(size: 120, weight: .bold))
-                        HStack {
-                           
-                            Text(" Target: 1000 ")
-                                .fontWeight(.bold)
-                                .font(.title3)
-                                .offset(y: -15)
-                                .redacted(reason: .placeholder)
-                        }
-                    }
-                }
-                
             }
+               
+                
+            
         }
         .foregroundStyle(Color.secondary)
         .allowsHitTesting(false)

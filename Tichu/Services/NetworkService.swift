@@ -270,6 +270,13 @@ class NetworkService: ObservableObject {
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
             await MainActor.run {
                 withAnimation(.easeInOut) {
+                    // Build a lookup of freshly fetched profiles
+                    let fetchedById = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
+
+                    // Remove profiles no longer on the server
+                    self.profiles.removeAll { fetchedById[$0.id] == nil }
+
+                    // Update existing or append new
                     for newProfile in decoded {
                         if let index = self.profiles.firstIndex(where: { $0.id == newProfile.id }) {
                             self.profiles[index].name = newProfile.name
@@ -316,7 +323,6 @@ class NetworkService: ObservableObject {
         }
     }
 
-    //MARK: fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
     //MARK: fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
     func fetchProfilesStats(profileId: Int) async {
         let timeframes = ["all_time", "year", "month", "week", "day"]
@@ -708,13 +714,21 @@ class NetworkService: ObservableObject {
     
     
     //MARK: - Main Fetch Funciton used in PlayView, HistoryView Section
-    func fetch() async {
-        isLoading = true
-        let currentUserId = await MainActor.run { userId }
+    func fetch(load: Bool = true) async {
+        if load {
+            isLoading = true
+        }
+        let currentUserId = userId
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 await self.fetchProfiles()
+                //If the Profiles has been deleted exit
+                let matchFound = await MainActor.run { self.profiles.first(where: { $0.id == currentUserId }) != nil }
+                if !matchFound {
+                    await NetworkService.shared.logout(profileId: currentUserId)
+                    return
+                }
                 await self.fetchSelectedProfilesStats()
             }
             group.addTask { await self.fetchFriends(profileId: currentUserId) }
@@ -1160,3 +1174,4 @@ class NetworkService: ObservableObject {
         }
     }
 }
+

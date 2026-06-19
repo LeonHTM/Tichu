@@ -15,6 +15,7 @@ struct MainView: View {
     @State private var fetchTrigger: Int = 0
     @State private var selectedGameId: Int? = nil
     @State private var scrolledGameId: Int? = nil
+    @State private var sheetGame: Game? = nil
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
     let notificationCenter = UNUserNotificationCenter.current()
@@ -42,7 +43,7 @@ struct MainView: View {
                     
                     
                     if socket.connected {
-                        HistoryView(selectedGameId:$selectedGameId,scrolledGameId: $scrolledGameId).tabItem {
+                        HistoryView(sheetGame:$sheetGame,selectedGameId:$selectedGameId,scrolledGameId: $scrolledGameId).tabItem {
                             Label("History", systemImage: "clock")
                         }
                         .tag(1)
@@ -109,8 +110,12 @@ struct MainView: View {
                     
                     
                     selectedTab = 1
+                //Placeholder has id 0 
+                if Int(gameId) != 0 {
                     selectedGameId = Int(gameId)
                     scrolledGameId = Int(gameId)
+                    sheetGame = nil
+                }
                     
                   
                 }
