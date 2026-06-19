@@ -22,6 +22,8 @@ struct RowSnappingBehavior: ScrollTargetBehavior {
 struct HistoryView: View {
     @Namespace private var historySpace
     @State private var renderedImage: Image?
+    @State private var outerSize: CGSize = .zero  // ADD THIS
+
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("selectedTab") private var selectedTab = 1
@@ -36,7 +38,7 @@ struct HistoryView: View {
     @ObservedObject private var network = NetworkService.shared
 
     // MARK: - State
-    @Binding var sheetGame: Game? 
+    @Binding var sheetGame: Game?
     @Binding var selectedGameId: Int?
     @Binding var scrolledGameId: Int?
     @State private var showOnlyFavorites: Bool = false
@@ -49,7 +51,7 @@ struct HistoryView: View {
         network.games
             .sorted { dateUp ? $0.date < $1.date : $0.date > $1.date }
             .filter { $0.winner != nil }
-            .filter { !showOnlyFavorites || $0.favorite}
+            .filter { !showOnlyFavorites || $0.favorite }
     }
 
     private func playerName(_ id: Int?) -> String {
@@ -62,7 +64,7 @@ struct HistoryView: View {
         if gameHistory.count > 0 {
             historyView
         } else if isLoading {
-            VStack(spacing:10){
+            VStack(spacing: 10) {
                 ProgressView()
                 Text("Loading history...")
             }.foregroundStyle(.secondary)
@@ -90,12 +92,9 @@ struct HistoryView: View {
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
                                     .id(game.id)
-                                    
                                     .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
                                     .sensoryFeedback(.success, trigger: game.favorite)
                                     .contextMenu {
-                                        
-                                        
                                         Button {
                                             sheetGame = game
                                         } label: {
@@ -154,7 +153,8 @@ struct HistoryView: View {
                             Color.clear.frame(height: bottomPadding)
                         }
                         .scrollTargetLayout()
-                    }.scrollEdgeEffectStyle(.soft, for: .all)
+                    }
+                    .scrollEdgeEffectStyle(.soft, for: .all)
                     .scrollPosition(id: $scrolledGameId, anchor: .center)
                     .scrollTargetBehavior(RowSnappingBehavior(rowHeight: rowHeight))
                     .background(Color(uiColor: .systemGroupedBackground))
@@ -163,6 +163,8 @@ struct HistoryView: View {
                         selectedGameId = newId
                         selectedCounter += 1
                     }
+                    .onAppear { outerSize = outerGeo.size }
+                    .onChange(of: outerGeo.size) { _, s in outerSize = s }
                 }
             }
             .sheet(isPresented: $showDebugSheetView) {
@@ -194,7 +196,7 @@ struct HistoryView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
             .toolbar {
-                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true {
                     ToolbarItem {
                         Button { showDebugSheetView = true } label: {
                             Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
@@ -210,8 +212,8 @@ struct HistoryView: View {
         .safeAreaInset(edge: .top) {
             if let selectedId = selectedGameId {
                 EloHistoryChartView(profileId: userId, markedGameId: selectedId)
-                    .frame(height: 200)
-                    .padding()
+                    .frame(height: outerSize.height / 2 - 125)  
+                    .padding(.vertical)
                     .glassEffect(
                         .regular.tint(
                             colorScheme == .dark
@@ -224,16 +226,16 @@ struct HistoryView: View {
                     .padding(.horizontal, 10)
                     .padding(.top, 5)
             }
-        }.safeAreaInset(edge: .bottom) {
+        }
+        .safeAreaInset(edge: .bottom) {
             bottomBar
         }
         .onAppear {
-            
             if selectedGameId == nil, let first = gameHistory.first {
                 selectedGameId = first.id
                 scrolledGameId = first.id
             }
-            
+
             Task {
                 showLoader = true
                 await withTaskGroup(of: Void.self) { group in
@@ -266,7 +268,7 @@ struct HistoryView: View {
                         Text("vs").fontWeight(.bold)
                         Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
                     }.lineLimit(1)
-                    HStack{
+                    HStack {
                         Text(game.date, style: .date)
                             .fontWeight(.bold)
                     }
@@ -297,7 +299,10 @@ struct HistoryView: View {
         NavigationStack {
             VStack {
                 Text("No Games played").font(.title2).fontWeight(.bold)
-                Text("Your History of Tichu Games will appear here once you've played a game.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
+                Text("Your History of Tichu Games will appear here once you've played a game.")
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
                     .sheet(isPresented: $showDebugSheetView) {
                         DebugSheetView(
                             currentGame: .constant(
@@ -328,7 +333,7 @@ struct HistoryView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .navigationTitle("History")
             .toolbar {
-                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                if network.profiles.first(where: { $0.id == userId })?.isAdmin == true {
                     ToolbarItem {
                         Button { showDebugSheetView = true } label: {
                             Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
@@ -342,11 +347,10 @@ struct HistoryView: View {
             }
         }
     }
-    
+
     private var bottomBar: some View {
         GlassEffectContainer {
             HStack {
-                
                 if gameHistory.count > 1 || showOnlyFavorites == true {
                     sortMenu
                 }
@@ -354,9 +358,9 @@ struct HistoryView: View {
             }
         }
     }
-    
+
     private func switchToFav() {
-        withAnimation(.easeInOut){
+        withAnimation(.easeInOut) {
             if switchedGameIdFav != nil {
                 showOnlyFavorites = true
                 switchedGameId = selectedGameId
@@ -373,50 +377,48 @@ struct HistoryView: View {
     }
 
     private func switchToAll() {
-        withAnimation(.easeInOut){
+        withAnimation(.easeInOut) {
             showOnlyFavorites = false
             switchedGameIdFav = selectedGameId
             selectedGameId = switchedGameId
             scrolledGameId = switchedGameId
         }
     }
-    
+
     private var sortMenu: some View {
         Menu {
             Button {
                 switchToAll()
             } label: {
-                if showOnlyFavorites == false{ Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
+                if showOnlyFavorites == false { Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
                 Text("All Rounds")
             }
             Button {
                 switchToFav()
-                
             } label: {
-                if showOnlyFavorites == true{ Image(systemName: "checkmark") } else { Image(systemName: "star") }
+                if showOnlyFavorites == true { Image(systemName: "checkmark") } else { Image(systemName: "star") }
                 Text("Favorites")
-            }.disabled(network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }.filter {$0.favorite}.count == 0)
-            
+            }.disabled(network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }.filter { $0.favorite }.count == 0)
+
             Divider()
             Button {
-                withAnimation(.easeInOut){
+                withAnimation(.easeInOut) {
                     dateUp = false
                     selectedGameId = gameHistory.first?.id
                 }
             } label: {
-                if dateUp == false{ Image(systemName: "checkmark") } else { Image("clock.down") }
+                if dateUp == false { Image(systemName: "checkmark") } else { Image("clock.down") }
                 Text("By Date (New-Old)")
             }
             Button {
-                withAnimation(.easeInOut){
+                withAnimation(.easeInOut) {
                     dateUp = true
                     selectedGameId = gameHistory.first?.id
                 }
             } label: {
-                if dateUp == true{ Image(systemName: "checkmark") } else { Image("clock.false") }
+                if dateUp == true { Image(systemName: "checkmark") } else { Image("clock.false") }
                 Text("By Date (Old-New)")
             }
-            
         } label: {
             Image(systemName: "line.3.horizontal.decrease.circle")
                 .font(.system(size: 22))
@@ -429,7 +431,10 @@ struct HistoryView: View {
         .padding(.leading, 20)
         .padding(.bottom, 10)
     }
-    
+}
+
+#Preview {
+    HistoryView(sheetGame: .constant(nil), selectedGameId: .constant(nil), scrolledGameId: .constant(nil))
 }
 
 #Preview {
