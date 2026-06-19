@@ -22,8 +22,9 @@ struct StatsView: View {
     @State private var timeTags: [String] = ["All Time", "Year", "Month", "Week", "Today"]
     @State private var selectedTags: [String] = ["All Time"]
     @State private var sortStat: Profile.playerStat = .elo
-    @State private var sortBy: sortBy.sortBy = .valueDown
+    @State private var sortBy: sortBy = .valueDown
     @AppStorage("statsList") private var compareList: [Int] = []
+    @AppStorage("sortByStats") var sortByStats: sortBy = .valueDown
     @State private var addPlayerId: Int?
     @State private var showOfflineAlert: Bool = false
     
@@ -68,13 +69,16 @@ struct StatsView: View {
                     guestIndex: 2,
                     showMenu: true
                 )
-                .presentationDetents([.medium, .large])
+                .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
             }
            
             .onChange(of: socket.connected) {
                 if !socket.connected {
                     showAddPlayersSheet = false
                 }
+            }
+            .onAppear{
+                sortBy = sortByStats
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {

@@ -81,12 +81,6 @@ final class SocketService: ObservableObject {
         
         //MARK: Profile Created
         socket.on("profile_created") { data, ack in
-            guard let dict = data[0] as? [String: Any],
-                  let jsonData = try? JSONSerialization.data(withJSONObject: dict),
-                  let profile = try? JSONDecoder().decode(Profile.self, from: jsonData) else {
-                print("profile_created: failed to parse \(data)")
-                return
-            }
             Task {
                 await NetworkService.shared.fetchProfiles()
             }

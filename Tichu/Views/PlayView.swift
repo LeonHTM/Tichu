@@ -123,187 +123,186 @@ struct PlayView: View {
     // MARK: - Body
     var body: some View {
         ZStack {
+            
             NavigationStack {
-                    List {
+                GeometryReader{ geo in
+                List {
                     team1Header
-                        team1Players.disabled(isLoading)
-                    centerSpacer
+                    team1Players.disabled(isLoading)
+                    centerSpacer(availableHeight: geo.size.height)
                     team2Header
                     team2Players.disabled(isLoading)
-                    }
-                   
-                    .scrollEdgeEffectStyle(.soft, for: .all)
-                    .onAppear {
-                        allowPingusState = defaultAllowPingus
-                        target = defaultTarget
-                    }
-                    .refreshable {
-                        await network.fetch(load:false)
-                    }
-                    .onChange(of:gameDone){
-            
-                         network.finishGameEditing = true
-                        
-                    }
-                    .onChange(of: network.games) {
-                        // currentGame is now computed, nothing to sync
-                    }.onChange(of: network.games) {
-                        let openGames = network.games.filter { $0.winner == nil }
-                        print("OPEN GAMES: \(openGames.count)")
-                        for games in openGames{
-                            print("\(games.id)")
-                        }
-                        print("GAMES: \(network.games.count)")
-                        if openGames.count == 1 {
-                            withAnimation(.easeInOut) {
-                                network.currentGameId = openGames.first?.id
-                                player1Id = openGames.first?.team1Player1Id
-                                player2Id = openGames.first?.team1Player2Id
-                                player3Id = openGames.first?.team2Player1Id
-                                player4Id = openGames.first?.team2Player2Id
-                                Task {
-                                    if let id = network.currentGameId {
-                                        await network.fetchGameRounds(gameId: id)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                }
                 
-                    .onChange(of: isLoading) {
-                        let openGames = network.games.filter { $0.winner == nil }
-                        if openGames.count == 1 {
-                            withAnimation(.easeInOut) {
-                                network.currentGameId = openGames.first?.id
-                                player1Id = openGames.first?.team1Player1Id
-                                player2Id = openGames.first?.team1Player2Id
-                                player3Id = openGames.first?.team2Player1Id
-                                player4Id = openGames.first?.team2Player2Id
-                                Task {
-                                    if let id = network.currentGameId {
-                                        await network.fetchGameRounds(gameId: id)
-                                    }
+                .scrollEdgeEffectStyle(.soft, for: .all)
+                .onAppear {
+                    allowPingusState = defaultAllowPingus
+                    target = defaultTarget
+                }
+                .refreshable {
+                    await network.fetch(load:false)
+                }
+                .onChange(of:gameDone){
+                    
+                    network.finishGameEditing = true
+                    
+                }
+                .onChange(of: network.games) {
+                    let openGames = network.games.filter { $0.winner == nil }
+                    print("OPEN GAMES: \(openGames.count)")
+                    for games in openGames{
+                        print("\(games.id)")
+                    }
+                    print("GAMES: \(network.games.count)")
+                    if openGames.count == 1 {
+                        withAnimation(.easeInOut) {
+                            network.currentGameId = openGames.first?.id
+                            player1Id = openGames.first?.team1Player1Id
+                            player2Id = openGames.first?.team1Player2Id
+                            player3Id = openGames.first?.team2Player1Id
+                            player4Id = openGames.first?.team2Player2Id
+                            Task {
+                                if let id = network.currentGameId {
+                                    await network.fetchGameRounds(gameId: id)
                                 }
                             }
                         }
                     }
-                    .onChange(of: isGameReady) {
-                        if isGameReady {
-                            startGame()
+                }
+                
+                .onChange(of: isLoading) {
+                    let openGames = network.games.filter { $0.winner == nil }
+                    if openGames.count == 1 {
+                        withAnimation(.easeInOut) {
+                            network.currentGameId = openGames.first?.id
+                            player1Id = openGames.first?.team1Player1Id
+                            player2Id = openGames.first?.team1Player2Id
+                            player3Id = openGames.first?.team2Player1Id
+                            player4Id = openGames.first?.team2Player2Id
+                            Task {
+                                if let id = network.currentGameId {
+                                    await network.fetchGameRounds(gameId: id)
+                                }
+                            }
                         }
                     }
-                    .onChange(of: socket.connected) {
-                        if !socket.connected {
-                            //Sheet should not show Friend and Player
-                            showFriends = false
-                            showPlayers = false
-                            
-                            showAddRoundSheet = false
-                            showEditRoundsSheet = false
-                            
-                            showAddPlayersSheet2 = false
-                            showAddPlayersSheet3 = false
-                            showAddPlayersSheet4 = false
-                            
-                        } else {
-                            showFriends = true
-                            showPlayers = true
-                        }
+                }
+                .onChange(of: isGameReady) {
+                    if isGameReady {
+                        startGame()
                     }
-                    .onChange(of: network.games.map(\.id)) {
-                        guard let id = network.currentGameId else { return }
+                }
+                .onChange(of: socket.connected) {
+                    if !socket.connected {
+                        //Sheet should not show Friend and Player
+                        showFriends = false
+                        showPlayers = false
                         
-                        if network.games.first(where: { $0.id == id }) == nil {
-                            showEditRoundsSheet = false
-                            resetGame()
-                        }
+                        showAddRoundSheet = false
+                        showEditRoundsSheet = false
+                        
+                        showAddPlayersSheet2 = false
+                        showAddPlayersSheet3 = false
+                        showAddPlayersSheet4 = false
+                        
+                    } else {
+                        showFriends = true
+                        showPlayers = true
                     }
-                    .onChange(of: gameDone) {
-                        if gameDone { showGameOverSheet = true
-                        }else if gameDone == false{
-                            showGameOverSheet = false
-                        }
+                }
+                .onChange(of: network.games.map(\.id)) {
+                    guard let id = network.currentGameId else { return }
+                    
+                    if network.games.first(where: { $0.id == id }) == nil {
+                        showEditRoundsSheet = false
+                        resetGame()
                     }
-                    .sheet(isPresented: $showGameOverSheet, onDismiss: {
-                        guard gameDone else { return }
-
-                        let gameId = currentGame?.id ?? 0
-                        let game = currentGame
-
-                        Task {
-                            // ✅ finish first, wait for it, then create revanche
-                            await network.finishGame(gameId: gameId)
-
-                            if revanche, let game = game {
-                                let p1 = game.team1Player1Id
-                                let p2 = game.team1Player2Id
-                                let p3 = game.team2Player1Id
-                                let p4 = game.team2Player2Id
-                                let newGame = await network.addGame(
-                                    target: game.target,
-                                    allowPingus: game.allowPingus,
-                                    team1Player1Id: p1,
-                                    team1Player2Id: p2,
-                                    team2Player1Id: p3,
-                                    team2Player2Id: p4
-                                )
-                                await MainActor.run {
-                                    network.currentGameId = newGame?.id
-                                    player1Id = p1
-                                    player2Id = p2
-                                    player3Id = p3
-                                    player4Id = p4
-                                    revanche = false
-                                }
-                            } else if !revanche {
-                                await MainActor.run { resetGame() }
-                            }
-                        }
-                    }) {
-                            GameSummarySheetView(
-                                showGameOverViewSheetView: $showGameOverSheet,
-                                currentGameId: network.currentGameId,
-                                revanche: $revanche,
-                                profiles: network.profiles,
-                                network: network,
-                                selectedTab:$selectedTab,
-                                showRevancheButton: true,
-                                allowEditing: $network.finishGameEditing
+                }
+                .onChange(of: gameDone) {
+                    if gameDone { showGameOverSheet = true
+                    }else if gameDone == false{
+                        showGameOverSheet = false
+                    }
+                }
+                .sheet(isPresented: $showGameOverSheet, onDismiss: {
+                    guard gameDone else { return }
+                    
+                    let gameId = currentGame?.id ?? 0
+                    let game = currentGame
+                    
+                    Task {
+                        // ✅ finish first, wait for it, then create revanche
+                        await network.finishGame(gameId: gameId)
+                        
+                        if revanche, let game = game {
+                            let p1 = game.team1Player1Id
+                            let p2 = game.team1Player2Id
+                            let p3 = game.team2Player1Id
+                            let p4 = game.team2Player2Id
+                            let newGame = await network.addGame(
+                                target: game.target,
+                                allowPingus: game.allowPingus,
+                                team1Player1Id: p1,
+                                team1Player2Id: p2,
+                                team2Player1Id: p3,
+                                team2Player2Id: p4
                             )
-                            .presentationDetents([.medium, .large])
-                        
+                            await MainActor.run {
+                                network.currentGameId = newGame?.id
+                                player1Id = p1
+                                player2Id = p2
+                                player3Id = p3
+                                player4Id = p4
+                                revanche = false
+                            }
+                        } else if !revanche {
+                            await MainActor.run { resetGame() }
+                        }
                     }
-                    .scrollContentBackground(.hidden)
-                    .background(alignment: .center) {
-                        
-                        vsBackground
-                    }
+                }) {
+                    GameSummarySheetView(
+                        showGameOverViewSheetView: $showGameOverSheet,
+                        currentGameId: network.currentGameId,
+                        revanche: $revanche,
+                        profiles: network.profiles,
+                        network: network,
+                        selectedTab:$selectedTab,
+                        showRevancheButton: true,
+                        allowEditing: $network.finishGameEditing
+                    )
+                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
+                    
+                }
+                .scrollContentBackground(.hidden)
+                .background(alignment: .center) {
+                    
+                    vsBackground
+                }
                 
-                    .edgesIgnoringSafeArea(.all)
-                    .background(Color(uiColor: .systemGroupedBackground))
-                    .listSectionSpacing(0)
-                    .navigationTitle("Play")
-                    .toolbarTitleDisplayMode(.inlineLarge)
-                    .toolbar {
-                        if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
-                            ToolbarItem {
-                                Button { showDebugSheetView = true } label: {
-                                    Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
-                                }
+                .background(Color(uiColor: .systemGroupedBackground))
+                .listSectionSpacing(0)
+                .navigationTitle("Play")
+                .toolbarTitleDisplayMode(.inlineLarge)
+                .toolbar {
+                    if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
+                        ToolbarItem {
+                            Button { showDebugSheetView = true } label: {
+                                Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
                             }
                         }
-                        ToolbarItem(placement: .topBarTrailing) {
-                            NavigationProfileImage()
-                        }
-                        .sharedBackgroundVisibility(.hidden)
                     }
-                    .toolbar {
-                        ToolbarItemGroup(placement: .keyboard) {
-                            Spacer()
-                            Button("Done") { targetFieldFocused = false }
-                        }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        NavigationProfileImage()
                     }
-               
+                    .sharedBackgroundVisibility(.hidden)
+                }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { targetFieldFocused = false }
+                    }
+                }
+            }
             }
         }
         .sheet(isPresented: $showDebugSheetView) {
@@ -363,7 +362,6 @@ struct PlayView: View {
                 .listRowBackground(Color.clear)
             }
         }
-        .padding(.top, 65)
     }
 
     // MARK: - Team 1 Players
@@ -565,7 +563,7 @@ struct PlayView: View {
                                 guestIndex: 2,
                                 showMenu: true
                             )
-                            .presentationDetents([.medium, .large])
+                            .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
                         .contextMenu{
                             if socket.connected{
@@ -594,13 +592,17 @@ struct PlayView: View {
     }
 
     // MARK: - Center Spacer
-    private var centerSpacer: some View {
-        Group {
-            Section { Spacer() }.listRowBackground(Color.clear)
-            Section {
-                HStack { Spacer() }.padding(.vertical, 37)
-            }.listRowBackground(Color.clear)
-            Section { Spacer() }.listRowBackground(Color.clear)
+    // MARK: - Center Spacer
+    private func centerSpacer(availableHeight: CGFloat) -> some View {
+        let fixedContentHeight: CGFloat = 65 + 50 + 120 + 50 + 120 + 80
+        let dynamicHeight = max(availableHeight - fixedContentHeight, 80)
+
+        return Section {
+            Color.clear
+                .frame(height: dynamicHeight)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
         }
     }
 
@@ -731,7 +733,7 @@ struct PlayView: View {
                                 guestIndex: 3,
                                 showMenu: true
                             )
-                            .presentationDetents([.medium, .large])
+                            .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }.contextMenu{
                             if socket.connected{
                                 Button{
@@ -850,7 +852,7 @@ struct PlayView: View {
                                 guestIndex: 4,
                                 showMenu: true
                             )
-                            .presentationDetents([.medium, .large])
+                            .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
                         .contextMenu{
                             if socket.connected{
@@ -1005,7 +1007,7 @@ struct PlayView: View {
                                 profiles: network.profiles,
                                 network: network
                             )
-                            .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
+                            .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
                         }
                     }
                 }else{

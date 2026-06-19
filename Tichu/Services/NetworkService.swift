@@ -27,10 +27,14 @@ class NetworkService: ObservableObject {
     @AppStorage("isLoading") var isLoading: Bool = false
     @AppStorage("statsList") private var statsList: [Int] = []
     @AppStorage("favDic") var favDic: [Int:Int] = [:]
+    
+    //Settings
     @AppStorage("defaultTarget") var defaultTarget: Int = 1000
     @AppStorage("defaultAllowPingus") var defaultAllowPingus: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
     @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    @AppStorage("sortByProfiles") var sortByProfiles: sortBy = .nameDown
+    @AppStorage("sortByStats") var sortByStats: sortBy = .valueDown
     
     //MARK: Published Variables
     //FinishGameEditing lock the editing in GameSummarySheetOverView as soon as someone in the round closes the sheet
@@ -178,6 +182,8 @@ class NetworkService: ObservableObject {
                 self.defaultTarget = 1000
                 self.dragMode = false
                 self.defaultAllowPingus = true
+                self.sortByProfiles = .nameDown
+                self.sortByStats = .valueDown
             }
         } catch {
             print("logout error: \(error)")

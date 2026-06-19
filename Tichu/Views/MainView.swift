@@ -23,7 +23,7 @@ struct MainView: View {
     private var isDisconnected: Binding<Bool> {
         .constant(!socket.connected)
     }
-    
+
     var body: some View {
         Group {
             if userId == -69420 {
@@ -34,59 +34,41 @@ struct MainView: View {
                     ))
             } else {
                 TabView(selection: $selectedTab) {
-                    //PlayView(fetchTrigger: fetchTrigger)
-                    PlayView()
-                        .tabItem {
-                            Label("Play", systemImage: "play")
-                        }
-                        .tag(0)
-                    
-                    
-                    if socket.connected {
-                        HistoryView(sheetGame:$sheetGame,selectedGameId:$selectedGameId,scrolledGameId: $scrolledGameId).tabItem {
-                            Label("History", systemImage: "clock")
-                        }
-                        .tag(1)
-                    } else {
-                        OfflineView(showNavBar: .constant(true)).tabItem {
-                            Label("History", systemImage: "clock")
-                        }
-                        .tag(1)
+                    Tab("Play", systemImage: "play", value: 0) {
+                        PlayView()
                     }
-                    if socket.connected {
-                        StatsView()
-                            .tabItem {
-                                Label("Stats", systemImage: "chart.bar")
-                            }
-                            .tag(2)
-                    }else{
-                        OfflineView(showNavBar: .constant(true)).tabItem {
-                            Label("History", systemImage: "clock")
+
+                    Tab("History", systemImage: "clock", value: 1) {
+                        if socket.connected {
+                            HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
+                        } else {
+                            OfflineView(showNavBar: .constant(true))
                         }
-                        .tag(2)
                     }
-                    
-                    ProfileView()
-                        .tabItem {
-                            Label("Profile", systemImage: "person")
+
+                    Tab("Stats", systemImage: "chart.bar", value: 2) {
+                        if socket.connected {
+                            StatsView()
+                        } else {
+                            OfflineView(showNavBar: .constant(true))
                         }
-                        .tag(3)
+                    }
+
+                    Tab("Profile", systemImage: "person", value: 3) {
+                        ProfileView()
+                    }
                 }
+                .tabViewStyle(.sidebarAdaptable)
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .trailing).combined(with: .opacity)
                 ))
-                .onAppear() {
-                    Task {
-                        await network.fetch()
-                    }
+                .onAppear {
+                    Task { await network.fetch() }
                 }
                 .onAppear {
                     selectedTab = 0
                 }
-                /*.alert(isPresented: isDisconnected) {
-                    OfflineView.offlineAlert()
-                }*/
                 .task {
                     do {
                         try await notificationCenter.requestAuthorization(options: [.alert, .badge, .sound])
@@ -95,30 +77,23 @@ struct MainView: View {
                     }
                 }
             }
-        }.onOpenURL { url in
-            if url == URL(string: "tichu://elo"){
+        }
+        .onOpenURL { url in
+            if url == URL(string: "tichu://elo") {
                 selectedTab = 1
             }
-            if url == URL(string: "tichu://stats"){
+            if url == URL(string: "tichu://stats") {
                 selectedTab = 2
             }
-            if url.scheme == "tichu",
-                   url.host == "game" {
-                    
-                    // extract game id from path
-                    let gameId = url.lastPathComponent
-                    
-                    
-                    selectedTab = 1
-                //Placeholder has id 0 
+            if url.scheme == "tichu", url.host == "game" {
+                let gameId = url.lastPathComponent
+                selectedTab = 1
                 if Int(gameId) != 0 {
                     selectedGameId = Int(gameId)
                     scrolledGameId = Int(gameId)
                     sheetGame = nil
                 }
-                    
-                  
-                }
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .didTapPushNotification)) { _ in
             selectedTab = 3

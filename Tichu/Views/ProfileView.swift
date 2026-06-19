@@ -178,7 +178,7 @@ struct ProfileView: View {
             .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             .sheet(isPresented: $showFriendsSheet) {
                 EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
             }
             
             NavigationLink {
@@ -404,6 +404,8 @@ struct GameSettingsView: View {
     @AppStorage("dragMode") var dragMode: Bool = false
     @AppStorage("userId") private var userId: Int = -69420
     @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    @AppStorage("sortByProfiles") var sortByProfiles: sortBy = .nameDown
+    @AppStorage("sortByStats") var sortByStats: sortBy = .valueDown
     private let network = NetworkService.shared
 
     var body: some View {
@@ -426,10 +428,27 @@ struct GameSettingsView: View {
 
             Section {
                 Toggle("Show All Players", isOn: $showAllPlayers)
+                Picker("Sort Players by", selection: $sortByProfiles) {
+                    Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
+                    Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
+                    Label("By Ranking (High-Low)", image: "123.down").tag(sortBy.valueUp)
+                    Label("By Ranking (Low-High)", image: "123.up").tag(sortBy.valueDown)
+                }
             } header: {
                 Text("Players - Defaults")
             }footer: {
                 Text("Always show all Players when viewing Players in the app, even when they are not avialable because they are in a game, being already compared or already a friend.")
+            }
+            
+            Section {
+                Picker("Sort Statistic Comparisons by", selection: $sortByStats) {
+                    Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
+                    Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
+                    Label("By Value (High-Low)", image: "123.down").tag(sortBy.valueUp)
+                    Label("By Value (Low-High)", image: "123.up").tag(sortBy.valueDown)
+                }
+            } header: {
+                Text("Statistics - Defaults")
             }
 
             Section("How to Play?") {

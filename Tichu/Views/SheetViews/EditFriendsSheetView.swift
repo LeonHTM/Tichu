@@ -23,9 +23,9 @@ struct EditFriendsSheetView: View {
     // MARK: - State
     @State private var friendsFilterActive: Bool = false
 
-    @State private var sortByFriends: sortBy.sortBy = .nameDown
-    @State private var sortByRequests: sortBy.sortBy = .nameDown
-    @State private var sortBySentRequests: sortBy.sortBy = .nameDown
+    @State private var sortByFriends: sortBy = .nameDown
+    @State private var sortByRequests: sortBy = .nameDown
+    @State private var sortBySentRequests: sortBy = .nameDown
 
     @State private var friendList: [Friend] = []
     @State private var friendsListCopy: [Friend] = []

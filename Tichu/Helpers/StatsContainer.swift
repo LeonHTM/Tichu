@@ -127,14 +127,14 @@ struct StatsContainer: View {
 
 
 
-//MARK: - Sortby enum inside its own class
-struct sortBy{
-    enum sortBy {
+//MARK: - Sortby enum 
+
+    enum sortBy: String, CaseIterable {
         case valueUp
         case valueDown
         case nameUp
         case nameDown
     }
-}
+
 
 

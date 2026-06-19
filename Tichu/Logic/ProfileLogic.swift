@@ -180,7 +180,7 @@ struct Profile: Identifiable, Equatable, Codable {
 func makeItems(
     from compareList: [Profile],
     stat: Profile.playerStat,
-    sortBy: sortBy.sortBy,
+    sortBy: sortBy,
     timeframe: Timeframe = .allTime
 ) -> [Profile] {
     switch sortBy {
@@ -199,7 +199,7 @@ func makeItems(
 func makeItems(
     from compareList: [Int],
     stat: Profile.playerStat,
-    sortBy: sortBy.sortBy,
+    sortBy: sortBy,
     timeframe: Timeframe = .allTime
 ) -> [Profile] {
     let profiles = NetworkService.shared.profiles.filter { compareList.contains($0.id) }
@@ -218,7 +218,7 @@ func makeItems(
 func makeItems(
     from compareList: [Int],
     stat: Profile.playerStat,
-    sortBy: sortBy.sortBy,
+    sortBy: sortBy,
     timeframe: Timeframe = .allTime
 ) -> [Friend] {
     let friends = NetworkService.shared.friends.filter { compareList.contains($0.id) }
@@ -243,7 +243,7 @@ func makeItems(
 func makeItems(
     from compareList: [Friend],
     stat: Profile.playerStat,
-    sortBy: sortBy.sortBy,
+    sortBy: sortBy,
     timeframe: Timeframe = .allTime
 ) -> [Friend] {
     switch sortBy {

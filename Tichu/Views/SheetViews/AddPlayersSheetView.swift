@@ -20,14 +20,15 @@ struct AddPlayersSheetView: View {
     var showMenu: Bool
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
+    @AppStorage("sortByProfiles") var sortByProfiles: sortBy = .nameDown
     @StateObject private var socket = SocketService.shared
 
     // MARK: - State
     @ObservedObject private var network = NetworkService.shared
     
     @State private var searchText: String = ""
-    @State private var sortByFriends: sortBy.sortBy = .nameDown
-    @State private var sortByPlayers: sortBy.sortBy = .nameDown
+    @State private var sortByFriends: sortBy = .nameDown
+    @State private var sortByPlayers: sortBy = .nameDown
     @State private var showPlayerInGameAlert: Bool = false
     @State private var inGameStatus: [Int: Bool] = [:]
     @State private var isLoadingStatus: Bool = true
@@ -116,6 +117,9 @@ struct AddPlayersSheetView: View {
                         playersRows
                     }
                 }
+            }.onAppear{
+                sortByPlayers = sortByProfiles
+                sortByFriends = sortByProfiles
             }
             .listSectionSpacing(0)
             .animation(.easeInOut, value: searchText)
@@ -343,7 +347,7 @@ struct AddPlayersSheetView: View {
     }
 
     // MARK: - Sort Menu
-    private func sortMenu(active: Bool, binding: Binding<sortBy.sortBy>, hideUnavailable: Binding<Bool>, showDateOptions: Bool) -> some View {
+    private func sortMenu(active: Bool, binding: Binding<sortBy>, hideUnavailable: Binding<Bool>, showDateOptions: Bool) -> some View {
         Menu {
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .nameDown }
@@ -362,13 +366,13 @@ struct AddPlayersSheetView: View {
                 withAnimation(.easeInOut) { binding.wrappedValue = .valueDown }
             } label: {
                 if binding.wrappedValue == .valueDown { Image(systemName: "checkmark") } else { Image("123.down") }
-                Text("By Value (High-Low)")
+                Text("By Ranking (High-Low)")
             }
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .valueUp }
             } label: {
                 if binding.wrappedValue == .valueUp { Image(systemName: "checkmark") } else { Image("123.up") }
-                Text("By Value (Low-High)")
+                Text("By Ranking (Low-High)")
             }
             Divider()
             Button {
