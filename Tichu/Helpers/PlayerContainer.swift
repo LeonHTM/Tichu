@@ -30,9 +30,12 @@ struct PlayerContainer: View {
         GlassEffectContainer {
             VStack(alignment: .leading) {
                 //Title
-                Text(player.name ?? "Unknown")
-                    .fontWeight(.bold)
-                    .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
+                HStack{
+                    Text(player.name ?? "Unknown")
+                        .fontWeight(.bold)
+                        .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
+                    Spacer()
+                }
                 //Row of Tichu and Big Tichu
                 HStack {
                     Button {

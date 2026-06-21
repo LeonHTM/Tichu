@@ -329,7 +329,8 @@ struct AddRoundSheetView: View {
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
-                }
+                    
+                }.padding(.leading,20)
             }
 
             VStack(alignment: .leading) {
@@ -353,7 +354,8 @@ struct AddRoundSheetView: View {
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
-            }
+                
+            }.padding(.trailing, 20)
         }
     }
 

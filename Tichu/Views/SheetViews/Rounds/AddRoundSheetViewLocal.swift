@@ -375,6 +375,7 @@ struct AddRoundSheetLocalView: View {
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
+                    .padding(.horizontal)
                 }
             }
 
@@ -399,6 +400,7 @@ struct AddRoundSheetLocalView: View {
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
+                .padding(.horizontal)
             }
         }
     }

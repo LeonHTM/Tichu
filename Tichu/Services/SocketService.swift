@@ -22,6 +22,7 @@ final class SocketService: ObservableObject {
     private var socket: SocketIOClient!
     @Published var connected = true
     var baseURL: String { Config.shared.baseURL }
+    
 
     private init() {
         setupSocket()
@@ -56,6 +57,18 @@ final class SocketService: ObservableObject {
             await NetworkService.shared.fetchProfiles()
             await NetworkService.shared.fetchFriends(profileId: userId)
             await NetworkService.shared.fetchFriendRequests(profileId: userId)
+        }
+    }
+    
+    // MARK: - Lifecycle Handlers
+    @discardableResult
+    func reconnectIfNeeded() -> Bool {
+        switch socket.status {
+        case .connected, .connecting:
+            return false
+        default:
+            socket.connect()
+            return true
         }
     }
     
@@ -240,7 +253,7 @@ final class SocketService: ObservableObject {
                 print("game_created: failed to parse \(data)")
                 return
             }
-            let decoder = NetworkService.shared.flexibleDateDecoder // make flexibleDateDecoder internal instead of private
+            let decoder = NetworkService.shared.flexibleDateDecoder
             guard let game = try? decoder.decode(Game.self, from: jsonData) else {
                 print("game_created: failed to decode Game")
                 return
