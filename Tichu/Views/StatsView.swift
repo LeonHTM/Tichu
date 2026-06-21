@@ -320,6 +320,7 @@ struct StatsView: View {
         .task {
             let profile = network.profiles.first { $0.id == userId }
             var tags: [String] = []
+            var shareTags: [String] = []
 
             tags.append("Visionary: \(profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0)")
             tags.append("Addict: \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
@@ -330,6 +331,19 @@ struct StatsView: View {
             tags.append("Big Gambler: \(profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0)")
             tags.append("Pingu Gambler: \(profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0)")
             tags.append("Bomber: \(profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0)")
+            
+            
+            shareTags.append("Visionary: \(Int((profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Addict: \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
+            shareTags.append("Teamplayer: \(Int((profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Announcer: \(Int((profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Saboteur: \(Int((profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Gambler: \(Int((profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Big Gambler: \(Int((profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Pingu Gambler: \(Int((profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("Bomber: \(Int((profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            
+            
 
             let renderer = ImageRenderer(content: ShareStatsView(
                 userName: profile?.name ?? "Unknown",
@@ -338,7 +352,7 @@ struct StatsView: View {
                 winnerPercentage: profile?.getStat(for: .winnerPercentage, timeframe: selectedTimeframe) ?? 0,
                 tichuMaster: profile?.getStat(for: .tichuMaster, timeframe: selectedTimeframe) ?? 0,
                 accentCo: .accent,
-                Tags: .constant(tags)
+                Tags: .constant(shareTags)
             )
             .environment(\.colorScheme, colorScheme)
             .background(colorScheme == .dark ? Color.black : Color.white))

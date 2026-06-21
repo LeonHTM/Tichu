@@ -330,7 +330,7 @@ struct AddRoundSheetView: View {
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                     
-                }.padding(.leading,20)
+                }.padding(.leading,18)
             }
 
             VStack(alignment: .leading) {
@@ -355,7 +355,7 @@ struct AddRoundSheetView: View {
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
                 
-            }.padding(.trailing, 20)
+            }.padding(.trailing, 18)
         }
     }
 
@@ -461,7 +461,7 @@ struct AddRoundSheetView: View {
                 Spacer()
                 Text("Points 2").font(.title2).fontWeight(.bold)
             }
-            .padding(.trailing, 20)
+            .padding(.trailing, 18)
 
             VStack(alignment: .leading) {
                 HStack {
@@ -497,7 +497,7 @@ struct AddRoundSheetView: View {
             .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
             .padding(.trailing, 15)
         }
-        .padding(.leading, 20)
+        .padding(.leading, 18)
         .padding(.top, -10)
     }
 }

@@ -53,7 +53,10 @@ struct PlayerContainer: View {
                         hasAnnounced = hasAnnounced == .bigTichu ? .none : .bigTichu
                     } label: {
       
-                        Text("Big Tichu").foregroundColor(.primary)
+                        ViewThatFits {
+                                                    Text("Big Tichu").foregroundColor(.primary)
+                                                    Text("B. Tichu").foregroundColor(.primary)
+                                                }
            
                     }
                     .padding(10)

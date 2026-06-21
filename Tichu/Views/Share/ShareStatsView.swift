@@ -18,6 +18,8 @@ struct ShareStatsView: View{
     let accentCo: Color
     
     @Binding var Tags:[String]
+    
+    
 
     var body: some View{
         VStack{
@@ -49,7 +51,7 @@ struct ShareStatsView: View{
                 HStack{
                     Text("Win Rate").foregroundStyle(.secondary)
                     Spacer()
-                    Text("\(winnerPercentage)%").fontWeight(.bold).foregroundStyle(accentCo)
+                    Text("\(winnerPercentage*100)%").fontWeight(.bold).foregroundStyle(accentCo)
                 }
                 Divider()
                 HStack{
@@ -69,7 +71,7 @@ struct ShareStatsView: View{
                 Divider()
                 HStack{
                     Spacer()
-                    Text("State \(Date(), style: .date)")
+                    Text("Captured on \(Date().formatted(date: .complete, time: .shortened))")
                     Spacer()
                 }.foregroundStyle(Color.secondary).font(.system(size:16))
             }.padding(.horizontal)
