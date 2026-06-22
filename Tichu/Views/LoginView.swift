@@ -15,6 +15,7 @@ struct LoginView: View {
     @AppStorage("userId") var userId: Int = -69420
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
+    @Environment(\.scenePhase) private var scenePhase
     // MARK: - State
     @Binding var userEmail: String
     @Environment(\.colorScheme) var colorScheme
@@ -163,7 +164,7 @@ struct LoginView: View {
                 editMode: false,
                 done: .constant(false)
             )
-        } else {
+        } else if !socket.connected && scenePhase == .active {
             OfflineView(showNavBar: .constant(false))
         }
     }

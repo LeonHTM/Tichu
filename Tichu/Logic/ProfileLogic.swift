@@ -34,6 +34,8 @@ struct ProfileStats: Codable {
         case bomber
     }
     
+    
+    
     //Fallback
     static var empty: ProfileStats {
         ProfileStats(
@@ -274,5 +276,31 @@ struct Friend: Identifiable, Equatable {
     //MARK: Compare
     static func == (lhs: Friend, rhs: Friend) -> Bool {
         lhs.id == rhs.id
+    }
+}
+
+
+//MARK: Used to translate Int to enum in NetWorkServcice fetchProfileSettings
+func PickerSettingsEncoder(x:Int) -> sortBy{
+    if x == 0{
+        return sortBy.nameDown
+    }else if x == 1{
+        return sortBy.nameUp
+    }else if x == 2{
+        return sortBy.valueUp
+    }else{
+        return sortBy.valueDown
+    }
+}
+
+func PickerSettingsEncoder(x:sortBy) -> Int{
+    if x == sortBy.nameDown{
+        return 0
+    }else if x == sortBy.nameUp{
+        return 1
+    }else if x == sortBy.valueUp{
+        return 2
+    }else{
+        return 3
     }
 }

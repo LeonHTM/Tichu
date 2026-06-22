@@ -11,6 +11,8 @@ import UserNotifications
 struct MainView: View {
     @AppStorage("selectedTab") private var selectedTab = 0
     @AppStorage("userId") private var userId = -69420
+    @Environment(\.scenePhase) private var scenePhase
+    
     @State private var isLoading: Bool = false
     @State private var fetchTrigger: Int = 0
     @State private var selectedGameId: Int? = nil
@@ -41,7 +43,7 @@ struct MainView: View {
                     Tab("History", systemImage: "clock", value: 1) {
                         if socket.connected {
                             HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
-                        } else {
+                        } else if !socket.connected && scenePhase == .active {
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
@@ -49,7 +51,7 @@ struct MainView: View {
                     Tab("Stats", systemImage: "chart.bar", value: 2) {
                         if socket.connected {
                             StatsView()
-                        } else {
+                        } else if !socket.connected && scenePhase == .active {
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
@@ -58,6 +60,7 @@ struct MainView: View {
                         ProfileView()
                     }
                 }
+                .animation(.easeInOut, value: socket.connected)
                 .tabViewStyle(.sidebarAdaptable)
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),

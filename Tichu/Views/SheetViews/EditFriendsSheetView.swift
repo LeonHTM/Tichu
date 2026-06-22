@@ -119,8 +119,9 @@ struct EditFriendsSheetView: View {
                 // Badge = remaining pending requests after refresh
                 try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
 
-                isSending = false
                 showFriendsSheet = false
+                isSending = false
+                
             }
         }
     }
@@ -149,6 +150,7 @@ struct EditFriendsSheetView: View {
                         }    .safeAreaInset(edge: .bottom) { addFriendButton }
                     }
                 }
+                .animation(.easeInOut, value: isSending)
                 .task {
                     await network.fetchFriends(profileId: userId)
                     await network.fetchFriendRequests(profileId: userId)

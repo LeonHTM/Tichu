@@ -133,7 +133,7 @@ struct PlayView: View {
                     team2Header
                     team2Players.disabled(isLoading)
                 }
-                
+                .animation(.easeInOut, value: isLoading)
                 .scrollEdgeEffectStyle(.soft, for: .all)
                 .onAppear {
                     allowPingusState = defaultAllowPingus
@@ -231,7 +231,7 @@ struct PlayView: View {
                     let game = currentGame
                     
                     Task {
-                        // ✅ finish first, wait for it, then create revanche
+                        // finish first, wait for it, then create revanche
                         await network.finishGame(gameId: gameId)
                         
                         if revanche, let game = game {

@@ -340,6 +340,16 @@ struct AddRoundSheetLocalView: View {
                     hasPushedList = [true, true, true, true]
                     rankingList = buildRankingList()
                     counter = rankingList.filter { $0 != 0 }.count
+
+                    if dragMode{
+                        // Reorder players to match saved ranking (1st, 2nd, 3rd, 4th place)
+                        let orderedIds = [round.firstProfileId, round.secondProfileId, round.thirdProfileId, round.fourthProfileId]
+                        let allPlayers = [player1, player2, player3, player4]
+                        let reordered = orderedIds.compactMap { id in
+                            allPlayers.first(where: { $0?.id == id })
+                        }
+                        if reordered.count == 4 { players = reordered }
+                    }
                 }
 
                 hasAnnouncedPlayer1 = announcement(for: player1)
@@ -375,8 +385,8 @@ struct AddRoundSheetLocalView: View {
                         )
                     }
                     .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
-                    .padding(.horizontal)
-                }
+                    
+                }.padding(.leading,18)
             }
 
             VStack(alignment: .leading) {
@@ -400,8 +410,8 @@ struct AddRoundSheetLocalView: View {
                     )
                 }
                 .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
-                .padding(.horizontal)
-            }
+                
+            }.padding(.trailing,18)
         }
     }
 
@@ -507,7 +517,7 @@ struct AddRoundSheetLocalView: View {
                 Spacer()
                 Text("Points 2").font(.title2).fontWeight(.bold)
             }
-            .padding(.trailing, 20)
+            .padding(.trailing, 18)
 
             VStack(alignment: .leading) {
                 HStack {

@@ -1,0 +1,55 @@
+//
+//  TichuRulesPDFView.swift
+//  Tichu
+//
+//  Created by Leon on 22.06.2026.
+//
+
+
+import SwiftUI
+import PDFKit
+
+struct TichuRulesPDFView: View {
+    var body: some View {
+        PDFKitView()
+            .ignoresSafeArea(edges: .bottom) 
+            .navigationTitle("Tichu Rules")
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PDFKitView: UIViewRepresentable {
+    func makeUIView(context: Context) -> PDFView {
+        let pdfView = PDFView()
+
+        pdfView.autoScales = true
+        pdfView.displayMode = .singlePageContinuous
+        pdfView.displayDirection = .vertical
+        pdfView.backgroundColor = .systemBackground
+        pdfView.displayBox = .cropBox
+
+        if let url = Bundle.main.url(
+            forResource: "tichu-rules-en",
+            withExtension: "pdf"
+        ) {
+            pdfView.document = PDFDocument(url: url)
+        }
+
+        return pdfView
+    }
+
+    func updateUIView(_ pdfView: PDFView, context: Context) {
+        DispatchQueue.main.async {
+            let scale = pdfView.scaleFactorForSizeToFit
+
+            pdfView.scaleFactor = scale
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                pdfView.minScaleFactor = scale/4
+            }else{
+                pdfView.minScaleFactor = scale
+            }
+            
+            pdfView.maxScaleFactor = scale * 5
+        }
+    }
+}

@@ -9,23 +9,24 @@ import SwiftUI
 import PhotosUI
 
 struct ProfileView: View {
-    @Namespace private var profileSpace
-
-    // MARK: - Storage
+    // MARK: Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userImageData") var userImageData: Data?
-    @AppStorage("userName") var userName: String = "Storage - Unknown"
+    @AppStorage("userName") var userName: String = "Unknown"
     @AppStorage("userElo") var userElo: Double = 404
     @AppStorage("selectedTab") private var selectedTab = 0
     
-    // MARK: - Photo Picker
+    //MARK: Observed and Environment
+    @ObservedObject private var network = NetworkService.shared
+    @StateObject private var socket = SocketService.shared
+    @Environment(\.scenePhase) private var scenePhase
+    @Namespace private var profileSpace
+    
+    // MARK: Photo Picker
     @State private var pickerItem: PhotosPickerItem?
     @State private var isUploadingImage: Bool = false
     
-    @ObservedObject private var network = NetworkService.shared
-    @StateObject private var socket = SocketService.shared
-
-    // MARK: - Sheet & Alert Presentation
+    // MARK: Sheet & Alert Presentation
     @State private var showNameSheet: Bool = false
     @State private var showFriendsSheet: Bool = false
     @State private var showPrivacyAlert: Bool = false
@@ -33,7 +34,7 @@ struct ProfileView: View {
     @State private var showOfflineAlert: Bool = false
     @State private var showImageFailAlert: Bool = false
 
-    // MARK: - Body
+    // MARK: Body
     var body: some View {
         NavigationStack {
             List {
@@ -46,6 +47,8 @@ struct ProfileView: View {
             }.alert(isPresented:$showOfflineAlert){
                 OfflineView.offlineAlert()
             }
+            .animation(.easeInOut, value: socket.connected)
+            
             .padding(.top, -20)
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
@@ -195,7 +198,7 @@ struct ProfileView: View {
                 if SocketService.shared.connected{
                     GameSettingsView()
                 }
-                else{
+                else if !socket.connected && scenePhase == .active {
                     OfflineView(showNavBar: .constant(false))
                 }
                 
@@ -418,6 +421,20 @@ struct GameSettingsView: View {
     @AppStorage("sortByStats") var sortByStats: sortBy = .valueDown
     private let network = NetworkService.shared
 
+    private func sendSettingsUpdate() {
+        Task {
+            await network.updateProfileSettings(
+                profileId: userId,
+                target: defaultTarget,
+                showPingu: defaultAllowPingus,
+                dragMode: dragMode,
+                showAllPlayers: showAllPlayers,
+                sortByProfiles: sortByProfiles,
+                sortByStats: sortByStats
+            )
+        }
+    }
+
     var body: some View {
         List {
             Section {
@@ -475,96 +492,29 @@ struct GameSettingsView: View {
         .listStyle(.insetGrouped)
         .navigationTitle("Game Settings")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: defaultTarget) { _, newValue in
-            Task {
-                await network.updateProfileSettings(
-                    profileId: userId,
-                    target: newValue,
-                    showPingu: defaultAllowPingus,
-                    dragMode: dragMode,
-                    showAllPlayers: showAllPlayers
-                )
-            }
+        .onChange(of: defaultTarget) {            sendSettingsUpdate()
         }
-        .onChange(of: defaultAllowPingus) { _, newValue in
-            Task {
-                await network.updateProfileSettings(
-                    profileId: userId,
-                    target: defaultTarget,
-                    showPingu: newValue,
-                    dragMode: dragMode,
-                    showAllPlayers: showAllPlayers
-                )
-            }
+        .onChange(of: defaultAllowPingus) {
+            sendSettingsUpdate()
         }
-        .onChange(of: dragMode) { _, newValue in
-            Task {
-                await network.updateProfileSettings(
-                    profileId: userId,
-                    target: defaultTarget,
-                    showPingu: defaultAllowPingus,
-                    dragMode: newValue,
-                    showAllPlayers: showAllPlayers
-                )
-            }
+        .onChange(of: dragMode) {
+            sendSettingsUpdate()
+        }
+        .onChange(of: showAllPlayers) {
+            sendSettingsUpdate()
+        }
+        .onChange(of: sortByProfiles) {
+            sendSettingsUpdate()
+        }
+        .onChange(of: sortByStats) {
+            sendSettingsUpdate()
         }
         
-        .onChange(of: showAllPlayers) { _, newValue in
-            Task {
-                await network.updateProfileSettings(
-                    profileId: userId,
-                    target: defaultTarget,
-                    showPingu: defaultAllowPingus,
-                    dragMode: dragMode,
-                    showAllPlayers: newValue
-                )
-            }
-        }
+        
     }
 }
 
-import SwiftUI
-import PDFKit
 
-struct TichuRulesPDFView: View {
-    var body: some View {
-        PDFKitView()
-            .ignoresSafeArea(edges: .bottom)  // ← extend to bottom edge
-            .navigationTitle("Tichu Rules")
-            .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct PDFKitView: UIViewRepresentable {
-    func makeUIView(context: Context) -> PDFView {
-        let pdfView = PDFView()
-
-        pdfView.autoScales = true
-        pdfView.displayMode = .singlePageContinuous
-        pdfView.displayDirection = .vertical
-        pdfView.backgroundColor = .systemBackground
-        pdfView.displayBox = .cropBox
-
-        if let url = Bundle.main.url(
-            forResource: "tichu-rules-en",
-            withExtension: "pdf"
-        ) {
-            pdfView.document = PDFDocument(url: url)
-        }
-
-        return pdfView
-    }
-
-    func updateUIView(_ pdfView: PDFView, context: Context) {
-        DispatchQueue.main.async {
-            let scale = pdfView.scaleFactorForSizeToFit
-
-            pdfView.scaleFactor = scale
-            pdfView.minScaleFactor = scale
-            pdfView.maxScaleFactor = scale * 5
-        }
-    }
-}
 
 #Preview {
     ProfileView()

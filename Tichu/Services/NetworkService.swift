@@ -423,6 +423,12 @@ class NetworkService: ObservableObject {
                 if let showAllPlayers = json?["show_all_players"] as? Bool {
                     self.showAllPlayers = showAllPlayers
                 }
+                if let sortByProfiles = json?["sort_by_profiles"] as? Int{
+                    self.sortByProfiles = PickerSettingsEncoder(x:sortByProfiles)
+                }
+                if let sortByStats = json?["sort_by_stats"] as? Int{
+                    self.sortByStats = PickerSettingsEncoder(x: sortByStats)
+                }
             }
         } catch {
             print("fetchProfileSettings error: \(error)")
@@ -430,14 +436,16 @@ class NetworkService: ObservableObject {
     }
 
     //MARK: updateProfileSettings used in ProfileView
-    func updateProfileSettings(profileId: Int, target: Int, showPingu: Bool, dragMode: Bool, showAllPlayers: Bool) async {
+    func updateProfileSettings(profileId: Int, target: Int, showPingu: Bool, dragMode: Bool, showAllPlayers: Bool, sortByProfiles: sortBy, sortByStats: sortBy) async {
         guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
 
         let body: [String: Any] = [
             "default_target": target,
             "show_pingu": showPingu,
             "drag_mode": dragMode,
-            "show_all_players": showAllPlayers
+            "show_all_players": showAllPlayers,
+            "sort_by_profiles": PickerSettingsEncoder(x:sortByProfiles),
+            "sort_by_stats": PickerSettingsEncoder(x:sortByStats)
         ]
 
         var request = authorizedRequest(url: url, method: "PATCH")
