@@ -50,6 +50,15 @@ struct DebugSheetView: View {
                 } label: {
                     Text("Manually recalculate Round \(reCalculate)")
                 }
+                Button{
+                    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+                    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                    Task{
+                        try? await UNUserNotificationCenter.current().setBadgeCount(0)
+                    }
+                }label:{
+                    Text("Reset Badges")
+                }
             
                 HStack{Text("Id:\(userId)")
                     Text("Name: \(userName)")
@@ -77,3 +86,4 @@ struct DebugSheetView: View {
         }
     }
 }
+

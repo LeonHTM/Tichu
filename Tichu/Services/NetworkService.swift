@@ -184,7 +184,38 @@ class NetworkService: ObservableObject {
                 self.defaultAllowPingus = true
                 self.sortByProfiles = .nameDown
                 self.sortByStats = .valueDown
+
+                let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+                defaults?.removeObject(forKey: "userName")
+                defaults?.removeObject(forKey: "userElo")
+                defaults?.removeObject(forKey: "widgetGames")
+
+                func reset(_ base: String) {
+                    defaults?.removeObject(forKey: "user\(base)")
+                    defaults?.removeObject(forKey: "user\(base)Year")
+                    defaults?.removeObject(forKey: "user\(base)Month")
+                    defaults?.removeObject(forKey: "user\(base)Week")
+                    defaults?.removeObject(forKey: "user\(base)Day")
+                }
+
+                reset("WinnerPercentage")
+                reset("TichuMaster")
+                reset("Visionary")
+                reset("Addict")
+                reset("Teamplayer")
+                reset("Announcer")
+                reset("Saboteur")
+                reset("Gambler")
+                reset("BigGambler")
+                reset("PinguGambler")
+                reset("Bomber")
             }
+
+            // Clear all notifications and badge on logout
+            UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+            try? await UNUserNotificationCenter.current().setBadgeCount(0)
+
         } catch {
             print("logout error: \(error)")
         }

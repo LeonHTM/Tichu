@@ -176,9 +176,19 @@ struct ProfileView: View {
                 }
             }
             .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
-            .sheet(isPresented: $showFriendsSheet) {
+            .sheet(isPresented: $showFriendsSheet, onDismiss: {
+                Task {
+                    let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+                    let toRemove = delivered
+                        .compactMap { $0.request.content.userInfo["notification_id"] as? String }
+                        .filter { $0.hasPrefix("friend-request-accepted-") }
+                    
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
+                    try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
+                }
+            }) {
                 EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
-                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
+                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
             }
             
             NavigationLink {

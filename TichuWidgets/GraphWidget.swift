@@ -32,7 +32,7 @@
 
     // MARK: - Helpers
     private func userName() -> String {
-        UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? "Unknown"
+        UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? "Player"
     }
 
     private func userElo() -> Double {
@@ -67,11 +67,16 @@
         private func entry() -> EloWidgetEntry {
             let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
             var points: [EloPoint] = []
-            var currentElo: Double = 1000
+            let baseElo: Double = 1000
+            var currentElo: Double = baseElo
 
             if let data = defaults?.data(forKey: "eloHistory"),
-               let entries = try? JSONDecoder().decode([EloEntry].self, from: data) {
-                for e in entries.sorted(by: { ($0.changedAt ?? .distantPast) < ($1.changedAt ?? .distantPast) }) {
+               let entries = try? JSONDecoder().decode([EloEntry].self, from: data),
+               !entries.isEmpty {
+
+                let sorted = entries.sorted(by: { ($0.changedAt ?? .distantPast) < ($1.changedAt ?? .distantPast) })
+
+                for e in sorted {
                     currentElo += e.eloChange
                     if let date = e.changedAt {
                         points.append(EloPoint(date: date, elo: currentElo))
@@ -81,10 +86,13 @@
 
             if points.isEmpty {
                 points = samplePoints()
-                currentElo = 1042
+                currentElo = points.last?.elo ?? baseElo
             }
 
-            return EloWidgetEntry(date: Date(), points: points, currentElo: currentElo)
+            let storedElo = defaults?.double(forKey: "userElo") ?? 1016
+            let displayElo = storedElo == 0 ? currentElo : storedElo
+
+            return EloWidgetEntry(date: Date(), points: points, currentElo: displayElo)
         }
 
         private func samplePoints() -> [EloPoint] {
@@ -92,18 +100,13 @@
             formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
 
             let raw: [(String, Double)] = [
-                ("2026-05-03 18:22:10",  12.5),
-                ("2026-05-06 20:15:44",  -8.3),
-                ("2026-05-09 19:08:33",  15.1),
-                ("2026-05-12 21:34:21", -11.2),
-                ("2026-05-15 17:45:09",   9.8),
-                ("2026-05-18 20:22:55",  -6.4),
-                ("2026-05-21 19:11:38",  13.7),
-                ("2026-05-24 21:08:47",  -9.1),
-                ("2026-05-27 18:33:14",  11.3),
-                ("2026-05-30 20:55:02",  -7.6),
-                ("2026-06-01 19:44:28",  14.2),
-                ("2026-06-02 21:17:53",  -5.9)
+                ("2026-06-02 12:54:45", 0),
+                ("2026-06-03 12:54:45", -7.96),
+                ("2026-06-08 12:35:58",  8.53),
+                ("2026-06-09 19:47:41",  7.5),
+                ("2026-06-12 14:16:00",  4.22),
+                ("2026-06-20 00:24:12",  0.0),
+                ("2026-06-22 00:30:43",  4.1)
             ]
 
             var elo: Double = 1000

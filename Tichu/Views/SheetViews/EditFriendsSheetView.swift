@@ -66,72 +66,61 @@ struct EditFriendsSheetView: View {
             Task {
                 isSending = true
 
-                // MARK: - FRIENDS REMOVED
+                // MARK: - COMPUTE CHANGES
                 let removedFriendIds = friendList
                     .filter { orig in !friendsListCopy.contains(where: { $0.id == orig.id }) }
                     .map { $0.id }
 
-                for id in removedFriendIds {
-                    await network.removeFriend(profileId: userId, friendId: id)
-                }
-
-                // MARK: - RECEIVED REQUESTS ACCEPTED
                 let acceptedIds = requestedFriendsList
                     .filter { id in friendsListCopy.contains(where: { $0.id == id }) }
 
-                for senderId in acceptedIds {
-                    await network.respondToFriendRequest(
-                        receiverId: userId,
-                        senderId: senderId,
-                        action: "accepted"
-                    )
-                }
-
-                // MARK: - RECEIVED REQUESTS REJECTED
                 let rejectedIds = requestedFriendsList
                     .filter { id in
                         !friendsListCopy.contains(where: { $0.id == id }) &&
                         !requestedFriendsListCopy.contains(id)
                     }
 
-                for senderId in rejectedIds {
-                    await network.respondToFriendRequest(
-                        receiverId: userId,
-                        senderId: senderId,
-                        action: "rejected"
-                    )
-                }
-
-                // MARK: - SENT REQUESTS CANCELLED
                 let cancelledSentIds = sentRequestsList
                     .filter { !sentRequestsListCopy.contains($0) }
 
-                for receiverId in cancelledSentIds {
-                    await network.respondToFriendRequest(
-                        receiverId: receiverId,
-                        senderId: userId,
-                        action: "rejected"
-                    )
-                }
-
-                // MARK: - NEW SENT REQUESTS
                 let newSentRequestIds = sentRequestsListCopy
                     .filter { !sentRequestsList.contains($0) }
 
-                for receiverId in newSentRequestIds {
-                    await network.sendFriendRequest(
-                        senderId: userId,
-                        receiverId: receiverId
-                    )
+                // MARK: - SEND ALL IN PARALLEL
+                await withTaskGroup(of: Void.self) { group in
+                    for id in removedFriendIds {
+                        group.addTask { await network.removeFriend(profileId: userId, friendId: id) }
+                    }
+                    for senderId in acceptedIds {
+                        group.addTask { await network.respondToFriendRequest(receiverId: userId, senderId: senderId, action: "accepted") }
+                    }
+                    for senderId in rejectedIds {
+                        group.addTask { await network.respondToFriendRequest(receiverId: userId, senderId: senderId, action: "rejected") }
+                    }
+                    for receiverId in cancelledSentIds {
+                        group.addTask { await network.respondToFriendRequest(receiverId: receiverId, senderId: userId, action: "rejected") }
+                    }
+                    for receiverId in newSentRequestIds {
+                        group.addTask { await network.sendFriendRequest(senderId: userId, receiverId: receiverId) }
+                    }
                 }
+
+                // MARK: - REMOVE ONLY HANDLED NOTIFICATIONS
+                let handledIds = (acceptedIds + rejectedIds).map { "friend-request-\($0)" }
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: handledIds)
+
+                // MARK: - REFRESH IN PARALLEL
+                await withTaskGroup(of: Void.self) { group in
+                    group.addTask { await network.fetchFriends(profileId: userId) }
+                    group.addTask { await network.fetchFriendRequests(profileId: userId) }
+                    group.addTask { await network.fetchSentRequests(profileId: userId) }
+                }
+
+                // Badge = remaining pending requests after refresh
+                try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
 
                 isSending = false
                 showFriendsSheet = false
-
-                // MARK: - REFRESH
-                await network.fetchFriends(profileId: userId)
-                await network.fetchFriendRequests(profileId: userId)
-                await network.fetchSentRequests(profileId: userId)
             }
         }
     }
@@ -144,18 +133,20 @@ struct EditFriendsSheetView: View {
                     if isSending {
                         ProgressView()
                     }
-                    List {
-                        if requestedFriendsListCopy.count > 0 {
-                            friendRequestsHeader
-                            friendRequestsRows
-                        }
-                        friendsHeader
-                        friendsRows
-
-                        if sentRequestsListCopy.count > 0 {
-                            sentRequestsHeader
-                            sentRequestsRows
-                        }
+                    else{
+                        List {
+                            if requestedFriendsListCopy.count > 0 {
+                                friendRequestsHeader
+                                friendRequestsRows
+                            }
+                            friendsHeader
+                            friendsRows
+                            
+                            if sentRequestsListCopy.count > 0 {
+                                sentRequestsHeader
+                                sentRequestsRows
+                            }
+                        }    .safeAreaInset(edge: .bottom) { addFriendButton }
                     }
                 }
                 .task {
@@ -198,7 +189,7 @@ struct EditFriendsSheetView: View {
                 .listSectionSpacing(0)
                 .navigationTitle("Manage Friendlist")
                 .navigationBarTitleDisplayMode(.inline)
-                .safeAreaInset(edge: .bottom) { addFriendButton }
+            
                 .sheet(isPresented: $showAddPlayerSheet, onDismiss: {
                     if let profileId = currentProfileId {
                         if sentRequestsList.contains(profileId) {
