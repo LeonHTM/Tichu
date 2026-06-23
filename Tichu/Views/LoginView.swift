@@ -92,7 +92,7 @@ struct LoginView: View {
                 }
                 .onChange(of: userEmail) {
 
-                    if socket.connected{
+                    if network.isOnline{
                         isChecking = true
                         Task {
                             alreadyExistsId = await network.checkEmail(email: userEmail)
@@ -112,7 +112,7 @@ struct LoginView: View {
                 if isChecking {
                     ProgressView()
                 } else {
-                    if socket.connected {
+                    if network.isOnline {
                         if alreadyExistsId == nil{
                             NavigationLink {
                                 destinationView()
@@ -157,14 +157,14 @@ struct LoginView: View {
     // MARK: - Destination Routing
     @ViewBuilder
     private func destinationView() -> some View {
-        if socket.connected {
+        if network.isOnline {
             EditNameSheetView(
                 showNameSheet: .constant(true),
                 email: userEmail,
                 editMode: false,
                 done: .constant(false)
             )
-        } else if !socket.connected && scenePhase == .active {
+        } else if !network.isOnline && scenePhase == .active {
             OfflineView(showNavBar: .constant(false))
         }
     }

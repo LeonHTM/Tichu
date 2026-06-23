@@ -15,6 +15,7 @@ struct StatsView: View {
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userName") var userName: String = "Unknown"
     @Environment(\.colorScheme) var colorScheme
+    @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
     @State private var showDebugSheetView: Bool = false
     
     // MARK: - State
@@ -29,7 +30,7 @@ struct StatsView: View {
     @State private var showOfflineAlert: Bool = false
     
     // MARK: - Computed
-    var filterActive: Bool { sortBy != .valueDown }
+    var filterActive: Bool { sortBy != sortByStats }
 
     var selectedTimeframe: Timeframe {
         withAnimation(.easeInOut){
@@ -49,6 +50,7 @@ struct StatsView: View {
             
             ScrollView {
                 statsGrid
+                    .animation(.easeInOut, value: selectedTags)
                     .animation(.easeInOut, value: compareList.map { $0 })
                     .padding()
             }.scrollEdgeEffectStyle(.soft, for: .all)
@@ -72,17 +74,17 @@ struct StatsView: View {
                 .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
             }
            
-            .onChange(of: socket.connected) {
-                if !socket.connected {
+            .onChange(of: network.isOnline) {
+                if !network.isOnline {
                     showAddPlayersSheet = false
                 }
             }
-            .onAppear{
+            .onFirstAppear{
                 sortBy = sortByStats
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .refreshable {
-                if socket.connected {
+                if network.isOnline {
                     Task {
                         network.isLoading = true
                         await network.fetchSelectedProfilesStats()
@@ -284,22 +286,23 @@ struct StatsView: View {
             )
             .transition(.opacity.combined(with: .scale))
             .contextMenu { shareContextMenu }
-
-            StatsContainer(
-                title: "Pingu Gambler",
-                description: "Pingu success ratio",
-                image: "exclamationmark.3.circle",
-                counterLeft: 1,
-                counterRight: 500,
-                value: network.profiles.first { $0.id == userId }?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0,
-                percentage: true,
-                inTop: 0.1,
-                stat: .pinguGambler,
-                timeframe: selectedTimeframe,
-                items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy, timeframe: selectedTimeframe)
-            )
-            .transition(.opacity.combined(with: .scale))
-            .contextMenu { shareContextMenu }
+            if defaultAllowPingus == true{
+                StatsContainer(
+                    title: "Pingu Gambler",
+                    description: "Pingu success ratio",
+                    image: "exclamationmark.3.circle",
+                    counterLeft: 1,
+                    counterRight: 500,
+                    value: network.profiles.first { $0.id == userId }?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0,
+                    percentage: true,
+                    inTop: 0.1,
+                    stat: .pinguGambler,
+                    timeframe: selectedTimeframe,
+                    items: makeItems(from: compareList, stat: .pinguGambler, sortBy: sortBy, timeframe: selectedTimeframe)
+                )
+                .transition(.opacity.combined(with: .scale))
+                .contextMenu { shareContextMenu }
+            }
 
             StatsContainer(
                 title: "Bomber",
@@ -388,7 +391,7 @@ struct StatsView: View {
     // MARK: - Time Filter Chips
     private var timeFilterChips: some View {
         ChipsView(tags: timeTags, onlyOne: true) { tag, isSelected in
-            if !socket.connected {
+            if !network.isOnline {
                 ChipView(tag: tag, isSelected: isSelected, showAlert: true)
             } else {
                 ChipView(tag: tag, isSelected: isSelected, showAlert: false)
@@ -459,7 +462,7 @@ struct StatsView: View {
     
     // MARK: - Compare Menu
     private var compareMenu: some View {
-        if socket.connected {
+        if network.isOnline {
             return AnyView(
                 Menu {
                     Button {

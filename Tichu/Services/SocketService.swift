@@ -37,7 +37,7 @@ final class SocketService: ObservableObject {
             config: [
                 //.log(true),
                 .compress,
-                .reconnects(true),
+                .reconnectAttempts(10),
                 .reconnectWait(1)
             ]
         )

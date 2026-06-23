@@ -46,7 +46,7 @@ struct PlayerContainer: View {
                         Text("Tichu").foregroundColor(.primary)
                     }
                     
-                    .padding(10)
+                    .padding(8)
                     .glassEffect(hasAnnounced == .tichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
 
                     Button {
@@ -59,7 +59,7 @@ struct PlayerContainer: View {
                                                 }
            
                     }
-                    .padding(10)
+                    .padding(8)
                     .glassEffect(hasAnnounced == .bigTichu ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
                 //Row of Bombs and Pingus, only shown when allowPingus
@@ -70,7 +70,7 @@ struct PlayerContainer: View {
                         } label: {
                             Text("Pingu").foregroundColor(.primary)
                         }
-                        .padding(10)
+                        .padding(8)
                         .glassEffect(
                             hasAnnounced == .pingu
                             ? .regular.tint(.accentColor).interactive()
@@ -87,7 +87,7 @@ struct PlayerContainer: View {
                         Text("Bombs: \(bombNumber)").foregroundColor(.primary)
                        
                     }
-                    .padding(10)
+                    .padding(8)
                     .glassEffect(bombNumber > 0 ? .regular.tint(.accentColor).interactive() : .regular.interactive())
                 }
                 

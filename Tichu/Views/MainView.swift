@@ -23,7 +23,7 @@ struct MainView: View {
     let notificationCenter = UNUserNotificationCenter.current()
 
     private var isDisconnected: Binding<Bool> {
-        .constant(!socket.connected)
+        .constant(!network.isOnline)
     }
 
     var body: some View {
@@ -41,17 +41,17 @@ struct MainView: View {
                     }
 
                     Tab("History", systemImage: "clock", value: 1) {
-                        if socket.connected {
+                        if network.isOnline{
                             HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
-                        } else if !socket.connected && scenePhase == .active {
+                        } else {
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
 
                     Tab("Stats", systemImage: "chart.bar", value: 2) {
-                        if socket.connected {
+                        if network.isOnline {
                             StatsView()
-                        } else if !socket.connected && scenePhase == .active {
+                        } else{
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
@@ -60,7 +60,7 @@ struct MainView: View {
                         ProfileView()
                     }
                 }
-                .animation(.easeInOut, value: socket.connected)
+                .animation(.easeInOut, value: network.isOnline)
                 .tabViewStyle(.sidebarAdaptable)
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),

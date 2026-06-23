@@ -192,8 +192,8 @@ struct PlayView: View {
                         startGame()
                     }
                 }
-                .onChange(of: socket.connected) {
-                    if !socket.connected {
+                .onChange(of: network.isOnline) {
+                    if !network.isOnline {
                         //Sheet should not show Friend and Player
                         showFriends = false
                         showPlayers = false
@@ -319,7 +319,7 @@ struct PlayView: View {
                 if isGameReady {
                     gameReadyBottomBar
                 } else {
-                    if socket.connected{
+                    if network.isOnline{
                         gameSettingsBottomBar
                     }
                 }
@@ -395,7 +395,7 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected && p1.id != userId && p1.id > 0{
+                        if network.isOnline && p1.id != userId && p1.id > 0{
                             if isFriend(profileId: p1.id) == true{
                                 Button(role:.destructive){
                                   
@@ -493,7 +493,7 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected && p2.id != userId && p2.id > 0{
+                        if network.isOnline && p2.id != userId && p2.id > 0{
                             if isFriend(profileId: p2.id) == true{
                                 Button(role:.destructive){
                                   
@@ -566,7 +566,7 @@ struct PlayView: View {
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
                         .contextMenu{
-                            if socket.connected{
+                            if network.isOnline{
                                 Button{
                                     showAddPlayersSheet2 = true
                                 }label:{
@@ -665,7 +665,7 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected && p3.id != userId && p3.id > 0{
+                        if network.isOnline && p3.id != userId && p3.id > 0{
                             if isFriend(profileId: p3.id) == true{
                                 Button(role:.destructive){
                                   
@@ -735,7 +735,7 @@ struct PlayView: View {
                             )
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }.contextMenu{
-                            if socket.connected{
+                            if network.isOnline{
                                 Button{
                                     showAddPlayersSheet3 = true
                                 }label:{
@@ -783,7 +783,7 @@ struct PlayView: View {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
-                        if socket.connected && p4.id != userId && p4.id > 0{
+                        if network.isOnline && p4.id != userId && p4.id > 0{
                             if isFriend(profileId: p4.id) == true{
                                 Button(role:.destructive){
                                   
@@ -855,7 +855,7 @@ struct PlayView: View {
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
                         .contextMenu{
-                            if socket.connected{
+                            if network.isOnline{
                                 Button{
                                     showAddPlayersSheet4 = true
                                 }label:{
@@ -891,7 +891,7 @@ struct PlayView: View {
             }
             HStack{
                 Spacer()
-                if socket.connected{
+                if network.isOnline{
                     Image(systemName: "plus.circle.fill")
                     Button(label, action: action)
                         .fontWeight(.bold)
@@ -938,7 +938,7 @@ struct PlayView: View {
                         }
                     }
                 }
-            }else if isLoading == false && socket.connected {
+            }else if isLoading == false && network.isOnline {
                 VStack {
                     Text("VS")
                         .font(.system(size: 120, weight: .bold))
@@ -957,7 +957,7 @@ struct PlayView: View {
                     }
                 }
                 .transition(.opacity)
-            } else if !socket.connected {
+            } else if !network.isOnline {
                 VStack(alignment: .center, spacing: 10) {
                     Text("No Internet Connection")
                         .font(.title2)
@@ -977,14 +977,14 @@ struct PlayView: View {
         .foregroundStyle(Color.secondary)
         .allowsHitTesting(false)
         .animation(.easeInOut, value: isLoading)
-        .animation(.easeInOut, value: socket.connected)
+        .animation(.easeInOut, value: network.isOnline)
     }
 
     // MARK: - Game Ready Bottom Bar
     private var gameReadyBottomBar: some View {
         GlassEffectContainer {
             HStack {
-                if socket.connected{
+                if network.isOnline{
                     Button {
                     showEditRoundsSheet = true
                 } label: {
@@ -1031,7 +1031,7 @@ struct PlayView: View {
                 }
                 
                 Spacer()
-                if socket.connected{
+                if network.isOnline{
                     Button {
                     showAddRoundSheet = true
                 } label: {

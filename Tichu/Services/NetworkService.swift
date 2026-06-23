@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 import WidgetKit
-
+import Network
 //MARK: - NetworkService handles everything that has to do with ServerPaths gets accesed by Socket and various Views
 class NetworkService: ObservableObject {
     //MARK: Vars
@@ -42,6 +42,8 @@ class NetworkService: ObservableObject {
     @Published var games: [Game] = []
     @Published var roundsByGame: [Int: [Round]] = [:]
     @Published var finishGameEditing: Bool = true
+    @Published var isOnline: Bool = true
+    private let pathMonitor = NWPathMonitor()
     
     //friendRequests are recieved requests
     @Published var eloHistory: [EloHistoryEntry] = []
@@ -54,7 +56,14 @@ class NetworkService: ObservableObject {
     @Published var sentRequests: [(id: Int, receiverId: Int)] = []
     
     //No one else can create instance only ever talks to this instance
-    private init() {}
+    private init() {
+            pathMonitor.pathUpdateHandler = { [weak self] path in
+                DispatchQueue.main.async {
+                    self?.isOnline = path.status == .satisfied
+                }
+            }
+            pathMonitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
+        }
 
     // MARK: - Flexible Date Decoder
     var flexibleDateDecoder: JSONDecoder {

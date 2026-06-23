@@ -47,13 +47,13 @@ struct ProfileView: View {
             }.alert(isPresented:$showOfflineAlert){
                 OfflineView.offlineAlert()
             }
-            .animation(.easeInOut, value: socket.connected)
+            .animation(.easeInOut, value: network.isOnline)
             
             .padding(.top, -20)
             .navigationTitle("Profile")
             .toolbarTitleDisplayMode(.inlineLarge)
         }.onReceive(NotificationCenter.default.publisher(for: .openFriendsSheet)) { _ in
-            if socket.connected{
+            if network.isOnline{
                 showFriendsSheet = true
             }
         }
@@ -81,7 +81,7 @@ struct ProfileView: View {
                             .foregroundColor(.primary)
                             .glassEffect(.regular.interactive())
                             .offset(y: 32)
-                    }.disabled(!socket.connected).onChange(of: pickerItem) {
+                    }.disabled(!network.isOnline).onChange(of: pickerItem) {
                         isUploadingImage = true
                         Task {
                             guard let pickerItem else {
@@ -124,7 +124,7 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected {
+                    if network.isOnline {
                         showNameSheet = true
                     } else {
                         showOfflineAlert = true
@@ -133,7 +133,7 @@ struct ProfileView: View {
             } label: {
                 HStack {
                     Label("Edit Username", systemImage: "person.fill")
-                        .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 17))
+                        .labelStyle(ColorfulIconLabelStyle(color: .accent, fontSize: 17))
                     Spacer()
                     Image(systemName: "chevron.right")
                         .font(.system(size: 13, weight: .semibold))
@@ -142,7 +142,7 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showNameSheet ? 90 : 0))
                 }
             }
-            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
+            .foregroundColor(network.isOnline ? .primary : .secondary)
             .sheet(isPresented: $showNameSheet) {
                 EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
                     .presentationDetents([.large])
@@ -150,7 +150,7 @@ struct ProfileView: View {
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected {
+                    if network.isOnline {
                         showFriendsSheet = true
                     } else {
                         showOfflineAlert = true
@@ -159,7 +159,7 @@ struct ProfileView: View {
             } label: {
                 HStack {
                     Label("Manage Friends", systemImage: "person.2.fill")
-                        .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 13))
+                        .labelStyle(ColorfulIconLabelStyle(color: .accent, fontSize: 13))
                     Spacer()
                     if network.friendRequestProfiles.count > 0 {
                         Text("\(network.friendRequestProfiles.count)")
@@ -178,7 +178,7 @@ struct ProfileView: View {
                         .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
             }
-            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
+            .foregroundColor(network.isOnline ? .primary : .secondary)
             .sheet(isPresented: $showFriendsSheet, onDismiss: {
                 Task {
                     let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
@@ -195,19 +195,15 @@ struct ProfileView: View {
             }
             
             NavigationLink {
-                if SocketService.shared.connected{
                     GameSettingsView()
-                }
-                else if !socket.connected && scenePhase == .active {
-                    OfflineView(showNavBar: .constant(false))
-                }
+                
+               
                 
                
             } label: {
-                Label("Game Settings", systemImage: "gamecontroller.fill")
-                    .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 11))
+                Label("General", systemImage: "gear")
+                    .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 15))
             }
-            .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
             
         }
     }
@@ -294,7 +290,7 @@ struct ProfileView: View {
         Section {
             /*Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected {
+                    if network.isOnline {
                         Task {
                             await network.logout(profileId: userId)
                         }
@@ -321,7 +317,7 @@ struct ProfileView: View {
 
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected {
+                    if network.isOnline {
                         Task {
                             await network.logout(profileId: userId)
                         }
@@ -340,7 +336,7 @@ struct ProfileView: View {
                             .padding(.trailing,1.2)
                       
                 }
-                .foregroundColor(SocketService.shared.connected ? .primary : .secondary)
+                .foregroundColor(network.isOnline ? .primary : .secondary)
             }
         }
     }
@@ -350,7 +346,7 @@ struct ProfileView: View {
         Section {
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
-                    if socket.connected {
+                    if network.isOnline {
                         showDeleteAlert = true
                     } else {
                         showOfflineAlert = true
@@ -419,7 +415,8 @@ struct GameSettingsView: View {
     @AppStorage("showAllPlayers") private var showAllPlayers: Bool = false
     @AppStorage("sortByProfiles") var sortByProfiles: sortBy = .nameDown
     @AppStorage("sortByStats") var sortByStats: sortBy = .valueDown
-    private let network = NetworkService.shared
+    @ObservedObject private var network = NetworkService.shared
+    
 
     private func sendSettingsUpdate() {
         Task {
@@ -444,9 +441,9 @@ struct GameSettingsView: View {
                     Text("1000").tag(1000)
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
-                }
-                Toggle("Show drunken Pingus", isOn: $defaultAllowPingus)
-                Toggle("Drag Mode", isOn: $dragMode)
+                }.disabled(!network.isOnline)
+                Toggle("Show drunken Pingus", isOn: $defaultAllowPingus).disabled(!network.isOnline)
+                Toggle("Drag Mode", isOn: $dragMode).disabled(!network.isOnline)
             } header: {
                 Text("Game - Defaults")
             } footer: {
@@ -454,13 +451,13 @@ struct GameSettingsView: View {
             }
 
             Section {
-                Toggle("Show All Players", isOn: $showAllPlayers)
+                Toggle("Show All Players", isOn: $showAllPlayers).disabled(!network.isOnline)
                 Picker("Sort Players by", selection: $sortByProfiles) {
                     Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
                     Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
                     Label("By Ranking (High-Low)", image: "123.down").tag(sortBy.valueUp)
                     Label("By Ranking (Low-High)", image: "123.up").tag(sortBy.valueDown)
-                }
+                }.disabled(!network.isOnline)
             } header: {
                 Text("Players - Defaults")
             }footer: {
@@ -471,9 +468,9 @@ struct GameSettingsView: View {
                 Picker("Sort Statistic Comparisons by", selection: $sortByStats) {
                     Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
                     Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
-                    Label("By Value (High-Low)", image: "123.down").tag(sortBy.valueUp)
-                    Label("By Value (Low-High)", image: "123.up").tag(sortBy.valueDown)
-                }
+                    Label("By Value (High-Low)", image: "123.down").tag(sortBy.valueDown)
+                    Label("By Value (Low-High)", image: "123.up").tag(sortBy.valueUp)
+                }.disabled(!network.isOnline)
             } header: {
                 Text("Statistics - Defaults")
             }

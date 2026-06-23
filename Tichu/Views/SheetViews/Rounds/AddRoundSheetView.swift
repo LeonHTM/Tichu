@@ -264,7 +264,7 @@ struct AddRoundSheetView: View {
                             showAddRoundsSheet = false
                         }
                         .disabled(dragMode ? false : !rankingList.allSatisfy({ $0 != 0 }))
-                        .disabled(socket.connected == false)
+                        .disabled(network.isOnline == false)
                     }
                 }
             }
@@ -296,8 +296,8 @@ struct AddRoundSheetView: View {
                 hasAnnouncedPlayer3 = announcement(for: player3)
                 hasAnnouncedPlayer4 = announcement(for: player4)
             }
-            .onChange(of: socket.connected) {
-                if socket.connected == false {
+            .onChange(of: network.isOnline) {
+                if network.isOnline == false {
                     showAddRoundsSheet = false
                 }
             }

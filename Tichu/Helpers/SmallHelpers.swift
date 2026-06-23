@@ -208,3 +208,22 @@ func isFriend(profileId: Int) -> Bool{
     }
 }
 
+//MARK: - OnFirstAppear used in StatsVeiw to trigger on on the first Appearance
+struct OnFirstAppear: ViewModifier {
+    @State private var hasAppeared = false
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        content.onAppear {
+            guard !hasAppeared else { return }
+            hasAppeared = true
+            action()
+        }
+    }
+}
+
+extension View {
+    func onFirstAppear(_ action: @escaping () -> Void) -> some View {
+        modifier(OnFirstAppear(action: action))
+    }
+}

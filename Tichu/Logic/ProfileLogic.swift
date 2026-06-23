@@ -287,9 +287,9 @@ func PickerSettingsEncoder(x:Int) -> sortBy{
     }else if x == 1{
         return sortBy.nameUp
     }else if x == 2{
-        return sortBy.valueUp
-    }else{
         return sortBy.valueDown
+    }else{
+        return sortBy.valueUp
     }
 }
 
@@ -298,7 +298,7 @@ func PickerSettingsEncoder(x:sortBy) -> Int{
         return 0
     }else if x == sortBy.nameUp{
         return 1
-    }else if x == sortBy.valueUp{
+    }else if x == sortBy.valueDown{
         return 2
     }else{
         return 3

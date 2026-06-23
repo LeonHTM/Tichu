@@ -155,8 +155,8 @@ struct EditFriendsSheetView: View {
                     await network.fetchFriends(profileId: userId)
                     await network.fetchFriendRequests(profileId: userId)
                 }
-                .onChange(of: socket.connected) {
-                    if !socket.connected { showFriendsSheet = false }
+                .onChange(of: network.isOnline) {
+                    if !network.isOnline { showFriendsSheet = false }
                 }
                 .onAppear {
                     withAnimation(.easeInOut) {

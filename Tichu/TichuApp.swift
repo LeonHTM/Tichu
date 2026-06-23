@@ -25,6 +25,8 @@ struct TichuApp: App {
                            await NetworkService.shared.fetch(load: false)
                        }
                 }
+            }else{
+                SocketService.shared.disconnect()
             }
         }
     }

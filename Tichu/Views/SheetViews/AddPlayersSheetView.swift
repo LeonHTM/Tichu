@@ -320,7 +320,7 @@ struct AddPlayersSheetView: View {
         }
         .disabled(isAdded || (showGuest == true && inGame == true))
         .contextMenu {
-            if socket.connected {
+            if network.isOnline {
                 if isFriend(profileId: profileId) == true {
                     Button(role: .destructive) {
                         Task {

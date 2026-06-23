@@ -192,8 +192,8 @@ struct EditRoundsSheetView: View {
         .onChange(of: network.games.map(\.id)) {
             syncFromNetwork()
         }
-        .onChange(of: socket.connected){
-            if socket.connected == false{
+        .onChange(of: network.isOnline){
+            if network.isOnline == false{
                 showEditRoundsSheet = false
             }
         }
@@ -463,7 +463,7 @@ struct EditRoundsSheetView: View {
         ToolbarItem(placement: .confirmationAction) {
             Button("Done", systemImage: "checkmark") {
                 Task { await applyChanges() }
-            }.disabled(socket.connected == false)
+            }.disabled(network.isOnline == false)
         }
     }
 
