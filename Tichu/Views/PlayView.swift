@@ -281,7 +281,7 @@ struct PlayView: View {
                 
                 .background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
-                .navigationTitle("Play")
+                .navigationTitle(String(localized: "general.titles.play"))
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar {
                     if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
@@ -332,7 +332,7 @@ struct PlayView: View {
         Section {
             if isLoading == false{
                 HStack {
-                    Text("Team 1")
+                    Text("\(String(localized: "play.title.team")) 1")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
@@ -346,7 +346,7 @@ struct PlayView: View {
                 .listRowBackground(Color.clear)
             }else{
                 HStack {
-                    Text("Team 1")
+                    Text("\(String(localized: "play.title.team")) 1")
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
@@ -390,7 +390,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p1.elo {
-                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -443,7 +443,7 @@ struct PlayView: View {
                             ProfileImage(data: nil, size: 44)
                             Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
                             Spacer()
-                            Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                            Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                         }
                     }
                     
@@ -457,11 +457,11 @@ struct PlayView: View {
                     }
                     Spacer()
                     if let ranking = player1?.elo {
-                        Text("Ranking: \(Int(ranking))")
+                        Text("\(String(localized: "general.rating")): \(Int(ranking))")
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     } else {
-                        Text("Ranking: 1000")
+                        Text("\(String(localized: "general.rating")): 1000")
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     }
@@ -488,7 +488,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p2.elo {
-                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -544,14 +544,14 @@ struct PlayView: View {
                         ProfileImage(data: nil, size: 44)
                         Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
                         Spacer()
-                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
                 }
                 
                 
             }else {
                 withAnimation(.easeInOut){
-                    addPlayerRow(label: "Add Player 2", action: { showAddPlayersSheet2 = true })
+                    addPlayerRow(label: String(localized: "play.addPlayer"), action: { showAddPlayersSheet2 = true })
                         .sheet(isPresented: $showAddPlayersSheet2) {
                             AddPlayersSheetView(
                                 showAddPlayersSheet: $showAddPlayersSheet2,
@@ -571,7 +571,7 @@ struct PlayView: View {
                                     showAddPlayersSheet2 = true
                                 }label:{
                                     Image(systemName: "arrow.up.right.square")
-                                    Text("Add Player 2")
+                                    Text(String(localized: "play.addPlayer"))
                                 }
                             }
                         }preview:{
@@ -592,7 +592,6 @@ struct PlayView: View {
     }
 
     // MARK: - Center Spacer
-    // MARK: - Center Spacer
     private func centerSpacer(availableHeight: CGFloat) -> some View {
         let fixedContentHeight: CGFloat = 65 + 50 + 120 + 50 + 120 + 80
         let dynamicHeight = max(availableHeight - fixedContentHeight, 80)
@@ -611,7 +610,7 @@ struct PlayView: View {
         Section {
             if isLoading == false{
                 HStack {
-                    Text("Team 2")
+                    Text("\(String(localized: "play.title.team")) 2")
                     Spacer()
                     if isGameReady {
                         Text("\(currentPointsTeam2)")
@@ -619,13 +618,11 @@ struct PlayView: View {
                 }
             }else{
                 HStack {
-                    Text("Team 1")
-                        
+                    Text("\(String(localized: "play.title.team")) 1")
                         .redacted(reason: .placeholder)
                     Spacer()
               
                     Text("394")
-                            
                             .redacted(reason: .placeholder)
                     
                 }
@@ -660,7 +657,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p3.elo {
-                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -715,13 +712,13 @@ struct PlayView: View {
                         ProfileImage(data: nil, size: 44)
                         Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
                         Spacer()
-                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
                     
                 }
             }else {
                 withAnimation(.easeInOut){
-                    addPlayerRow(label: "Add Player 3", action: { showAddPlayersSheet3 = true })
+                    addPlayerRow(label: String(localized: "play.addPlayer"), action: { showAddPlayersSheet3 = true })
                         .sheet(isPresented: $showAddPlayersSheet3) {
                             AddPlayersSheetView(
                                 showAddPlayersSheet: $showAddPlayersSheet3,
@@ -740,7 +737,7 @@ struct PlayView: View {
                                     showAddPlayersSheet3 = true
                                 }label:{
                                     Image(systemName: "arrow.up.right.square")
-                                    Text("Add Player 3")
+                                    Text(String(localized: "play.addPlayer"))
                                 }
                             }
                         }preview:{
@@ -778,7 +775,7 @@ struct PlayView: View {
                         }
                         Spacer()
                         if let elo = p4.elo {
-                            Text("Ranking: \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
                             Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
                         }
@@ -834,13 +831,13 @@ struct PlayView: View {
                         ProfileImage(data: nil, size: 44)
                         Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
                         Spacer()
-                        Text("Ranking: 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
                 }
                 
             }else {
                 withAnimation(.easeInOut){
-                    addPlayerRow(label: "Add Player 4", action: { showAddPlayersSheet4 = true })
+                    addPlayerRow(label: String(localized: "play.addPlayer"), action: { showAddPlayersSheet4 = true })
                         .sheet(isPresented: $showAddPlayersSheet4) {
                             AddPlayersSheetView(
                                 showAddPlayersSheet: $showAddPlayersSheet4,
@@ -860,7 +857,7 @@ struct PlayView: View {
                                     showAddPlayersSheet4 = true
                                 }label:{
                                     Image(systemName: "arrow.up.right.square")
-                                    Text("Add Player 4")
+                                    Text(String(localized: "play.addPlayer"))
                                 }
                             }
                         }preview:{
@@ -927,10 +924,10 @@ struct PlayView: View {
             if isLoading {
                 VStack(spacing: 10) {
                     VStack {
-                        Text("VS")
+                        Text(String(localized: "play.versus"))
                             .font(.system(size: 120, weight: .bold))
                         HStack {
-                            Text(" Target: 1000 ")
+                            Text(" \(String(localized: "play.target")): 1000 ")
                                 .fontWeight(.bold)
                                 .font(.title3)
                                 .offset(y: -15)
@@ -940,7 +937,7 @@ struct PlayView: View {
                 }
             }else if isLoading == false && network.isOnline {
                 VStack {
-                    Text("VS")
+                    Text(String(localized: "play.versus"))
                         .font(.system(size: 120, weight: .bold))
                     HStack {
                         if isGameReady {
@@ -949,7 +946,7 @@ struct PlayView: View {
                                 .font(.title3)
                                 .offset(y: -15)*/
                         }
-                        Text(isGameReady ? " Target: \(currentGame?.target ?? target)" : " Target: \(target)")
+                        Text(isGameReady ? " \(String(localized: "play.target")): \(currentGame?.target ?? target)" : " \(String(localized: "play.target")): \(target)")
                             .fontWeight(.bold)
                             .font(.title3)
                             .offset(y: -15)
@@ -1085,7 +1082,7 @@ struct PlayView: View {
             Spacer()
             Menu {
 
-                    Picker("Game Target", selection: $target) {
+                    Picker(String(localized: "play.target"), selection: $target) {
                         Text("250").tag(250)
                         Text("500").tag(500)
                         Text("1000").tag(1000)
@@ -1109,4 +1106,3 @@ struct PlayView: View {
         }
     }
 }
-

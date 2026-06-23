@@ -20,8 +20,14 @@ struct StatsView: View {
     
     // MARK: - State
     @State private var showAddPlayersSheet: Bool = false
-    @State private var timeTags: [String] = ["All Time", "Year", "Month", "Week", "Today"]
-    @State private var selectedTags: [String] = ["All Time"]
+    @State private var timeTags: [String] = [
+        String(localized: "statistics.timeframes.alltime"),
+        String(localized: "statistics.timeframes.year"),
+        String(localized: "statistics.timeframe.month"),
+        String(localized: "statistics.timeframe.week"),
+        String(localized: "statistics.timeframe.day")
+    ]
+    @State private var selectedTags: [String] = [String(localized: "statistics.timeframes.alltime")]
     @State private var sortStat: Profile.playerStat = .elo
     @State private var sortBy: sortBy = .valueDown
     @AppStorage("statsList") private var compareList: [Int] = []
@@ -35,10 +41,10 @@ struct StatsView: View {
     var selectedTimeframe: Timeframe {
         withAnimation(.easeInOut){
             switch selectedTags.first {
-            case "Year":  return .year
-            case "Month": return .month
-            case "Week":  return .week
-            case "Today": return .day
+            case String(localized: "statistics.timeframes.year"):  return .year
+            case String(localized: "statistics.timeframe.month"): return .month
+            case String(localized: "statistics.timeframe.week"):  return .week
+            case String(localized: "statistics.timeframe.day"): return .day
             default:      return .allTime
             }
         }
@@ -92,7 +98,7 @@ struct StatsView: View {
                     }
                 }
             }
-            .navigationTitle("Statistics")
+            .navigationTitle(String(localized: "general.titles.statistics"))
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
@@ -128,8 +134,8 @@ struct StatsView: View {
             spacing: 15
         ) {
             StatsContainer(
-                title: "Rating",
-                description: "All time Elo Rating",
+                title: String(localized: "statistics.statscontainer.title.rating"),
+                description: String(localized: "statistics.statscontainer.description.rating"),
                 image: "chart.line.uptrend.xyaxis",
                 counterLeft: 1,
                 counterRight: 500,
@@ -144,8 +150,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Winner",
-                description: "Percentage of Games won",
+                title: String(localized: "statistics.statscontainer.title.winner"),
+                description: String(localized: "statistics.statscontainer.description.winner"),
                 image: "trophy",
                 counterLeft: 1,
                 counterRight: 500,
@@ -160,8 +166,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Tichumaster",
-                description: "Points from Tichu per Round",
+                title: String(localized: "statistics.statscontainer.title.tichumaster"),
+                description: String(localized: "statistics.statscontainer.description.tichumaster"),
                 image: "number",
                 counterLeft: 1,
                 counterRight: 500,
@@ -176,8 +182,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Visionary",
-                description: "Tichu announced when finished first",
+                title: String(localized: "statistics.statscontainer.title.visionary"),
+                description: String(localized: "statistics.statscontainer.description.visionary"),
                 image: "checkmark.circle",
                 counterLeft: 1,
                 counterRight: 500,
@@ -192,8 +198,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Addict",
-                description: "Games played",
+                title: String(localized: "statistics.statscontainer.title.addict"),
+                description: String(localized: "statistics.statscontainer.description.addict"),
                 image: "pill",
                 counterLeft: 1,
                 counterRight: 500,
@@ -208,8 +214,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Teamplayer",
-                description: "Double Win Rate",
+                title: String(localized: "statistics.statscontainer.title.teamplayer"),
+                description: String(localized: "statistics.statscontainer.description.teamplayer"),
                 image: "hands.clap",
                 counterLeft: 1,
                 counterRight: 500,
@@ -224,8 +230,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Announcer",
-                description: "Big and Small Tichus announced per Round",
+                title: String(localized: "statistics.statscontainer.title.announcer"),
+                description: String(localized: "statistics.statscontainer.description.tichumaster"),
                 image: "megaphone",
                 counterLeft: 1,
                 counterRight: 500,
@@ -240,8 +246,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Saboteur",
-                description: "Tichu prevented ratio",
+                title: String(localized: "statistics.statscontainer.title.saboteur"),
+                description: String(localized: "statistics.statscontainer.description.saboteur"),
                 image: "xmark.circle",
                 counterLeft: 1,
                 counterRight: 500,
@@ -256,8 +262,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Gambler",
-                description: "Tichu success ratio",
+                title: String(localized: "statistics.statscontainer.title.gambler"),
+                description: String(localized: "statistics.statscontainer.description.gambler"),
                 image: "exclamationmark.circle",
                 counterLeft: 1,
                 counterRight: 500,
@@ -272,8 +278,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: "Big Gambler",
-                description: "Big Tichu success ratio",
+                title: String(localized: "statistics.statscontainer.title.biggambler"),
+                description: String(localized: "statistics.statscontainer.description.biggambler"),
                 image: "exclamationmark.2.circle",
                 counterLeft: 1,
                 counterRight: 500,
@@ -288,8 +294,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
             if defaultAllowPingus == true{
                 StatsContainer(
-                    title: "Pingu Gambler",
-                    description: "Pingu success ratio",
+                    title: String(localized: "statistics.statscontainer.title.pingugambler"),
+                    description: String(localized: "statistics.statscontainer.description.pinguGambler"),
                     image: "exclamationmark.3.circle",
                     counterLeft: 1,
                     counterRight: 500,
@@ -305,8 +311,8 @@ struct StatsView: View {
             }
 
             StatsContainer(
-                title: "Bomber",
-                description: "Bombs per Round ratio",
+                title: String(localized: "statistics.statscontainer.title.bomber"),
+                description: String(localized: "statistics.statscontainer.description.bomber"),
                 image: "bomb",
                 counterLeft: 1,
                 counterRight: 500,
@@ -398,7 +404,7 @@ struct StatsView: View {
             }
         } didChangeSelection: { selection in
             if selection.isEmpty {
-                selectedTags = ["All Time"]
+                selectedTags = [String(localized: "statistics.timeframes.alltime")]
             } else {
                 selectedTags = selection
             }
@@ -426,26 +432,26 @@ struct StatsView: View {
                 sortBy = .nameDown
             } label: {
                 if sortBy == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
-                Text("Alphabetical (A-Z)")
+                Text(String(localized: "statistics.sort.abcdown"))
             }
             Button {
                 sortBy = .nameUp
             } label: {
                 if sortBy == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
-                Text("Alphabetical (Z-A)")
+                Text(String(localized: "statistics.sort.abcup"))
             }
             Divider()
             Button {
                 sortBy = .valueDown
             } label: {
                 if sortBy == .valueDown { Image(systemName: "checkmark") } else { Image("123.down") }
-                Text("By Value (High-Low)")
+                Text(String(localized: "statistics.sort.123down"))
             }
             Button {
                 sortBy = .valueUp
             } label: {
                 if sortBy == .valueUp { Image(systemName: "checkmark") } else { Image("123.up") }
-                Text("By Value (Low-High)")
+                Text(String(localized: "statistics.sort.123up"))
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease.circle")
@@ -497,7 +503,7 @@ struct StatsView: View {
                     Image("person.badge.edit")
                         .font(.system(size: 20))
                         .foregroundColor(.primary)
-                    Text("Edit comparison")
+                    Text(String(localized: "statistics.title.comparison"))
                         .foregroundColor(.primary)
                 }
                 .labelStyle(.titleAndIcon)
@@ -516,7 +522,7 @@ struct StatsView: View {
                         Image("person.badge.edit")
                             .font(.system(size: 20))
                             .foregroundColor(.primary)
-                        Text("Edit comparison")
+                        Text(String(localized: "statistics.title.comparison"))
                             .foregroundColor(.primary)
                     }
                 }

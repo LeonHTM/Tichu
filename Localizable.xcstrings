@@ -312,7 +312,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nach Wärt (Hoch-Töif)"
+            "value" : "Nach Wärt (Höch-Töif)"
           }
         },
         "en" : {
@@ -503,6 +503,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All time elo rating."
+          }
+        }
+      }
+    },
+    "statistics.statscontainer.description.saboteur" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rate von vorgebeugten Tichus"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ratä vo zerschörtä Tichus."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prevented tichus ratio."
           }
         }
       }
@@ -871,6 +894,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Winner"
+          }
+        }
+      }
+    },
+    "statistics.stortBy.123up" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Wert (Tief-Hoch)"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Wärt (Töif-Höch)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "By Value (Low-High)"
           }
         }
       }
