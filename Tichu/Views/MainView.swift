@@ -36,27 +36,27 @@ struct MainView: View {
                     ))
             } else {
                 TabView(selection: $selectedTab) {
-                    Tab("Play", systemImage: "play", value: 0) {
+                    Tab(String(localized: "general.tabs.play"), systemImage: "play", value: 0) {
                         PlayView()
                     }
 
-                    Tab("History", systemImage: "clock", value: 1) {
-                        if network.isOnline{
+                    Tab(String(localized: "general.tabs.history"), systemImage: "clock", value: 1) {
+                        if network.isOnline {
                             HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
                         } else {
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
 
-                    Tab("Stats", systemImage: "chart.bar", value: 2) {
+                    Tab(String(localized: "general.tabs.stats"), systemImage: "chart.bar", value: 2) {
                         if network.isOnline {
                             StatsView()
-                        } else{
+                        } else {
                             OfflineView(showNavBar: .constant(true))
                         }
                     }
 
-                    Tab("Profile", systemImage: "person", value: 3) {
+                    Tab(String(localized: "general.tabs.profile"), systemImage: "person", value: 3) {
                         ProfileView()
                     }
                 }
@@ -80,6 +80,19 @@ struct MainView: View {
                     }
                 }
             }
+        }
+        .alert(String(localized: "general.alert.serverUnreachable"), isPresented: $network.fetchFailed) {
+            Button(String(localized: "general.alert.retry")) {
+                Task {
+                    network.isOnline = false
+                    await network.fetch()
+                }
+            }
+            Button(String(localized: "general.alert.cancel"), role: .cancel) {
+                network.isOnline = false
+            }
+        } message: {
+            Text(String(localized: "general.alert.serverUnreachable.message"))
         }
         .onOpenURL { url in
             if url == URL(string: "tichu://elo") {

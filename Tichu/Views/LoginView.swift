@@ -112,7 +112,7 @@ struct LoginView: View {
                 if isChecking {
                     ProgressView()
                 } else {
-                    if network.isOnline {
+                    if network.isOnline && socket.connected {
                         if alreadyExistsId == nil{
                             NavigationLink {
                                 destinationView()

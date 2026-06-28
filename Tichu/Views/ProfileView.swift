@@ -37,6 +37,7 @@ struct ProfileView: View {
     // MARK: Body
     var body: some View {
         NavigationStack {
+            //MARK: Main List
             List {
                 profileHeaderSection
                 accountSection
@@ -48,9 +49,8 @@ struct ProfileView: View {
                 OfflineView.offlineAlert()
             }
             .animation(.easeInOut, value: network.isOnline)
-            
             .padding(.top, -20)
-            .navigationTitle("Profile")
+            .navigationTitle(String(localized: "profile.title"))
             .toolbarTitleDisplayMode(.inlineLarge)
         }.onReceive(NotificationCenter.default.publisher(for: .openFriendsSheet)) { _ in
             if network.isOnline{
@@ -99,9 +99,9 @@ struct ProfileView: View {
                         }
                     }.alert(isPresented:$showImageFailAlert){
                         Alert(
-                            title: Text("Could not upload Profile Picture"),
-                            message: Text("Please try again later"),
-                            dismissButton: .default(Text("OK"))
+                            title: Text(String(localized: "profile.header.imageUploadFail.title")),
+                            message: Text(String(localized: "profile.header.imageUploadFail.message")),
+                            dismissButton: .default(Text(String(localized: "profile.header.imageUploadFail.dismiss")))
                         )
                     }
                 }
@@ -122,6 +122,15 @@ struct ProfileView: View {
     // MARK: - Account Section
     private var accountSection: some View {
         Section {
+            
+            //MARK: General
+            NavigationLink {
+                    GameSettingsView()
+            } label: {
+                Label(String(localized: "profile.section.account.general"), systemImage: "gear")
+                    .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 14))
+            }
+            //MARK: Edit Username
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if network.isOnline {
@@ -132,7 +141,7 @@ struct ProfileView: View {
                 }
             } label: {
                 HStack {
-                    Label("Edit Username", systemImage: "person.fill")
+                    Label(String(localized: "profile.section.account.editUsername"), systemImage: "person.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .accent, fontSize: 17))
                     Spacer()
                     Image(systemName: "chevron.right")
@@ -143,11 +152,8 @@ struct ProfileView: View {
                 }
             }
             .foregroundColor(network.isOnline ? .primary : .secondary)
-            .sheet(isPresented: $showNameSheet) {
-                EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
-                    .presentationDetents([.large])
-            }
-
+            
+            //MARK: Manage Friends
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if network.isOnline {
@@ -158,7 +164,7 @@ struct ProfileView: View {
                 }
             } label: {
                 HStack {
-                    Label("Manage Friends", systemImage: "person.2.fill")
+                    Label(String(localized: "profile.section.account.manageFriends"), systemImage: "person.2.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .accent, fontSize: 13))
                     Spacer()
                     if network.friendRequestProfiles.count > 0 {
@@ -179,45 +185,38 @@ struct ProfileView: View {
                 }
             }
             .foregroundColor(network.isOnline ? .primary : .secondary)
-            .sheet(isPresented: $showFriendsSheet, onDismiss: {
-                Task {
-                    let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
-                    let toRemove = delivered
-                        .compactMap { $0.request.content.userInfo["notification_id"] as? String }
-                        .filter { $0.hasPrefix("friend-request-accepted-") }
-                    
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
-                    try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
-                }
-            }) {
-                EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
-                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
-            }
-            
-            NavigationLink {
-                    GameSettingsView()
+        }
+        .sheet(isPresented: $showNameSheet) {
+            EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
+                .presentationDetents([.large])
+        }
+        .sheet(isPresented: $showFriendsSheet, onDismiss: {
+            Task {
+                let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+                let toRemove = delivered
+                    .compactMap { $0.request.content.userInfo["notification_id"] as? String }
+                    .filter { $0.hasPrefix("friend-request-accepted-") }
                 
-               
-                
-               
-            } label: {
-                Label("General", systemImage: "gear")
-                    .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 15))
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
+                try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
             }
-            
+        }) {
+            EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
+                .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
         }
     }
 
     // MARK: - Support Section
     private var supportSection: some View {
         Section {
+            //MARK: Privacy
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     showPrivacyAlert = true
                 }
             } label: {
                 HStack {
-                    Label("Privacy", systemImage: "hand.raised.fill")
+                    Label(String(localized: "profile.section.support.privacy"), systemImage: "hand.raised.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 15))
                     Spacer()
                     Image(systemName: "chevron.right")
@@ -228,18 +227,19 @@ struct ProfileView: View {
                 }
             }
             .foregroundColor(.primary)
-            .alert("Tichu App doesnt collect any Data!", isPresented: $showPrivacyAlert) {
+            .alert(String(localized: "profile.section.support.privacy.alert.title"), isPresented: $showPrivacyAlert) {
                 Button(role: .cancel) {
                     withAnimation(.easeInOut(duration: 0.285)) {
                         showPrivacyAlert = false
                     }
                 } label: {
-                    Text("Cool!")
+                    Text(String(localized: "profile.section.support.privacy.alert.dismiss"))
                 }
             } message: {
-                Text("We store only your Tichu Rounds and your Login data.")
+                Text(String(localized: "profile.section.support.privacy.alert.message"))
             }
-
+            
+            //MARK: Contact
             Button {
                 let subject = "Tichu App Support"
                 let osVersion = ProcessInfo.processInfo.operatingSystemVersion
@@ -267,7 +267,7 @@ struct ProfileView: View {
                 }
             } label: {
                 HStack {
-                    Label("Contact", systemImage: "envelope.fill")
+                    Label(String(localized: "profile.section.support.contact"), systemImage: "envelope.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .blue, fontSize: 14))
                 }
                 .foregroundStyle(Color.primary)
@@ -278,7 +278,7 @@ struct ProfileView: View {
                     UIApplication.shared.open(url)
                 }
             } label: {
-                Label("Source Code", image: "github")
+                Label(String(localized: "profile.section.support.sourceCode"), image: "github")
                     .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 17))
             }
             .foregroundColor(.primary)
@@ -288,33 +288,7 @@ struct ProfileView: View {
     // MARK: - Auth Section
     private var authSection: some View {
         Section {
-            /*Button {
-                withAnimation(.easeInOut(duration: 0.285)) {
-                    if network.isOnline {
-                        Task {
-                            await network.logout(profileId: userId)
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                            Task {
-                                await network.login(userId: 2)
-                            }
-                        }
-                    } else {
-                        showOfflineAlert = true
-                    }
-                }
-            } label: {
-                HStack {
-                    Label("Switch Account", systemImage: "rectangle.portrait.and.arrow.right.fill")
-                        .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
-                }
-                .foregroundStyle(Color.primary)
-            }*/
-
+            //MARK: Log Out
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     if network.isOnline {
@@ -327,7 +301,7 @@ struct ProfileView: View {
                 }
             } label: {
                 HStack {
-                    Label("Log Out", systemImage: "rectangle.portrait.and.arrow.right.fill")
+                    Label(String(localized: "profile.section.auth.logOut"), systemImage: "rectangle.portrait.and.arrow.right.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .accentColor, fontSize: 13))
                     Spacer()
                     Image(systemName: "chevron.right")
@@ -354,7 +328,7 @@ struct ProfileView: View {
                 }
             } label: {
                 HStack {
-                    Label("Delete Account", systemImage: "trash.fill")
+                    Label(String(localized: "profile.section.deleteAccount.delete"), systemImage: "trash.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .red, fontSize: 14))
                         .foregroundStyle(.red)
                     Spacer()
@@ -366,7 +340,7 @@ struct ProfileView: View {
                 }
             }
             .foregroundStyle(.secondary)
-            .alert("Do you really want to delete your Account?", isPresented: $showDeleteAlert) {
+            .alert(String(localized: "profile.section.deleteAccount.alert.title"), isPresented: $showDeleteAlert) {
                 Button(role: .destructive) {
                     withAnimation(.easeInOut(duration: 0.285)) {
                         Task {
@@ -375,7 +349,7 @@ struct ProfileView: View {
                         showDeleteAlert = false
                     }
                 } label: {
-                    Text("Delete")
+                    Text(String(localized: "profile.section.deleteAccount.alert.confirm"))
                 }
                 Button(role: .cancel) {
                     withAnimation(.easeInOut(duration: 0.285)) {
@@ -383,20 +357,20 @@ struct ProfileView: View {
                     }
                 }
             } message: {
-                Text("All your data will be deleted and you won't have access to your Account anymore.")
+                Text(String(localized: "profile.section.deleteAccount.alert.message"))
             }
         }
     }
 
-    // MARK: - Footer
+    // MARK: Footer
     private var footerSection: some View {
         HStack {
             Spacer()
             VStack {
                 if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
                    let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-                    Text("Made with ❤️ in Bern")
-                    Text("Version \(version) Build \(build)")
+                    Text(String(localized: "profile.footer.madeWith"))
+                    Text(String(format: String(localized: "profile.footer.version"), version, build))
                         .foregroundStyle(.gray)
                 }
             }
@@ -408,6 +382,7 @@ struct ProfileView: View {
 
 // MARK: - Game Settings View
 struct GameSettingsView: View {
+    //MARK: Vars
     @AppStorage("defaultTarget") private var defaultTarget: Int = 1000
     @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
     @AppStorage("dragMode") var dragMode: Bool = false
@@ -432,64 +407,69 @@ struct GameSettingsView: View {
         }
     }
 
+    //MARK: Body
     var body: some View {
         List {
+            
+            //MARK: Games
             Section {
-                Picker("Default Target", selection: $defaultTarget) {
+                Picker(String(localized: "gamesettings.section.games.defaultTarget"), selection: $defaultTarget) {
                     Text("250").tag(250)
                     Text("500").tag(500)
                     Text("1000").tag(1000)
                     Text("2000").tag(2000)
                     Text("10000").tag(10000)
                 }.disabled(!network.isOnline)
-                Toggle("Show drunken Pingus", isOn: $defaultAllowPingus).disabled(!network.isOnline)
-                Toggle("Drag Mode", isOn: $dragMode).disabled(!network.isOnline)
+                Toggle(String(localized: "gamesettings.section.games.showPingus"), isOn: $defaultAllowPingus).disabled(!network.isOnline)
+                Toggle(String(localized: "gamesettings.section.games.dragMode"), isOn: $dragMode).disabled(!network.isOnline)
             } header: {
-                Text("Game - Defaults")
+                Text(String(localized: "gamesettings.section.games"))
             } footer: {
-                Text("When adding a round instead of tapping on Players to set their order, drag them in a list.")
+                Text(String(localized: "gamesettings.section.games.footer"))
             }
 
+            //MARK: Players
             Section {
-                Toggle("Show All Players", isOn: $showAllPlayers).disabled(!network.isOnline)
-                Picker("Sort Players by", selection: $sortByProfiles) {
+                Toggle(String(localized: "gamesettings.section.players.showAll"), isOn: $showAllPlayers).disabled(!network.isOnline)
+                Picker(String(localized: "gamesettings.section.players.sortBy"), selection: $sortByProfiles) {
                     Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
                     Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
                     Label("By Ranking (High-Low)", image: "123.down").tag(sortBy.valueUp)
                     Label("By Ranking (Low-High)", image: "123.up").tag(sortBy.valueDown)
                 }.disabled(!network.isOnline)
             } header: {
-                Text("Players - Defaults")
-            }footer: {
-                Text("Always show all Players when viewing Players in the app, even when they are not avialable because they are in a game, being already compared or already a friend.")
+                Text(String(localized: "gamesettings.section.players"))
+            } footer: {
+                Text(String(localized: "gamesettings.section.players.footer"))
             }
             
+            //MARK: Statistics
             Section {
-                Picker("Sort Statistic Comparisons by", selection: $sortByStats) {
+                Picker(String(localized: "gamesettings.section.statistics.sortBy"), selection: $sortByStats) {
                     Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
                     Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
                     Label("By Value (High-Low)", image: "123.down").tag(sortBy.valueDown)
                     Label("By Value (Low-High)", image: "123.up").tag(sortBy.valueUp)
                 }.disabled(!network.isOnline)
             } header: {
-                Text("Statistics - Defaults")
+                Text(String(localized: "gamesettings.section.statistics"))
             }
-
-            Section("How to Play?") {
+            
+            //MARK: How to Play?
+            Section(String(localized: "gamesettings.section.howToPlay")) {
                 NavigationLink {
-                   
                         TichuRulesPDFView()
-                    
                 } label: {
-                    Label("Official Tichu Rules", systemImage: "book.fill")
+                    Label(String(localized: "gamesettings.section.howToPlay.officialRules"), systemImage: "book.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .green, fontSize: 14))
                 }
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Game Settings")
+        .navigationTitle(String(localized: "gamesettings.title"))
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: defaultTarget) {            sendSettingsUpdate()
+        .onChange(of: defaultTarget) {
+            sendSettingsUpdate()
         }
         .onChange(of: defaultAllowPingus) {
             sendSettingsUpdate()
@@ -516,4 +496,3 @@ struct GameSettingsView: View {
 #Preview {
     ProfileView()
 }
-

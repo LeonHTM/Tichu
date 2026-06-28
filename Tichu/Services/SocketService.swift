@@ -20,8 +20,9 @@ final class SocketService: ObservableObject {
     static let shared = SocketService()
     private var manager: SocketManager!
     private var socket: SocketIOClient!
-    @Published var connected = true
+    @Published var connected = false
     var baseURL: String { Config.shared.baseURL }
+    var reconnectAttempts: Int = 0
     
 
     private init() {
@@ -37,7 +38,7 @@ final class SocketService: ObservableObject {
             config: [
                 //.log(true),
                 .compress,
-                .reconnectAttempts(10),
+                .reconnectAttempts(5),
                 .reconnectWait(1)
             ]
         )
@@ -86,6 +87,28 @@ final class SocketService: ObservableObject {
         socket.on(clientEvent: .error) { [weak self] data, ack in
             print("Socket error: \(data)")
             DispatchQueue.main.async { self?.connected = false }
+        }
+        
+        socket.on(clientEvent: .reconnectAttempt) { [weak self] data, ack in
+            guard let self else { return }
+            self.reconnectAttempts += 1
+            if self.reconnectAttempts >= 5 {
+                DispatchQueue.main.async {
+                    NetworkService.shared.isOnline = false
+                }
+                self.reconnectAttempts = 0
+            }
+        }
+
+        socket.on(clientEvent: .reconnect) { [weak self] data, ack in
+            guard let self else { return }
+            self.reconnectAttempts += 1
+            if self.reconnectAttempts >= 5 {
+                DispatchQueue.main.async {
+                    NetworkService.shared.isOnline = false
+                }
+                self.reconnectAttempts = 0
+            }
         }
 
         
@@ -240,7 +263,8 @@ final class SocketService: ObservableObject {
         socket.on("auth_failed") { data, ack in
             
             Task {
-                await NetworkService.shared.logout(profileId: self.userId)
+                    await NetworkService.shared.logout(profileId: self.userId)
+                
             }
         }
 

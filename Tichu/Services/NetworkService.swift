@@ -43,6 +43,7 @@ class NetworkService: ObservableObject {
     @Published var roundsByGame: [Int: [Round]] = [:]
     @Published var finishGameEditing: Bool = true
     @Published var isOnline: Bool = true
+    @Published var fetchFailed: Bool = false
     private let pathMonitor = NWPathMonitor()
     
     //friendRequests are recieved requests
@@ -59,7 +60,9 @@ class NetworkService: ObservableObject {
     private init() {
             pathMonitor.pathUpdateHandler = { [weak self] path in
                 DispatchQueue.main.async {
-                    self?.isOnline = path.status == .satisfied
+                    if self?.fetchFailed == false{
+                        self?.isOnline = path.status == .satisfied
+                    }
                 }
             }
             pathMonitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
@@ -309,20 +312,16 @@ class NetworkService: ObservableObject {
     //MARK: - Profile Section
     
     //MARK: fetchProfiles used in fetch(), SocketService, Socket reconnect, Socket pfp updated and EditFriendsSheetView
-    func fetchProfiles() async {
-        guard let url = URL(string: "\(baseURL)/profilessimple") else { return }
+    @discardableResult
+    func fetchProfiles() async -> Bool {
+        guard let url = URL(string: "\(baseURL)/profilessimple") else { return false }
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
             await MainActor.run {
                 withAnimation(.easeInOut) {
-                    // Build a lookup of freshly fetched profiles
                     let fetchedById = Dictionary(uniqueKeysWithValues: decoded.map { ($0.id, $0) })
-
-                    // Remove profiles no longer on the server
                     self.profiles.removeAll { fetchedById[$0.id] == nil }
-
-                    // Update existing or append new
                     for newProfile in decoded {
                         if let index = self.profiles.firstIndex(where: { $0.id == newProfile.id }) {
                             self.profiles[index].name = newProfile.name
@@ -339,8 +338,10 @@ class NetworkService: ObservableObject {
                 }
             }
             await fetchProfileImages()
+            return true
         } catch {
             print("fetchProfiles error: \(error)")
+            return false
         }
     }
     
@@ -389,6 +390,7 @@ class NetworkService: ObservableObject {
                     } catch {
                         print("fetchProfilesStats error (\(timeframe)): \(error)")
                         return (timeframe, nil)
+                        
                     }
                 }
             }
@@ -546,7 +548,7 @@ class NetworkService: ObservableObject {
     }
     
     //fetchSelectedProfilesStats used in SocketService and Statsview fetches the Stats for selectedProfiles in StatsList which is configured in StatsView
-    func fetchSelectedProfilesStats() async {
+    func fetchSelectedProfilesStats() async{
         await withTaskGroup(of: Void.self) { group in
             var statsCopy = statsList
             statsCopy.append(userId)
@@ -769,20 +771,27 @@ class NetworkService: ObservableObject {
     
     //MARK: - Main Fetch Funciton used in PlayView, HistoryView Section
     func fetch(load: Bool = true) async {
-        if load {
-            isLoading = true
-        }
+        if load { isLoading = true }
         let currentUserId = userId
 
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
-                await self.fetchProfiles()
-                //If the Profiles has been deleted exit
+                let success = await self.fetchProfiles()
+
+                await MainActor.run {
+                    self.fetchFailed = !success
+                }
+
+                if !success {
+                    return
+                }
+
                 let matchFound = await MainActor.run { self.profiles.first(where: { $0.id == currentUserId }) != nil }
                 if !matchFound {
                     await NetworkService.shared.logout(profileId: currentUserId)
                     return
                 }
+
                 await self.fetchSelectedProfilesStats()
             }
             group.addTask { await self.fetchFriends(profileId: currentUserId) }
