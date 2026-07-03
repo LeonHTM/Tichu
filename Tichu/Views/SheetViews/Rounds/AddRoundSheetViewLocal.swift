@@ -365,7 +365,7 @@ struct AddRoundSheetLocalView: View {
         HStack {
             GlassEffectContainer {
                 VStack(alignment: .leading) {
-                    Text("Team 1").font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                    Text(String(format:String(localized: "general.team"), String(1))).font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     VStack {
                         PlayerContainer(
                             player: player1 ?? Profile(),
@@ -390,7 +390,7 @@ struct AddRoundSheetLocalView: View {
             }
 
             VStack(alignment: .leading) {
-                Text("Team 2").font(.title2).fontWeight(.bold)
+                Text(String(format:String(localized: "general.team"), String(2))).font(.title2).fontWeight(.bold)
                 VStack {
                     PlayerContainer(
                         player: player3 ?? Profile(),
@@ -419,7 +419,7 @@ struct AddRoundSheetLocalView: View {
     private var placementSection: some View {
         VStack {
             HStack {
-                Text("Placement").font(.title2).fontWeight(.bold).padding(.leading, 20)
+                Text("Placement").font(.title2).fontWeight(.bold).padding(.leading, 20).foregroundStyle(Color.accentColor)
                 Spacer()
             }
             .zIndex(1)
@@ -513,9 +513,9 @@ struct AddRoundSheetLocalView: View {
     private var pointsSection: some View {
         VStack {
             HStack {
-                Text("Points 1").font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                Text(String(format:String(localized:"rounds.points"),String(1))).font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                 Spacer()
-                Text("Points 2").font(.title2).fontWeight(.bold)
+                Text(String(format:String(localized:"rounds.points"),String(2))).font(.title2).fontWeight(.bold)
             }
             .padding(.trailing, 18)
 

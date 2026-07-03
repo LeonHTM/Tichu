@@ -44,12 +44,12 @@ struct GameSummaryShareView: View {
         if currentGame?.currentPointsTeam1 ?? 0 >= currentGame?.target ?? 0 ||
             currentGame?.currentPointsTeam2 ?? 0 >= currentGame?.target ?? 0 {
             if currentGame?.currentPointsTeam1 ?? 0 > currentGame?.currentPointsTeam2 ?? 0 {
-                return "Team 1"
+                return String(format:String(localized: "general.team"), String(1))
             } else if currentGame?.currentPointsTeam2 ?? 0 > currentGame?.currentPointsTeam1 ?? 0 {
-                return "Team 2"
+                return String(format:String(localized: "general.team"), String(2))
             }
         }
-        return "Unknown"
+        return String(localized: "gamesummaryshare.unknown")
     }
 
     // Returns finishing place (1–4) of a profile in a round, based on firstProfileId etc.
@@ -157,24 +157,24 @@ struct GameSummaryShareView: View {
     var body: some View {
         VStack(spacing: 24) {
 
-            Text("Round Results")
+            Text(String(localized: "gamesummaryshare.title"))
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
             HStack {
                 VStack {
-                    Text("Team 1:").fontWeight(.bold)
-                    Text(team1Profiles.count > 0 ? team1Profiles[0].name ?? "Unknown" : "Unknown")
+                    Text(String(format:String(localized: "general.team.double"), String(1))).fontWeight(.bold)
+                    Text(team1Profiles.count > 0 ? team1Profiles[0].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
                         .font(.title).fontWeight(.bold)
-                    Text(team1Profiles.count > 1 ? team1Profiles[1].name ?? "Unknown" : "Unknown")
+                    Text(team1Profiles.count > 1 ? team1Profiles[1].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
                         .font(.title).fontWeight(.bold)
                 }.foregroundStyle(accentCo)
                 Spacer()
                 VStack {
-                    Text("Team 2:").fontWeight(.bold)
-                    Text(team2Profiles.count > 0 ? team2Profiles[0].name ?? "Unknown" : "Unknown")
+                    Text(String(format:String(localized: "general.team.double"), String(2))).fontWeight(.bold)
+                    Text(team2Profiles.count > 0 ? team2Profiles[0].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
                         .font(.title).fontWeight(.bold)
-                    Text(team2Profiles.count > 1 ? team2Profiles[1].name ?? "Unknown" : "Unknown")
+                    Text(team2Profiles.count > 1 ? team2Profiles[1].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
                         .font(.title).fontWeight(.bold)
                 }
             }.padding(.horizontal, 30)
@@ -186,7 +186,7 @@ struct GameSummaryShareView: View {
 
             HStack {
                 VStack {
-                    Text("Team 1")
+                    Text(String(format:String(localized: "general.team"), String(1)))
                         .font(.headline)
                         .foregroundStyle(accentCo)
                     Text("\(currentGame?.currentPointsTeam1 ?? 0)")
@@ -196,24 +196,24 @@ struct GameSummaryShareView: View {
                 }
                 Spacer()
                 VStack {
-                    Text("Target: \(currentGame?.target ?? 1000)").fontWeight(.bold)
-                    Text("Winner: \(gameWinner())").fontWeight(.bold)
-                        .foregroundStyle(gameWinner() == "Team 1" ? accentCo : Color.primary)
+                    Text(String(format: String(localized: "gamesummaryshare.target"), currentGame?.target ?? 1000)).fontWeight(.bold)
+                    Text(String(format: String(localized: "gamesummaryshare.winner"), gameWinner())).fontWeight(.bold)
+                        .foregroundStyle(gameWinner() == String(format:String(localized: "general.team"), String(1)) ? accentCo : Color.primary)
                 }
                 Spacer()
                 VStack {
-                    Text("Team 2").font(.headline)
+                    Text(String(format:String(localized: "general.team"), String(2))).font(.headline)
                     Text("\(currentGame?.currentPointsTeam2 ?? 0)")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                 }
             }.padding(.horizontal, 30)
 
-            Text("Details").fontWeight(.bold).font(.title)
+            Text(String(localized: "gamesummaryshare.details")).fontWeight(.bold).font(.title)
             HStack {
-                Text("Team 1").padding(.trailing, 23).foregroundStyle(accentCo)
-                Text("Rounds:").fontWeight(.bold)
-                Text("Team 2").padding(.leading, 20)
+                Text(String(format:String(localized: "general.team"), String(1))).padding(.trailing, 23).foregroundStyle(accentCo)
+                Text(String(localized: "gamesummaryshare.rounds")).fontWeight(.bold)
+                Text(String(format:String(localized: "general.team"), String(2))).padding(.leading, 20)
             }
 
             HStack(alignment: .top) {
@@ -255,7 +255,7 @@ struct GameSummaryShareView: View {
             }
 
             HStack {
-                Text("Made with Tichu App").fontWeight(.bold)
+                Text(String(localized: "general.madeWith")).fontWeight(.bold)
                 Image("AppLogo").resizable().frame(width: 45, height: 45)
             }
 

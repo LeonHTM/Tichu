@@ -28,7 +28,7 @@ struct ShareStatsView: View{
                 Text("\(userName)")
                     .font(.largeTitle)
                     .fontWeight(.bold).frame(width:500)
-                Text("\(String(format: "%.2f", elo ?? 1000.00)) ELO")
+                Text("\(String(localized:"statistics.statscontainer.title.rating")):\(String(format: "%.2f", elo ?? 1000.00))")
                     .fontWeight(.bold)
                     .foregroundStyle(accentCo)
             }
@@ -46,22 +46,22 @@ struct ShareStatsView: View{
                 
                 
                 
-                Text("Performance").foregroundStyle(Color.secondary).fontWeight(.bold).padding(.vertical,7)
+                Text(String(localized:"shareStatistics.performance")).foregroundStyle(Color.secondary).fontWeight(.bold).padding(.vertical,7)
                 
                 HStack{
-                    Text("Win Rate").foregroundStyle(.secondary)
+                    Text(String(localized:"statistics.statscontainer.title.winner")).foregroundStyle(.secondary)
                     Spacer()
                     Text("\(winnerPercentage*100)%").fontWeight(.bold).foregroundStyle(accentCo)
                 }
                 Divider()
                 HStack{
-                    Text("Tichu Master").foregroundStyle(.secondary)
+                    Text(String(localized:"statistics.statscontainer.title.tichumaster")).foregroundStyle(.secondary)
                     Spacer()
                     Text("\(Int(tichuMaster))").fontWeight(.bold)
                 }
                
                 
-                Text("Stats").foregroundStyle(Color.secondary).fontWeight(.bold).padding(.vertical,7)
+                Text(String(localized:"general.title.statistics")).foregroundStyle(Color.secondary).fontWeight(.bold).padding(.vertical,7)
                 ChipsView(tags: Tags,onlyOne:true) { tag, isSelected in
                    
                     ChipViewShare(tag:tag, isSelected: isSelected,showAlert:true,accentCo:accentCo)
@@ -76,7 +76,7 @@ struct ShareStatsView: View{
                 }.foregroundStyle(Color.secondary).font(.system(size:16))
             }.padding(.horizontal)
             HStack {
-                Text("Made with Tichu App").fontWeight(.bold)
+                Text(String(localized:"general.madeWith")).fontWeight(.bold)
                 Image("AppLogo").resizable().frame(width: 45, height: 45)
             }
                 

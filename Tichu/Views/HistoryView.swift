@@ -66,7 +66,7 @@ struct HistoryView: View {
         } else if isLoading {
             VStack(spacing: 10) {
                 ProgressView()
-                Text("Loading history...")
+                Text(String(localized:"history.loading"))
             }.foregroundStyle(.secondary)
         } else {
             emptyStateView
@@ -99,7 +99,7 @@ struct HistoryView: View {
                                             sheetGame = game
                                         } label: {
                                             Image(systemName: "arrow.up.right.square")
-                                            Text("Open Game")
+                                            Text(String(localized:"history.context.openGame"))
                                             Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
                                         }
                                         if let renderedImage {
@@ -194,7 +194,7 @@ struct HistoryView: View {
                 ).navigationTransition(.zoom(sourceID: "\(game.id)", in: historySpace))
             }
             .toolbarTitleDisplayMode(.inlineLarge)
-            .navigationTitle("History")
+            .navigationTitle(String(localized:"general.title.history"))
             .toolbar {
                 if network.profiles.first(where: { $0.id == userId })?.isAdmin == true {
                     ToolbarItem {
@@ -265,7 +265,7 @@ struct HistoryView: View {
                     HStack {
                         Text("\(playerName(game.team1Player1Id)) & \(playerName(game.team1Player2Id))")
                             .foregroundStyle(Color.primary)
-                        Text("vs").fontWeight(.bold)
+                        Text(String(localized:"general.versus")).fontWeight(.bold)
                         Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
                     }.lineLimit(1)
                     HStack {
@@ -298,8 +298,8 @@ struct HistoryView: View {
     private var emptyStateView: some View {
         NavigationStack {
             VStack {
-                Text("No Games played").font(.title2).fontWeight(.bold)
-                Text("Your History of Tichu Games will appear here once you've played a game.")
+                Text(String(localized:"history.willAppear.title")).font(.title2).fontWeight(.bold)
+                Text(String(localized:"history.willAppear.description"))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
@@ -391,13 +391,13 @@ struct HistoryView: View {
                 switchToAll()
             } label: {
                 if showOnlyFavorites == false { Image(systemName: "checkmark") } else { Image(systemName: "list.bullet") }
-                Text("All Rounds")
+                Text(String(localized:"history.sortBy.allRounds"))
             }
             Button {
                 switchToFav()
             } label: {
-                if showOnlyFavorites == true { Image(systemName: "checkmark") } else { Image(systemName: "star") }
-                Text("Favorites")
+                if showOnlyFavorites == true { Image(systemName: "checkmark") } else { Image(systemName: "star.fill") }
+                Text(String(localized:"history.sortBy.favorites"))
             }.disabled(network.games.sorted { $0.date > $1.date }.filter { $0.winner != nil }.filter { $0.favorite }.count == 0)
 
             Divider()
@@ -408,7 +408,7 @@ struct HistoryView: View {
                 }
             } label: {
                 if dateUp == false { Image(systemName: "checkmark") } else { Image("clock.down") }
-                Text("By Date (New-Old)")
+                Text(String(localized:"history.sortBy.byDateDown"))
             }
             Button {
                 withAnimation(.easeInOut) {
@@ -416,8 +416,8 @@ struct HistoryView: View {
                     selectedGameId = gameHistory.first?.id
                 }
             } label: {
-                if dateUp == true { Image(systemName: "checkmark") } else { Image("clock.false") }
-                Text("By Date (Old-New)")
+                if dateUp == true { Image(systemName: "checkmark") } else { Image("clock.up") }
+                Text(String(localized:"history.sortBy.byDateUp"))
             }
         } label: {
             Image(systemName: "line.3.horizontal.decrease.circle")

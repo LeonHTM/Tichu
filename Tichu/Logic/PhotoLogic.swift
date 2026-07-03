@@ -69,7 +69,7 @@ struct NavigationProfileImage: View {
                 }
             }label:{
                 Image(systemName:"rectangle.portrait.and.arrow.right.fill")
-                Text("Log out")
+                Text(String(localized: "general.logout"))
             }
         }
                

@@ -98,7 +98,7 @@ struct StatsView: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: "general.titles.statistics"))
+            .navigationTitle(String(localized: "general.title.statistics"))
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
@@ -278,8 +278,8 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
 
             StatsContainer(
-                title: String(localized: "statistics.statscontainer.title.biggambler"),
-                description: String(localized: "statistics.statscontainer.description.biggambler"),
+                title: String(localized: "statistics.statscontainer.title.bigGambler"),
+                description: String(localized: "statistics.statscontainer.description.bigGambler"),
                 image: "exclamationmark.2.circle",
                 counterLeft: 1,
                 counterRight: 500,
@@ -294,7 +294,7 @@ struct StatsView: View {
             .contextMenu { shareContextMenu }
             if defaultAllowPingus == true{
                 StatsContainer(
-                    title: String(localized: "statistics.statscontainer.title.pingugambler"),
+                    title: String(localized: "statistics.statscontainer.title.pinguGambler"),
                     description: String(localized: "statistics.statscontainer.description.pinguGambler"),
                     image: "exclamationmark.3.circle",
                     counterLeft: 1,
@@ -331,27 +331,27 @@ struct StatsView: View {
             var tags: [String] = []
             var shareTags: [String] = []
 
-            tags.append("Visionary: \(profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Addict: \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Teamplayer: \(profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Announcer: \(profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Saboteur: \(profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Gambler: \(profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Big Gambler: \(profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Pingu Gambler: \(profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0)")
-            tags.append("Bomber: \(profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0)")
             
-            
-            shareTags.append("Visionary: \(Int((profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Addict: \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
-            shareTags.append("Teamplayer: \(Int((profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Announcer: \(Int((profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Saboteur: \(Int((profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Gambler: \(Int((profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Big Gambler: \(Int((profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Pingu Gambler: \(Int((profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            shareTags.append("Bomber: \(Int((profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0) * 100))%")
-            
+            tags.append("\(String(localized: "statistics.statscontainer.title.visionary")): \(profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.addict")): \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.teamplayer")): \(profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.announcer")): \(profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.saboteur")): \(profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.gambler")): \(profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.bigGambler")): \(profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.pinguGambler")): \(profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0)")
+            tags.append("\(String(localized: "statistics.statscontainer.title.bomber")): \(profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0)")
+
+
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.visionary")): \(Int((profile?.getStat(for: .visionary, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.addict")): \(profile?.getStat(for: .addict, timeframe: selectedTimeframe) ?? 0)")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.teamplayer")): \(Int((profile?.getStat(for: .teamplayer, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.announcer")): \(Int((profile?.getStat(for: .announcer, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.saboteur")): \(Int((profile?.getStat(for: .saboteur, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.gambler")): \(Int((profile?.getStat(for: .gambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.bigGambler")): \(Int((profile?.getStat(for: .bigGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.pinguGambler")): \(Int((profile?.getStat(for: .pinguGambler, timeframe: selectedTimeframe) ?? 0) * 100))%")
+            shareTags.append("\(String(localized: "statistics.statscontainer.title.bomber")): \(Int((profile?.getStat(for: .bomber, timeframe: selectedTimeframe) ?? 0) * 100))%")
             
 
             let renderer = ImageRenderer(content: ShareStatsView(
@@ -377,7 +377,7 @@ struct StatsView: View {
     private var shareContextMenu: some View {
         if let renderedImage {
             ShareLink(
-                userName == "Luis" ? "Flex on Your Friends by sharing Tichu Stats with them" : "Share...",
+                userName == "Luis" ? String(localized:"statistics.luis") : String(localized:"statistics.share"),
                 item: renderedImage,
                 message: Text("Check my Tichu Stats out"),
                 preview: SharePreview("Tichu Statistics", image: renderedImage)
@@ -475,7 +475,7 @@ struct StatsView: View {
                         showAddPlayersSheet = true
                     } label: {
                         Image(systemName: "person.badge.plus")
-                        Text("Add Player to compare")
+                        Text(String(localized: "statistics.compare.addPlayer"))
                     }
                     if !compareList.isEmpty {
                         Divider()
@@ -495,8 +495,8 @@ struct StatsView: View {
                         Button {
                             compareList = []
                         } label: {
-                            Image(systemName: "minus.circle")
-                            Text("Remove All Players")
+                            Image(systemName: "minus.circle.fill")
+                            Text(String(localized:"statistics.compare.removeAllPlayers"))
                         }
                     }
                 } label: {

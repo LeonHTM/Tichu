@@ -175,7 +175,7 @@ struct EditRoundsSheetView: View {
                 if allRounds.count > 0 {
                     roundsList.toolbar { roundsListToolbar }
                 } else {
-                    Text("No Rounds played yet")
+                    Text(String(localized:"round.noPlayed"))
                         .foregroundStyle(.secondary)
                         .toolbar { roundsListToolbar }
                 }
@@ -256,7 +256,9 @@ struct EditRoundsSheetView: View {
 
             if allRounds.count != winRounds.count {
                 Section {
-                    Text("\(allRounds.count - winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that the winner already won after Round \(winRounds.count).")
+                    Text(String(format: String(localized: "rounds.notCounted"), (allRounds.count - winRounds.count), (winRounds.count)))
+                
+                   
                 }
                 .listRowBackground(Color.clear)
                 .foregroundStyle(.secondary)
@@ -311,14 +313,14 @@ struct EditRoundsSheetView: View {
     // MARK: - Round Label
     private func roundLabel(index: Int, hasExpanded: Bool, currentRound: Round) -> some View {
         HStack {
-            Text("Round \(index + 1)")
+            Text(String(format:String(localized:"rounds.round"), String(index + 1)))
                 .fontWeight(.bold)
                 .font(.title3)
                 .padding(10)
             Spacer()
             if !hasExpanded {
                 Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold)
-                Text("vs").fontWeight(.bold)
+                Text(String(localized:"general.versus")).fontWeight(.bold)
                 Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
             }
         }
@@ -329,7 +331,7 @@ struct EditRoundsSheetView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 HStack {
-                    Text("Team 1").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                    Text(String(format:String(localized: "general.team"), String(1))).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     Spacer()
                     Text("\(currentRound.tichuPointsTeam1 + currentRound.roundPointsTeam1)").fontWeight(.bold).foregroundStyle(Color.accentColor)
                 }
@@ -339,7 +341,7 @@ struct EditRoundsSheetView: View {
                 playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame?.team1Player1Id, currentGame?.team1Player2Id))
 
                 HStack {
-                    Text("Team 2").fontWeight(.bold)
+                    Text(String(format:String(localized: "general.team"), String(2))).fontWeight(.bold)
                     Spacer()
                     Text("\(currentRound.tichuPointsTeam2 + currentRound.roundPointsTeam2)").fontWeight(.bold)
                 }
@@ -426,9 +428,10 @@ struct EditRoundsSheetView: View {
     // MARK: - Score Header
     private var scoreHeader: some View {
         HStack {
-            Text("Team 1: \(copyPointsTeam1)").foregroundStyle(Color.accentColor)
+            
+            Text(String(format:String(localized:"general.team.result"),String(1), String(copyPointsTeam1))).foregroundStyle(Color.accentColor)
             Spacer()
-            Text("Team 2: \(copyPointsTeam2)")
+            Text(String(format:String(localized:"general.team.result"),String(2), String(copyPointsTeam2)))
         }
         .fontWeight(.bold)
         .font(.title2)

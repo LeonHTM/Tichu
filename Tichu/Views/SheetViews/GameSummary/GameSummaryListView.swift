@@ -134,7 +134,7 @@ struct GameSummaryListView: View {
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading) {
                                     HStack {
-                                        Text("Team 1").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                                        Text(String(format:String("general.team"),String(1))).fontWeight(.bold).foregroundStyle(Color.accentColor)
                                         Spacer()
                                     }
                                     .padding(.top)
@@ -143,7 +143,7 @@ struct GameSummaryListView: View {
                                     playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame!.team1Player1Id, currentGame!.team1Player2Id))
                                     
                                     HStack {
-                                        Text("Team 2").fontWeight(.bold)
+                                        Text(String(format:String("general.team"),String(2))).fontWeight(.bold)
                                         Spacer()
                                     }
                                     .padding(.top)
@@ -196,7 +196,7 @@ struct GameSummaryListView: View {
                                     Spacer()
                                 }
 
-                                Text("Round \(item.index + 1)")
+                                Text(String(format:String(localized:"round.round"), String(item.index + 1)))
                                     .fontWeight(.bold)
                                 Spacer()
 
@@ -268,7 +268,8 @@ struct GameSummaryListView: View {
 
                     if allRounds.count != winRounds.count {
                         Section {
-                            Text("\(allRounds.count - winRounds.count) Rounds are not being counted. This happens because a Round was edited in such a way, that the winner already won after Round \(winRounds.count).")
+                            Text(
+                                String(format: String(localized: "rounds.not_counted"),"\(allRounds.count - winRounds.count)","\(winRounds.count)"))
                         }
                         .listRowBackground(Color.clear)
                         .foregroundStyle(.secondary)

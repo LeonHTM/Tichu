@@ -94,11 +94,11 @@ struct OfflineView: View{
         NavigationStack{
             VStack(alignment:.center,spacing:10){
                 //Offline Text
-                Text("No Internet Connection").font(.title2).fontWeight(.bold)
-                Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.").foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
+                Text(String(localized:"offline.title")).font(.title2).fontWeight(.bold)
+                Text(String(localized:"offline.description")).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
             
             }.toolbarTitleDisplayMode(.inlineLarge)
-                .navigationTitle(showNavBar ? "History" : "" )
+                .navigationTitle(showNavBar ? String(localized:"general.title.history") : "" )
                 .toolbar {
                     //Shows NavBar everywhere except LoginView
                     if showNavBar{
@@ -113,9 +113,9 @@ struct OfflineView: View{
     //Alert that is used
     static func offlineAlert() -> Alert {
         Alert(
-            title: Text("No Internet Connection"),
-            message: Text("Your Device is not connected to the internet."),
-            dismissButton: .default(Text("OK"))
+            title: Text(String(localized:"offline.title")),
+            message: Text(String(localized:"offline.alert.description")),
+            dismissButton: .default(Text(String(localized:"offline.alertDissmiss")))
         )
     }
 }

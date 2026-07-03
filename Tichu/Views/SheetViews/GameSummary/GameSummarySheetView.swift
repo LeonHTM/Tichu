@@ -38,10 +38,10 @@ struct GameSummarySheetView: View {
     }
 
     private var winnerName: String {
-        guard let winnerId = currentGame?.winner else { return "Unknown" }
-        if winnerId == 1 { return "Team 1" }
-        if winnerId == 2 { return "Team 2" }
-        return "Unknown"
+        guard let winnerId = currentGame?.winner else { return String(localized: "gamesummary.winner.unknown") }
+        if winnerId == 1 { return String(localized: "gamesummary.winner.team1") }
+        if winnerId == 2 { return String(localized: "gamesummary.winner.team2") }
+        return String(localized: "gamesummary.winner.unknown")
     }
 
     // MARK: - Body
@@ -59,8 +59,8 @@ struct GameSummarySheetView: View {
             )) {
                 if let image = shareImageToPresent {
                     ActivityViewController(
-                        title: "Tichu Game from \(currentGame?.date.formatted(date: .numeric, time: .omitted) ?? "Unknown")",
-                        message: "Made with Tichu-App.",
+                        title: String(format: String(localized: "gamesummary.share.activity.title"), currentGame?.date.formatted(date: .numeric, time: .omitted) ?? String(localized: "gamesummary.winner.unknown")),
+                        message: String(localized: "general.madeWith"),
                         image: image
                     )
                 }
@@ -69,7 +69,7 @@ struct GameSummarySheetView: View {
                 bottomToolbar
                 toolbarContent
             }
-            .navigationTitle("\(winnerName) won!")
+            .navigationTitle(String(format: String(localized: "gamesummary.title.won"), winnerName))
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -113,9 +113,9 @@ struct GameSummarySheetView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .top) {
-            Picker("View", selection: $selectedTab) {
-                Text("Graph").tag(0)
-                Text("List").tag(1)
+            Picker(String(localized: "gamesummary.picker.view"), selection: $selectedTab) {
+                Text(String(localized: "gamesummary.tab.graph")).tag(0)
+                Text(String(localized: "gamesummary.tab.list")).tag(1)
             }
             .pickerStyle(.segmented)
             .padding(.horizontal)
@@ -150,11 +150,10 @@ struct GameSummarySheetView: View {
         if showRevancheButton {
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
-                    
                     revanche = true
                     showGameOverViewSheetView = false
                 } label: {
-                    Text("Revanche")
+                    Text(String(localized: "gamesummary.toolbar.revanche"))
                 }
             }
         }
@@ -178,8 +177,8 @@ struct GameSummaryBottomToolbar: ToolbarContent {
             if let renderedImage {
                 ShareLink(
                     item: renderedImage,
-                    message: Text("Check my Tichu Game out."),
-                    preview: SharePreview("Tichu game", image: renderedImage)
+                    message: Text(String(localized: "gamesummary.share.message")),
+                    preview: SharePreview(String(localized: "gamesummary.share.preview.title"), image: renderedImage)
                 )
                 .labelStyle(.iconOnly)
                 .imageScale(.large)
@@ -197,7 +196,7 @@ struct GameSummaryBottomToolbar: ToolbarContent {
                     Text("\(currentGame?.currentPointsTeam1 ?? 0)")
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
-                    Text("vs").fontWeight(.bold).font(.title3)
+                    Text(String(localized: "general.versus")).fontWeight(.bold).font(.title3)
                     Text("\(currentGame?.currentPointsTeam2 ?? 0)")
                         .fontWeight(.bold)
                 }
@@ -213,25 +212,22 @@ struct GameSummaryBottomToolbar: ToolbarContent {
                     Image(systemName: "trash")
                 }
                 .foregroundColor(.primary)
-                .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
+                .alert(String(localized: "gamesummary.delete.alert.title"), isPresented: $showDeleteGameAlert) {
                     fuckyouView(showDeleteGameAlert: $showDeleteGameAlert, currentGameId: currentGameId ?? 0, showGameOverViewSheetView: $showGameOverViewSheetView)//.navigationTransition(.zoom(sourceID: "69420", in: ShareSheetSpace))
                 } message: {
-                    Text("This Game will be deleted")
+                    Text(String(localized: "gamesummary.delete.alert.message"))
                 }
             }//.matchedTransitionSource(id: "69420", in: ShareSheetSpace)
         }else{
             ToolbarSpacer(placement:.bottomBar)
             ToolbarItem(placement: .bottomBar) {
                 Button{
-                    
-                        Task{
-                            await network.updateGameFavorite(gameId: currentGameId ?? 0, favorite: !currentGame!.favorite )
-                        }
-                    
+                    Task{
+                        await network.updateGameFavorite(gameId: currentGameId ?? 0, favorite: !currentGame!.favorite )
+                    }
                 }label:{
                     Image(systemName: currentGame!.favorite ? "star.slash.fill" :"star.fill")
                 }.sensoryFeedback(.success,trigger:currentGame!.favorite)
-                
             }
         }
     }
@@ -242,8 +238,8 @@ struct fuckyouView: View{
     var currentGameId: Int
     @Binding var showGameOverViewSheetView: Bool
     var body: some View{
-        Button("Cancel", role: .cancel) { showDeleteGameAlert = false }
-        Button("Delete", role: .destructive) {
+        Button(String(localized: "gamesummary.delete.alert.cancel"), role: .cancel) { showDeleteGameAlert = false }
+        Button(String(localized: "gamesummary.delete.alert.confirm"), role: .destructive) {
             Task {
                 await NetworkService.shared.deleteGame(gameId: currentGameId)
                 showGameOverViewSheetView = false

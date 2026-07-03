@@ -281,7 +281,7 @@ struct PlayView: View {
                 
                 .background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
-                .navigationTitle(String(localized: "general.titles.play"))
+                .navigationTitle(String(localized: "general.title.play"))
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .toolbar {
                     if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
@@ -332,7 +332,7 @@ struct PlayView: View {
         Section {
             if isLoading == false{
                 HStack {
-                    Text("\(String(localized: "play.title.team")) 1")
+                    Text(String(format:String(localized: "general.team"), String(1)))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
@@ -346,7 +346,7 @@ struct PlayView: View {
                 .listRowBackground(Color.clear)
             }else{
                 HStack {
-                    Text("\(String(localized: "play.title.team")) 1")
+                    Text(String(format:String(localized: "general.team"), String(1)))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
@@ -384,7 +384,7 @@ struct PlayView: View {
                         }
                         
                         if p1.id == -3 || p1.id == -2 || p1.id == -1 || p1.id == -4{
-                            Text("Guest 1").fontWeight(.bold) //zum localizen
+                            Text(String(format: String(localized: "play.guest"),1)).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
@@ -482,7 +482,7 @@ struct PlayView: View {
                         }
                         
                         if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
-                            Text("Guest 2").fontWeight(.bold) //zum localizen
+                            Text(String(format: String(localized: "play.guest"),2)).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p2.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
@@ -610,7 +610,7 @@ struct PlayView: View {
         Section {
             if isLoading == false{
                 HStack {
-                    Text("\(String(localized: "play.title.team")) 2")
+                    Text(String(format:String(localized: "general.team"), String(2)))
                     Spacer()
                     if isGameReady {
                         Text("\(currentPointsTeam2)")
@@ -618,7 +618,7 @@ struct PlayView: View {
                 }
             }else{
                 HStack {
-                    Text("\(String(localized: "play.title.team")) 1")
+                    Text(String(format:String(localized: "general.team"), String(2)))
                         .redacted(reason: .placeholder)
                     Spacer()
               
@@ -651,7 +651,7 @@ struct PlayView: View {
                         }
                         
                         if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
-                            Text("Guest 3").fontWeight(.bold) //zum localizen
+                            Text(String(format: String(localized: "play.guest"),3)).fontWeight(.bold)
                         }else{
                             Text(p3.name ?? "Unknown").fontWeight(.bold)
                         }
@@ -769,7 +769,7 @@ struct PlayView: View {
                         }
                         
                         if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
-                            Text("Guest 4").fontWeight(.bold) //zum localizen
+                            Text(String(format: String(localized: "play.guest"),4)).fontWeight(.bold)
                         }else{
                             Text(p4.name ?? "Unknown").fontWeight(.bold)
                         }
@@ -956,12 +956,12 @@ struct PlayView: View {
                 .transition(.opacity)
             } else if !network.isOnline {
                 VStack(alignment: .center, spacing: 10) {
-                    Text("No Internet Connection")
+                    Text(String(localized:"offline.title"))
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(.primary)
 
-                    Text("Your Device is not connected to the internet. To connect, turn off Airplane Mode or connect to a Wi-Fi network.")
+                    Text(String(localized:"offline.description"))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 40)
@@ -1035,7 +1035,7 @@ struct PlayView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 20))
                         .foregroundColor(.primary)
-                    Text("Add Round").foregroundColor(.primary)
+                    Text(String(localized:"play.addRound")).foregroundColor(.primary)
                 }.matchedTransitionSource(id: "69421", in: playSpace)
                     .padding(13)
                     .glassEffect(.regular.interactive())
@@ -1062,7 +1062,7 @@ struct PlayView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 20))
                         .foregroundColor(.primary)
-                    Text("Add Round").foregroundColor(.primary)
+                    Text(String(localized:"play.addRound")).foregroundColor(.primary)
                 }
                     .padding(13)
                     .glassEffect(.regular.interactive())
