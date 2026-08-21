@@ -196,8 +196,8 @@ struct GameSummaryShareView: View {
                 }
                 Spacer()
                 VStack {
-                    Text(String(format: String(localized: "gamesummaryshare.target"), currentGame?.target ?? 1000)).fontWeight(.bold)
-                    Text(String(format: String(localized: "gamesummaryshare.winner"), gameWinner())).fontWeight(.bold)
+                    Text(String(format: String(localized: "gamesummaryshare.target"), String(currentGame?.target ?? 1000))).fontWeight(.bold)
+                    Text(String(format: String(localized: "gamesummaryshare.winner"), String(gameWinner()))).fontWeight(.bold)
                         .foregroundStyle(gameWinner() == String(format:String(localized: "general.team"), String(1)) ? accentCo : Color.primary)
                 }
                 Spacer()

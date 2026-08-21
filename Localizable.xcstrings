@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     " " : {
-
+      "shouldTranslate" : false
     },
     "(%@/%@)" : {
       "comment" : "A small text that shows the finishing place of two players in a round. The first argument is the finishing place of the first player. The second argument is the finishing place of the second player.",
@@ -99,6 +99,12 @@
     "addPlayers.alert.inGame.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dä Schpiler isch scho imänö Tichu Schpiu u cha drum nid joinä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -110,6 +116,12 @@
     "addPlayers.alert.inGame.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiler scho imänä aktive Schpiu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -121,6 +133,12 @@
     "addPlayers.allPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aui Schpilär"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -132,6 +150,12 @@
     "addPlayers.alreadyFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scho ä Fründ"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -143,6 +167,12 @@
     "addPlayers.couldnotfind" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha %@ nid gfungä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -154,6 +184,12 @@
     "addPlayers.currentlyComparing" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momenten im Verglich"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -165,6 +201,12 @@
     "addPlayers.currentlyInGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momentan imänä Schpiu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -176,6 +218,12 @@
     "addPlayers.friends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -187,6 +235,12 @@
     "addPlayers.guest" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gascht"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -198,6 +252,12 @@
     "addPlayers.hideComparing" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bishärigi Fründä nid zeigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -209,6 +269,12 @@
     "addPlayers.hideExisting" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bishörigi Verglichä nid zeigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -220,6 +286,12 @@
     "addPlayers.hidePlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelli Schpiuteilnähmer nid zeigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -231,6 +303,12 @@
     "addPlayers.title.addPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiler derzuetuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -242,6 +320,12 @@
     "addPlayers.title.editFriends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründ bearbeitä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -253,6 +337,12 @@
     "addPlayers.title.requestFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründ afragä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -270,6 +360,12 @@
     "friends.friends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -281,6 +377,12 @@
     "friends.manage" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründä verwautä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -292,6 +394,12 @@
     "friends.nofriends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hesch no ke Fründä. Frag öpper a!"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -303,6 +411,12 @@
     "friends.recieved" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bechnoigi Afragä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -314,6 +428,12 @@
     "friends.remove.friend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründ wägtuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -325,6 +445,12 @@
     "friends.remove.request" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afrag ignorierä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -336,6 +462,12 @@
     "friends.request" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründe afragä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -347,6 +479,12 @@
     "friends.requested" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afragänä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -358,6 +496,12 @@
     "friends.sent" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afrag gschickt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -369,6 +513,12 @@
     "friends.since" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründä sit äm %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -380,6 +530,12 @@
     "gamesettings.section.games" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -391,6 +547,12 @@
     "gamesettings.section.games.defaultTarget" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Ziel"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -402,6 +564,12 @@
     "gamesettings.section.games.dragMode" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziäh Modus"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -413,6 +581,12 @@
     "gamesettings.section.games.footer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wemmä ä Rundi derzuteut, schtatt uf Schpilär z tipä zum dr Reihefoug feschtlegä, tuä sä irä Lischtä umäziäh."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -424,6 +598,12 @@
     "gamesettings.section.games.showPingus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bsoffinigi Pingus azeigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -435,6 +615,12 @@
     "gamesettings.section.howToPlay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi schpiut mä?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -446,6 +632,12 @@
     "gamesettings.section.howToPlay.officialRules" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ofiiziui Tichu Reglä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -457,6 +649,12 @@
     "gamesettings.section.players" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpilär"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -468,6 +666,12 @@
     "gamesettings.section.players.footer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeig immer aui Schpiler, wenns drum geitg Schpiler drzuä z tuä, o wenn si nid verfüägbar si wöu si entwerder gad imänä Schpiu si, scho Verglichä wärdä oder scho di Fründ si."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -479,6 +683,12 @@
     "gamesettings.section.players.showAll" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aui Schpilär zeigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -490,6 +700,12 @@
     "gamesettings.section.players.sortBy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortier Schpilär nach"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -501,6 +717,12 @@
     "gamesettings.section.statistics" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistikä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -512,6 +734,12 @@
     "gamesettings.section.statistics.sortBy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortier Statistik-Verglichä nach"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -523,6 +751,12 @@
     "gamesettings.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu Isteuigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -534,6 +768,12 @@
     "gameSummary.alert.delete.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ds schpiu wird glöscht"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -545,6 +785,12 @@
     "gameSummary.alert.delete.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu löschä?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -556,6 +802,12 @@
     "gamesummary.delete.alert.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuätuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -567,6 +819,12 @@
     "gamesummary.delete.alert.confirm" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Köschä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -578,6 +836,12 @@
     "gamesummary.delete.alert.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ds Schpiu wird glöscht"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -589,6 +853,12 @@
     "gamesummary.delete.alert.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ds Schpiu löschä?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -600,6 +870,12 @@
     "gameSummary.deleteGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu loschä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -611,6 +887,12 @@
     "gamesummary.picker.view" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aluägä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -622,6 +904,12 @@
     "gameSummary.playedOn" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gschpiut am %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -633,6 +921,12 @@
     "gamesummary.share.activity.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Schpiu vum %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -644,6 +938,12 @@
     "gamesummary.share.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lug mau mis Tichu Schpiu."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -655,6 +955,12 @@
     "gamesummary.share.preview.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Schpiu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -666,6 +972,12 @@
     "gamesummary.tab.graph" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graph"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -677,6 +989,12 @@
     "gamesummary.tab.list" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lischtä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -688,6 +1006,12 @@
     "gamesummary.title.won" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ het gwunnä!"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -699,6 +1023,12 @@
     "gamesummary.toolbar.revanche" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revanche"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -710,6 +1040,12 @@
     "gamesummaryshare.details" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -721,6 +1057,12 @@
     "gamesummaryshare.rounds" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundinä:"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -732,6 +1074,12 @@
     "gamesummaryshare.target" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziel: %d"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -743,6 +1091,12 @@
     "gamesummaryshare.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundi Resultat"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -754,6 +1108,12 @@
     "gamesummaryshare.winner" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gwinner: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -765,6 +1125,12 @@
     "general.alert.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "zutuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -776,6 +1142,12 @@
     "general.alert.retry" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mau probiärä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -787,6 +1159,12 @@
     "general.alert.serverUnreachable" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha nid chöne mit äm Server verbindä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -798,6 +1176,12 @@
     "general.alert.serverUnreachable.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entweder isch dr Server offline oder du bisch nid mit em Internet verbundä. Bittä probiers später nomau."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -809,6 +1193,12 @@
     "general.logout" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usloggä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -843,6 +1233,12 @@
     "general.share" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilä…"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -886,7 +1282,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spilä"
+            "value" : "Schpilä"
           }
         },
         "en" : {
@@ -940,6 +1336,12 @@
     "general.team" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -951,6 +1353,12 @@
     "general.team.double" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %@:"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -962,6 +1370,12 @@
     "general.team.result" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %1$@: %2$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1005,7 +1419,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Spilä"
+            "value" : "Schpilä"
           }
         },
         "en" : {
@@ -1059,6 +1473,12 @@
     "general.unknown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbekannt"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1070,6 +1490,12 @@
     "general.versus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gägä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1081,6 +1507,12 @@
     "history.context.openGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu uftuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1092,6 +1524,12 @@
     "history.loading" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlouf ladä…"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1103,6 +1541,12 @@
     "history.share.check" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check mis Tichu Schpiu ab"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1111,9 +1555,15 @@
         }
       }
     },
-    "history.sortBy.allrounds" : {
+    "history.sortBy.allRounds" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aui Rundinä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1125,6 +1575,12 @@
     "history.sortBy.byDateDown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum (Nöi-Aut)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1136,6 +1592,12 @@
     "history.sortBy.byDateUp" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum (Aut-Nöi)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1147,6 +1609,12 @@
     "history.sortBy.favorites" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoritä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1158,6 +1626,12 @@
     "history.willAppear.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di Verlouf vo Tichu Schpiu wird hiä uftouchä, sobaut du äs erschts Schpiu gschpiut hesch."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1172,6 +1646,12 @@
     "login.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Track Tichu Schpiu mit dinä Fründä und analysier Statisktikä über dini Performance."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1183,6 +1663,12 @@
     "login.or" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "oder"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1194,6 +1680,12 @@
     "login.signup" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amäudä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1205,6 +1697,12 @@
     "login.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiukommä zum Tichu Tracker"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1231,6 +1729,36 @@
     "offline.alert.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "variations" : {
+            "device" : {
+              "applevision" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dini Apple Vision isch nid mit äm Internet verbundä."
+                }
+              },
+              "ipad" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis iPad isch nid mit äm Internet verbundä."
+                }
+              },
+              "iphone" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis iPhone isch nid mit äm Internet verbundä."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis Grät isch nid mit äm Internet verbundä."
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "device" : {
@@ -1266,6 +1794,12 @@
     "offline.alertDissmiss" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1811,36 @@
     "offline.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "variations" : {
+            "device" : {
+              "applevision" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dini Apple Vision isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                }
+              },
+              "ipad" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis iPad isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                }
+              },
+              "iphone" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis iPhone isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dis Grät isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                }
+              }
+            }
+          }
+        },
         "en" : {
           "variations" : {
             "device" : {
@@ -1312,6 +1876,12 @@
     "offline.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dis Grät isch nid mit äm Internet verbundä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1349,6 +1919,12 @@
     "play.addRound" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundi derzuätuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1360,6 +1936,12 @@
     "play.allowPingus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bsoffnigi Pingu erloubä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1371,6 +1953,12 @@
     "play.download" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Tracker abäladä zum ä Rang becho."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1382,6 +1970,12 @@
     "play.guest" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gascht %d"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1393,6 +1987,12 @@
     "play.removePlayer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiler wägtuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1404,6 +2004,12 @@
     "play.sendFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schick a Fründesafrag"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1807,6 +2413,12 @@
     "round.round" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundi %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1818,6 +2430,12 @@
     "rounds.noPlayed" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No ke Rundinä gschpiut"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1829,6 +2447,12 @@
     "rounds.notCounted" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ Rundinä wärdä nid zeut. Ds passiert wüu a Rundi isch bearbeitet worde, sodass ds Schpiu scho nach %2$@ Rundinä isch entschidä isch wordä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1840,6 +2464,12 @@
     "rounds.placement" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platzierig"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1851,6 +2481,12 @@
     "rounds.points" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pünkt %1$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1862,6 +2498,12 @@
     "shareStatistics.performance" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1873,6 +2515,12 @@
     "statistics.compare.addPlayer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiler drzutue zum verglichä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1884,6 +2532,12 @@
     "statistics.compare.remove" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wägtuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1895,6 +2549,12 @@
     "statistics.compare.removeAllPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aui Spieler wägtuä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1906,6 +2566,12 @@
     "statistics.luis" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flex bi dinä Fründ indäm du dini krassä Tichu Stats mit ihnä teilsch…"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1917,6 +2583,12 @@
     "statistics.share" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilä…"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1928,6 +2600,12 @@
     "statistics.share.captured" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feschtghaute am %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1939,6 +2617,12 @@
     "statistics.share.check" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lug mau mini Tichu Stats"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1959,7 +2643,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nach Wärt (Höch-Töif)"
+            "value" : "Nach Wärtä (Höch-Töif)"
           }
         },
         "en" : {
@@ -1973,6 +2657,12 @@
     "statistics.sort.123up" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach Wärt (Töif-Höch)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2016,7 +2706,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nach wärt (A-Z)"
+            "value" : "Nach Wärtä (A-Z)"
           }
         },
         "en" : {
@@ -2030,6 +2720,12 @@
     "statistics.sort.dateDown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drzuetas Datum (Nöi-Aut)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2041,6 +2737,12 @@
     "statistics.sort.dateUp" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drzuetas Datum (Aut-Nöi)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2052,6 +2754,12 @@
     "statistics.sort.rankingdown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rang (Töif-Höch)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2063,6 +2771,12 @@
     "statistics.sort.rankingup" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rang (Höch-Töif)"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2744,6 +3458,12 @@
     "tichu.big.long" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grossäs Tichu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2755,6 +3475,12 @@
     "tichu.big.short" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gr. Tichu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2766,6 +3492,12 @@
     "tichu.bombs" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bombä: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2777,6 +3509,12 @@
     "tichu.doubleWIn" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopu-Sieg"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2788,6 +3526,12 @@
     "tichu.pingu" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pingu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2799,6 +3543,12 @@
     "tichu.play" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schpiu äs Tichu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2810,6 +3560,12 @@
     "tichu.tichu" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2821,6 +3577,12 @@
     "tips.historyTap.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiä druf tipä für meh Informatione ober ds Tichu Schpiu und zum’s teilä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2832,6 +3594,12 @@
     "tips.historyTap.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipä für meh Informationä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2843,6 +3611,12 @@
     "tips.listSwipe.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du chasch links uf ärä rundi wüschä zum sä bearbeitä oder löschä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2854,6 +3628,12 @@
     "tips.listSwipe.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Links wüschä zum bearbeite"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2865,6 +3645,12 @@
     "tips.listSwipeFriend.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du chasch links uf äm nä fründ wüschä zum nä entfernä."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2876,6 +3662,12 @@
     "tips.listSwipeFriend.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Links wüschä zum entfernä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2887,6 +3679,12 @@
     "username.change" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du chasch di Name ersch wird änderä i: %@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2898,6 +3696,12 @@
     "username.create" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account machä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2909,6 +3713,12 @@
     "username.creating" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account wird gmacht…."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2920,6 +3730,12 @@
     "username.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähl ä eimaligä Benutzernämä us. Dini fründe chöi di när unger däm Benuzernamä zu Tichu Schpiu derzue tue."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2931,6 +3747,12 @@
     "username.edit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername bearbeitä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2942,6 +3764,12 @@
     "username.enter" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername igä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2953,6 +3781,12 @@
     "username.old" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di aut Benutzername"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2964,6 +3798,12 @@
     "username.requirements" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorussetzigä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2975,6 +3815,12 @@
     "username.requirements.available" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername verfüegbar"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2986,6 +3832,12 @@
     "username.requirements.length" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwüschä 3 und 20 Zeichä"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2997,6 +3849,12 @@
     "username.requirements.letters" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur Buächstabe, Zahlä und unterstrich."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",

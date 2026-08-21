@@ -384,7 +384,7 @@ struct PlayView: View {
                         }
                         
                         if p1.id == -3 || p1.id == -2 || p1.id == -1 || p1.id == -4{
-                            Text(String(format: String(localized: "play.guest"),1)).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                            Text(String(format: String(localized: "play.guest"),String(1))).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p1.name ?? String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
@@ -482,7 +482,7 @@ struct PlayView: View {
                         }
                         
                         if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
-                            Text(String(format: String(localized: "play.guest"),2)).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                            Text(String(format: String(localized: "play.guest"),String(2))).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p2.name ?? String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
@@ -651,7 +651,7 @@ struct PlayView: View {
                         }
                         
                         if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
-                            Text(String(format: String(localized: "play.guest"),3)).fontWeight(.bold)
+                            Text(String(format: String(localized: "play.guest"),String(3))).fontWeight(.bold)
                         }else{
                             Text(p3.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }
@@ -769,7 +769,7 @@ struct PlayView: View {
                         }
                         
                         if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
-                            Text(String(format: String(localized: "play.guest"),4)).fontWeight(.bold)
+                            Text(String(format: String(localized: "play.guest"),String(4))).fontWeight(.bold)
                         }else{
                             Text(p4.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }

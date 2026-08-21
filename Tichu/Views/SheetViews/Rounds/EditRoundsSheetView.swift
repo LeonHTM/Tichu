@@ -256,7 +256,7 @@ struct EditRoundsSheetView: View {
 
             if allRounds.count != winRounds.count {
                 Section {
-                    Text(String(format: String(localized: "rounds.notCounted"), (allRounds.count - winRounds.count), (winRounds.count)))
+                    Text(String(format: String(localized: "rounds.notCounted"), String((allRounds.count - winRounds.count)), String((winRounds.count))))
                 
                    
                 }
@@ -313,7 +313,7 @@ struct EditRoundsSheetView: View {
     // MARK: - Round Label
     private func roundLabel(index: Int, hasExpanded: Bool, currentRound: Round) -> some View {
         HStack {
-            Text(String(format:String(localized:"rounds.round"), String(index + 1)))
+            Text(String(format:String(localized:"round.round"), String(index + 1)))
                 .fontWeight(.bold)
                 .font(.title3)
                 .padding(10)

@@ -218,8 +218,7 @@ struct EditFriendsSheetView: View {
                         showFriends: .constant(false),
                         guestIndex: 0,
                         showMenu: true
-                    )
-                    .presentationDetents([.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))
+                    ).presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))
                 }
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) { doneButton }
@@ -368,7 +367,7 @@ struct EditFriendsSheetView: View {
                     VStack(alignment: .leading) {
                         Text(friend.profile.name ?? String(localized: "general.unknown"))
                         if let date = friend.friendsSince {
-                            Text(String(format:String(localized: "friends.since"),date.formatted(date: .complete, time: .omitted)))
+                            Text(String(format:String(localized: "friends.since"),String(date.formatted(date: .complete, time: .omitted))))
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         } else {

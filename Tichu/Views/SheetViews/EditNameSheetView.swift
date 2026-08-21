@@ -111,7 +111,7 @@ struct EditNameSheetView: View {
                         
                         HStack{
                             Spacer()
-                            Text(String(format:String(localized: "username.change"),downTimeFormatted)).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text(String(format:String(localized: "username.change"),String(downTimeFormatted))).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Spacer()
                         }
                         

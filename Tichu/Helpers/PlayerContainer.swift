@@ -82,7 +82,7 @@ struct PlayerContainer: View {
                     Button {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
-                        Text(String(format:String(localized:"tichu.bombs"), bombNumber))
+                        Text(String(format:String(localized:"tichu.bombs"), String(bombNumber))).foregroundColor(.primary)
                        
                     }
                     .padding(8)

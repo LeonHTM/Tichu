@@ -201,7 +201,7 @@ struct AddPlayersSheetView: View {
             Spacer()
             HStack {
                 Image(systemName: "magnifyingglass")
-                Text(String(format:String(localized:"addPlayers.couldnotfind"), query))
+                Text(String(format:String(localized:"addPlayers.couldnotfind"), String(query)))
             }
             Spacer()
         }

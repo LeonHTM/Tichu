@@ -12,7 +12,7 @@ import PDFKit
 struct TichuRulesPDFView: View {
     var body: some View {
         PDFKitView()
-            .ignoresSafeArea(edges: .bottom) 
+            .ignoresSafeArea(edges: .bottom)
             .navigationTitle("Tichu Rules")
             .navigationBarTitleDisplayMode(.inline)
     }
@@ -28,10 +28,7 @@ struct PDFKitView: UIViewRepresentable {
         pdfView.backgroundColor = .systemBackground
         pdfView.displayBox = .cropBox
 
-        if let url = Bundle.main.url(
-            forResource: "tichu-rules-en",
-            withExtension: "pdf"
-        ) {
+        if let url = Self.resolvedPDFURL() {
             pdfView.document = PDFDocument(url: url)
         }
 
@@ -45,11 +42,23 @@ struct PDFKitView: UIViewRepresentable {
             pdfView.scaleFactor = scale
             if UIDevice.current.userInterfaceIdiom == .pad {
                 pdfView.minScaleFactor = scale/4
-            }else{
+            } else {
                 pdfView.minScaleFactor = scale
             }
-            
+
             pdfView.maxScaleFactor = scale * 5
         }
+    }
+
+    private static func resolvedPDFURL() -> URL? {
+        let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+
+        let candidateName = "tichu-rules-\(languageCode)"
+
+        if let url = Bundle.main.url(forResource: candidateName, withExtension: "pdf") {
+            return url
+        }
+
+        return Bundle.main.url(forResource: "tichu-rules-en", withExtension: "pdf")
     }
 }
