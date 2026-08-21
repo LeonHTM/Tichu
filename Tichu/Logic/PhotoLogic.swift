@@ -59,17 +59,19 @@ struct NavigationProfileImage: View {
         //Makes sure that the Preview is a circle
         .contentShape(.contextMenuPreview,.circle)
         .contextMenu{
-            Button{
-                if SocketService.shared.connected{
-                    Task {
-                        if let id = userId{
-                            await NetworkService.shared.logout(profileId: id)
+            if NetworkService.shared.isOnline == true{
+                Button{
+                    if SocketService.shared.connected{
+                        Task {
+                            if let id = userId{
+                                await NetworkService.shared.logout(profileId: id)
+                            }
                         }
                     }
+                }label:{
+                    Image(systemName:"rectangle.portrait.and.arrow.right.fill")
+                    Text(String(localized : "general.logout"))
                 }
-            }label:{
-                Image(systemName:"rectangle.portrait.and.arrow.right.fill")
-                Text(String(localized: "general.logout"))
             }
         }
                

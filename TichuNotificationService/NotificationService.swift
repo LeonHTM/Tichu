@@ -32,7 +32,7 @@ class NotificationService: UNNotificationServiceExtension {
 
         let userInfo = request.content.userInfo
 
-        let senderName     = userInfo["sender_name"]     as? String ?? "Unknown"
+        let senderName     = userInfo["sender_name"]     as? String ?? String(localized: "general.unknown")
         let senderHandle   = userInfo["sender_id"]       as? String ?? senderName
         let conversationID = userInfo["conversation_id"] as? String ?? "default-chat"
         let imageURLString = userInfo["image_url"]       as? String

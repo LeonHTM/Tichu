@@ -55,8 +55,8 @@ struct HistoryView: View {
     }
 
     private func playerName(_ id: Int?) -> String {
-        guard let id else { return "Unknown" }
-        return network.profiles.first { $0.id == id }?.name ?? "Unknown"
+        guard let id else { return String(localized: "general.unknown") }
+        return network.profiles.first { $0.id == id }?.name ?? String(localized: "general.unknown")
     }
 
     // MARK: - Body
@@ -105,7 +105,7 @@ struct HistoryView: View {
                                         if let renderedImage {
                                             ShareLink(
                                                 item: renderedImage,
-                                                message: Text("Check my Tichu Game out."),
+                                                message: Text(String(localized:"history.share.check")),
                                                 preview: SharePreview("Tichu game", image: renderedImage)
                                             )
                                             .foregroundColor(.primary)
@@ -113,7 +113,7 @@ struct HistoryView: View {
                                             Button {} label: {
                                                 HStack {
                                                     Image(systemName: "square.and.arrow.up")
-                                                    Text("Share...")
+                                                    Text(String(localized:"general.share"))
                                                     ProgressView()
                                                 }
                                             }.disabled(true)
@@ -324,7 +324,7 @@ struct HistoryView: View {
                 Button {
                     selectedTab = 0
                 } label: {
-                    Text("Play Tichu")
+                    Text(String(localized:"tich.play"))
                 }
                 .padding(13)
                 .glassEffect(.regular.tint(.accentColor).interactive())

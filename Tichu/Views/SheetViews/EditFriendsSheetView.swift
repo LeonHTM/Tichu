@@ -189,7 +189,7 @@ struct EditFriendsSheetView: View {
                     }
                 }
                 .listSectionSpacing(0)
-                .navigationTitle("Manage Friendlist")
+                .navigationTitle(String(localized: "friends.manage"))
                 .navigationBarTitleDisplayMode(.inline)
             
                 .sheet(isPresented: $showAddPlayerSheet, onDismiss: {
@@ -238,7 +238,7 @@ struct EditFriendsSheetView: View {
     private var friendRequestsHeader: some View {
         Section {
             HStack {
-                Text("Recieved Requests").fontWeight(.bold)
+                Text(String(localized: "friends.recieved")).fontWeight(.bold)
                 Spacer()
                 if requestedFriendsListCopy.count > 1 {
                     Menu {
@@ -246,13 +246,13 @@ struct EditFriendsSheetView: View {
                             withAnimation(.easeInOut) { sortByRequests = .nameDown; friendsFilterActive = false }
                         } label: {
                             if sortByRequests == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
-                            Text("Alphabetical (A-Z)")
+                            Text(String(localized:"statistics.sort.abcdown"))
                         }
                         Button {
                             withAnimation(.easeInOut) { sortByRequests = .nameUp; friendsFilterActive = true }
                         } label: {
                             if sortByRequests == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
-                            Text("Alphabetical (Z-A)")
+                            Text(String(localized:"statistics.sort.abcup"))
                         }
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease.circle").font(.system(size: 20))
@@ -271,7 +271,7 @@ struct EditFriendsSheetView: View {
                 HStack {
                     ProfileImage(data: network.friendRequestImages[profile.id], size: 44)
                     VStack(alignment: .leading) {
-                        Text(profile.name ?? "Unknown")
+                        Text(profile.name ?? String(localized: "general.unknown"))
                     }
                     Spacer()
                     GlassEffectContainer {
@@ -313,7 +313,7 @@ struct EditFriendsSheetView: View {
         Section {
             if friendsListCopy.count > 0 {
                 HStack {
-                    Text("Friends").fontWeight(.bold)
+                    Text(String(localized: "friends.friends")).fontWeight(.bold)
                     Spacer()
                     if friendsListCopy.count > 1 {
                         Menu {
@@ -321,26 +321,26 @@ struct EditFriendsSheetView: View {
                                 withAnimation(.easeInOut) { sortByFriends = .nameDown; friendsFilterActive = false }
                             } label: {
                                 if sortByFriends == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
-                                Text("Alphabetical (A-Z)")
+                                Text(String(localized:"statistics.sort.abcdown"))
                             }
                             Button {
                                 withAnimation(.easeInOut) { sortByFriends = .nameUp; friendsFilterActive = true }
                             } label: {
                                 if sortByFriends == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
-                                Text("Alphabetical (Z-A)")
+                                Text(String(localized:"statistics.sort.abcup"))
                             }
                             Divider()
                             Button {
                                 withAnimation(.easeInOut) { sortByFriends = .valueDown; friendsFilterActive = true }
                             } label: {
                                 if sortByFriends == .valueDown { Image(systemName: "checkmark") } else { Image("date.down") }
-                                Text("Date Added (New - Old)")
+                                Text(String(localized:"statistics.sort.dateDown"))
                             }
                             Button {
                                 withAnimation(.easeInOut) { sortByFriends = .valueUp; friendsFilterActive = true }
                             } label: {
                                 if sortByFriends == .valueUp { Image(systemName: "checkmark") } else { Image("date.up") }
-                                Text("Date Added (Old - New)")
+                                Text(String(localized:"statistics.sort.dateUp"))
                             }
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease.circle").font(.system(size: 20))
@@ -350,7 +350,7 @@ struct EditFriendsSheetView: View {
                 }
             } else {
                 if sentRequestsListCopy.count == 0 && requestedFriendsListCopy.count == 0 {
-                    Text("You have no friends yet. Request somebody!")
+                    Text(String(localized: "friends.nofriends"))
                         .listRowBackground(Color.clear)
                         .foregroundStyle(.secondary)
                 }
@@ -366,13 +366,13 @@ struct EditFriendsSheetView: View {
                 HStack {
                     ProfileImage(data: network.profileImages[friend.id], size: 44)
                     VStack(alignment: .leading) {
-                        Text(friend.profile.name ?? "Unknown")
+                        Text(friend.profile.name ?? String(localized: "general.unknown"))
                         if let date = friend.friendsSince {
-                            Text("Friends since \(date.formatted(date: .complete, time: .omitted))")
+                            Text(String(format:String(localized: "friends.since"),date.formatted(date: .complete, time: .omitted)))
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         } else {
-                            Text("Unknown")
+                            Text(String(localized: "general.unknown"))
                                 .foregroundStyle(.secondary)
                                 .font(.system(size: 16))
                         }
@@ -385,7 +385,7 @@ struct EditFriendsSheetView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.minus")
-                        Text("Remove Friend")
+                        Text(String(localized: "friends.remove.friend"))
                     }
                     .tint(.red)
                 }
@@ -405,7 +405,7 @@ struct EditFriendsSheetView: View {
     private var sentRequestsHeader: some View {
         Section {
             HStack {
-                Text("Sent Requests").fontWeight(.bold)
+                Text(String(localized: "friends.sent")).fontWeight(.bold)
                 Spacer()
                 if sentRequestsListCopy.count > 1 {
                     Menu {
@@ -413,26 +413,26 @@ struct EditFriendsSheetView: View {
                             withAnimation(.easeInOut) { sortBySentRequests = .nameDown; friendsFilterActive = false }
                         } label: {
                             if sortBySentRequests == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
-                            Text("Alphabetical (A-Z)")
+                            Text(String(localized:"statistics.sort.abcdown"))
                         }
                         Button {
                             withAnimation(.easeInOut) { sortBySentRequests = .nameUp; friendsFilterActive = true }
                         } label: {
                             if sortBySentRequests == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
-                            Text("Alphabetical (Z-A)")
+                            Text(String(localized:"statistics.sort.abcup"))
                         }
                         Divider()
                         Button {
                             withAnimation(.easeInOut) { sortBySentRequests = .valueDown; friendsFilterActive = true }
                         } label: {
                             if sortBySentRequests == .valueDown { Image(systemName: "checkmark") } else { Image("date.down") }
-                            Text("Date Added (New - Old)")
+                            Text(String(localized:"statistics.sort.dateDown"))
                         }
                         Button {
                             withAnimation(.easeInOut) { sortBySentRequests = .valueUp; friendsFilterActive = true }
                         } label: {
                             if sortBySentRequests == .valueUp { Image(systemName: "checkmark") } else { Image("date.up") }
-                            Text("Date Added (Old - New)")
+                            Text(String(localized:"statistics.sort.dateUp"))
                         }
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease.circle").font(.system(size: 20))
@@ -451,8 +451,8 @@ struct EditFriendsSheetView: View {
                 HStack {
                     ProfileImage(data: network.profileImages[request.id], size: 44)
                     VStack(alignment: .leading) {
-                        Text(request.name ?? "Unknown")
-                        Text("Requested")
+                        Text(request.name ?? String(localized: "general.unknown"))
+                        Text(String(localized: "friends.requested"))
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     }
@@ -464,7 +464,7 @@ struct EditFriendsSheetView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.minus")
-                        Text("Remove Request")
+                        Text(String(localized: "friends.remove.request"))
                     }
                 }
             }
@@ -484,7 +484,7 @@ struct EditFriendsSheetView: View {
                 showAddPlayerSheet = true
             } label: {
                 Image(systemName: "plus")
-                Text("Request Friend")
+                Text(String(localized: "friends.request"))
             }.matchedTransitionSource(id: "69420", in: FriendsSpace)
             .foregroundStyle(Color.primary)
             .padding(13)

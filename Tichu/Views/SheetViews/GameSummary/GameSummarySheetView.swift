@@ -38,10 +38,10 @@ struct GameSummarySheetView: View {
     }
 
     private var winnerName: String {
-        guard let winnerId = currentGame?.winner else { return String(localized: "gamesummary.winner.unknown") }
-        if winnerId == 1 { return String(localized: "gamesummary.winner.team1") }
-        if winnerId == 2 { return String(localized: "gamesummary.winner.team2") }
-        return String(localized: "gamesummary.winner.unknown")
+        guard let winnerId = currentGame?.winner else { return String(localized: "general.unknown") }
+        if winnerId == 1 { return String(format:String(localized: "general.team"),1) }
+        if winnerId == 2 { return String(format:String(localized: "general.team"),2) }
+        return String(localized: "general.unknown")
     }
 
     // MARK: - Body
@@ -59,7 +59,7 @@ struct GameSummarySheetView: View {
             )) {
                 if let image = shareImageToPresent {
                     ActivityViewController(
-                        title: String(format: String(localized: "gamesummary.share.activity.title"), currentGame?.date.formatted(date: .numeric, time: .omitted) ?? String(localized: "gamesummary.winner.unknown")),
+                        title: String(format: String(localized: "gamesummary.share.activity.title"), currentGame?.date.formatted(date: .numeric, time: .omitted) ?? String(localized: "general.unknown")),
                         message: String(localized: "general.madeWith"),
                         image: image
                     )

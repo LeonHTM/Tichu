@@ -352,7 +352,7 @@ struct PlayView: View {
                         .foregroundStyle(Color.accentColor)
                         .redacted(reason: .placeholder)
                     Spacer()
-              
+                    //Placeholder to make rows look the same
                     Text("394")
                             .font(.title2)
                             .fontWeight(.bold)
@@ -386,13 +386,13 @@ struct PlayView: View {
                         if p1.id == -3 || p1.id == -2 || p1.id == -1 || p1.id == -4{
                             Text(String(format: String(localized: "play.guest"),1)).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
-                            Text(p1.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                            Text(p1.name ?? String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
                         Spacer()
                         if let elo = p1.elo {
                             Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
-                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text(String(localized:"play.download")).foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
                         if network.isOnline && p1.id != userId && p1.id > 0{
@@ -406,7 +406,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text("Remove Friend")
+                                    Text(String(localized: "friends.remove.frien"))
                                 }
                             }else{
                                 Button{
@@ -415,7 +415,7 @@ struct PlayView: View {
                                     }
                                 }label:{
                                     Image(systemName:"person.badge.plus")
-                                    Text("Send Friend Request")
+                                    Text(String(localized: "play.sendFriends"))
                                 }.disabled(p1.id == userId)
                             }
                         }
@@ -433,7 +433,7 @@ struct PlayView: View {
                                      
                                  }
                              } label: {
-                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                                 Label(String(localized: "play.removePlayer"), systemImage: "person.badge.minus").tint(.red)
                              }
                         }
                     }
@@ -441,7 +441,7 @@ struct PlayView: View {
                     withAnimation(.easeInOut){
                         HStack {
                             ProfileImage(data: nil, size: 44)
-                            Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                            Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
                             Spacer()
                             Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                         }
@@ -484,13 +484,13 @@ struct PlayView: View {
                         if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
                             Text(String(format: String(localized: "play.guest"),2)).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
-                            Text(p2.name ?? "Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor)
+                            Text(p2.name ?? String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
                         Spacer()
                         if let elo = p2.elo {
                             Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
-                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text(String(localized:"play.download")).foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
                         if network.isOnline && p2.id != userId && p2.id > 0{
@@ -504,7 +504,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text("Remove Friend")
+                                    Text(String(localized: "friends.remove.friend"))
                                 }
                             }else{
                                 Button{
@@ -513,7 +513,7 @@ struct PlayView: View {
                                     }
                                 }label:{
                                     Image(systemName:"person.badge.plus")
-                                    Text("Send Friend Request")
+                                    Text(String(localized: "play.sendFriends"))
                                 }.disabled(p2.id == userId)
                             }
                         }
@@ -532,7 +532,7 @@ struct PlayView: View {
                                      
                                  }
                              } label: {
-                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                                 Label(String(localized:"play.removePlayer"), systemImage: "person.badge.minus").tint(.red)
                              }
                         }
                     }
@@ -542,7 +542,7 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text("Unknown").fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
                         Spacer()
                         Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
@@ -653,13 +653,13 @@ struct PlayView: View {
                         if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
                             Text(String(format: String(localized: "play.guest"),3)).fontWeight(.bold)
                         }else{
-                            Text(p3.name ?? "Unknown").fontWeight(.bold)
+                            Text(p3.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }
                         Spacer()
                         if let elo = p3.elo {
                             Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
-                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text(String(localized:"play.download")).foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
                         if network.isOnline && p3.id != userId && p3.id > 0{
@@ -673,7 +673,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text("Remove Friend")
+                                    Text(String(localized: "friends.remove.frien"))
                                 }
                             }else{
                                 Button{
@@ -682,7 +682,7 @@ struct PlayView: View {
                                     }
                                 }label:{
                                     Image(systemName:"person.badge.plus")
-                                    Text("Send Friend Request")
+                                    Text(String(localized:"play.sendFriend"))
                                 }.disabled(p3.id == userId)
                             }
                         }
@@ -700,7 +700,7 @@ struct PlayView: View {
                                      
                                  }
                              } label: {
-                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                                 Label(String(localized:"play.removePlayer"), systemImage: "person.badge.minus").tint(.red)
                              }
                         }
                     }
@@ -710,7 +710,7 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).redacted(reason: .placeholder)
                         Spacer()
                         Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
@@ -771,13 +771,13 @@ struct PlayView: View {
                         if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
                             Text(String(format: String(localized: "play.guest"),4)).fontWeight(.bold)
                         }else{
-                            Text(p4.name ?? "Unknown").fontWeight(.bold)
+                            Text(p4.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }
                         Spacer()
                         if let elo = p4.elo {
                             Text("\(String(localized: "general.rating")): \(Int(elo))").foregroundStyle(.secondary).font(.system(size: 16))
                         } else {
-                            Text("Download Tichu App to get ranked").foregroundStyle(.secondary).font(.system(size: 16))
+                            Text(String(localized:"play.download")).foregroundStyle(.secondary).font(.system(size: 16))
                         }
                     }.contextMenu{
                         if network.isOnline && p4.id != userId && p4.id > 0{
@@ -791,7 +791,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text("Remove Friend")
+                                    Text(String(localized: "friends.remove.frien"))
                                 }
                             }else{
                                 Button{
@@ -800,7 +800,7 @@ struct PlayView: View {
                                     }
                                 }label:{
                                     Image(systemName:"person.badge.plus")
-                                    Text("Send Friend Request")
+                                    Text(String(localized:"play.sendFriend"))
                                 }.disabled(p4.id == userId)
                             }
                         }
@@ -818,7 +818,7 @@ struct PlayView: View {
                                      
                                  }
                              } label: {
-                                 Label("Remove Player", systemImage: "person.badge.minus").tint(.red)
+                                 Label(String(localized:"play.removePlayer"), systemImage: "person.badge.minus").tint(.red)
                              }
                         }
                     }
@@ -829,7 +829,7 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text("Unknown").fontWeight(.bold).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).redacted(reason: .placeholder)
                         Spacer()
                         Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
                     }
@@ -927,7 +927,7 @@ struct PlayView: View {
                         Text(String(localized: "play.versus"))
                             .font(.system(size: 120, weight: .bold))
                         HStack {
-                            Text(" \(String(localized: "play.target")): 1000 ")
+                            Text(String(format:String(localized:"play.target"),"1000"))
                                 .fontWeight(.bold)
                                 .font(.title3)
                                 .offset(y: -15)
@@ -1092,7 +1092,7 @@ struct PlayView: View {
                 
                 if defaultAllowPingus == true{
                     Toggle(isOn: $allowPingusState) {
-                        Text("Allow drunken Pingus")
+                        Text(String(localized:"play.allowPingus"))
                     }
                 }
             } label: {

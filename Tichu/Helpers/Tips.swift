@@ -12,10 +12,10 @@ import TipKit
 //MARK: - Tip to indicate that user can swipe left to edit or remove used in EditRoundsSheetView
 struct ListSwipeTip: Tip {
     var title: Text {
-        Text("Swipe Left to Edit")
+        Text(String(localized:"tips.listSwip.title"))
     }
     var message: Text? {
-        Text("Swipe left on a Round to edit and/or delete it.")
+        Text(String(localized:"tips.listSwip.message"))
     }
     var image: Image? {
         Image(systemName: "arrow.left.circle")
@@ -24,10 +24,10 @@ struct ListSwipeTip: Tip {
 //MARK: - Tip to indicate that user can swipe left to remove used in EditFriendsSheetView
 struct ListSwipeFriendTip: Tip {
     var title: Text {
-        Text("Swipe Left to Remove")
+        Text(String(localized:"tips.listSwipFriend.title"))
     }
     var message: Text? {
-        Text("Swipe left on a a Friend to remove.")
+        Text(String(localized:"tips.listSwipFriend.message"))
     }
     var image: Image? {
         Image(systemName: "arrow.left.circle")
@@ -37,10 +37,10 @@ struct ListSwipeFriendTip: Tip {
 //MARK: - Tip to indicate that user can tap on rows the show more Information used in HistoryView
 struct HistoryTapTip: Tip {
     var title: Text {
-        Text("Tap to show more Information")
+        Text(String(localized:"tips.historyTap.title"))
     }
     var message: Text? {
-        Text("Tap on the View below to see more Information about the Round and share it")
+        Text(String(localized:"tips.historyTap.message"))
     }
     var image: Image? {
         Image(systemName: "hand.tap")

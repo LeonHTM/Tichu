@@ -71,7 +71,7 @@ struct ShareStatsView: View{
                 Divider()
                 HStack{
                     Spacer()
-                    Text("Captured on \(Date().formatted(date: .complete, time: .shortened))")
+                    Text(String(format:String(localized:"statistics.share.captured"),Date().formatted(date: .complete, time: .shortened)))
                     Spacer()
                 }.foregroundStyle(Color.secondary).font(.system(size:16))
             }.padding(.horizontal)

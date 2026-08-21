@@ -49,7 +49,7 @@ struct GameSummaryShareView: View {
                 return String(format:String(localized: "general.team"), String(2))
             }
         }
-        return String(localized: "gamesummaryshare.unknown")
+        return String(localized: "general.unknown")
     }
 
     // Returns finishing place (1–4) of a profile in a round, based on firstProfileId etc.
@@ -164,17 +164,17 @@ struct GameSummaryShareView: View {
             HStack {
                 VStack {
                     Text(String(format:String(localized: "general.team.double"), String(1))).fontWeight(.bold)
-                    Text(team1Profiles.count > 0 ? team1Profiles[0].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
+                    Text(team1Profiles.count > 0 ? team1Profiles[0].name ?? String(localized: "general.unknown") : String(localized: "general.unknown"))
                         .font(.title).fontWeight(.bold)
-                    Text(team1Profiles.count > 1 ? team1Profiles[1].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
+                    Text(team1Profiles.count > 1 ? team1Profiles[1].name ?? String(localized: "general.unknown") : String(localized: "general.unknown"))
                         .font(.title).fontWeight(.bold)
                 }.foregroundStyle(accentCo)
                 Spacer()
                 VStack {
                     Text(String(format:String(localized: "general.team.double"), String(2))).fontWeight(.bold)
-                    Text(team2Profiles.count > 0 ? team2Profiles[0].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
+                    Text(team2Profiles.count > 0 ? team2Profiles[0].name ?? String(localized: "general.unknown") : String(localized: "general.unknown"))
                         .font(.title).fontWeight(.bold)
-                    Text(team2Profiles.count > 1 ? team2Profiles[1].name ?? String(localized: "gamesummaryshare.unknown") : String(localized: "gamesummaryshare.unknown"))
+                    Text(team2Profiles.count > 1 ? team2Profiles[1].name ?? String(localized: "general.unknown") : String(localized: "general.unknown"))
                         .font(.title).fontWeight(.bold)
                 }
             }.padding(.horizontal, 30)

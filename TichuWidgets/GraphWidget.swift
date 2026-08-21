@@ -57,7 +57,7 @@
         }
         
         private func userName() -> String {
-            return UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? "Unknown"
+            return UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? String(localized: "general.unknown")
         }
         
         private func userElo() -> Double {

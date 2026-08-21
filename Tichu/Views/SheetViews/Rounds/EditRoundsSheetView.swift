@@ -175,7 +175,7 @@ struct EditRoundsSheetView: View {
                 if allRounds.count > 0 {
                     roundsList.toolbar { roundsListToolbar }
                 } else {
-                    Text(String(localized:"round.noPlayed"))
+                    Text(String(localized:"rounds.noPlayed"))
                         .foregroundStyle(.secondary)
                         .toolbar { roundsListToolbar }
                 }
@@ -199,7 +199,7 @@ struct EditRoundsSheetView: View {
         }
         .safeAreaInset(edge: .top)    { scoreHeader }
         .safeAreaInset(edge: .bottom) { deleteGameButton }
-        .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
+        .alert(String(localized:"gameSummary.alert.delete.title"), isPresented: $showDeleteGameAlert) {
             Button("Cancel", role: .cancel) {
                 showDeleteGameAlert = false
                 showList = false
@@ -213,7 +213,7 @@ struct EditRoundsSheetView: View {
                 }
             }
         } message: {
-            Text("This Game will be deleted")
+            Text(String(localized:"gameSummary.alert.delete.description"))
         }
         .overlay {
             if isSaving { ProgressView() }
@@ -380,7 +380,7 @@ struct EditRoundsSheetView: View {
 
                 HStack {
                     Text("\(playerPlace).").fontWeight(.bold).foregroundStyle(placeColor)
-                    Text(player.name ?? "Unknown")
+                    Text(player.name ?? String(localized: "general.unknown"))
                     Spacer()
                     announcementView(tichu: tichu, bigTichu: bigTichu, pingu: pingu, isFirst: isFirst, bomb: bomb)
                     bombView(bomb: bomb)
@@ -446,7 +446,7 @@ struct EditRoundsSheetView: View {
         } label: {
             HStack {
                 Image(systemName: "trash")
-                Text("Delete Game")
+                Text(String(localized:"gameSummary.deleteGame"))
             }
             .foregroundColor(.primary)
             .padding()

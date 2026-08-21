@@ -363,7 +363,7 @@ struct AddRoundSheetView: View {
     private var placementSection: some View {
         VStack {
             HStack {
-                Text("Placement").font(.title2).fontWeight(.bold).padding(.leading, 20).foregroundStyle(Color.accentColor)
+                Text(String(localized:"rounds.placement")).font(.title2).fontWeight(.bold).padding(.leading, 20).foregroundStyle(Color.accentColor)
                 Spacer()
             }
             .zIndex(1)
@@ -383,7 +383,7 @@ struct AddRoundSheetView: View {
                 let golden = isGolden(index: index)
                 HStack {
                     Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
-                    Text(player?.name ?? "Unknown")
+                    Text(player?.name ?? String(localized: "general.unknown"))
                     Spacer()
                 }
             }
@@ -438,7 +438,7 @@ struct AddRoundSheetView: View {
                         HStack {
                             Text("\(rankingList[index]).").fontWeight(.bold)
                                 .foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
-                            Text(player?.name ?? "Unknown")
+                            Text(player?.name ?? String(localized: "general.unknown"))
                             Spacer()
                         }
                     }
@@ -468,7 +468,7 @@ struct AddRoundSheetView: View {
                     Text("\(displayTeam1Points)").font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     if hasDoubleWinTeam1 || hasDoubleWinTeam2 {
                         Spacer()
-                        Text("Double Win!").foregroundStyle(Color.green)
+                        Text(String(localized:"tichu.doubleWin")).foregroundStyle(Color.green)
                     }
                     Spacer()
                     Text("\(displayTeam2Points)").font(.title2).fontWeight(.bold)

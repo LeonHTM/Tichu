@@ -103,7 +103,7 @@ struct OfflineView: View{
                     //Shows NavBar everywhere except LoginView
                     if showNavBar{
                         ToolbarItem(placement: .topBarTrailing) {
-                            ProfileImage(data: network.profileImages[userId], size: 44)
+                            NavigationProfileImage()
                         }
                         .sharedBackgroundVisibility(.hidden)
                     }

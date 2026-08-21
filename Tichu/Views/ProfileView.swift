@@ -48,6 +48,24 @@ struct ProfileView: View {
             }.alert(isPresented:$showOfflineAlert){
                 OfflineView.offlineAlert()
             }
+            .sheet(isPresented: $showNameSheet) {
+                EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
+                    .presentationDetents([.large])
+            }
+            .sheet(isPresented: $showFriendsSheet, onDismiss: {
+                Task {
+                    let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+                    let toRemove = delivered
+                        .compactMap { $0.request.content.userInfo["notification_id"] as? String }
+                        .filter { $0.hasPrefix("friend-request-accepted-") }
+                    
+                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
+                    try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
+                }
+            }) {
+                EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
+                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
+            }
             .animation(.easeInOut, value: network.isOnline)
             .padding(.top, -20)
             .navigationTitle(String(localized: "profile.title"))
@@ -186,24 +204,6 @@ struct ProfileView: View {
             }
             .foregroundColor(network.isOnline ? .primary : .secondary)
         }
-        .sheet(isPresented: $showNameSheet) {
-            EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
-                .presentationDetents([.large])
-        }
-        .sheet(isPresented: $showFriendsSheet, onDismiss: {
-            Task {
-                let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
-                let toRemove = delivered
-                    .compactMap { $0.request.content.userInfo["notification_id"] as? String }
-                    .filter { $0.hasPrefix("friend-request-accepted-") }
-                
-                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
-                try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
-            }
-        }) {
-            EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
-                .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
-        }
     }
 
     // MARK: - Support Section
@@ -247,9 +247,9 @@ struct ProfileView: View {
                 let iosBuild = ProcessInfo.processInfo.operatingSystemVersionString
                     .components(separatedBy: " ")
                     .last?
-                    .trimmingCharacters(in: CharacterSet(charactersIn: "()")) ?? "Unknown"
-                let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
-                let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"
+                    .trimmingCharacters(in: CharacterSet(charactersIn: "()")) ?? String(localized: "general.unknown")
+                let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? String(localized: "general.unknown")
+                let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? String(localized: "general.unknown")
 
                 let body = """
                     
@@ -432,10 +432,10 @@ struct GameSettingsView: View {
             Section {
                 Toggle(String(localized: "gamesettings.section.players.showAll"), isOn: $showAllPlayers).disabled(!network.isOnline)
                 Picker(String(localized: "gamesettings.section.players.sortBy"), selection: $sortByProfiles) {
-                    Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
-                    Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
-                    Label("By Ranking (High-Low)", image: "123.down").tag(sortBy.valueUp)
-                    Label("By Ranking (Low-High)", image: "123.up").tag(sortBy.valueDown)
+                    Label(String(localized:"statistics.sort.abcdown"), image: "ABC.down").tag(sortBy.nameDown)
+                    Label(String(localized:"statistics.sort.abcup"), image: "ABC.up").tag(sortBy.nameUp)
+                    Label(String(localized:"statistics.sort.rankingdown"), image: "123.down").tag(sortBy.valueUp)
+                    Label(String(localized:"statistics.sort.rankingup"), image: "123.up").tag(sortBy.valueDown)
                 }.disabled(!network.isOnline)
             } header: {
                 Text(String(localized: "gamesettings.section.players"))
@@ -446,10 +446,10 @@ struct GameSettingsView: View {
             //MARK: Statistics
             Section {
                 Picker(String(localized: "gamesettings.section.statistics.sortBy"), selection: $sortByStats) {
-                    Label("Alphabetical (A-Z)", image: "ABC.down").tag(sortBy.nameDown)
-                    Label("Alphabetical (Z-A)", image: "ABC.up").tag(sortBy.nameUp)
-                    Label("By Value (High-Low)", image: "123.down").tag(sortBy.valueDown)
-                    Label("By Value (Low-High)", image: "123.up").tag(sortBy.valueUp)
+                    Label(String(localized:"statistics.sort.abcdown"), image: "ABC.down").tag(sortBy.nameDown)
+                    Label(String(localized:"statistics.sort.abcup"), image: "ABC.up").tag(sortBy.nameUp)
+                    Label(String(localized:"statistics.sort.123down"), image: "123.down").tag(sortBy.valueDown)
+                    Label(String(localized:"statistics.sort.123up"), image: "123.up").tag(sortBy.valueUp)
                 }.disabled(!network.isOnline)
             } header: {
                 Text(String(localized: "gamesettings.section.statistics"))

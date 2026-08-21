@@ -82,9 +82,9 @@ struct AddPlayersSheetView: View {
 
     // MARK: - Hide unavailable label depending on mode
     var hideUnavailableLabel: String {
-        if showGuest { return "Hide players in a game" }
-        if showFriends { return "Hide already comparing" }
-        return "Hide existing friends"
+        if showGuest { return String(localized:"addPlayers.hidePlayers") }
+        if showFriends { return String(localized:"addPlayers.hideComparing") }
+        return String(localized:"addPlayers.hideExisting")
     }
 
     // MARK: - Body
@@ -125,8 +125,8 @@ struct AddPlayersSheetView: View {
             .animation(.easeInOut, value: searchText)
             .animation(.easeInOut, value: isLoadingStatus)
             .navigationTitle(
-                showMenu == false ? "" : showPlayers && showFriends ? "Add Players" :
-                        !showFriends ? "Request Friend" : "Edit Friends"
+                showMenu == false ? "" : showPlayers && showFriends ? String(localized:"addPlayers.title.addPlayers") :
+                        !showFriends ? String(localized:"addPlayers.title.requestFriend") : String(localized:"addPlayers.title.editFriends")
             )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -179,7 +179,7 @@ struct AddPlayersSheetView: View {
         Section {
             HStack {
                 ProfileImage(data: nil, size: 44)
-                Button("Guest") {
+                Button(String(localized:"addPlayers.guest")) {
                     if guestIndex == 2 {
                         addPlayerId = -2
                     } else if guestIndex == 3 {
@@ -201,7 +201,7 @@ struct AddPlayersSheetView: View {
             Spacer()
             HStack {
                 Image(systemName: "magnifyingglass")
-                Text("Could not find '\(query)'")
+                Text(String(format:String(localized:"addPlayers.couldnotfind"), query))
             }
             Spacer()
         }
@@ -211,7 +211,7 @@ struct AddPlayersSheetView: View {
     private var friendsHeader: some View {
         Section {
             HStack {
-                Text("Friends").fontWeight(.bold)
+                Text(String(localized:"addPlayers.friends")).fontWeight(.bold)
                 Spacer()
                 if sortedFriends.count != 1 {
                     sortMenu(
@@ -240,7 +240,7 @@ struct AddPlayersSheetView: View {
     private var playersHeader: some View {
         Section {
             HStack {
-                Text("All Players").fontWeight(.bold)
+                Text(String(localized:"addPlayers.allPlayers")).fontWeight(.bold)
                 Spacer()
                 if sortedPlayers.count != 1 {
                     sortMenu(
@@ -259,12 +259,12 @@ struct AddPlayersSheetView: View {
     private var playersRows: some View {
         ForEach(sortedPlayers) { profile in
             playerButton(profileId: profile.id)
-                .alert("Delete this Game?", isPresented: $showPlayerInGameAlert) {
+                .alert(String(localized:"addPlayers.alert.inGame.title"), isPresented: $showPlayerInGameAlert) {
                     Button("Cancel", role: .cancel) {
                         showPlayerInGameAlert = false
                     }
                 } message: {
-                    Text("This Player is already playing a game.")
+                    Text(String(localized:"addPlayers.alert.inGame.description"))
                 }
                 .transition(.move(edge: .top).combined(with: .opacity))
         }
@@ -297,18 +297,18 @@ struct AddPlayersSheetView: View {
                     data: network.profileImages[profileId],
                     size: 44
                 )
-                Text(profile?.name ?? "Unknown")
+                Text(profile?.name ?? String(localized: "general.unknown"))
                 Spacer()
                 if (inGame || isAdded) && showGuest {
-                    Text("Currently in a Game")
+                    Text(String(localized:"addPlayers.currentlyInGame"))
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 } else if showGuest == false && showFriends == true && isAdded {
-                    Text("Currently comparing")
+                    Text(String(localized:"addPlayers.currentlyComparing"))
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 } else if showGuest == false && showFriends == false && isAdded {
-                    Text("Already a friend")
+                    Text(String(localized:"addPlayers.alreadyFriend"))
                         .foregroundStyle(.secondary)
                         .font(.system(size: 16))
                 } else if let elo = profile?.elo {
@@ -328,7 +328,7 @@ struct AddPlayersSheetView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.minus")
-                        Text("Remove Friend")
+                        Text(String(localized:"friends.remove.friend"))
                     }
                 } else {
                     Button {
@@ -337,7 +337,7 @@ struct AddPlayersSheetView: View {
                         }
                     } label: {
                         Image(systemName: "person.badge.plus")
-                        Text("Send Friend Request")
+                        Text(String(localized:"play.sendFriend"))
                     }
                     .disabled(profileId == userId)
                 }
@@ -353,26 +353,27 @@ struct AddPlayersSheetView: View {
                 withAnimation(.easeInOut) { binding.wrappedValue = .nameDown }
             } label: {
                 if binding.wrappedValue == .nameDown { Image(systemName: "checkmark") } else { Image("ABC.down") }
-                Text("Alphabetical (A-Z)")
+                Text(String(localized:"statistics.sort.abcdown"))
             }
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .nameUp }
             } label: {
                 if binding.wrappedValue == .nameUp { Image(systemName: "checkmark") } else { Image("ABC.up") }
-                Text("Alphabetical (Z-A)")
+                Text(String(localized:"statistics.sort.abcup"))
+                
             }
             Divider()
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .valueDown }
             } label: {
                 if binding.wrappedValue == .valueDown { Image(systemName: "checkmark") } else { Image("123.down") }
-                Text("By Ranking (High-Low)")
+                Text(String(localized:"statistics.sort.rankingdown"))
             }
             Button {
                 withAnimation(.easeInOut) { binding.wrappedValue = .valueUp }
             } label: {
                 if binding.wrappedValue == .valueUp { Image(systemName: "checkmark") } else { Image("123.up") }
-                Text("By Ranking (Low-High)")
+                Text(String(localized:"statistics.sort.rankingup"))
             }
             Divider()
             Button {

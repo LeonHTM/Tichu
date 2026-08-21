@@ -355,7 +355,7 @@ struct StatsView: View {
             
 
             let renderer = ImageRenderer(content: ShareStatsView(
-                userName: profile?.name ?? "Unknown",
+                userName: profile?.name ?? String(localized: "general.unknown"),
                 userImageData: network.profileImages[userId],
                 elo: profile?.elo ?? 1000.0,
                 winnerPercentage: profile?.getStat(for: .winnerPercentage, timeframe: selectedTimeframe) ?? 0,
@@ -379,7 +379,7 @@ struct StatsView: View {
             ShareLink(
                 userName == "Luis" ? String(localized:"statistics.luis") : String(localized:"statistics.share"),
                 item: renderedImage,
-                message: Text("Check my Tichu Stats out"),
+                message: Text(String(localized:"statistics.share.check")),
                 preview: SharePreview("Tichu Statistics", image: renderedImage)
             )
             .foregroundColor(.primary)
@@ -387,7 +387,7 @@ struct StatsView: View {
             Button {} label: {
                 HStack {
                     Image(systemName: "square.and.arrow.up")
-                    Text("Share...")
+                    Text(String(localized:"general.share"))
                     ProgressView()
                 }
             }.disabled(true)
@@ -487,7 +487,7 @@ struct StatsView: View {
                             }
                         } label: {
                             Image("person.badge.remove")
-                            Text("Remove \(network.profiles.first { $0.id == item }?.name ?? "Unknown")")
+                            Text(String(format:String(localized:"statistics.compare.remove"), network.profiles.first { $0.id == item }?.name ?? String(localized: "general.unknown")))
                         }
                     }
                     if compareList.count > 1 {
@@ -495,7 +495,7 @@ struct StatsView: View {
                         Button {
                             compareList = []
                         } label: {
-                            Image(systemName: "minus.circle.fill")
+                            Image(systemName: "minus.circle")
                             Text(String(localized:"statistics.compare.removeAllPlayers"))
                         }
                     }

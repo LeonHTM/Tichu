@@ -31,7 +31,7 @@ struct PlayerContainer: View {
             VStack(alignment: .leading) {
                 //Title
                 HStack{
-                    Text(player.name ?? "Unknown")
+                    Text(player.name ?? String(localized: "general.unknown"))
                         .fontWeight(.bold)
                         .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
                     Spacer()
@@ -43,7 +43,7 @@ struct PlayerContainer: View {
                             hasAnnounced = hasAnnounced == .tichu ? .none : .tichu
                         }
                     } label: {
-                        Text("Tichu").foregroundColor(.primary)
+                        Text(String(localized: "tichu.tichu")).foregroundColor(.primary)
                     }
                     
                     .padding(8)
@@ -52,10 +52,9 @@ struct PlayerContainer: View {
                     Button {
                         hasAnnounced = hasAnnounced == .bigTichu ? .none : .bigTichu
                     } label: {
-      
                         ViewThatFits {
-                                                    Text("Big Tichu").foregroundColor(.primary)
-                                                    Text("B. Tichu").foregroundColor(.primary)
+                            Text(String(localized: "tichu.big.long")).foregroundColor(.primary)
+                            Text(String(localized: "tichu.big.short")).foregroundColor(.primary)
                                                 }
            
                     }
@@ -68,7 +67,7 @@ struct PlayerContainer: View {
                         Button {
                             hasAnnounced = hasAnnounced == .pingu ? .none : .pingu
                         } label: {
-                            Text("Pingu").foregroundColor(.primary)
+                            Text(String(localized: "tichu.pingu")).foregroundColor(.primary)
                         }
                         .padding(8)
                         .glassEffect(
@@ -83,8 +82,7 @@ struct PlayerContainer: View {
                     Button {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
-                        
-                        Text("Bombs: \(bombNumber)").foregroundColor(.primary)
+                        Text(String(format:String(localized:"tichu.bombs"), bombNumber))
                        
                     }
                     .padding(8)

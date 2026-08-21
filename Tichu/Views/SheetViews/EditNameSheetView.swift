@@ -76,7 +76,7 @@ struct EditNameSheetView: View {
             
             Form {
                 Section {
-                    TextField("Enter username", text: $newName)
+                    TextField(String(localized: "username.enter"), text: $newName)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                         .focused($isTextFocused)
@@ -85,18 +85,18 @@ struct EditNameSheetView: View {
                         }
                 }
 
-                Section("Requirements") {
+                Section(String(localized: "username.requirements")) {
                     requirementRow(
-                        text: "Between 3 and 20 characters",
+                        text: String(localized: "username.requirements.length"),
                         isValid: isLengthValid
                     )
                     requirementRow(
-                        text: "Letters, numbers, and underscores only",
+                        text: String(localized: "username.requirements.letters"),
                         isValid: isCharsetValid
                     )
                     HStack {
                         requirementRow(
-                            text: newName == network.profiles.first { $0.id == userId }?.name ?? "Unknwon" ? "Your old Username" : "Username is available",
+                            text: newName == network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown") ? String(localized: "username.old") : String(localized: "username.available"),
                             isValid: isAvailable
                         )
                         if isCheckingAvailability {
@@ -111,7 +111,7 @@ struct EditNameSheetView: View {
                         
                         HStack{
                             Spacer()
-                            Text("You can change your name in: \(downTimeFormatted)").foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            Text(String(format:String(localized: "username.change"),downTimeFormatted)).foregroundStyle(.secondary).multilineTextAlignment(.center)
                             Spacer()
                         }
                         
@@ -139,16 +139,16 @@ struct EditNameSheetView: View {
                             if loginWait{
                                 ProgressView()
                             }
-                            Text(loginWait ? "Creating Account..." :"Create Account")
+                            Text(loginWait ? String(localized: "username.creating") : String(localized: "username.create"))
                             Spacer()
                         }
                     }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
                 }
             }
-            .navigationTitle(editMode == true ? "Edit Username" : "Create Account")
+            .navigationTitle(editMode == true ? String(localized: "username.edit") : String(localized: "username.create"))
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top) {
-                Text("Pick a unique username. This is required so you can be added to matches.")
+                Text(String(localized: "username.description"))
                     .padding(.horizontal, 25)
                     .padding(.top, 10)
                     .padding(.bottom, -10)
@@ -192,7 +192,7 @@ struct EditNameSheetView: View {
         }
         .onAppear {
             if editMode == true{
-                newName = network.profiles.first { $0.id == userId }?.name ?? "Unknwon"
+                newName = network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown")
             }
         }
     }

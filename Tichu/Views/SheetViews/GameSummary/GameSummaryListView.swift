@@ -279,7 +279,8 @@ struct GameSummaryListView: View {
                         Section {
                             HStack {
                                 Spacer()
-                                Text("Played on \(currentGame?.date.formatted(date: .complete, time: .omitted) ?? "Unknown Date")")
+                                Text(String(format:String(localized:"gameSummary.playedOn"),"\(currentGame?.date.formatted(date: .complete, time: .omitted) ?? String(localized:"general.unknown"))"))
+                             
                                 Spacer()
                             }
                             .foregroundStyle(Color.secondary)
@@ -325,18 +326,18 @@ struct GameSummaryListView: View {
             }
         }
         .alert("Delete this Game?", isPresented: $showDeleteGameAlert) {
-            Button("Cancel", role: .cancel) {
+            Button(String(localized:"gamesummary.delete.alert.cancel"), role: .cancel) {
                 showDeleteGameAlert = false
                 showList = false
             }
-            Button("Delete", role: .destructive) {
+            Button(String(localized:"gamesummary.delete.alert.confirm"), role: .destructive) {
                 Task {
                     await network.deleteGame(gameId: currentGame?.id ?? 0)
                     showGameSummarySheetView = false
                 }
             }
         } message: {
-            Text("This Game will be deleted")
+            Text(String(localized:"gamesummary.delete.alert.description"))
         }
     }
 
@@ -364,7 +365,7 @@ struct GameSummaryListView: View {
 
                 HStack {
                     Text("\(playerPlace).").fontWeight(.bold).foregroundStyle(placeColor)
-                    Text(player.name ?? "Unknown")
+                    Text(player.name ?? String(localized: "general.unknown"))
                   
                     Spacer()
 

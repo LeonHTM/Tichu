@@ -41,7 +41,7 @@ struct LoginView: View {
                 .resizable()
                 .frame(width: 100, height: 100)
 
-            Text("Welcome to Tichu App")
+            Text(String(localized:"login.title"))
                 .font(.title)
                 .fontWeight(.bold)
         }
@@ -51,20 +51,20 @@ struct LoginView: View {
     private var signInSection: some View {
         VStack {
             HStack {
-                Text("Sign Up or Log In")
+                Text(String(localized:"login.signup"))
                     .fontWeight(.bold)
                     .font(.title2)
                 Spacer()
             }
 
-            Text("Play games with your Friends and get statistics about your Tichu skills.")
+            Text(String(localized:"login.description"))
                 .foregroundStyle(.secondary)
 
             emailField
 
             HStack {
                 Spacer()
-                Text("or").foregroundStyle(.secondary)
+                Text(String(localized:"login.or")).foregroundStyle(.secondary)
                 Spacer()
             }
 
