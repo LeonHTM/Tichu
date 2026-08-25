@@ -75,6 +75,13 @@ struct MainView: View {
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .trailing).combined(with: .opacity)
                 ))
+                .onChange(of: network.isOnline){
+                    if network.isOnline {
+                        Task{
+                            await network.fetch()
+                        }
+                    }
+                }
                 .onAppear {
                     Task { await network.fetch() }
                 }

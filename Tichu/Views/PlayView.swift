@@ -31,17 +31,18 @@ struct PlayView: View {
     @State private var showGameOverSheet: Bool = false
     @State private var showOfflineAlert: Bool = false
     @State private var selectedTab: Int = 0
-
     @State private var showPlayers: Bool = true
     @State private var showFriends: Bool = true
-
-
     @State private var revanche: Bool = false
-
+    
     @State private var player1Id: Int?
     @State private var player2Id: Int?
     @State private var player3Id: Int?
     @State private var player4Id: Int?
+    
+    @State private var guest2Name: String = String(localized:"play.guest")
+    @State private var guest3Name: String = String(localized:"play.guest")
+    @State private var guest4Name: String = String(localized:"play.guest")
 
     @State private var target: Int = 1000
     @State private var allowPingusState: Bool = true
@@ -86,7 +87,6 @@ struct PlayView: View {
         }
     }
     
-
     private var currentPointsTeam1: Int { currentGame?.currentPointsTeam1 ?? -69420 }
     private var currentPointsTeam2: Int { currentGame?.currentPointsTeam2 ?? -69420 }
 
@@ -101,7 +101,10 @@ struct PlayView: View {
                     team1Player1Id: userId,
                     team1Player2Id: player2Id,
                     team2Player1Id: player3Id,
-                    team2Player2Id: player4Id
+                    team2Player2Id: player4Id,
+                    guest2Name: guest2Name,
+                    guest3Name: guest3Name,
+                    guest4Name: guest4Name
                 )
                 await MainActor.run {
                     network.currentGameId = game?.id
@@ -117,13 +120,15 @@ struct PlayView: View {
             player3Id = nil
             player4Id = nil
             target = 1000
+            guest2Name = String(localized:"play.guest")
+            guest3Name = String(localized:"play.guest")
+            guest4Name = String(localized:"play.guest")
         }
     }
 
     // MARK: - Body
     var body: some View {
         ZStack {
-            
             NavigationStack {
                 GeometryReader{ geo in
                 List {
@@ -149,11 +154,6 @@ struct PlayView: View {
                 }
                 .onChange(of: network.games) {
                     let openGames = network.games.filter { $0.winner == nil }
-                    print("OPEN GAMES: \(openGames.count)")
-                    for games in openGames{
-                        print("\(games.id)")
-                    }
-                    print("GAMES: \(network.games.count)")
                     if openGames.count == 1 {
                         withAnimation(.easeInOut) {
                             network.currentGameId = openGames.first?.id
@@ -161,6 +161,9 @@ struct PlayView: View {
                             player2Id = openGames.first?.team1Player2Id
                             player3Id = openGames.first?.team2Player1Id
                             player4Id = openGames.first?.team2Player2Id
+                            guest2Name = openGames.first?.guest2Name ?? String(localized:"play.guest")
+                            guest3Name = openGames.first?.guest3Name ?? String(localized:"play.guest")
+                            guest4Name = openGames.first?.guest4Name ?? String(localized:"play.guest")
                             Task {
                                 if let id = network.currentGameId {
                                     await network.fetchGameRounds(gameId: id)
@@ -179,6 +182,9 @@ struct PlayView: View {
                             player2Id = openGames.first?.team1Player2Id
                             player3Id = openGames.first?.team2Player1Id
                             player4Id = openGames.first?.team2Player2Id
+                            guest2Name = openGames.first?.guest2Name ?? String(localized:"play.guest")
+                            guest3Name = openGames.first?.guest3Name ?? String(localized:"play.guest")
+                            guest4Name = openGames.first?.guest4Name ?? String(localized:"play.guest")
                             Task {
                                 if let id = network.currentGameId {
                                     await network.fetchGameRounds(gameId: id)
@@ -239,13 +245,19 @@ struct PlayView: View {
                             let p2 = game.team1Player2Id
                             let p3 = game.team2Player1Id
                             let p4 = game.team2Player2Id
+                            let g2 = game.guest2Name ?? String(localized:"play.guest")
+                            let g3 = game.guest3Name ?? String(localized:"play.guest")
+                            let g4 = game.guest4Name ?? String(localized:"play.guest")
                             let newGame = await network.addGame(
                                 target: game.target,
                                 allowPingus: game.allowPingus,
                                 team1Player1Id: p1,
                                 team1Player2Id: p2,
                                 team2Player1Id: p3,
-                                team2Player2Id: p4
+                                team2Player2Id: p4,
+                                guest2Name: g2,
+                                guest3Name: g3,
+                                guest4Name: g4
                             )
                             await MainActor.run {
                                 network.currentGameId = newGame?.id
@@ -253,6 +265,9 @@ struct PlayView: View {
                                 player2Id = p2
                                 player3Id = p3
                                 player4Id = p4
+                                guest2Name = g2
+                                guest3Name = g3
+                                guest4Name = g4
                                 revanche = false
                             }
                         } else if !revanche {
@@ -275,10 +290,8 @@ struct PlayView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .background(alignment: .center) {
-                    
                     vsBackground
                 }
-                
                 .background(Color(uiColor: .systemGroupedBackground))
                 .listSectionSpacing(0)
                 .navigationTitle(String(localized: "general.title.play"))
@@ -482,7 +495,7 @@ struct PlayView: View {
                         }
                         
                         if p2.id == -3 || p2.id == -2 || p2.id == -1 || p2.id == -4{
-                            Text(String(format: String(localized: "play.guest"),String(2))).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                            Text(guest2Name).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p2.name ?? String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }
@@ -560,8 +573,10 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest2Name,
                                 guestIndex: 2,
                                 showMenu: true
+                                
                             )
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
@@ -582,8 +597,11 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest2Name,
                                 guestIndex: 2,
                                 showMenu: false
+                                
+                            
                             )
                         }
                 }
@@ -651,7 +669,7 @@ struct PlayView: View {
                         }
                         
                         if p3.id == -3 || p3.id == -2 || p3.id == -1 || p3.id == -4{
-                            Text(String(format: String(localized: "play.guest"),String(3))).fontWeight(.bold)
+                            Text(guest3Name).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p3.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }
@@ -727,8 +745,10 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest3Name,
                                 guestIndex: 3,
-                                showMenu: true
+                                showMenu: true,
+                                
                             )
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }.contextMenu{
@@ -748,8 +768,10 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest3Name,
                                 guestIndex: 3,
-                                showMenu: false
+                                showMenu: false,
+                                
                             )
                         }
                 }
@@ -769,7 +791,7 @@ struct PlayView: View {
                         }
                         
                         if p4.id == -3 || p4.id == -2 || p4.id == -1 || p4.id == -4{
-                            Text(String(format: String(localized: "play.guest"),String(4))).fontWeight(.bold)
+                            Text(guest4Name).fontWeight(.bold).foregroundStyle(Color.accentColor)
                         }else{
                             Text(p4.name ?? String(localized: "general.unknown")).fontWeight(.bold)
                         }
@@ -846,8 +868,10 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest4Name,
                                 guestIndex: 4,
-                                showMenu: true
+                                showMenu: true,
+                                
                             )
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large])
                         }
@@ -868,8 +892,10 @@ struct PlayView: View {
                                 showGuest: .constant(true),
                                 showPlayers: $showPlayers,
                                 showFriends: $showFriends,
+                                guestName: $guest4Name,
                                 guestIndex: 4,
-                                showMenu: false
+                                showMenu: false,
+                                
                             )
                         }
                 }
@@ -1080,7 +1106,6 @@ struct PlayView: View {
         HStack {
             Spacer()
             Menu {
-
                     Picker(String(localized: "play.target"), selection: $target) {
                         Text("250").tag(250)
                         Text("500").tag(500)

@@ -76,7 +76,11 @@ final class SocketService: ObservableObject {
     private func setupHandlers() {
         socket.on(clientEvent: .connect) { [weak self] data, ack in
             print("Socket connected")
-            DispatchQueue.main.async { self?.connected = true }
+            DispatchQueue.main.async {
+                self?.connected = true
+                self?.reconnectAttempts = 0
+                NetworkService.shared.isOnline = true
+            }
         }
 
         socket.on(clientEvent: .disconnect) { [weak self] data, ack in

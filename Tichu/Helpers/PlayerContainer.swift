@@ -22,6 +22,8 @@ struct PlayerContainer: View {
     var teamIds: [Int]
     var allowPingus: Bool
     var isTeam1: Bool
+    var guestName: String?
+    
     @Binding var hasAnnounced: CanAnnounce
     @Binding var bombNumber: Int
     @Environment(\.colorScheme) var colorScheme
@@ -31,9 +33,15 @@ struct PlayerContainer: View {
             VStack(alignment: .leading) {
                 //Title
                 HStack{
-                    Text(player.name ?? String(localized: "general.unknown"))
-                        .fontWeight(.bold)
-                        .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
+                    if let guestName{
+                        Text(guestName)
+                            .fontWeight(.bold)
+                            .foregroundStyle( player.id == -2 ? Color.accentColor : Color.primary)
+                    }else{
+                        Text(player.name ?? String(localized: "general.unknown"))
+                            .fontWeight(.bold)
+                            .foregroundStyle(isTeam1 ? Color.accentColor : Color.primary)
+                    }
                     Spacer()
                 }
                 //Row of Tichu and Big Tichu

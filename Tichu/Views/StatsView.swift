@@ -74,6 +74,7 @@ struct StatsView: View {
                     showGuest: .constant(false),
                     showPlayers: .constant(true),
                     showFriends: .constant(true),
+                    guestName: .constant(String(localized:"play.guest")),
                     guestIndex: 2,
                     showMenu: true
                 )

@@ -23,6 +23,10 @@ struct Game: Identifiable, Decodable, Equatable {
     var team2Player1Id: Int?
     var team2Player2Id: Int?
 
+    var guest2Name: String?
+    var guest3Name: String?
+    var guest4Name: String?
+
     var currentPointsTeam1: Int
     var currentPointsTeam2: Int
 
@@ -35,6 +39,7 @@ struct Game: Identifiable, Decodable, Equatable {
         case id, date, target, allowPingus
         case team1Player1Id, team1Player2Id
         case team2Player1Id, team2Player2Id
+        case guest2Name, guest3Name, guest4Name
         case currentPointsTeam1, currentPointsTeam2
         case winner
         case calculated
@@ -52,6 +57,9 @@ struct Game: Identifiable, Decodable, Equatable {
         team1Player2Id     = try container.decodeIfPresent(Int.self,  forKey: .team1Player2Id)
         team2Player1Id     = try container.decodeIfPresent(Int.self,  forKey: .team2Player1Id)
         team2Player2Id     = try container.decodeIfPresent(Int.self,  forKey: .team2Player2Id)
+        guest2Name         = try container.decodeIfPresent(String.self, forKey: .guest2Name)
+        guest3Name         = try container.decodeIfPresent(String.self, forKey: .guest3Name)
+        guest4Name         = try container.decodeIfPresent(String.self, forKey: .guest4Name)
         currentPointsTeam1 = try container.decode(Int.self,           forKey: .currentPointsTeam1)
         currentPointsTeam2 = try container.decode(Int.self,           forKey: .currentPointsTeam2)
         winner             = try container.decodeIfPresent(Int.self,  forKey: .winner)
@@ -69,6 +77,9 @@ struct Game: Identifiable, Decodable, Equatable {
         team1Player2Id: Int? = nil,
         team2Player1Id: Int? = nil,
         team2Player2Id: Int? = nil,
+        guest2Name: String? = nil,
+        guest3Name: String? = nil,
+        guest4Name: String? = nil,
         currentPointsTeam1: Int,
         currentPointsTeam2: Int,
         winner: Int? = nil,
@@ -83,6 +94,9 @@ struct Game: Identifiable, Decodable, Equatable {
         self.team1Player2Id     = team1Player2Id
         self.team2Player1Id     = team2Player1Id
         self.team2Player2Id     = team2Player2Id
+        self.guest2Name         = guest2Name
+        self.guest3Name         = guest3Name
+        self.guest4Name         = guest4Name
         self.currentPointsTeam1 = currentPointsTeam1
         self.currentPointsTeam2 = currentPointsTeam2
         self.winner             = winner

@@ -62,6 +62,31 @@ struct AddRoundSheetView: View {
     private var player2: Profile? { profiles.first { $0.id == currentGame.team1Player2Id } }
     private var player3: Profile? { profiles.first { $0.id == currentGame.team2Player1Id } }
     private var player4: Profile? { profiles.first { $0.id == currentGame.team2Player2Id } }
+    
+    private var guest2Name: String?{
+        if currentGame.team1Player2Id == -2 {
+            return currentGame.guest2Name
+        }else{
+            return nil
+        }
+    }
+    
+    private var guest3Name: String?{
+        if currentGame.team2Player1Id == -3 {
+            return currentGame.guest3Name
+        }else{
+            return nil
+        }
+    }
+    
+    private var guest4Name: String?{
+        if currentGame.team2Player2Id == -4 {
+            return currentGame.guest4Name
+        }else{
+            return nil
+        }
+    }
+    
 
     private var team1Ids: [Int] { [currentGame.team1Player1Id, currentGame.team1Player2Id].compactMap { $0 } }
     private var team2Ids: [Int] { [currentGame.team2Player1Id, currentGame.team2Player2Id].compactMap { $0 } }
@@ -317,6 +342,7 @@ struct AddRoundSheetView: View {
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
                             isTeam1: true,
+                            guestName: nil,
                             hasAnnounced: $hasAnnouncedPlayer1,
                             bombNumber: $firstBombs
                         )
@@ -325,6 +351,7 @@ struct AddRoundSheetView: View {
                             teamIds: team1Ids,
                             allowPingus: currentGame.allowPingus,
                             isTeam1: true,
+                            guestName: guest2Name,
                             hasAnnounced: $hasAnnouncedPlayer2,
                             bombNumber: $secondBombs
                         )
@@ -342,14 +369,16 @@ struct AddRoundSheetView: View {
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
                         isTeam1: false,
+                        guestName: guest3Name,
                         hasAnnounced: $hasAnnouncedPlayer3,
-                        bombNumber: $thirdBombs
+                        bombNumber: $thirdBombs,
                     )
                     PlayerContainer(
                         player: player4 ?? Profile(),
                         teamIds: team2Ids,
                         allowPingus: currentGame.allowPingus,
                         isTeam1: false,
+                        guestName: guest4Name,
                         hasAnnounced: $hasAnnouncedPlayer4,
                         bombNumber: $fourthBombs
                     )
@@ -384,7 +413,15 @@ struct AddRoundSheetView: View {
                 let golden = isGolden(index: index)
                 HStack {
                     Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
-                    Text(player?.name ?? String(localized: "general.unknown"))
+                    if player?.id == -2{
+                        Text(guest2Name ?? String(localized:"play.guest"))
+                    }else if player?.id == -3{
+                        Text(guest3Name ?? String(localized:"play.guest"))
+                    }else if player?.id == -4{
+                        Text(guest4Name ?? String(localized:"play.guest"))
+                    }else{
+                        Text(player?.name ?? String(localized: "general.unknown"))
+                    }
                     Spacer()
                 }
             }
@@ -439,7 +476,15 @@ struct AddRoundSheetView: View {
                         HStack {
                             Text("\(rankingList[index]).").fontWeight(.bold)
                                 .foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
-                            Text(player?.name ?? String(localized: "general.unknown"))
+                            if player?.id == -2{
+                                Text(guest2Name ?? String(localized:"play.guest"))
+                            }else if player?.id == -3{
+                                Text(guest3Name ?? String(localized:"play.guest"))
+                            }else if player?.id == -4{
+                                Text(guest4Name ?? String(localized:"play.guest"))
+                            }else{
+                                Text(player?.name ?? String(localized: "general.unknown"))
+                            }
                             Spacer()
                         }
                     }

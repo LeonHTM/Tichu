@@ -16,6 +16,8 @@ struct AddPlayersSheetView: View {
     @Binding var showGuest: Bool
     @Binding var showPlayers: Bool
     @Binding var showFriends: Bool
+    @Binding var guestName: String
+    
     var guestIndex: Int
     var showMenu: Bool
     @AppStorage("userId") var userId: Int = -69420
@@ -34,6 +36,7 @@ struct AddPlayersSheetView: View {
     @State private var isLoadingStatus: Bool = true
     @State private var hideUnavailableFriends: Bool = true
     @State private var hideUnavailablePlayers: Bool = true
+    @State private var showNameAlert: Bool = false
 
     // MARK: - Computed
     var friendsFilterActive: Bool { sortByFriends != .nameDown || hideUnavailableFriends }
@@ -180,15 +183,28 @@ struct AddPlayersSheetView: View {
             HStack {
                 ProfileImage(data: nil, size: 44)
                 Button(String(localized:"addPlayers.guest")) {
-                    if guestIndex == 2 {
-                        addPlayerId = -2
-                    } else if guestIndex == 3 {
-                        addPlayerId = -3
-                    } else {
-                        addPlayerId = -4
+                    showNameAlert = true
+                    
+                    
+                }.alert(String(format:String(localized:"play.alert.enterName")), isPresented: $showNameAlert) {
+                    TextField(String(localized:"play.guestName"), text: $guestName)
+                    Button(String(localized: "general.alert.save"),role:.confirm) {
+                        if guestIndex == 2 {
+                                                addPlayerId = -2
+                                            } else if guestIndex == 3 {
+                                                addPlayerId = -3
+                                            } else {
+                                                addPlayerId = -4
+                                            }
+                        showNameAlert = false
+                        showAddPlayersSheet = false
                     }
-                    showAddPlayersSheet = false
+
+                    Button(String(localized:"general.alert.cancel"), role: .cancel) {
+                        showNameAlert = false
+                    }
                 }
+                
                 .foregroundColor(.primary)
                 Spacer()
             }

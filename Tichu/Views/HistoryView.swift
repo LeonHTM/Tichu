@@ -263,10 +263,37 @@ struct HistoryView: View {
 
                 VStack(alignment: .leading) {
                     HStack {
-                        Text("\(playerName(game.team1Player1Id)) & \(playerName(game.team1Player2Id))")
+                        var player1Name: String {
+                            return playerName(game.team1Player1Id)
+                        }
+                        
+                        var player2Name: String {
+                            if game.team1Player2Id == -2{
+                                return game.guest2Name ?? String(localized:"play.guest")
+                            }else{
+                                return playerName(game.team1Player1Id)
+                            }
+                        }
+                        
+                        var player3Name: String {
+                            if game.team2Player1Id == -3{
+                                return game.guest3Name ?? String(localized:"play.guest")
+                            }else{
+                                return playerName(game.team2Player1Id)
+                            }
+                        }
+                        
+                        var player4Name: String {
+                            if game.team2Player2Id == -4{
+                                return game.guest4Name ?? String(localized:"play.guest")
+                            }else{
+                                return playerName(game.team2Player2Id)
+                            }
+                        }
+                        Text("\(player1Name) & \(player2Name))")
                             .foregroundStyle(Color.primary)
                         Text(String(localized:"general.versus")).fontWeight(.bold)
-                        Text("\(playerName(game.team2Player1Id)) & \(playerName(game.team2Player2Id))")
+                        Text("\(player3Name) & \(player4Name)")
                     }.lineLimit(1)
                     HStack {
                         Text(game.date, style: .date)

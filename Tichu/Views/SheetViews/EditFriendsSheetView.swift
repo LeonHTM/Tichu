@@ -216,6 +216,7 @@ struct EditFriendsSheetView: View {
                         showGuest: .constant(false),
                         showPlayers: .constant(true),
                         showFriends: .constant(false),
+                        guestName: .constant(""),
                         guestIndex: 0,
                         showMenu: true
                     ).presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))

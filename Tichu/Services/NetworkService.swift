@@ -823,7 +823,10 @@ class NetworkService: ObservableObject {
         team1Player1Id: Int?,
         team1Player2Id: Int?,
         team2Player1Id: Int?,
-        team2Player2Id: Int?
+        team2Player2Id: Int?,
+        guest2Name: String? = nil,
+        guest3Name: String? = nil,
+        guest4Name: String? = nil
     ) async -> Game? {
         guard let url = URL(string: "\(baseURL)/add_game") else { return nil }
 
@@ -835,7 +838,10 @@ class NetworkService: ObservableObject {
             "team1_player1_id": team1Player1Id as Any,
             "team1_player2_id": team1Player2Id as Any,
             "team2_player1_id": team2Player1Id as Any,
-            "team2_player2_id": team2Player2Id as Any
+            "team2_player2_id": team2Player2Id as Any,
+            "guest2_name": guest2Name as Any,
+            "guest3_name": guest3Name as Any,
+            "guest4_name": guest4Name as Any
         ])
 
         do {

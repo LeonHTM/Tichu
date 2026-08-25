@@ -269,7 +269,7 @@ struct GameSummaryListView: View {
                     if allRounds.count != winRounds.count {
                         Section {
                             Text(
-                                String(format: String(localized: "rounds.not_counted"),"\(allRounds.count - winRounds.count)","\(winRounds.count)"))
+                                String(format: String(localized: "rounds.notCounted"),"\(allRounds.count - winRounds.count)","\(winRounds.count)"))
                         }
                         .listRowBackground(Color.clear)
                         .foregroundStyle(.secondary)
@@ -365,7 +365,17 @@ struct GameSummaryListView: View {
 
                 HStack {
                     Text("\(playerPlace).").fontWeight(.bold).foregroundStyle(placeColor)
-                    Text(player.name ?? String(localized: "general.unknown"))
+                    
+                    
+                    if player.id == -2{
+                        Text(currentGame?.guest2Name ?? String(localized:"play.guest"))
+                    }else if player.id == -3{
+                        Text(currentGame?.guest3Name ?? String(localized:"play.guest"))
+                    }else if player.id == -4{
+                        Text(currentGame?.guest4Name ?? String(localized:"play.guest"))
+                    }else{
+                        Text(player.name ?? String(localized: "general.unknown"))
+                    }
                   
                     Spacer()
 
