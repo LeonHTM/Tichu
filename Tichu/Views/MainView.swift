@@ -37,14 +37,19 @@ struct MainView: View {
             } else {
                 TabView(selection: $selectedTab) {
                     Tab(String(localized: "general.tabs.play"), systemImage: "play", value: 0) {
-                        PlayView()
+                        if network.isOnline {
+                            PlayView()
+                        }else {
+                            OfflineView(showNavBar: .constant(true),title:"general.title.play")
+                        }
+                        
                     }
 
                     Tab(String(localized: "general.tabs.history"), systemImage: "clock", value: 1) {
                         if network.isOnline {
                             HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
                         } else {
-                            OfflineView(showNavBar: .constant(true))
+                            OfflineView(showNavBar: .constant(true),title:"general.title.history")
                         }
                     }
 
@@ -52,12 +57,16 @@ struct MainView: View {
                         if network.isOnline {
                             StatsView()
                         } else {
-                            OfflineView(showNavBar: .constant(true))
+                            OfflineView(showNavBar: .constant(true),title:"general.title.statistics")
                         }
                     }
 
                     Tab(String(localized: "general.tabs.profile"), systemImage: "person", value: 3) {
-                        ProfileView()
+                        if network.isOnline {
+                            ProfileView()
+                        }else {
+                            OfflineView(showNavBar: .constant(true),title:"general.title.profile")
+                        }
                     }
                 }
                 .animation(.easeInOut, value: network.isOnline)

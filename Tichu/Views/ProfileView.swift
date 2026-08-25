@@ -241,7 +241,7 @@ struct ProfileView: View {
             
             //MARK: Contact
             Button {
-                let subject = "Tichu App Support"
+                let subject = "Tichu Tracker Support"
                 let osVersion = ProcessInfo.processInfo.operatingSystemVersion
                 let iosVersion = "\(osVersion.majorVersion).\(osVersion.minorVersion)"
                 let iosBuild = ProcessInfo.processInfo.operatingSystemVersionString

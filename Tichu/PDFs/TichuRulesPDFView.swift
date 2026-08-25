@@ -13,7 +13,7 @@ struct TichuRulesPDFView: View {
     var body: some View {
         PDFKitView()
             .ignoresSafeArea(edges: .bottom)
-            .navigationTitle("Tichu Rules")
+            .navigationTitle(String(localized:"gamesettings.section.howToPlay.officialRules.title"))
             .navigationBarTitleDisplayMode(.inline)
     }
 }

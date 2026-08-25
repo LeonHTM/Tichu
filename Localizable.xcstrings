@@ -646,6 +646,23 @@
         }
       }
     },
+    "gamesettings.section.howToPlay.officialRules.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Reglä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Rules"
+          }
+        }
+      }
+    },
     "gamesettings.section.players" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1145,7 +1162,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No mau probiärä."
+            "value" : "No mau probiärä"
           }
         },
         "en" : {
@@ -1186,6 +1203,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Either the Server is down or you are offline. Please try again later."
+          }
+        }
+      }
+    },
+    "general.editGame" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Game bearbeitä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Game"
           }
         }
       }
@@ -1296,6 +1330,12 @@
     "general.tabs.profile" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1316,13 +1356,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statistikä"
+            "value" : "Statistiken"
           }
         },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statistiken"
+            "value" : "Statistikä"
           }
         },
         "en" : {
@@ -1453,13 +1493,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statistikä"
+            "value" : "Statistiken"
           }
         },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Statistiken"
+            "value" : "Statistikä"
           }
         },
         "en" : {
@@ -1817,25 +1857,25 @@
               "applevision" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Dini Apple Vision isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                  "value" : "Dini Apple Vision isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä Wlan verbindä."
                 }
               },
               "ipad" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Dis iPad isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                  "value" : "Dis iPad isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä Wlan verbindä."
                 }
               },
               "iphone" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Dis iPhone isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                  "value" : "Dis iPhone isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä Wlan verbindä."
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "Dis Grät isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä WLan verbindä."
+                  "value" : "Dis Grät isch nid mit äm Internet verbundä. Tue dr Flugmodus abschaute oder di mit ämä Wlan verbindä."
                 }
               }
             }
@@ -1879,13 +1919,13 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dis Grät isch nid mit äm Internet verbundä."
+            "value" : "Ke Internet-Verbindig"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Device is not connected to the internet."
+            "value" : "No Internet Connection"
           }
         }
       }
@@ -1963,6 +2003,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Download Tichu Tracker to get ranked "
+          }
+        }
+      }
+    },
+    "play.editRound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rundi %@ bearbeite"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Round %@"
           }
         }
       }
@@ -2391,6 +2448,12 @@
     "profile.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3506,13 +3569,13 @@
         }
       }
     },
-    "tichu.doubleWIn" : {
+    "tichu.doubleWin" : {
       "extractionState" : "manual",
       "localizations" : {
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dopu-Sieg"
+            "value" : "Dopu Sieg"
           }
         },
         "en" : {

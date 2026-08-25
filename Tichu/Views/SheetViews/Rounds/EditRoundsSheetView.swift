@@ -284,7 +284,7 @@ struct EditRoundsSheetView: View {
         .listSectionSpacing(0)
         .animation(.spring(duration: 0.25), value: expandedRows)
         .animation(.easeInOut(duration: 0.25), value: showList)
-        .navigationTitle("Edit Game")
+        .navigationTitle(String(localized:"general.editGame"))
         .navigationBarTitleDisplayMode(.inline)
         .padding(.top, 20)
     }

@@ -252,7 +252,8 @@ struct AddRoundSheetView: View {
                     placementSection
                     pointsSection
                 }
-                .navigationTitle(editMode ? "Edit Round \(roundIndex ?? -69420)" : "Add Round")
+                
+                .navigationTitle(editMode ? String(format:String(localized:"play.editRound"),roundIndex ?? -69420) : String(localized:"play.addRound"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -309,7 +310,7 @@ struct AddRoundSheetView: View {
         HStack {
             GlassEffectContainer {
                 VStack(alignment: .leading) {
-                    Text(String(format:String(localized: "general.team"), String(2))).font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                    Text(String(format:String(localized: "general.team"), String(1))).font(.title2).fontWeight(.bold).foregroundStyle(Color.accentColor)
                     VStack {
                         PlayerContainer(
                             player: player1 ?? Profile(),

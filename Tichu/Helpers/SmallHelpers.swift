@@ -21,6 +21,60 @@ func requirementRow(
     .foregroundStyle(isValid ? .green : .red)
 }
 
+//MARK: - Reusable glossy icon background styling
+struct GlossyIconBackground: ViewModifier {
+    var color: Color
+    var cornerRadius: CGFloat = 7
+
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(color)
+                    // Top light gloss
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.45),
+                                        .clear
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                                .blendMode(.overlay)
+                            )
+                    )
+                    // Subtle glossy border
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        .white.opacity(0.15),
+                                        .clear,
+                                        .clear,
+                                        .white.opacity(0.15)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.5
+                            )
+                    )
+                    // Depth shadow
+                    .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
+            )
+    }
+}
+
+extension View {
+    func glossyIconBackground(color: Color, cornerRadius: CGFloat = 7) -> some View {
+        modifier(GlossyIconBackground(color: color, cornerRadius: cornerRadius))
+    }
+}
+
 //MARK: - LabelStyle used in ProfilesView
 struct ColorfulIconLabelStyle: LabelStyle {
     //MARK: Varibles
@@ -35,70 +89,47 @@ struct ColorfulIconLabelStyle: LabelStyle {
                 .font(.system(size: fontSize))
                 .foregroundColor(.white)
                 .frame(width: 28, height: 28)
-                .background(
-                    RoundedRectangle(cornerRadius: 7)
-                        .fill(color)
-                        // Top light gloss
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7)
-                                .stroke(
-                            LinearGradient(
-                                colors: [
-                                    .white.opacity(0.45),
-                                    .clear
-                                ],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .blendMode(.overlay)
-                            )
-                        )
-                        // Subtle glossy border
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7)
-                                .stroke(
-                                    LinearGradient(
-                                        colors: [
-                                            .white.opacity(0.15),
-                                            .clear,
-                                            .clear,
-                                            .white.opacity(0.15)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    ),
-                                    lineWidth: 0.5
-                                )
-                        )
-                        // Depth shadow
-                        .shadow(color: .black.opacity(0.15), radius: 2, x: 0, y: 1)
-                )
+                .glossyIconBackground(color: color)
         }
     }
 }
 
 
-
-
-//MARK: - OfflineView. The View that gets Shown when the socket is not connected.
-//Shown in LoginView,and MainView for StatsView and HistoryView
-//Alert is Used in ChipsView, ShareStatsView, LoginView, MainView, PlayeView, ProfileView and StatsView
 struct OfflineView: View{
     //MARK: Variables
     @Binding  var showNavBar: Bool
-    @ObservedObject private var network = NetworkService.shared
     @AppStorage("userId") private var userId = -69420
+    var title: String.LocalizationValue = "general.title.play"
     
     //MARK: Body
     var body: some View{
         NavigationStack{
             VStack(alignment:.center,spacing:10){
                 //Offline Text
+                Spacer()
                 Text(String(localized:"offline.title")).font(.title2).fontWeight(.bold)
                 Text(String(localized:"offline.description")).foregroundStyle(.secondary).multilineTextAlignment(.center).padding(.horizontal,40)
-            
+               Spacer()
+                VStack(alignment:.leading){
+                    Text(String(localized: "gamesettings.section.howToPlay")).font(.headline).foregroundStyle(Color(.gray)).padding(.leading,28)
+                    NavigationLink{
+                        TichuRulesPDFView()
+                    }label:{
+                        HStack(alignment: .center,spacing:15){
+                            Image(systemName:"book.fill").font(.system(size: 18))
+                                .foregroundColor(.white)
+                                .frame(width: 28, height: 28)
+                                .glossyIconBackground(color: .green)
+                            Text(String(localized:"gamesettings.section.howToPlay.officialRules")).multilineTextAlignment(.leading)
+                            Spacer()
+                            Image(systemName:"chevron.right").font(.system(size: 13, weight: .semibold))
+                                .foregroundStyle(.tertiary).padding(.trailing,1.2)
+                        }.padding(.horizontal,15).padding(.vertical,12).background(Color(.secondarySystemBackground)).cornerRadius(25).padding(.horizontal,15)
+                    }.foregroundStyle(.primary)
+                }.padding(.bottom,20)
+                
             }.toolbarTitleDisplayMode(.inlineLarge)
-                .navigationTitle(showNavBar ? String(localized:"general.title.history") : "" )
+                .navigationTitle(showNavBar ? String(localized: title) : "" )
                 .toolbar {
                     //Shows NavBar everywhere except LoginView
                     if showNavBar{
@@ -119,6 +150,7 @@ struct OfflineView: View{
         )
     }
 }
+
 
 import UIKit
 
