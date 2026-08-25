@@ -83,8 +83,8 @@ struct AddPlayersSheetView: View {
     // MARK: - Hide unavailable label depending on mode
     var hideUnavailableLabel: String {
         if showGuest { return String(localized:"addPlayers.hidePlayers") }
-        if showFriends { return String(localized:"addPlayers.hideComparing") }
-        return String(localized:"addPlayers.hideExisting")
+        if showFriends { return String(localized:"addPlayers.hideExisting") }
+        return String(localized:"addPlayers.hideComparing")
     }
 
     // MARK: - Body
@@ -139,12 +139,12 @@ struct AddPlayersSheetView: View {
                 }
             }
             .task {
+                hideUnavailableFriends = !showAllPlayers
+                hideUnavailablePlayers = !showAllPlayers
                 guard showGuest else {
                     isLoadingStatus = false
                     return
                 }
-                hideUnavailableFriends = !showAllPlayers
-                hideUnavailablePlayers = !showAllPlayers
                 await preloadInGameStatus()
             }
         }
