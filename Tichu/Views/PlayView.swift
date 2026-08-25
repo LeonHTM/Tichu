@@ -87,8 +87,8 @@ struct PlayView: View {
     }
     
 
-    private var currentPointsTeam1: Int { currentGame?.currentPointsTeam1 ?? -69402 }
-    private var currentPointsTeam2: Int { currentGame?.currentPointsTeam2 ?? 0 }
+    private var currentPointsTeam1: Int { currentGame?.currentPointsTeam1 ?? -69420 }
+    private var currentPointsTeam2: Int { currentGame?.currentPointsTeam2 ?? -69420 }
 
     // MARK: - Methods
 
@@ -999,10 +999,9 @@ struct PlayView: View {
                     .sheet(isPresented: $showEditRoundsSheet) {
                         if let game = currentGame {
                             EditRoundsSheetView(
+                                network: network,
                                 showEditRoundsSheet: $showEditRoundsSheet,
                                 currentGameId: game.id,
-                                profiles: network.profiles,
-                                network: network
                             )
                             .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:playSpace))
                         }

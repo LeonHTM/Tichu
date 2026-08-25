@@ -134,7 +134,7 @@ struct GameSummaryListView: View {
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading) {
                                     HStack {
-                                        Text(String(format:String("general.team"),String(1))).fontWeight(.bold).foregroundStyle(Color.accentColor)
+                                        Text(String(format:String(localized:"general.team"),String(1))).fontWeight(.bold).foregroundStyle(Color.accentColor)
                                         Spacer()
                                     }
                                     .padding(.top)
@@ -143,7 +143,7 @@ struct GameSummaryListView: View {
                                     playerRows(players: sortedTeam1, round: currentRound, teamProfileIds: (currentGame!.team1Player1Id, currentGame!.team1Player2Id))
                                     
                                     HStack {
-                                        Text(String(format:String("general.team"),String(2))).fontWeight(.bold)
+                                        Text(String(format:String(localized:"general.team"),String(2))).fontWeight(.bold)
                                         Spacer()
                                     }
                                     .padding(.top)
@@ -249,7 +249,7 @@ struct GameSummaryListView: View {
                                         }
                                     
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label(String(localized:"general.delete"), systemImage: "trash")
                                 }
                                 
                                 if !isLocked {
@@ -257,7 +257,7 @@ struct GameSummaryListView: View {
                                         editingRoundIndex = index
                                         showAddRoundSheet = true
                                     } label: {
-                                        Label("Edit", systemImage: "pencil")
+                                        Label(String(localized:"general.delete"), systemImage: "pencil")
                                     }
                                     .tint(.accentColor)
                                 }

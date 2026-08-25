@@ -1207,6 +1207,40 @@
         }
       }
     },
+    "general.delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "general.edit" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeitä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
     "general.editGame" : {
       "extractionState" : "manual",
       "localizations" : {

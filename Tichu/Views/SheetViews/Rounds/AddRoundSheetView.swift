@@ -253,7 +253,7 @@ struct AddRoundSheetView: View {
                     pointsSection
                 }
                 
-                .navigationTitle(editMode ? String(format:String(localized:"play.editRound"),roundIndex ?? -69420) : String(localized:"play.addRound"))
+                .navigationTitle(editMode ? String(format:String(localized:"play.editRound"),String(roundIndex ?? -69420)) : String(localized:"play.addRound"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {

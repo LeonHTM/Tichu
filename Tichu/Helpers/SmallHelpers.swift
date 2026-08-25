@@ -259,3 +259,10 @@ extension View {
         modifier(OnFirstAppear(action: action))
     }
 }
+
+// MARK: - Safe subscript
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}
