@@ -53,7 +53,7 @@ struct AddRoundSheetView: View {
     @Environment(\.colorScheme) var colorScheme
 
     // MARK: - Resolved Players
-    private var currentGame: Game { network.games.first { $0.id == currentGameId }! }
+    private var currentGame: Game { network.games.first { $0.id == currentGameId } ?? Game(favorite: false,id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0)}
     private var rounds: [Round]{
         network.roundsByGame[currentGameId] ?? []
     }
@@ -296,7 +296,11 @@ struct AddRoundSheetView: View {
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .onAppear {
-                players = [player1, player2, player3, player4]
+                if dragMode{
+                    players = [player1, player3, player2, player4]
+                }else{
+                    players = [player1, player2, player3, player4]
+                }
 
                 if editMode, let round = editingRound {
                     firstProfileId  = round.firstProfileId
@@ -326,6 +330,9 @@ struct AddRoundSheetView: View {
                 if network.isOnline == false {
                     showAddRoundsSheet = false
                 }
+            }
+            .onChange(of:currentGame){
+                showAddRoundsSheet = false
             }
         }
     }

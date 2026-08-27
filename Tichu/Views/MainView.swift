@@ -26,6 +26,10 @@ struct MainView: View {
         .constant(!network.isOnline)
     }
 
+    private var isReachable: Bool {
+        network.isOnline && !network.fetchFailed
+    }
+
     var body: some View {
         Group {
             if userId == -69420 {
@@ -37,7 +41,7 @@ struct MainView: View {
             } else {
                 TabView(selection: $selectedTab) {
                     Tab(String(localized: "general.tabs.play"), systemImage: "play", value: 0) {
-                        if network.isOnline {
+                        if isReachable {
                             PlayView()
                         }else {
                             OfflineView(showNavBar: .constant(true),title:"general.title.play")
@@ -46,7 +50,7 @@ struct MainView: View {
                     }
 
                     Tab(String(localized: "general.tabs.history"), systemImage: "clock", value: 1) {
-                        if network.isOnline {
+                        if isReachable {
                             HistoryView(sheetGame: $sheetGame, selectedGameId: $selectedGameId, scrolledGameId: $scrolledGameId)
                         } else {
                             OfflineView(showNavBar: .constant(true),title:"general.title.history")
@@ -54,7 +58,7 @@ struct MainView: View {
                     }
 
                     Tab(String(localized: "general.tabs.stats"), systemImage: "chart.bar", value: 2) {
-                        if network.isOnline {
+                        if isReachable {
                             StatsView()
                         } else {
                             OfflineView(showNavBar: .constant(true),title:"general.title.statistics")
@@ -62,14 +66,14 @@ struct MainView: View {
                     }
 
                     Tab(String(localized: "general.tabs.profile"), systemImage: "person", value: 3) {
-                        if network.isOnline {
+                        if isReachable {
                             ProfileView()
                         }else {
                             OfflineView(showNavBar: .constant(true),title:"general.title.profile")
                         }
                     }
                 }
-                .animation(.easeInOut, value: network.isOnline)
+                .animation(.easeInOut, value: isReachable)
                 .tabViewStyle(.sidebarAdaptable)
                 .transition(.asymmetric(
                     insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -99,14 +103,9 @@ struct MainView: View {
         }
         .alert(String(localized: "general.alert.serverUnreachable"), isPresented: $network.fetchFailed) {
             Button(String(localized: "general.alert.retry")) {
-                Task {
-                    network.isOnline = false
-                    await network.fetch()
-                }
+                Task { await network.fetch() }
             }
-            Button(String(localized: "general.alert.cancel"), role: .cancel) {
-                network.isOnline = false
-            }
+            Button(String(localized: "general.alert.cancel"), role: .cancel) { }
         } message: {
             Text(String(localized: "general.alert.serverUnreachable.message"))
         }

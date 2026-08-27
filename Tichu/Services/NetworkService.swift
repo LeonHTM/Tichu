@@ -58,15 +58,13 @@ class NetworkService: ObservableObject {
     
     //No one else can create instance only ever talks to this instance
     private init() {
-            pathMonitor.pathUpdateHandler = { [weak self] path in
-                DispatchQueue.main.async {
-                    if self?.fetchFailed == false{
-                        self?.isOnline = path.status == .satisfied
-                    }
-                }
+        pathMonitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                self?.isOnline = path.status == .satisfied
             }
-            pathMonitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
         }
+        pathMonitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
+    }
 
     // MARK: - Flexible Date Decoder
     var flexibleDateDecoder: JSONDecoder {
@@ -125,6 +123,7 @@ class NetworkService: ObservableObject {
         self.friendRequests = []
         self.sentRequests = []
         self.authToken = ""
+        self.userId = -69420
     }
     
     //MARK: - Login and Logout Section
@@ -771,10 +770,10 @@ class NetworkService: ObservableObject {
     
     //MARK: - Main Fetch Funciton used in PlayView, HistoryView Section
     func fetch(load: Bool = true) async {
-        if load { isLoading = true }
         let currentUserId = userId
-
-        await withTaskGroup(of: Void.self) { group in
+        guard currentUserId != -69420, !authToken.isEmpty else { return }
+        if load { isLoading = true }
+            await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 let success = await self.fetchProfiles()
 

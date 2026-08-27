@@ -78,7 +78,7 @@ struct HistoryView: View {
         NavigationStack {
             GlassEffectContainer {
                 GeometryReader { outerGeo in
-                    let rowHeight: CGFloat = 100
+                    let rowHeight: CGFloat = 75
                     let centerY = outerGeo.size.height / 2 - 5
                     let topPadding = centerY - rowHeight / 2 - 10
                     let bottomPadding = centerY - rowHeight / 2 + 20
@@ -256,13 +256,19 @@ struct HistoryView: View {
             sheetGame = game
         } label: {
             HStack {
-                Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
-                    .fontWeight(.bold)
-                    .font(.title3)
-                    .padding(.horizontal, 10)
+                VStack(alignment:.center){
+                    HStack{
+                        Image(systemName:"trophy.fill")
+                        Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
+                            .fontWeight(.bold)
+                            
+                            
+                    }.font(.system(size: 20))
+                    Text(game.date, style: .date)
+                        .font(.system(size: 15))
+                }.padding(.trailing, 10)
 
                 VStack(alignment: .leading) {
-                    HStack {
                         var player1Name: String {
                             return playerName(game.team1Player1Id)
                         }
@@ -271,7 +277,7 @@ struct HistoryView: View {
                             if game.team1Player2Id == -2{
                                 return game.guest2Name ?? String(localized:"play.guest")
                             }else{
-                                return playerName(game.team1Player1Id)
+                                return playerName(game.team1Player2Id)
                             }
                         }
                         
@@ -290,21 +296,17 @@ struct HistoryView: View {
                                 return playerName(game.team2Player2Id)
                             }
                         }
-                        Text("\(player1Name) & \(player2Name))")
-                            .foregroundStyle(Color.primary)
-                        Text(String(localized:"general.versus")).fontWeight(.bold)
+                        Text("\(player1Name) & \(player2Name)")
+                            .foregroundStyle(Color.accentColor)
                         Text("\(player3Name) & \(player4Name)")
-                    }.lineLimit(1)
-                    HStack {
-                        Text(game.date, style: .date)
-                            .fontWeight(.bold)
-                    }
-                }.font(.system(size: 15))
+                    
+                    
+                    }.lineLimit(1).font(.system(size: 15))
 
                 Spacer()
             }
-            .padding(10)
-            .padding(.vertical, 13)
+            .padding(8)
+            .padding(.vertical, 5)
             .background(
                 colorScheme == .dark
                 ? Color(uiColor: .tertiarySystemFill)
@@ -313,7 +315,7 @@ struct HistoryView: View {
             )
             .foregroundColor(.primary)
             .overlay {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 24)
                     .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
             }
         }
@@ -351,7 +353,7 @@ struct HistoryView: View {
                 Button {
                     selectedTab = 0
                 } label: {
-                    Text(String(localized:"tich.play"))
+                    Text(String(localized:"tichu.play"))
                 }
                 .padding(13)
                 .glassEffect(.regular.tint(.accentColor).interactive())
@@ -464,7 +466,4 @@ struct HistoryView: View {
     HistoryView(sheetGame: .constant(nil), selectedGameId: .constant(nil), scrolledGameId: .constant(nil))
 }
 
-#Preview {
-    HistoryView(sheetGame: .constant(nil),selectedGameId: .constant(nil),scrolledGameId: .constant(nil))
-}
 

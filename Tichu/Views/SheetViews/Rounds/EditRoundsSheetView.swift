@@ -73,7 +73,7 @@ struct EditRoundsSheetView: View {
             
             Text(String(format:String(localized:"general.team.result"),String(1), String(currentPointsTeam1))).foregroundStyle(Color.accentColor)
             Spacer()
-            Text(String(format:String(localized:"general.team.result"),String(2), String(currentPointsTeam1)))
+            Text(String(format:String(localized:"general.team.result"),String(2), String(currentPointsTeam2)))
         }
         .fontWeight(.bold)
         .font(.title2)

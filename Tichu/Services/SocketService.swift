@@ -176,6 +176,21 @@ final class SocketService: ObservableObject {
             }
         }
         
+        //Profile Settinsg updated
+        socket.on("settings_updated") { data, ack in
+            guard
+                let dict = data.first as? [String: Any],
+                let profileId = dict["id"] as? Int
+            else {
+                print("Settings: Updated Failed to parse \(data)")
+                return
+            }
+            Task {
+                await NetworkService.shared.fetchProfileSettings(profileId: profileId)
+            }
+        }
+        
+        
         //MARK: Elo State Updated
         socket.on("elo_updated") { data, ack in
             guard let dict = data[0] as? [String: Any],
@@ -419,3 +434,4 @@ final class SocketService: ObservableObject {
         socket.disconnect()
     }
 }
+
