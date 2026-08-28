@@ -96,6 +96,12 @@
     "addPlayers.alert.inGame.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Spieler ist schon in einem Tichu-Spiel und kann deshalb nicht hinzugefügt werden."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -113,6 +119,12 @@
     "addPlayers.alert.inGame.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler ist schon in einem Tichu-Spiel"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -130,6 +142,12 @@
     "addPlayers.allPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Spieler"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -147,6 +165,12 @@
     "addPlayers.alreadyFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schon ein Freund"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -164,6 +188,12 @@
     "addPlayers.couldnotfind" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konnte “%@\" nicht finden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -181,6 +211,12 @@
     "addPlayers.currentlyComparing" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momenten im Vergleich"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -198,6 +234,12 @@
     "addPlayers.currentlyInGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Momenten in einem Spiel"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +257,12 @@
     "addPlayers.friends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -232,6 +280,12 @@
     "addPlayers.guest" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gast"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -249,6 +303,12 @@
     "addPlayers.hideComparing" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bisherige Freunde nicht anzeigen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -266,6 +326,12 @@
     "addPlayers.hideExisting" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bisherige Vergleiche nicht anzeigen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -283,6 +349,12 @@
     "addPlayers.hidePlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler, welche schon in einem Spiel sind, nicht anzeigen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -300,6 +372,12 @@
     "addPlayers.title.addPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler hinzufügen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -317,6 +395,12 @@
     "addPlayers.title.editFriends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -334,10 +418,16 @@
     "addPlayers.title.requestFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freundesanfrage schicken"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fründ afragä."
+            "value" : "Fründ afragä"
           }
         },
         "en" : {
@@ -357,6 +447,12 @@
     "friends.friends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -374,6 +470,12 @@
     "friends.manage" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde verwalten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -391,6 +493,12 @@
     "friends.nofriends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast noch keine Freunde. Sende jemanden eine Anfrage!"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -408,6 +516,12 @@
     "friends.recieved" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erhaltene Anfragen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -425,6 +539,12 @@
     "friends.remove.friend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freund entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -442,6 +562,12 @@
     "friends.remove.request" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anfrage entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -459,6 +585,12 @@
     "friends.request" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde anfragen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -476,6 +608,12 @@
     "friends.requested" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angefragt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -493,6 +631,12 @@
     "friends.sent" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anfrage verschickt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -510,6 +654,12 @@
     "friends.since" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde seit %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -527,6 +677,12 @@
     "gamesettings.section.games" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -544,6 +700,12 @@
     "gamesettings.section.games.defaultTarget" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standart Zielpunkte"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -561,6 +723,12 @@
     "gamesettings.section.games.dragMode" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zieh-Modus"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -578,6 +746,12 @@
     "gamesettings.section.games.footer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Hinzufügen einer Runde Spieler in einer List herumziehen, statt sie anzutippen."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -595,6 +769,12 @@
     "gamesettings.section.games.showPingus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrunkene Pingus anzeigen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -612,6 +792,12 @@
     "gamesettings.section.howToPlay" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie spielt man?"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -629,6 +815,12 @@
     "gamesettings.section.howToPlay.officialRules" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offizielle Tichu Regeln"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -646,6 +838,12 @@
     "gamesettings.section.howToPlay.officialRules.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu Regeln"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -663,6 +861,12 @@
     "gamesettings.section.players" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -680,6 +884,12 @@
     "gamesettings.section.players.footer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeige immer all Spieler, auch wenn sie schon in Spielen, im Vergleich oder ein Freund sind."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -697,6 +907,12 @@
     "gamesettings.section.players.showAll" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Spieler anzeigen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -714,6 +930,12 @@
     "gamesettings.section.players.sortBy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler sortieren nach"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -731,6 +953,12 @@
     "gamesettings.section.statistics" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiken"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -748,6 +976,12 @@
     "gamesettings.section.statistics.sortBy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiken sortieren nach"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -765,6 +999,12 @@
     "gamesettings.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiel-Einstellungen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -782,6 +1022,12 @@
     "gameSummary.alert.delete.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Spiel wird gelöscht…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -799,6 +1045,12 @@
     "gameSummary.alert.delete.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Spiel löschen?"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -816,10 +1068,16 @@
     "gamesummary.delete.alert.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zuätuä"
+            "value" : "Abbrächä"
           }
         },
         "en" : {
@@ -833,6 +1091,12 @@
     "gamesummary.delete.alert.confirm" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -850,6 +1114,12 @@
     "gamesummary.delete.alert.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Spiel wird gelöscht…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -867,6 +1137,12 @@
     "gamesummary.delete.alert.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Spiel löschen?"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -884,6 +1160,12 @@
     "gameSummary.deleteGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiel löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -901,6 +1183,12 @@
     "gamesummary.picker.view" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ansicht"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -918,6 +1206,12 @@
     "gameSummary.playedOn" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespielt am %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -935,6 +1229,12 @@
     "gamesummary.share.activity.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu-Spiel vom %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -952,6 +1252,12 @@
     "gamesummary.share.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check meine Tichu-Spiele aus"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -969,6 +1275,12 @@
     "gamesummary.share.preview.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu-Spiel"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -986,6 +1298,12 @@
     "gamesummary.tab.graph" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graph"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1003,6 +1321,12 @@
     "gamesummary.tab.list" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1020,6 +1344,12 @@
     "gamesummary.title.won" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hat gewonnen!"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1037,6 +1367,12 @@
     "gamesummary.toolbar.revanche" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revanche"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1054,6 +1390,12 @@
     "gamesummaryshare.details" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1071,6 +1413,12 @@
     "gamesummaryshare.rounds" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runden:"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1088,6 +1436,12 @@
     "gamesummaryshare.target" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zielpunkte: %d"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1105,10 +1459,16 @@
     "gamesummaryshare.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiel Resultat"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rundi Resultat"
+            "value" : "Spiel Resultat"
           }
         },
         "en" : {
@@ -1122,6 +1482,12 @@
     "gamesummaryshare.winner" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewinner: %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1139,10 +1505,16 @@
     "general.alert.cancel" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "zutuä"
+            "value" : "Abbrächä"
           }
         },
         "en" : {
@@ -1156,6 +1528,12 @@
     "general.alert.retry" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch einmal versuchen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1173,6 +1551,12 @@
     "general.alert.save" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichern"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1190,6 +1574,12 @@
     "general.alert.serverUnreachable" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konnte nicht mit dem Server verbinden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1207,6 +1597,12 @@
     "general.alert.serverUnreachable.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entweder ist der Server down oder du bist offline. Bitte versuche es später erneut."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1224,6 +1620,12 @@
     "general.delete" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1241,6 +1643,12 @@
     "general.edit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1258,6 +1666,12 @@
     "general.editGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiel bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1275,6 +1689,12 @@
     "general.logout" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abmelden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1315,6 +1735,12 @@
     "general.share" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1424,6 +1850,12 @@
     "general.team" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1441,6 +1873,12 @@
     "general.team.double" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %@:"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1458,6 +1896,12 @@
     "general.team.result" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Team %1$@: %2$@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1521,6 +1965,12 @@
     "general.title.profile" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1561,6 +2011,12 @@
     "general.unknown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unbekannt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1578,6 +2034,12 @@
     "general.versus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gegen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1595,6 +2057,12 @@
     "history.context.openGame" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiel öffnen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1612,6 +2080,12 @@
     "history.loading" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf wird geladen…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1629,6 +2103,12 @@
     "history.share.check" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check mein Tichu-Spiel ab"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1646,6 +2126,12 @@
     "history.sortBy.allRounds" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Runden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1663,6 +2149,12 @@
     "history.sortBy.byDateDown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum (Neu-Alt)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1680,6 +2172,12 @@
     "history.sortBy.byDateUp" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum (Alt-Neu)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1697,6 +2195,12 @@
     "history.sortBy.favorites" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoriten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1714,6 +2218,12 @@
     "history.willAppear.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Verlauf von Tichu-Spielen wird hier erscheinen, sobald du ein Spiel gespielt hast."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1731,6 +2241,12 @@
     "history.willAppear.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Tichu-Spiele gespielt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1751,6 +2267,12 @@
     "login.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele Tichu-Spiele mit deinen Freunden und analysiere Statistiken über dein Spielverhalten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1768,6 +2290,12 @@
     "login.or" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "oder"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1785,6 +2313,12 @@
     "login.signup" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anmelden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1802,6 +2336,12 @@
     "login.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willkommen bei TichuStats"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1831,9 +2371,154 @@
     "Name: %@" : {
       "shouldTranslate" : false
     },
+    "notification.friendRequest.accepted.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du und %@ sind jetzt Freunde"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du und %@ si iz Fründä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You and %@ are now friends"
+          }
+        }
+      }
+    },
+    "notification.friendRequest.accepted.by.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hat deine Freundesanfrage akzeptiert"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ het dini Fründsafrag agno"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ accepted your friend request"
+          }
+        }
+      }
+    },
+    "notification.friendRequest.accepted.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freundesanfrage akzeptiert"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fründesafrag agno"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Friend Request Accepted"
+          }
+        }
+      }
+    },
+    "notification.friendRequest.body" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ hat dir eine Freundesanfrage geschickt"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ het dir a Fründesafrag gschickt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ sent you a friend request"
+          }
+        }
+      }
+    },
+    "notification.friendRequest.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Freundesanfrage"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nöi Fründesafrag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Friend Request"
+          }
+        }
+      }
+    },
     "offline.alert.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "device" : {
+              "applevision" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Deine Apple Vision hat keine Internetverbindung"
+                }
+              },
+              "ipad" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein iPad hat keine Internetverbindung"
+                }
+              },
+              "iphone" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein iPhone hat keine Internetverbindung"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein Gerät hat keine Internetverbindung"
+                }
+              }
+            }
+          }
+        },
         "de-CH" : {
           "variations" : {
             "device" : {
@@ -1899,6 +2584,12 @@
     "offline.alertDissmiss" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1916,6 +2607,36 @@
     "offline.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "variations" : {
+            "device" : {
+              "applevision" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Deine Apple Vision Pro ist nicht mit dem Internet verbunden. Um die Internetverbindung herzustellen, musst du sie mit einem WLAN verbinden oder den Flugmodus ausschalten."
+                }
+              },
+              "ipad" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein iPad ist nicht mit dem Internet verbunden. Um die Internetverbindung herzustellen, musst du es mit einem WLAN verbinden oder den Flugmodus ausschalten."
+                }
+              },
+              "iphone" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein iPhone ist nicht mit dem Internet verbunden. Um die Internetverbindung herzustellen, musst du es mit einem WLAN verbinden oder den Flugmodus ausschalten."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein Gerät ist nicht mit dem Internet verbunden. Um die Internetverbindung herzustellen, musst du es mit einem WLAN verbinden oder den Flugmodus ausschalten."
+                }
+              }
+            }
+          }
+        },
         "de-CH" : {
           "variations" : {
             "device" : {
@@ -1981,6 +2702,12 @@
     "offline.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Internetverbingun"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2024,6 +2751,12 @@
     "play.addRound" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runde hinzufügen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2041,6 +2774,12 @@
     "play.alert.enterName" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name des Gastes eingeben"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2058,6 +2797,12 @@
     "play.allowPingus" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betrunkene Pinugs erlauben"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2075,6 +2820,12 @@
     "play.download" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TichuStats herunterladen um Rang zu erhalten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2092,6 +2843,12 @@
     "play.editRound" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runde %@ bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2109,6 +2866,12 @@
     "play.guest" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gast"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2126,6 +2889,12 @@
     "play.guestName" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name des Gastes"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2143,6 +2912,12 @@
     "play.removePlayer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2160,6 +2935,12 @@
     "play.sendFriend" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freundesanfrage schicken"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2223,6 +3004,12 @@
     "profile.footer.madeWith" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemacht mit ❤️ in Bern"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2241,6 +3028,12 @@
       "comment" : "How to translate Build?",
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@ Build %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2258,6 +3051,12 @@
     "profile.header.imageUploadFail.dismiss" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2275,6 +3074,12 @@
     "profile.header.imageUploadFail.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitte später noch einmal versuchen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2292,6 +3097,12 @@
     "profile.header.imageUploadFail.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Konnte Profilbild nicht bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2309,6 +3120,12 @@
     "profile.section.account.editUsername" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2326,6 +3143,12 @@
     "profile.section.account.general" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allgemein"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2343,6 +3166,12 @@
     "profile.section.account.manageFriends" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freunde verwalten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2360,6 +3189,12 @@
     "profile.section.auth.logOut" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abmelden"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2377,6 +3212,12 @@
     "profile.section.deleteAccount.alert.confirm" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2394,6 +3235,12 @@
     "profile.section.deleteAccount.alert.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle deine Daten werde gelöscht und du wirst keinen Zugriff zu deinem Account mehr haben-"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2411,6 +3258,12 @@
     "profile.section.deleteAccount.alert.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Willst du deinen Account wirklich löschen?"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2428,6 +3281,12 @@
     "profile.section.deleteAccount.delete" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzer löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2445,6 +3304,12 @@
     "profile.section.support.contact" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontakt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2462,6 +3327,12 @@
     "profile.section.support.privacy" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenschutz"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2479,6 +3350,12 @@
     "profile.section.support.privacy.alert.dismiss" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Super!"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2496,6 +3373,12 @@
     "profile.section.support.privacy.alert.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wir speichern nur deine Tichu-Spiele sowie deine Login-Daten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2513,6 +3396,12 @@
     "profile.section.support.privacy.alert.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TichuStats sammelt keine persönlichen Daten."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2530,6 +3419,12 @@
     "profile.section.support.sourceCode" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quell-Code"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2575,6 +3470,12 @@
     "round.round" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Runde %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2592,6 +3493,12 @@
     "rounds.noPlayed" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Runden gespielt"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2609,6 +3516,12 @@
     "rounds.notCounted" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ Runden werden nicht gezählt. Dies, weil eine Runde so bearbeitet wurde, sodass das Spiel schon nach %2$@ Runden beendet war."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2626,6 +3539,12 @@
     "rounds.placement" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Platzierung"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2643,6 +3562,12 @@
     "rounds.points" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkte %1$@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2660,6 +3585,12 @@
     "shareStatistics.performance" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Performance"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2677,6 +3608,12 @@
     "statistics.compare.addPlayer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spieler zum Vergleich hinzufügen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2694,6 +3631,12 @@
     "statistics.compare.remove" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2711,6 +3654,12 @@
     "statistics.compare.removeAllPlayers" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All Spieler entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2728,6 +3677,12 @@
     "statistics.luis" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flex bei deinen Freunden, indem du deine Tichu-Statistiken mit ihnen teilst"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2745,6 +3700,12 @@
     "statistics.share" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2762,6 +3723,12 @@
     "statistics.share.captured" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Festgehalten am %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2779,6 +3746,12 @@
     "statistics.share.check" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check meine Tichu-Statistiken aus"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2819,6 +3792,12 @@
     "statistics.sort.123up" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wert (Tief-Hoch)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2882,6 +3861,12 @@
     "statistics.sort.dateDown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum hinzugefügt (Neu-Alt)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2899,6 +3884,12 @@
     "statistics.sort.dateUp" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum hinzugefügt (Alt-Neu)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2916,6 +3907,12 @@
     "statistics.sort.rankingdown" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rang (Hoch-Tief)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2933,6 +3930,12 @@
     "statistics.sort.rankingup" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rang (Tief-Hoch)"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2970,13 +3973,36 @@
         }
       }
     },
+    "statistics.statscontainer.description.announcer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prozent von Spielen mit einer Art von Tichu angesagt."
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prozänt vo Spilis mit ärä Sort vo Tichu agseit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percentage of Games with some Sort of Tichu announced"
+          }
+        }
+      }
+    },
     "statistics.statscontainer.description.bigGambler" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rate von erfolgreichen grand Tichus."
+            "value" : "Rate erfolgreicher Grosser Tichus."
           }
         },
         "de-CH" : {
@@ -2999,7 +4025,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rate von Bomben pro Runde."
+            "value" : "Bomben-pro-Runde Rate"
           }
         },
         "de-CH" : {
@@ -3022,7 +4048,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rate von erfolgreichen Tichus."
+            "value" : "Rate erfolgreicher Tichus."
           }
         },
         "de-CH" : {
@@ -3045,7 +4071,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rate von erfolgreichen pingus."
+            "value" : "Rate erfolgreicher Pingus."
           }
         },
         "de-CH" : {
@@ -3091,7 +4117,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rate von vorgebeugten Tichus"
+            "value" : "Rate vorgebeugter Tichus."
           }
         },
         "de-CH" : {
@@ -3183,7 +4209,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Prozentsatz an gewonnener Spiele."
+            "value" : "Prozentsatz gewonnener Spiele."
           }
         },
         "de-CH" : {
@@ -3620,6 +4646,12 @@
     "tichu.big.long" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grosses Tichu"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3637,6 +4669,12 @@
     "tichu.big.short" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gr. Tichu"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3654,6 +4692,12 @@
     "tichu.bombs" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bomben: %@"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3671,6 +4715,12 @@
     "tichu.doubleWin" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppelsieg"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3688,6 +4738,12 @@
     "tichu.pingu" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pingu"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3705,6 +4761,12 @@
     "tichu.play" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu spielen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3722,6 +4784,12 @@
     "tichu.tichu" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tichu"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3739,6 +4807,12 @@
     "tips.historyTap.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippen um mehr Informationen über das jeweilige Tichu-Spiel zu erfahrne und es zu teilen."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3756,6 +4830,12 @@
     "tips.historyTap.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe für mehr Informationen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3773,6 +4853,12 @@
     "tips.listSwipe.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach links wischen um eine Runde zu bearbeiten oder zu löschen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3790,6 +4876,12 @@
     "tips.listSwipe.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach links wischen um zu bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3807,6 +4899,12 @@
     "tips.listSwipeFriend.message" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wische nach links um einen Freund zu entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3824,6 +4922,12 @@
     "tips.listSwipeFriend.title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach links wischen um zu entfernen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3841,6 +4945,12 @@
     "username.available" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername verfügbar"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3858,6 +4968,12 @@
     "username.change" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst deinen Namen in %@ wieder bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3875,6 +4991,12 @@
     "username.create" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account erstellen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3892,6 +5014,12 @@
     "username.creating" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Account wird erstellt…"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3909,6 +5037,12 @@
     "username.description" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle einen Benutzernamen aus, damit du von Freunden zu Tichu-Spielen hinzugefügt werden kannst."
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3926,6 +5060,12 @@
     "username.edit" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername bearbeiten"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3943,6 +5083,12 @@
     "username.enter" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername eingeben"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3960,6 +5106,12 @@
     "username.old" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein alter Benutzername"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3977,6 +5129,12 @@
     "username.requirements" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorausetzungen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3994,6 +5152,12 @@
     "username.requirements.available" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername verfügber"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4011,6 +5175,12 @@
     "username.requirements.length" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zwischen 3 und 20 Zeichen"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4028,6 +5198,12 @@
     "username.requirements.letters" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur Buchstaben, Zahlen und Unterstriche"
+          }
+        },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",

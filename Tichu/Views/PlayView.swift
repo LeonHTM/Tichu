@@ -403,7 +403,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text(String(localized: "friends.remove.frien"))
+                                    Text(String(localized: "friends.remove.friend"))
                                 }
                             }else{
                                 Button{
@@ -664,7 +664,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text(String(localized: "friends.remove.frien"))
+                                    Text(String(localized: "friends.remove.friend"))
                                 }
                             }else{
                                 Button{
@@ -786,7 +786,7 @@ struct PlayView: View {
                                     
                                 }label:{
                                     Image(systemName:"person.badge.minus")
-                                    Text(String(localized: "friends.remove.frien"))
+                                    Text(String(localized: "friends.remove.friend"))
                                 }
                             }else{
                                 Button{

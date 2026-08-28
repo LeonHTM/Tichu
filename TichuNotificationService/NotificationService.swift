@@ -58,7 +58,7 @@ class NotificationService: UNNotificationServiceExtension {
             )
 
             let intent = INSendMessageIntent(
-                recipients: nil,          // nil = one-to-one, current user is implied recipient
+                recipients: nil,
                 outgoingMessageType: .outgoingMessageText,
                 content: bestAttemptContent.body,
                 speakableGroupName: nil,
