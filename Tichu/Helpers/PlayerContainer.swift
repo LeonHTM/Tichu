@@ -90,7 +90,14 @@ struct PlayerContainer: View {
                     Button {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
-                        Text(String(format:String(localized:"tichu.bombs"), String(bombNumber))).foregroundColor(.primary)
+                        ViewThatFits{
+                            Text(String(format:String(localized:"tichu.bombs"), String(bombNumber))).foregroundColor(.primary)
+                            HStack{
+                                Image("bomb.fill")
+                                Text(String(bombNumber))
+                            }.foregroundStyle(Color.primary)
+                            
+                        }
                        
                     }
                     .padding(8)
@@ -98,6 +105,7 @@ struct PlayerContainer: View {
                 }
                 
             }
+            
             .padding(10)
         }
     }

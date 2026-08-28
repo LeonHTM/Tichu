@@ -18,17 +18,23 @@ struct EloPoint: Identifiable {
 struct EloHistoryChartView: View {
     var profileId: Int
     var markedGameId: Int? = nil
+    @AppStorage("isLoading") var isLoading: Bool = false
 
     @ObservedObject private var network = NetworkService.shared
 
     private var chartData: [EloPoint] {
         var points: [EloPoint] = []
         var currentElo: Double = 1000.0
-
-        for entry in network.eloHistory.sorted(by: { ($0.changedAt ?? .distantPast) < ($1.changedAt ?? .distantPast) }) {
-            currentElo += entry.eloChange
-            if let date = entry.changedAt {
-                points.append(EloPoint(date: date, elo: currentElo, gameId: entry.gameId))
+        
+        if isLoading{
+                points.append(EloPoint(date:Date.now,elo:1000.0,gameId:-69420))
+                points.append(EloPoint(date:Date.now.addingTimeInterval(86400),elo:1010.0,gameId:-69421))
+        }else{
+            for entry in network.eloHistory.sorted(by: { ($0.changedAt ?? .distantPast) < ($1.changedAt ?? .distantPast) }) {
+                currentElo += entry.eloChange
+                if let date = entry.changedAt {
+                    points.append(EloPoint(date: date, elo: currentElo, gameId: entry.gameId))
+                }
             }
         }
 

@@ -343,37 +343,21 @@ struct PlayView: View {
     // MARK: - Team 1 Header
     private var team1Header: some View {
         Section {
-            if isLoading == false{
-                HStack {
-                    Text(String(format:String(localized: "general.team"), String(1)))
+            HStack {
+                Text(String(format: String(localized: "general.team"), String(1)))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.accentColor)
+                    .redactedShimmer()
+                Spacer()
+                if isGameReady || isLoading {
+                    Text(isLoading ? "394" : "\(currentPointsTeam1)")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundStyle(Color.accentColor)
-                    Spacer()
-                    if isGameReady {
-                        Text("\(currentPointsTeam1)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                    }
+                        .redactedShimmer()
                 }
-                .listRowBackground(Color.clear)
-            }else{
-                HStack {
-                    Text(String(format:String(localized: "general.team"), String(1)))
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.accentColor)
-                        .redacted(reason: .placeholder)
-                    Spacer()
-                    //Placeholder to make rows look the same
-                    Text("394")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .redacted(reason: .placeholder)
-                    
-                }
-                .listRowBackground(Color.clear)
             }
+            .listRowBackground(Color.clear)
         }
     }
 
@@ -454,9 +438,9 @@ struct PlayView: View {
                     withAnimation(.easeInOut){
                         HStack {
                             ProfileImage(data: nil, size: 44)
-                            Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                            Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redactedShimmer()
                             Spacer()
-                            Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                            Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redactedShimmer()
                         }
                     }
                     
@@ -555,9 +539,9 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).foregroundStyle(Color.accentColor).redactedShimmer()
                         Spacer()
-                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redactedShimmer()
                     }
                 }
                 
@@ -626,25 +610,14 @@ struct PlayView: View {
     // MARK: - Team 2 Header
     private var team2Header: some View {
         Section {
-            if isLoading == false{
-                HStack {
-                    Text(String(format:String(localized: "general.team"), String(2)))
-                    Spacer()
-                    if isGameReady {
-                        Text("\(currentPointsTeam2)")
-                    }
+            HStack {
+                Text(String(format: String(localized: "general.team"), String(2)))
+                    .redactedShimmer()
+                Spacer()
+                if isGameReady || isLoading {
+                    Text(isLoading ? "394" : "\(currentPointsTeam2)")
+                        .redactedShimmer()
                 }
-            }else{
-                HStack {
-                    Text(String(format:String(localized: "general.team"), String(2)))
-                        .redacted(reason: .placeholder)
-                    Spacer()
-              
-                    Text("394")
-                            .redacted(reason: .placeholder)
-                    
-                }
-                .listRowBackground(Color.clear)
             }
         }
         .font(.title2)
@@ -728,9 +701,9 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text(String(localized: "general.unknown")).fontWeight(.bold).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).redactedShimmer()
                         Spacer()
-                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redactedShimmer()
                     }
                     
                 }
@@ -851,9 +824,9 @@ struct PlayView: View {
                 withAnimation(.easeInOut){
                     HStack {
                         ProfileImage(data: nil, size: 44)
-                        Text(String(localized: "general.unknown")).fontWeight(.bold).redacted(reason: .placeholder)
+                        Text(String(localized: "general.unknown")).fontWeight(.bold).redactedShimmer()
                         Spacer()
-                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redacted(reason: .placeholder)
+                        Text("\(String(localized: "general.rating")): 1000").foregroundStyle(.secondary).font(.system(size: 16)).redactedShimmer()
                     }
                 }
                 
@@ -957,7 +930,7 @@ struct PlayView: View {
                                 .fontWeight(.bold)
                                 .font(.title3)
                                 .offset(y: -15)
-                                .redacted(reason: .placeholder)
+                                .redactedShimmer()
                         }
                     }
                 }

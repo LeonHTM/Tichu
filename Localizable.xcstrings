@@ -81,9 +81,6 @@
     "250" : {
       "shouldTranslate" : false
     },
-    "394" : {
-      "shouldTranslate" : false
-    },
     "500" : {
       "shouldTranslate" : false
     },
@@ -1736,7 +1733,7 @@
       "localizations" : {
         "de-CH" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "No ke Schpiu gschpiut"
           }
         },
@@ -2114,7 +2111,7 @@
       "localizations" : {
         "de-CH" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Gascht"
           }
         },
@@ -3837,6 +3834,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Swipe Left to Remove"
+          }
+        }
+      }
+    },
+    "username.available" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Benutzername verfüegbar"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Username available"
           }
         }
       }

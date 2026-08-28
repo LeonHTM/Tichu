@@ -14,6 +14,7 @@ struct StatsView: View {
     // MARK: - Storage
     @AppStorage("userId") var userId: Int = -69420
     @AppStorage("userName") var userName: String = "Unknown"
+    @AppStorage("isLoading") private var isLoading = false
     @Environment(\.colorScheme) var colorScheme
     @AppStorage("defaultAllowPingus") private var defaultAllowPingus: Bool = true
     @State private var showDebugSheetView: Bool = false
@@ -57,6 +58,7 @@ struct StatsView: View {
             ScrollView {
                 statsGrid
                     .animation(.easeInOut, value: selectedTags)
+                    .animation(.easeInOut, value: isLoading)
                     .animation(.easeInOut, value: compareList.map { $0 })
                     .padding()
             }.scrollEdgeEffectStyle(.soft, for: .all)
@@ -93,9 +95,7 @@ struct StatsView: View {
             .refreshable {
                 if network.isOnline {
                     Task {
-                        network.isLoading = true
                         await network.fetchSelectedProfilesStats()
-                        network.isLoading = false
                     }
                 }
             }
@@ -131,7 +131,7 @@ struct StatsView: View {
     // MARK: - Stats Grid
     private var statsGrid: some View {
         LazyVGrid(
-            columns: [GridItem(.adaptive(minimum: 165), spacing: 15, alignment: .top)],
+            columns: [GridItem(.adaptive(minimum: 164), spacing: 15, alignment: .top)],
             spacing: 15
         ) {
             StatsContainer(
@@ -232,7 +232,7 @@ struct StatsView: View {
 
             StatsContainer(
                 title: String(localized: "statistics.statscontainer.title.announcer"),
-                description: String(localized: "statistics.statscontainer.description.tichumaster"),
+                description: String(localized: "statistics.statscontainer.description.announcer"),
                 image: "megaphone",
                 counterLeft: 1,
                 counterRight: 500,
@@ -421,7 +421,10 @@ struct StatsView: View {
                     sortMenu
                 }
                 Spacer()
-                compareMenu
+                if !isLoading {
+                    compareMenu
+                }
+               
             }
         }
     }
@@ -469,7 +472,7 @@ struct StatsView: View {
     
     // MARK: - Compare Menu
     private var compareMenu: some View {
-        if network.isOnline {
+        if network.isOnline  {
             return AnyView(
                 Menu {
                     Button {

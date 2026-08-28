@@ -8,6 +8,7 @@
 import SwiftUI
 //MARK: - StatsContainer used in StatsView
 struct StatsContainer: View {
+
     //MARK: Vars
     var title: String
     var description: String
@@ -34,16 +35,19 @@ struct StatsContainer: View {
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundColor(.accentColor)
+                    .redactedShimmer()
                 }else{
                     Image(systemName:image)
                     .resizable()
                     .frame(width: 20, height: 20)
                     .foregroundColor(.accentColor)
                     .scaledToFit()
+                    .redactedShimmer()
                 }
                 Text(title)
                     .font(.system(size:20))
                     .fontWeight(.bold)
+                    .redactedShimmer()
                 Spacer()
                 
             }
@@ -56,10 +60,12 @@ struct StatsContainer: View {
                     Text("\(Int(value))")
                         .font(.title3)
                         .fontWeight(.bold)
+                        .redactedShimmer()
                 }else{
                     Text("\(Int(value*100))%")
                         .font(.title3)
                         .fontWeight(.bold)
+                        .redactedShimmer()
                 }
                 
             }
@@ -68,6 +74,7 @@ struct StatsContainer: View {
                 .multilineTextAlignment(.leading)
                 .padding(.top,10)
                 .padding(.horizontal,10)
+                .redactedShimmer()
             if !items.isEmpty{
                 Divider().padding(.horizontal, 10)
             }
@@ -85,29 +92,36 @@ struct StatsContainer: View {
                                     Image(systemName: "chevron.up.2")
                                         .resizable()
                                         .frame(width: 12, height: 12)
+                                        .redactedShimmer()
                                     
                                     Text(item.name ?? "")
                                         .font(.system(size: 14))
                                         .padding(.bottom, 3)
+                                        .redactedShimmer()
                                 }.lineLimit(.max)
                             } else if itemValue.isEqual(to: value) || itemValue == value {
                                 Image(systemName: "equal")
                                     .offset(x: -1)
+                                    .redactedShimmer()
                                 Text(item.name ?? "")
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
                                     .offset(x: -2)
+                                    .redactedShimmer()
                             } else {
                                 Image(systemName: "chevron.down.2")
                                     .resizable()
                                     .frame(width: 12, height: 12)
+                                    .redactedShimmer()
                                 Text(item.name ?? "")
                                     .font(.system(size: 14))
                                     .padding(.bottom, 3)
+                                    .redactedShimmer()
                             }
                             Spacer()
                             Text(percentage ? "\(Int(itemValue*100))%" : "\(Int(itemValue))")
                                 .font(.system(size: 14))
+                                .redactedShimmer()
                         }
                         if index != items.count - 1 {
                             Divider()
@@ -119,7 +133,7 @@ struct StatsContainer: View {
             .padding(.horizontal, 10)
             .padding(.bottom, 10)
         }
-        .frame(idealWidth: 165,maxWidth: 165)
+        .frame(idealWidth: 164,maxWidth: 164)
         .frame(minHeight:140,alignment:.topLeading)
         .background(colorScheme == .dark ? Color(uiColor: .tertiarySystemFill) : .white, in: .rect(cornerRadius: 24))
     }

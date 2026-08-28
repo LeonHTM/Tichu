@@ -346,7 +346,7 @@ struct EditFriendsSheetView: View {
     private var sentRequestsHeader: some View {
         Section {
             HStack {
-                Text(String(localized: "friends.sent")).fontWeight(.bold)
+                Text(String(localized: "friends.requested")).fontWeight(.bold)
                 Spacer()
                 if sentRequestsListCopy.count > 1 {
                     Menu {
@@ -393,7 +393,7 @@ struct EditFriendsSheetView: View {
                     ProfileImage(data: network.profileImages[request.id], size: 44)
                     VStack(alignment: .leading) {
                         Text(request.name ?? String(localized: "general.unknown"))
-                        Text(String(localized: "friends.requested"))
+                        Text(String(localized: "friends.sent"))
                             .foregroundStyle(.secondary)
                             .font(.system(size: 16))
                     }

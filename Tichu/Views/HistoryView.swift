@@ -61,16 +61,15 @@ struct HistoryView: View {
 
     // MARK: - Body
     var body: some View {
-        if gameHistory.count > 0 {
-            historyView
-        } else if isLoading {
-            VStack(spacing: 10) {
-                ProgressView()
-                Text(String(localized:"history.loading"))
-            }.foregroundStyle(.secondary)
-        } else {
-            emptyStateView
-        }
+       
+                if gameHistory.count > 0 || isLoading{
+                    historyView
+                } else {
+                   emptyStateView
+                }
+            
+        
+        
     }
 
     // MARK: - History View
@@ -86,74 +85,90 @@ struct HistoryView: View {
                     ScrollView(.vertical) {
                         LazyVStack(spacing: 0) {
                             Color.clear.frame(height: topPadding)
-
-                            ForEach(gameHistory, id: \.id) { game in
-                                gameRow(game: game, isSelected: selectedGameId == game.id)
-                                    .padding(.horizontal, 10)
-                                    .frame(height: rowHeight)
-                                    .id(game.id)
-                                    .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
-                                    .sensoryFeedback(.success, trigger: game.favorite)
-                                    .contextMenu {
-                                        Button {
-                                            sheetGame = game
-                                        } label: {
-                                            Image(systemName: "arrow.up.right.square")
-                                            Text(String(localized:"history.context.openGame"))
-                                            Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
-                                        }
-                                        if let renderedImage {
-                                            ShareLink(
-                                                item: renderedImage,
-                                                message: Text(String(localized:"history.share.check")),
-                                                preview: SharePreview("Tichu game", image: renderedImage)
-                                            )
-                                            .foregroundColor(.primary)
-                                        } else {
-                                            Button {} label: {
-                                                HStack {
-                                                    Image(systemName: "square.and.arrow.up")
-                                                    Text(String(localized:"general.share"))
-                                                    ProgressView()
-                                                }
-                                            }.disabled(true)
-                                        }
-                                    } preview: {
-                                        GameSummaryListView(
-                                            showGameSummarySheetView: .constant(true),
-                                            currentGameId: game.id,
-                                            profiles: network.profiles,
-                                            network: network,
-                                            allowEditing: .constant(false)
-                                        ).onAppear {
-                                            print("\(game.id)")
-                                            let renderer = ImageRenderer(content: GameSummaryShareView(
+                            if isLoading{
+                                let game = Game(favorite: false,id: 0, date: Date(), target: 1000, allowPingus: true, currentPointsTeam1: 0, currentPointsTeam2: 0)
+                                ForEach(0..<10, id: \.self) { _ in
+                                    gameRow(game: game, isSelected: selectedGameId == game.id)
+                                        
+                                        .padding(.horizontal, 10)
+                                        .frame(height: rowHeight)
+                                        .disabled(true)
+                                }
+                                
+                                
+                                
+                            }else{
+                                
+                                ForEach(gameHistory, id: \.id) { game in
+                                    gameRow(game: game, isSelected: selectedGameId == game.id)
+                                        .padding(.horizontal, 10)
+                                        .frame(height: rowHeight)
+                                        .id(game.id)
+                                        .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
+                                        .sensoryFeedback(.success, trigger: game.favorite)
+                                        .contextMenu {
+                                            Button {
+                                                sheetGame = game
+                                            } label: {
+                                                Image(systemName: "arrow.up.right.square")
+                                                Text(String(localized:"history.context.openGame"))
+                                                Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
+                                            }
+                                            if let renderedImage {
+                                                ShareLink(
+                                                    item: renderedImage,
+                                                    message: Text(String(localized:"history.share.check")),
+                                                    preview: SharePreview("Tichu game", image: renderedImage)
+                                                )
+                                                .foregroundColor(.primary)
+                                            } else {
+                                                Button {} label: {
+                                                    HStack {
+                                                        Image(systemName: "square.and.arrow.up")
+                                                        Text(String(localized:"general.share"))
+                                                        ProgressView()
+                                                    }
+                                                }.disabled(true)
+                                            }
+                                        } preview: {
+                                            GameSummaryListView(
+                                                showGameSummarySheetView: .constant(true),
                                                 currentGameId: game.id,
-                                                rounds: network.roundsByGame[game.id] ?? [],
                                                 profiles: network.profiles,
-                                                accentCo: .accent
-                                            )
-                                            .environment(\.colorScheme, colorScheme)
-                                            .background(colorScheme == .dark ? Color.black : Color.white))
-                                            renderer.scale = 3
-                                            if let image = renderer.cgImage {
-                                                renderedImage = Image(decorative: image, scale: 1)
+                                                network: network,
+                                                allowEditing: .constant(false)
+                                            ).onAppear {
+                                                print("\(game.id)")
+                                                let renderer = ImageRenderer(content: GameSummaryShareView(
+                                                    currentGameId: game.id,
+                                                    rounds: network.roundsByGame[game.id] ?? [],
+                                                    profiles: network.profiles,
+                                                    accentCo: .accent
+                                                )
+                                                    .environment(\.colorScheme, colorScheme)
+                                                    .background(colorScheme == .dark ? Color.black : Color.white))
+                                                renderer.scale = 3
+                                                if let image = renderer.cgImage {
+                                                    renderedImage = Image(decorative: image, scale: 1)
+                                                }
                                             }
                                         }
-                                    }
-                            }
-                            .task {
-                                do {
-                                    try Tips.configure()
-                                } catch {
-                                    print("Error initializing TipKit \(error.localizedDescription)")
                                 }
-                            }
-
+                                .task {
+                                    do {
+                                        try Tips.configure()
+                                    } catch {
+                                        print("Error initializing TipKit \(error.localizedDescription)")
+                                    }
+                                }
+                            
                             Color.clear.frame(height: bottomPadding)
+                            }
                         }
                         .scrollTargetLayout()
                     }
+                    .scrollDisabled(isLoading)
+                    .animation(.easeInOut,value:isLoading)
                     .scrollEdgeEffectStyle(.soft, for: .all)
                     .scrollPosition(id: $scrolledGameId, anchor: .center)
                     .scrollTargetBehavior(RowSnappingBehavior(rowHeight: rowHeight))
@@ -175,7 +190,7 @@ struct HistoryView: View {
             }
             .refreshable {
                 Task {
-                    await network.fetchGamesHistory()
+                    await network.fetchGamesHistory(load:false)
                 }
             }
             .sheet(item: $sheetGame) { game in
@@ -210,21 +225,52 @@ struct HistoryView: View {
             }
         }
         .safeAreaInset(edge: .top) {
-            if let selectedId = selectedGameId {
-                EloHistoryChartView(profileId: userId, markedGameId: selectedId)
-                    .frame(height: outerSize.height / 2 - 125)  
-                    .padding(.vertical)
-                    .glassEffect(
-                        .regular.tint(
-                            colorScheme == .dark
-                            ? Color(uiColor: .tertiarySystemFill)
-                            : .white
-                        ).interactive(),
-                        in: .rect(cornerRadius: 20)
-                    )
-                    .padding(.top, 50)
-                    .padding(.horizontal, 10)
-                    .padding(.top, 5)
+            if isLoading{
+                ZStack(){
+                    EloHistoryChartView(profileId: userId, markedGameId: -69420)
+                        .animation(.easeInOut, value: isLoading)
+                        .opacity(0)
+                        .frame(height: outerSize.height / 2 - 125)
+                        .padding(.vertical)
+                        .glassEffect(
+                            .regular.tint(
+                                colorScheme == .dark
+                                ? Color(uiColor: .tertiarySystemFill)
+                                : .white
+                            ).interactive(),
+                            in: .rect(cornerRadius: 20)
+                        )
+                        .padding(.top, 50)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 5)
+                        
+                    VStack(spacing: 10) {
+                                    ProgressView()
+                                    Text(String(localized:"history.loading"))
+                    }
+                    .foregroundStyle(.secondary)
+                    .offset(y:30)
+                    
+                            
+                        
+                }
+            }else{
+                if let selectedId = selectedGameId {
+                    EloHistoryChartView(profileId: userId, markedGameId: selectedId)
+                        .frame(height: outerSize.height / 2 - 125)
+                        .padding(.vertical)
+                        .glassEffect(
+                            .regular.tint(
+                                colorScheme == .dark
+                                ? Color(uiColor: .tertiarySystemFill)
+                                : .white
+                            ).interactive(),
+                            in: .rect(cornerRadius: 20)
+                        )
+                        .padding(.top, 50)
+                        .padding(.horizontal, 10)
+                        .padding(.top, 5)
+                }
             }
         }
         .safeAreaInset(edge: .bottom) {
@@ -258,13 +304,13 @@ struct HistoryView: View {
             HStack {
                 VStack(alignment:.center){
                     HStack{
-                        Image(systemName:"trophy.fill")
-                        Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
+                        Image(systemName:"trophy.fill").redactedShimmer()
+                        Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)").redactedShimmer()
                             .fontWeight(.bold)
                             
                             
                     }.font(.system(size: 20))
-                    Text(game.date, style: .date)
+                    Text(game.date, style: .date).redactedShimmer()
                         .font(.system(size: 15))
                 }.padding(.trailing, 10)
 
@@ -296,9 +342,9 @@ struct HistoryView: View {
                                 return playerName(game.team2Player2Id)
                             }
                         }
-                        Text("\(player1Name) & \(player2Name)")
+                        Text("\(player1Name) & \(player2Name)").redactedShimmer()
                             .foregroundStyle(Color.accentColor)
-                        Text("\(player3Name) & \(player4Name)")
+                        Text("\(player3Name) & \(player4Name)").redactedShimmer()
                     
                     
                     }.lineLimit(1).font(.system(size: 15))

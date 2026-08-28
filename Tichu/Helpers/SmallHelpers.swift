@@ -266,3 +266,56 @@ extension Array {
         indices.contains(index) ? self[index] : nil
     }
 }
+
+//MARK: - Placeholder animations and redacted
+public struct Shimmer: ViewModifier {
+    @State private var isInitial = true
+
+    public func body(content: Content) -> some View {
+        content
+            .mask(
+                LinearGradient(
+                    colors: [.black.opacity(0.4), .black, .black.opacity(0.4)],
+                    startPoint: isInitial ? UnitPoint(x: -0.3, y: -0.3) : UnitPoint(x: 1, y: 1),
+                    endPoint: isInitial ? UnitPoint(x: 0, y: 0) : UnitPoint(x: 1.3, y: 1.3)
+                )
+            )
+            .animation(.linear(duration: 1.25).delay(0.25).repeatForever(autoreverses: false), value: isInitial)
+            .onAppear { isInitial = false }
+    }
+}
+
+public struct RedactedShimmer: ViewModifier {
+    @AppStorage("isLoading") private var isLoading = false
+
+    public func body(content: Content) -> some View {
+        ZStack {
+            if isLoading {
+                content
+                    .redacted(reason: .placeholder)
+                    .modifier(Shimmer())
+            } else {
+                content
+            }
+        }
+        .animation(.easeInOut, value: isLoading)
+    }
+}
+
+public struct RedactedShimmerConstant: ViewModifier {
+    public func body(content: Content) -> some View {
+                content
+                    .redacted(reason: .placeholder)
+                    .modifier(Shimmer())
+          
+    }
+}
+
+public extension View {
+    func redactedShimmer() -> some View {
+        modifier(RedactedShimmer())
+    }
+    func redactedShimmerConstant() -> some View {
+        modifier(RedactedShimmerConstant())
+    }
+}

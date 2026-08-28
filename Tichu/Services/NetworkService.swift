@@ -806,8 +806,10 @@ class NetworkService: ObservableObject {
     //MARK: - Games and Rounds Section
     
     //MARK: fetchGamesHistory used in HistoryView to refresh the History
-    func fetchGamesHistory() async {
-        isLoading = true
+    func fetchGamesHistory(load: Bool = true) async {
+        if load{
+            isLoading = true
+        }
         await withTaskGroup(of: Void.self) { group in
             group.addTask { await self.fetchFriendRequests(profileId: self.userId) }
             group.addTask { await self.fetchProfileGames(profileId: self.userId) }
