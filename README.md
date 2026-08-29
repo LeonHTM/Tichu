@@ -14,3 +14,5 @@
 
 #### **Hint:**
 The Tichu brand and everything around it is owned by [Fata Morgana](https://fatamorgana.ch).
+
+**Hint:** The Help of AI was used on this Project
