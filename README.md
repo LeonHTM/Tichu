@@ -8,7 +8,7 @@
 - **Statistical analysis** of your performance with Elo Rating and more than 12 different statistics across 5 different timeframes
 - Compare your statistics with other players
 ### **Cost:**
-- TichuStats is **Free** and without Ads. 
+- TichuStats is **Free** and **without Ads**. 
 - TichuStats does **not store or collect** any private data.
 
 #### **Hint:**
