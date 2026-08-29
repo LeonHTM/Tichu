@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>API_URL</key>
+	<string>$(API_URL)</string>
+	<key>APP_TOKEN</key>
+	<string>$(APP_TOKEN)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -11,6 +15,8 @@
 			<string>Editor</string>
 		</dict>
 	</array>
+	<key>DEV_API_URL</key>
+	<string>$(DEV_API_URL)</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>INSendMessageIntent</string>

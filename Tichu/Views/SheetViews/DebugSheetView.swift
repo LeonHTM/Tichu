@@ -62,7 +62,13 @@ struct DebugSheetView: View {
 
 struct DebugNetworkView: View{
     @ObservedObject private var network = NetworkService.shared
-    @State private var switchApi: String = ProcessInfo.processInfo.environment["devApiURL"] ?? "0.0.0.0"
+    @State private var switchApi: String = {
+        guard let host = Bundle.main.object(forInfoDictionaryKey: "DEV_API_URL") as? String,
+              !host.isEmpty else {
+            return "https://0.0.0.0" // fallback
+        }
+        return "https://" + host
+    }()
     var body: some View{
         VStack {
             Text(network.apiURL).font(.title3).fontWeight(.bold)

@@ -42,7 +42,7 @@ class NetworkService: ObservableObject {
     @Published var finishGameEditing: Bool = true
     @Published var isOnline: Bool = true
     @Published var fetchFailed: Bool = false
-    @Published var apiURL: String = ProcessInfo.processInfo.environment["apiURL"] ?? "0.0.0.0"
+    @Published var apiURL: String = "https://" + (Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String ?? "0.0.0.0")
     private let pathMonitor = NWPathMonitor()
     
     
@@ -108,9 +108,9 @@ class NetworkService: ObservableObject {
     private func appAuthorizedRequest(url: URL, method: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
-        if let appToken = ProcessInfo.processInfo.environment["appToken"]{
+        if let appToken = Bundle.main.object(forInfoDictionaryKey: "APP_TOKEN") as? String, !appToken.isEmpty {
             request.setValue("Bearer \(appToken)", forHTTPHeaderField: "Authorization")
-        }else{
+        } else {
             print("Missing App Token")
         }
         return request
