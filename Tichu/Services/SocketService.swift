@@ -21,7 +21,7 @@ final class SocketService: ObservableObject {
     private var manager: SocketManager!
     private var socket: SocketIOClient!
     @Published var connected = false
-    var baseURL: String { Config.shared.baseURL }
+    var apiURL: String { ProcessInfo.processInfo.environment["apiURL"] ?? "0.0.0.0" }
     var reconnectAttempts: Int = 0
     
 
@@ -31,7 +31,7 @@ final class SocketService: ObservableObject {
 
     // MARK: - Setup Socket Section
     private func setupSocket() {
-        guard let url = URL(string: baseURL) else { return }
+        guard let url = URL(string: apiURL) else { return }
 
         manager = SocketManager(
             socketURL: url,

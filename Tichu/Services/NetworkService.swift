@@ -14,8 +14,6 @@ import Network
 class NetworkService: ObservableObject {
     //MARK: Vars
     static let shared = NetworkService()
-    @ObservedObject var config = Config.shared
-    var baseURL: String { Config.shared.baseURL }
 
     //MARK: App Storage
     @AppStorage("userId") private var userId = -69420
@@ -44,7 +42,9 @@ class NetworkService: ObservableObject {
     @Published var finishGameEditing: Bool = true
     @Published var isOnline: Bool = true
     @Published var fetchFailed: Bool = false
+    @Published var apiURL: String = ProcessInfo.processInfo.environment["apiURL"] ?? "0.0.0.0"
     private let pathMonitor = NWPathMonitor()
+    
     
     //friendRequests are recieved requests
     @Published var eloHistory: [EloHistoryEntry] = []
@@ -108,7 +108,11 @@ class NetworkService: ObservableObject {
     private func appAuthorizedRequest(url: URL, method: String = "GET") -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = method
-        request.setValue("Bearer \(Config.shared.appToken)", forHTTPHeaderField: "Authorization")
+        if let appToken = ProcessInfo.processInfo.environment["appToken"]{
+            request.setValue("Bearer \(appToken)", forHTTPHeaderField: "Authorization")
+        }else{
+            print("Missing App Token")
+        }
         return request
     }
     
@@ -130,7 +134,7 @@ class NetworkService: ObservableObject {
     
     //MARK: registerDevice used to register a device for APNs on login
     func registerDevice(profileId: Int, deviceToken: String) async {
-        guard let url = URL(string: "\(baseURL)/register_device/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/register_device/\(profileId)") else { return }
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -147,7 +151,7 @@ class NetworkService: ObservableObject {
 
     // MARK: Login used in EditNameSheetView on creating Account, LoginView and ProfileView
     func login(userId: Int) async -> Bool {
-        guard let url = URL(string: "\(baseURL)/login") else { return false }
+        guard let url = URL(string: "\(apiURL)/login") else { return false }
         var request = appAuthorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["id": userId])
@@ -176,7 +180,7 @@ class NetworkService: ObservableObject {
     
     //MARK: logout used in NavigationProfileImage, SocketService and ProfileView
     func logout(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/logout/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/logout/\(profileId)") else { return }
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -234,7 +238,7 @@ class NetworkService: ObservableObject {
     
     //MARK: addProfile used in EditNameSheetView on login when creating Profile
     func addProfile(email: String, name: String) async -> Int? {
-        guard let url = URL(string: "\(baseURL)/add_profile") else { return nil }
+        guard let url = URL(string: "\(apiURL)/add_profile") else { return nil }
 
         var request = appAuthorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -259,7 +263,7 @@ class NetworkService: ObservableObject {
     //MARK: checkUserName used in EditNameSheetView to check if name is available
     func checkUsername(username: String) async -> Bool {
         guard let encoded = username.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-              let url = URL(string: "\(baseURL)/check_username/\(encoded)") else { return false }
+              let url = URL(string: "\(apiURL)/check_username/\(encoded)") else { return false }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -273,7 +277,7 @@ class NetworkService: ObservableObject {
 
     //MARK: updateUserName used in EditNameSheetView
     func updateUsername(profileId: Int, name: String) async {
-        guard let url = URL(string: "\(baseURL)/update_username/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/update_username/\(profileId)") else { return }
 
         var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -294,7 +298,7 @@ class NetworkService: ObservableObject {
     //MARK: checkMail used in LoginView to check if mail is available
     func checkEmail(email: String) async -> Int? {
         guard let encoded = email.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed),
-              let url = URL(string: "\(baseURL)/check_email/\(encoded)") else { return nil }
+              let url = URL(string: "\(apiURL)/check_email/\(encoded)") else { return nil }
 
         do {
             let request = appAuthorizedRequest(url: url)
@@ -313,7 +317,7 @@ class NetworkService: ObservableObject {
     //MARK: fetchProfiles used in fetch(), SocketService, Socket reconnect, Socket pfp updated and EditFriendsSheetView
     @discardableResult
     func fetchProfiles() async -> Bool {
-        guard let url = URL(string: "\(baseURL)/profilessimple") else { return false }
+        guard let url = URL(string: "\(apiURL)/profilessimple") else { return false }
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let decoded = try JSONDecoder().decode([Profile].self, from: data)
@@ -350,7 +354,7 @@ class NetworkService: ObservableObject {
         for profile in snapshot {
             guard let urlString = profile.profileImageUrl,
                   let filename = urlString.components(separatedBy: "/").last,
-                  let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
+                  let url = URL(string: "\(apiURL)/uploads/profile_images/\(filename)") else { continue }
             do {
                 var request = URLRequest(url: url)
                 request.cachePolicy = .reloadIgnoringLocalCacheData
@@ -372,12 +376,12 @@ class NetworkService: ObservableObject {
     //MARK: fetchProfileStats used in AddPlayerSheetView and fetchSelectedProfilesStats()
     func fetchProfilesStats(profileId: Int) async {
         let timeframes = ["all_time", "year", "month", "week", "day"]
-        let baseURL = self.baseURL
+        let apiURL = self.apiURL
 
         await withTaskGroup(of: (String, ProfileStats?).self) { group in
             for timeframe in timeframes {
                 group.addTask {
-                    guard let url = URL(string: "\(baseURL)/profilesstats/\(profileId)?timeframe=\(timeframe)") else {
+                    guard let url = URL(string: "\(apiURL)/profilesstats/\(profileId)?timeframe=\(timeframe)") else {
                         return (timeframe, nil)
                     }
                     do {
@@ -416,7 +420,7 @@ class NetworkService: ObservableObject {
     
     // MARK: fetchProfileSettings used in fetch
     func fetchProfileSettings(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
+        guard let url = URL(string: "\(apiURL)/profile/\(profileId)/settings") else { return }
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -447,7 +451,7 @@ class NetworkService: ObservableObject {
 
     //MARK: updateProfileSettings used in ProfileView
     func updateProfileSettings(profileId: Int, target: Int, showPingu: Bool, dragMode: Bool, showAllPlayers: Bool, sortByProfiles: sortBy, sortByStats: sortBy) async {
-        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/settings") else { return }
+        guard let url = URL(string: "\(apiURL)/profile/\(profileId)/settings") else { return }
 
         let body: [String: Any] = [
             "default_target": target,
@@ -471,7 +475,7 @@ class NetworkService: ObservableObject {
     
     //MARK: isAdmin used in PlayView, StatsView, HistoryView and SocketService admin_update
     func isAdmin(profileId: Int) async -> Bool {
-        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/is_admin") else { return false }
+        guard let url = URL(string: "\(apiURL)/profile/\(profileId)/is_admin") else { return false }
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -484,7 +488,7 @@ class NetworkService: ObservableObject {
     
     //MARK: deleteProfile used in ProfileView
     func deleteProfile(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/delete_profile/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/delete_profile/\(profileId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
@@ -517,7 +521,7 @@ class NetworkService: ObservableObject {
             return
         }
 
-        guard let url = URL(string: "\(baseURL)/add_image/\(profileId)/") else { return }
+        guard let url = URL(string: "\(apiURL)/add_image/\(profileId)/") else { return }
 
         var request = authorizedRequest(url: url, method: "POST")
 
@@ -597,7 +601,7 @@ class NetworkService: ObservableObject {
 
     //MARK: fetchFriends used in fetch(), SocketService and EditFriendsSHeetView
     func fetchFriends(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/friends/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/friends/\(profileId)") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -630,7 +634,7 @@ class NetworkService: ObservableObject {
 
     //MARK: addFriend not used because can only become friends after requesting which the server manages
     func addFriend(profileId: Int, friendId: Int) async {
-        guard let url = URL(string: "\(baseURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
+        guard let url = URL(string: "\(apiURL)/add_friendship/\(profileId)/friends/\(friendId)") else { return }
 
         let request = authorizedRequest(url: url, method: "POST")
 
@@ -644,7 +648,7 @@ class NetworkService: ObservableObject {
     
     //MARK: removeFriend used in PlayView and AddPlayersSheetview ContextMenus, EditFriendsSheetView and SocketService
     func removeFriend(profileId: Int, friendId: Int) async {
-        guard let url = URL(string: "\(baseURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
+        guard let url = URL(string: "\(apiURL)/delete_friendship/\(profileId)/friends/\(friendId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
@@ -662,7 +666,7 @@ class NetworkService: ObservableObject {
 
     //MARK: fetchSentRequests used SocketService and EditFriendsSheetView
     func fetchSentRequests(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/sent_requests/\(profileId)/") else { return }
+        guard let url = URL(string: "\(apiURL)/sent_requests/\(profileId)/") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -684,7 +688,7 @@ class NetworkService: ObservableObject {
     
     //MARK: sendFriendRequest used in ContextMenus in AddPlayersSheetVeiw and PlayView and EditFriendSheetView
     func sendFriendRequest(senderId: Int, receiverId: Int) async {
-        guard let url = URL(string: "\(baseURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
+        guard let url = URL(string: "\(apiURL)/add_request/\(senderId)/request/\(receiverId)") else { return }
 
         let request = authorizedRequest(url: url, method: "POST")
 
@@ -697,7 +701,7 @@ class NetworkService: ObservableObject {
     
     //MARK: respondToFriendRequest used in EditFriendsSheet
     func respondToFriendRequest(receiverId: Int, senderId: Int, action: String) async {
-        guard let url = URL(string: "\(baseURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
+        guard let url = URL(string: "\(apiURL)/manage_requests/\(receiverId)/from/\(senderId)") else { return }
 
         var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -716,7 +720,7 @@ class NetworkService: ObservableObject {
     }
 
     func fetchProfileImage(profileId: Int, filename: String) async -> Data? {
-        guard let url = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { return nil }
+        guard let url = URL(string: "\(apiURL)/uploads/profile_images/\(filename)") else { return nil }
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
@@ -729,7 +733,7 @@ class NetworkService: ObservableObject {
 
     //MARK: fetchFriendRequests used in EditFriendsSheetview and SocketService
     func fetchFriendRequests(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/requests/\(profileId)/") else { return }
+        guard let url = URL(string: "\(apiURL)/requests/\(profileId)/") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -752,7 +756,7 @@ class NetworkService: ObservableObject {
             for profile in snapshot {
                 guard let urlString = profile.profileImageUrl,
                       let filename = urlString.components(separatedBy: "/").last,
-                      let imageUrl = URL(string: "\(baseURL)/uploads/profile_images/\(filename)") else { continue }
+                      let imageUrl = URL(string: "\(apiURL)/uploads/profile_images/\(filename)") else { continue }
                 do {
                     let (imageData, _) = try await URLSession.shared.data(from: imageUrl)
                     await MainActor.run {
@@ -829,7 +833,7 @@ class NetworkService: ObservableObject {
         guest3Name: String? = nil,
         guest4Name: String? = nil
     ) async -> Game? {
-        guard let url = URL(string: "\(baseURL)/add_game") else { return nil }
+        guard let url = URL(string: "\(apiURL)/add_game") else { return nil }
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -859,7 +863,7 @@ class NetworkService: ObservableObject {
     
     //MARK: isInOpenGame used in AddPlayersSheetView
     func isInOpenGame(profileId: Int) async -> Bool {
-        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/in_open_game") else { return false }
+        guard let url = URL(string: "\(apiURL)/profile/\(profileId)/in_open_game") else { return false }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -872,7 +876,7 @@ class NetworkService: ObservableObject {
 
     //MARK: deleteGame used in EditRoundsSheetView, GameSummarySheetView and GameSummaryListview
     func deleteGame(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/delete_game/\(gameId)") else { return }
+        guard let url = URL(string: "\(apiURL)/delete_game/\(gameId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
@@ -890,7 +894,7 @@ class NetworkService: ObservableObject {
     
     //MARK: fetchProfileGames used in SocketService
     func fetchProfileGames(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/profile/\(profileId)/games") else { return }
+        guard let url = URL(string: "\(apiURL)/profile/\(profileId)/games") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -953,7 +957,7 @@ class NetworkService: ObservableObject {
 
     //MARK: fetchGame used in SocketService, GameSummaryListview, EditRoundsSheetView, HistoryView and PlayView
     func fetchGame(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/game/\(gameId)") else { return }
+        guard let url = URL(string: "\(apiURL)/game/\(gameId)") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -992,7 +996,7 @@ class NetworkService: ObservableObject {
         announcedBigTichu: [Int] = [],
         announcedPingu: [Int] = []
     ) async -> Round? {
-        guard let url = URL(string: "\(baseURL)/add_round") else { return nil }
+        guard let url = URL(string: "\(apiURL)/add_round") else { return nil }
 
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1036,7 +1040,7 @@ class NetworkService: ObservableObject {
     
     //MARK: fetchGameRounds used in SocketService, GameSummaryListview, EditRoundsSheetView, HistoryView and PlayView
     func fetchGameRounds(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/game/\(gameId)/rounds") else { return }
+        guard let url = URL(string: "\(apiURL)/game/\(gameId)/rounds") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
@@ -1077,7 +1081,7 @@ class NetworkService: ObservableObject {
     
     //MARK: editRound used in AddRoundsSheetView, EditRoundsSheetView and PlayView
     func editRound(roundId: Int, updates: [String: Any]) async {
-        guard let url = URL(string: "\(baseURL)/edit_round/\(roundId)") else { return }
+        guard let url = URL(string: "\(apiURL)/edit_round/\(roundId)") else { return }
 
         var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1126,7 +1130,7 @@ class NetworkService: ObservableObject {
 
     //MARK: finishGame used in SocketService and PlayView
     func finishGame(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/finish_game/\(gameId)") else { return }
+        guard let url = URL(string: "\(apiURL)/finish_game/\(gameId)") else { return }
 
         let request = authorizedRequest(url: url, method: "POST")
 
@@ -1140,7 +1144,7 @@ class NetworkService: ObservableObject {
     
     //MARK: deleteRound used in GameSummaryListView and EditRoundsSheetview
     func deleteRound(gameId: Int, roundId: Int) async {
-        guard let url = URL(string: "\(baseURL)/delete_round/\(roundId)") else { return }
+        guard let url = URL(string: "\(apiURL)/delete_round/\(roundId)") else { return }
 
         let request = authorizedRequest(url: url, method: "DELETE")
 
@@ -1168,7 +1172,7 @@ class NetworkService: ObservableObject {
             return
         }
 
-        guard let url = URL(string: "\(baseURL)/game/edit_player/\(gameId)") else { return }
+        guard let url = URL(string: "\(apiURL)/game/edit_player/\(gameId)") else { return }
 
         var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -1189,7 +1193,7 @@ class NetworkService: ObservableObject {
     
     //MARK: reCalculate used in GameSumamryListView, AddRoundSheetView, EditRoundsSheetView and DebugSheetView
     func reCalculate(gameId: Int) async {
-        guard let url = URL(string: "\(baseURL)/recalculate_game/\(gameId)") else { return }
+        guard let url = URL(string: "\(apiURL)/recalculate_game/\(gameId)") else { return }
 
         let request = authorizedRequest(url: url, method: "POST")
 
@@ -1221,7 +1225,7 @@ class NetworkService: ObservableObject {
     
     //MARK: fetchEloHistory used in SocketService and EloHistoryChart
     func fetchEloHistory(profileId: Int) async {
-        guard let url = URL(string: "\(baseURL)/elo_history/\(profileId)") else { return }
+        guard let url = URL(string: "\(apiURL)/elo_history/\(profileId)") else { return }
 
         do {
             let (data, _) = try await URLSession.shared.data(for: authorizedRequest(url: url))
