@@ -300,7 +300,7 @@ struct PlayView: View {
                     if network.profiles.first(where: { $0.id == userId })?.isAdmin == true{
                         ToolbarItem {
                             Button { showDebugSheetView = true } label: {
-                                Image(systemName: "ant").foregroundStyle(socket.connected ? Color.green : Color.red)
+                                Image(systemName: "ant").foregroundStyle(socket.connected && network.apiURL == getURL() ? Color.green : network.apiURL == getURL(dev:true) && socket.connected ? Color.orange : Color.red)
                             }
                         }
                     }
