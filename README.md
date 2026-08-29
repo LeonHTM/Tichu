@@ -4,7 +4,7 @@
 ### **Features:**
 - **Score Tacker** for your Tichu Games with full customization and editing of past rounds
 - Friends system to quickly add friends to games
-- **Full History **of your games inclusive all rounds and graph
+- **Full History** of your games inclusive all rounds and graph
 - **Statistical analysis** of your performance with Elo Rating and more than 12 different statistics across 5 different timeframes
 - Compare your statistics with other players
 ### **Cost:**
