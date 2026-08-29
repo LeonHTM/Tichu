@@ -319,3 +319,25 @@ public extension View {
         modifier(RedactedShimmerConstant())
     }
 }
+
+func getURL(dev:Bool = false) -> String{
+    if dev{
+        guard let host = Bundle.main.object(forInfoDictionaryKey: "DEV_API_URL") as? String,
+              !host.isEmpty else {
+            return "https://0.0.0.0" 
+        }
+        //http here
+        return "http://" + host
+    }else{
+        guard let host = Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String,
+              !host.isEmpty else {
+            return "https://0.0.0.0" 
+        }
+        //https here
+        return "https://" + host
+        
+    }
+}
+
+
+

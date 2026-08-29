@@ -21,13 +21,7 @@ final class SocketService: ObservableObject {
     private var manager: SocketManager!
     private var socket: SocketIOClient!
     @Published var connected = false
-   var apiURL: String = {
-        guard let host = Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String,
-              !host.isEmpty else {
-            return "https://0.0.0.0" // fallback
-        }
-        return "https://" + host
-    }()
+    var apiURL: String = getURL()
     var reconnectAttempts: Int = 0
     
 

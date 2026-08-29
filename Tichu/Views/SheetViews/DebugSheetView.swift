@@ -62,13 +62,7 @@ struct DebugSheetView: View {
 
 struct DebugNetworkView: View{
     @ObservedObject private var network = NetworkService.shared
-    @State private var switchApi: String = {
-        guard let host = Bundle.main.object(forInfoDictionaryKey: "DEV_API_URL") as? String,
-              !host.isEmpty else {
-            return "https://0.0.0.0" // fallback
-        }
-        return "https://" + host
-    }()
+    @State private var switchApi: String = getURL(dev:true)
     var body: some View{
         VStack {
             Text(network.apiURL).font(.title3).fontWeight(.bold)
@@ -83,7 +77,7 @@ struct DebugNetworkView: View{
             }.buttonStyle(GlassButtonStyle())
             
             Button(action: {
-                network.apiURL = ProcessInfo.processInfo.environment["apiURL"] ?? "0.0.0.0"
+                network.apiURL = getURL()
             }) {
                 VStack{
                     Text("Reset API")

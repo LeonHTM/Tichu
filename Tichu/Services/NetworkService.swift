@@ -42,7 +42,7 @@ class NetworkService: ObservableObject {
     @Published var finishGameEditing: Bool = true
     @Published var isOnline: Bool = true
     @Published var fetchFailed: Bool = false
-    @Published var apiURL: String = "https://" + (Bundle.main.object(forInfoDictionaryKey: "API_URL") as? String ?? "0.0.0.0")
+    @Published var apiURL: String = getURL()
     private let pathMonitor = NWPathMonitor()
     
     
