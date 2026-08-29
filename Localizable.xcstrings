@@ -2344,20 +2344,20 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Willkommen bei TichuStats"
           }
         },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wiukommä zum Tichu Tracker"
+            "value" : "Wiukommä zu TichuStats"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Welcome to Tichu Tracker"
+            "value" : "Welcome to TichuStats"
           }
         }
       }
@@ -2833,20 +2833,20 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "TichuStats herunterladen um Rang zu erhalten"
           }
         },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tichu Tracker abäladä zum ä Rang becho."
+            "value" : "TichuStats abäladä zum ä Rang becho."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Download Tichu Tracker to get ranked "
+            "value" : "Download TichuStats to get ranked "
           }
         }
       }
@@ -3421,7 +3421,7 @@
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tichu Tracker tuet ke datä über di sammlä oder spichärä."
+            "value" : "TichuStats tuet ke datä über di sammlä oder spichärä."
           }
         },
         "en" : {

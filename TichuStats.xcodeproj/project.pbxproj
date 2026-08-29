@@ -1,0 +1,778 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		350AF98E2FBC6ABC0098AC3F /* TichuStatsNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 350AF9872FBC6ABC0098AC3F /* TichuStatsNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		350B466C2FB79DA600EE9EA6 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 350B466B2FB79DA600EE9EA6 /* SocketIO */; };
+		352D22862FD085500026C1A6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35DC811B2FD06B6000CAF76A /* WidgetKit.framework */; };
+		352D22872FD085500026C1A6 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35DC811D2FD06B6000CAF76A /* SwiftUI.framework */; };
+		352D22982FD085510026C1A6 /* TichuStatsWidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 352D22852FD085500026C1A6 /* TichuStatsWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		35564CE4304332A100B5FFFA /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 35564CE3304332A100B5FFFA /* Config.xcconfig */; };
+		35E6CFF92FF1D43400AC8BC5 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 35E6CFF82FF1D43400AC8BC5 /* Localizable.xcstrings */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		350AF98C2FBC6ABC0098AC3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 35F6AE5E2F978B3A00B0557C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 350AF9862FBC6ABC0098AC3F;
+			remoteInfo = TichuNotificationService;
+		};
+		352D22962FD085510026C1A6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 35F6AE5E2F978B3A00B0557C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 352D22842FD085500026C1A6;
+			remoteInfo = TichuWidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		350AF9932FBC6ABC0098AC3F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				350AF98E2FBC6ABC0098AC3F /* TichuStatsNotificationService.appex in Embed Foundation Extensions */,
+				352D22982FD085510026C1A6 /* TichuStatsWidgetsExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		350AF9872FBC6ABC0098AC3F /* TichuStatsNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TichuStatsNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		352D22852FD085500026C1A6 /* TichuStatsWidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TichuStatsWidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		352D23EF2FD086130026C1A6 /* TichuWidgetsExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TichuWidgetsExtension.entitlements; sourceTree = "<group>"; };
+		35564CE3304332A100B5FFFA /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		35DC811B2FD06B6000CAF76A /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		35DC811D2FD06B6000CAF76A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		35DC81342FD0729100CAF76A /* GraphWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GraphWidgetExtension.entitlements; sourceTree = "<group>"; };
+		35E6CFF82FF1D43400AC8BC5 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		35F5B14E2FBCEC3900D3C8B3 /* TichuStats.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TichuStats.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		350AF9922FBC6ABC0098AC3F /* Exceptions for "TichuStatsNotificationService" folder in "TichuStatsNotificationService" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				NotificationHelper.swift,
+			);
+			target = 350AF9862FBC6ABC0098AC3F /* TichuStatsNotificationService */;
+		};
+		350B46712FB7A45000EE9EA6 /* Exceptions for "TichuStats" folder in "TichuStats" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 35F6AE652F978B3A00B0557C /* TichuStats */;
+		};
+		3516ECCF2FE17D48005F6F75 /* Exceptions for "TichuStatsNotificationService" folder in "TichuStats" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				NotificationHelper.swift,
+			);
+			target = 35F6AE652F978B3A00B0557C /* TichuStats */;
+		};
+		352D229C2FD085510026C1A6 /* Exceptions for "TichuStatsWidgets" folder in "TichuStatsWidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 352D22842FD085500026C1A6 /* TichuStatsWidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		350AF9882FBC6ABC0098AC3F /* TichuStatsNotificationService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3516ECCF2FE17D48005F6F75 /* Exceptions for "TichuStatsNotificationService" folder in "TichuStats" target */,
+				350AF9922FBC6ABC0098AC3F /* Exceptions for "TichuStatsNotificationService" folder in "TichuStatsNotificationService" target */,
+			);
+			path = TichuStatsNotificationService;
+			sourceTree = "<group>";
+		};
+		352D22882FD085500026C1A6 /* TichuStatsWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				352D229C2FD085510026C1A6 /* Exceptions for "TichuStatsWidgets" folder in "TichuStatsWidgetsExtension" target */,
+			);
+			path = TichuStatsWidgets;
+			sourceTree = "<group>";
+		};
+		35F6AE682F978B3A00B0557C /* TichuStats */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				350B46712FB7A45000EE9EA6 /* Exceptions for "TichuStats" folder in "TichuStats" target */,
+			);
+			path = TichuStats;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		350AF9842FBC6ABC0098AC3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		352D22822FD085500026C1A6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				352D22872FD085500026C1A6 /* SwiftUI.framework in Frameworks */,
+				352D22862FD085500026C1A6 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		35F6AE632F978B3A00B0557C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				350B466C2FB79DA600EE9EA6 /* SocketIO in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		35DC811A2FD06B6000CAF76A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				35DC811B2FD06B6000CAF76A /* WidgetKit.framework */,
+				35DC811D2FD06B6000CAF76A /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		35F6AE5D2F978B3A00B0557C = {
+			isa = PBXGroup;
+			children = (
+				35564CE3304332A100B5FFFA /* Config.xcconfig */,
+				35E6CFF82FF1D43400AC8BC5 /* Localizable.xcstrings */,
+				352D23EF2FD086130026C1A6 /* TichuWidgetsExtension.entitlements */,
+				35DC81342FD0729100CAF76A /* GraphWidgetExtension.entitlements */,
+				35F6AE682F978B3A00B0557C /* TichuStats */,
+				350AF9872FBC6ABC0098AC3F /* TichuStatsNotificationService.appex */,
+				350AF9882FBC6ABC0098AC3F /* TichuStatsNotificationService */,
+				35F5B14E2FBCEC3900D3C8B3 /* TichuStats.app */,
+				352D22882FD085500026C1A6 /* TichuStatsWidgets */,
+				35DC811A2FD06B6000CAF76A /* Frameworks */,
+				352D22852FD085500026C1A6 /* TichuStatsWidgetsExtension.appex */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		350AF9862FBC6ABC0098AC3F /* TichuStatsNotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 350AF98F2FBC6ABC0098AC3F /* Build configuration list for PBXNativeTarget "TichuStatsNotificationService" */;
+			buildPhases = (
+				350AF9832FBC6ABC0098AC3F /* Sources */,
+				350AF9842FBC6ABC0098AC3F /* Frameworks */,
+				350AF9852FBC6ABC0098AC3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				350AF9882FBC6ABC0098AC3F /* TichuStatsNotificationService */,
+			);
+			name = TichuStatsNotificationService;
+			packageProductDependencies = (
+			);
+			productName = TichuNotificationService;
+			productReference = 350AF9872FBC6ABC0098AC3F /* TichuStatsNotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		352D22842FD085500026C1A6 /* TichuStatsWidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 352D22992FD085510026C1A6 /* Build configuration list for PBXNativeTarget "TichuStatsWidgetsExtension" */;
+			buildPhases = (
+				352D22812FD085500026C1A6 /* Sources */,
+				352D22822FD085500026C1A6 /* Frameworks */,
+				352D22832FD085500026C1A6 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				352D22882FD085500026C1A6 /* TichuStatsWidgets */,
+			);
+			name = TichuStatsWidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = TichuWidgetsExtension;
+			productReference = 352D22852FD085500026C1A6 /* TichuStatsWidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		35F6AE652F978B3A00B0557C /* TichuStats */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 35F6AE712F978B3C00B0557C /* Build configuration list for PBXNativeTarget "TichuStats" */;
+			buildPhases = (
+				35F6AE622F978B3A00B0557C /* Sources */,
+				35F6AE632F978B3A00B0557C /* Frameworks */,
+				35F6AE642F978B3A00B0557C /* Resources */,
+				350AF9932FBC6ABC0098AC3F /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				350AF98D2FBC6ABC0098AC3F /* PBXTargetDependency */,
+				352D22972FD085510026C1A6 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				35F6AE682F978B3A00B0557C /* TichuStats */,
+			);
+			name = TichuStats;
+			packageProductDependencies = (
+				350B466B2FB79DA600EE9EA6 /* SocketIO */,
+			);
+			productName = Tichu;
+			productReference = 35F5B14E2FBCEC3900D3C8B3 /* TichuStats.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		35F6AE5E2F978B3A00B0557C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					350AF9862FBC6ABC0098AC3F = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					352D22842FD085500026C1A6 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					35F6AE652F978B3A00B0557C = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
+				};
+			};
+			buildConfigurationList = 35F6AE612F978B3A00B0557C /* Build configuration list for PBXProject "TichuStats" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				de,
+				el,
+				"de-CH",
+			);
+			mainGroup = 35F6AE5D2F978B3A00B0557C;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				350B466A2FB79DA600EE9EA6 /* XCRemoteSwiftPackageReference "socket" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 35F6AE5D2F978B3A00B0557C;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				35F6AE652F978B3A00B0557C /* TichuStats */,
+				350AF9862FBC6ABC0098AC3F /* TichuStatsNotificationService */,
+				352D22842FD085500026C1A6 /* TichuStatsWidgetsExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		350AF9852FBC6ABC0098AC3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		352D22832FD085500026C1A6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		35F6AE642F978B3A00B0557C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				35564CE4304332A100B5FFFA /* Config.xcconfig in Resources */,
+				35E6CFF92FF1D43400AC8BC5 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		350AF9832FBC6ABC0098AC3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		352D22812FD085500026C1A6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		35F6AE622F978B3A00B0557C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		350AF98D2FBC6ABC0098AC3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 350AF9862FBC6ABC0098AC3F /* TichuStatsNotificationService */;
+			targetProxy = 350AF98C2FBC6ABC0098AC3F /* PBXContainerItemProxy */;
+		};
+		352D22972FD085510026C1A6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 352D22842FD085500026C1A6 /* TichuStatsWidgetsExtension */;
+			targetProxy = 352D22962FD085510026C1A6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		350AF9902FBC6ABC0098AC3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TichuNotificationService/TichuNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TichuNotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu.TichuNotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		350AF9912FBC6ABC0098AC3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = TichuNotificationService/TichuNotificationService.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TichuNotificationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuNotificationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu.TichuNotificationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		352D229A2FD085510026C1A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TichuWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TichuWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu.TichuWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		352D229B2FD085510026C1A6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TichuWidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TichuWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuWidgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu.TichuWidgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		35F6AE6F2F978B3C00B0557C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		35F6AE702F978B3C00B0557C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		35F6AE722F978B3C00B0557C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = TichuIconV1;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Tichu/Tichu.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Tichu/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuStats;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu;
+				PRODUCT_NAME = TichuStats;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		35F6AE732F978B3C00B0557C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 35564CE3304332A100B5FFFA /* Config.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = TichuIconV1;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = Tichu/Tichu.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 127;
+				DEVELOPMENT_TEAM = C6Q66KHWSY;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Tichu/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TichuStats;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.Drakynem.Tichu;
+				PRODUCT_NAME = TichuStats;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		350AF98F2FBC6ABC0098AC3F /* Build configuration list for PBXNativeTarget "TichuStatsNotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				350AF9902FBC6ABC0098AC3F /* Debug */,
+				350AF9912FBC6ABC0098AC3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		352D22992FD085510026C1A6 /* Build configuration list for PBXNativeTarget "TichuStatsWidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				352D229A2FD085510026C1A6 /* Debug */,
+				352D229B2FD085510026C1A6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		35F6AE612F978B3A00B0557C /* Build configuration list for PBXProject "TichuStats" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35F6AE6F2F978B3C00B0557C /* Debug */,
+				35F6AE702F978B3C00B0557C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		35F6AE712F978B3C00B0557C /* Build configuration list for PBXNativeTarget "TichuStats" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				35F6AE722F978B3C00B0557C /* Debug */,
+				35F6AE732F978B3C00B0557C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		350B466A2FB79DA600EE9EA6 /* XCRemoteSwiftPackageReference "socket" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		350B466B2FB79DA600EE9EA6 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 350B466A2FB79DA600EE9EA6 /* XCRemoteSwiftPackageReference "socket" */;
+			productName = SocketIO;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 35F6AE5E2F978B3A00B0557C /* Project object */;
+}
