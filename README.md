@@ -14,11 +14,6 @@ TichuStats is the ultimate Companion app for the popular card game Tichu. TichuS
 - TichuStats is **free** and **without ads**.
 - Beatiful Widgets displaying your favorite Statistic or Game or your Elo-Rating over Time.
   
-### **Information**
-- TichuStats is **Free** and **without Ads**. 
-- TichuStats does **not store or collect** any private data.
-- TichuStats is open source
-  
 ### **Release**
 TichuStats 1.0 is currently in Beta Testing with TestFlight. Planned released is in September. I will work on a native Android Client after the release of the iOS Client.
 
