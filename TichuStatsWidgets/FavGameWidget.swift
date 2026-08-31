@@ -77,14 +77,14 @@ struct GameProvider: AppIntentTimelineProvider {
         let sorted = game.rounds.filter { $0.boolWinRound }.sorted { $0.roundOrder < $1.roundOrder }
 
         var t1 = 0, t2 = 0
-        var team1Points: [ScorePoint] = [ScorePoint(round: 0, value: 0, team: "Team 1")]
-        var team2Points: [ScorePoint] = [ScorePoint(round: 0, value: 0, team: "Team 2")]
+        var team1Points: [ScorePoint] = [ScorePoint(round: 0, value: 0, team: String(format:String(localized:"game.team"),1))]
+        var team2Points: [ScorePoint] = [ScorePoint(round: 0, value: 0, team: String(format:String(localized:"game.team"),2))]
 
         for (i, round) in sorted.enumerated() {
             t1 += round.tichuPointsTeam1 + round.roundPointsTeam1
             t2 += round.tichuPointsTeam2 + round.roundPointsTeam2
-            team1Points.append(ScorePoint(round: i + 1, value: t1, team: "Team 1"))
-            team2Points.append(ScorePoint(round: i + 1, value: t2, team: "Team 2"))
+            team1Points.append(ScorePoint(round: i + 1, value: t1, team: String(format:String(localized:"game.team"),1)))
+            team2Points.append(ScorePoint(round: i + 1, value: t2, team: String(format:String(localized:"game.team"),2)))
         }
 
         return GameWidgetEntry(
@@ -100,10 +100,10 @@ struct GameProvider: AppIntentTimelineProvider {
 
     private func sampleData() -> [ScorePoint] {
         let t1 = [0, 0, 25, 90, -10, 255, 390, 515, 825, 1110].enumerated().map {
-            ScorePoint(round: $0.offset, value: $0.element, team: "Team 1")
+            ScorePoint(round: $0.offset, value: $0.element, team: String(format:String(localized:"game.team"),1))
         }
         let t2 = [0, 400, 575, 610, 910, 945, 910, 985, 975, 990].enumerated().map {
-            ScorePoint(round: $0.offset, value: $0.element, team: "Team 2")
+            ScorePoint(round: $0.offset, value: $0.element, team: String(format:String(localized:"game.team"),2))
         }
         return t1 + t2
     }
@@ -114,6 +114,7 @@ struct GameProvider: AppIntentTimelineProvider {
 struct GameWidgetView: View {
     var entry: GameWidgetEntry
     @Environment(\.widgetFamily) var family
+    @Environment(\.colorScheme) var colorScheme
 
     private var yDomain: ClosedRange<Int> {
         let values = entry.chartData.map { $0.value }
@@ -165,8 +166,8 @@ struct GameWidgetView: View {
             }
             .chartYScale(domain: yDomain)
             .chartForegroundStyleScale([
-                "Team 1": .accent,
-                "Team 2": Color.primary
+                String(format:String(localized:"game.team"),1): .accent,
+                String(format:String(localized:"game.team"),2): Color.primary
             ])
             .chartXAxis {
                 AxisMarks(values: .stride(by: 1)) { _ in
@@ -180,9 +181,9 @@ struct GameWidgetView: View {
                     AxisTick()
                     if let v = value.as(Int.self) {
                         if family == .systemSmall {
-                            AxisValueLabel(String(v % 100 == 0 ? "\(v)" : ""))
+                            AxisValueLabel(String(v % 100 == 0 ? "\(v)" : "")).foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                         } else {
-                            AxisValueLabel("\(v)")
+                            AxisValueLabel("\(v)").foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                         }
                     }
                 }
@@ -202,8 +203,8 @@ struct GameWidget: Widget {
         AppIntentConfiguration(kind: kind, intent: GameConfigurationAppIntent.self, provider: GameProvider()) { entry in
             GameWidgetView(entry: entry)
         }
-        .configurationDisplayName("Favorite Game")
-        .description("Graph of your favorite game. Favorize your Games inside the App to be able to pick them.")
+        .configurationDisplayName(String(localized:"game.widgetTitle"))
+        .description(String(localized:"game.widgetDescription"))
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
@@ -219,10 +220,10 @@ struct GameWidget: Widget {
         date: .now,
         chartData: {
             let t1 = [0, 110, 195, 310, 400, 530].enumerated().map {
-                ScorePoint(round: $0.offset, value: $0.element, team: "Team 1")
+                ScorePoint(round: $0.offset, value: $0.element, team: String(format:String(localized:"game.team"),1))
             }
             let t2 = [0, 90, 200, 280, 430, 470].enumerated().map {
-                ScorePoint(round: $0.offset, value: $0.element, team: "Team 2")
+                ScorePoint(round: $0.offset, value: $0.element, team: String(format:String(localized:"game.team"),2))
             }
             return t1 + t2
         }(),

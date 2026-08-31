@@ -51,7 +51,7 @@ struct PlayerContainer: View {
                             hasAnnounced = hasAnnounced == .tichu ? .none : .tichu
                         }
                     } label: {
-                        Text(String(localized: "tichu.tichu")).foregroundColor(.primary)
+                        Text(String(localized: "tichu.tichu")).foregroundColor(.primary).lineLimit(1)
                     }
                     
                     .padding(8)
@@ -61,8 +61,8 @@ struct PlayerContainer: View {
                         hasAnnounced = hasAnnounced == .bigTichu ? .none : .bigTichu
                     } label: {
                         ViewThatFits {
-                            Text(String(localized: "tichu.big.long")).foregroundColor(.primary)
-                            Text(String(localized: "tichu.big.short")).foregroundColor(.primary)
+                            Text(String(localized: "tichu.big.long")).foregroundColor(.primary).lineLimit(1)
+                            Text(String(localized: "tichu.big.short")).foregroundColor(.primary).lineLimit(1)
                                                 }
            
                     }
@@ -75,7 +75,7 @@ struct PlayerContainer: View {
                         Button {
                             hasAnnounced = hasAnnounced == .pingu ? .none : .pingu
                         } label: {
-                            Text(String(localized: "tichu.pingu")).foregroundColor(.primary)
+                            Text(String(localized: "tichu.pingu")).foregroundColor(.primary).lineLimit(1)
                         }
                         .padding(8)
                         .glassEffect(
@@ -91,7 +91,7 @@ struct PlayerContainer: View {
                         bombNumber = bombNumber < 3 ? bombNumber + 1 : 0
                     } label: {
                         ViewThatFits{
-                            Text(String(format:String(localized:"tichu.bombs"), String(bombNumber))).foregroundColor(.primary)
+                            Text(String(format:String(localized:"tichu.bombs"), String(bombNumber))).foregroundColor(.primary).lineLimit(1)
                             HStack{
                                 Image("bomb.fill")
                                 Text(String(bombNumber))

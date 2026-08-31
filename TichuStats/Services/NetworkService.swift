@@ -179,61 +179,64 @@ class NetworkService: ObservableObject {
     }
     
     //MARK: logout used in NavigationProfileImage, SocketService and ProfileView
-    func logout(profileId: Int) async {
-        guard let url = URL(string: "\(apiURL)/logout/\(profileId)") else { return }
+    func logout(profileId: Int, local: Bool = false) async {
+        if !local {
+            guard let url = URL(string: "\(apiURL)/logout/\(profileId)") else { return }
 
-        var request = authorizedRequest(url: url, method: "POST")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": pendingDeviceToken])
-        do {
-            _ = try await URLSession.shared.data(for: request)
-            await MainActor.run {
-                self.authToken = ""
-                self.userId = -69420
-                self.userName = "Unknown"
-                self.userImageData = nil
-                self.userElo = 1000
-                self.statsList = []
-                self.defaultTarget = 1000
-                self.dragMode = false
-                self.defaultAllowPingus = true
-                self.sortByProfiles = .nameDown
-                self.sortByStats = .valueDown
+            var request = authorizedRequest(url: url, method: "POST")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try? JSONSerialization.data(withJSONObject: ["device_token": pendingDeviceToken])
 
-                let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
-                defaults?.removeObject(forKey: "userName")
-                defaults?.removeObject(forKey: "userElo")
-                defaults?.removeObject(forKey: "widgetGames")
+            do {
+                _ = try await URLSession.shared.data(for: request)
+            } catch {
+                print("logout error: \(error)")
+            }
+        }
 
-                func reset(_ base: String) {
-                    defaults?.removeObject(forKey: "user\(base)")
-                    defaults?.removeObject(forKey: "user\(base)Year")
-                    defaults?.removeObject(forKey: "user\(base)Month")
-                    defaults?.removeObject(forKey: "user\(base)Week")
-                    defaults?.removeObject(forKey: "user\(base)Day")
-                }
+        await MainActor.run {
+            self.authToken = ""
+            self.userId = -69420
+            self.userName = "Unknown"
+            self.userImageData = nil
+            self.userElo = 1000
+            self.statsList = []
+            self.defaultTarget = 1000
+            self.dragMode = false
+            self.defaultAllowPingus = true
+            self.sortByProfiles = .nameDown
+            self.sortByStats = .valueDown
 
-                reset("WinnerPercentage")
-                reset("TichuMaster")
-                reset("Visionary")
-                reset("Addict")
-                reset("Teamplayer")
-                reset("Announcer")
-                reset("Saboteur")
-                reset("Gambler")
-                reset("BigGambler")
-                reset("PinguGambler")
-                reset("Bomber")
+            let defaults = UserDefaults(suiteName: "group.com.drakynem.tichu")
+            defaults?.removeObject(forKey: "userName")
+            defaults?.removeObject(forKey: "userElo")
+            defaults?.removeObject(forKey: "widgetGames")
+
+            func reset(_ base: String) {
+                defaults?.removeObject(forKey: "user\(base)")
+                defaults?.removeObject(forKey: "user\(base)Year")
+                defaults?.removeObject(forKey: "user\(base)Month")
+                defaults?.removeObject(forKey: "user\(base)Week")
+                defaults?.removeObject(forKey: "user\(base)Day")
             }
 
-            // Clear all notifications and badge on logout
-            UNUserNotificationCenter.current().removeAllDeliveredNotifications()
-            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-            try? await UNUserNotificationCenter.current().setBadgeCount(0)
-
-        } catch {
-            print("logout error: \(error)")
+            reset("WinnerPercentage")
+            reset("TichuMaster")
+            reset("Visionary")
+            reset("Addict")
+            reset("Teamplayer")
+            reset("Announcer")
+            reset("Saboteur")
+            reset("Gambler")
+            reset("BigGambler")
+            reset("PinguGambler")
+            reset("Bomber")
         }
+
+        // Clear all notifications and badge on logout
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        try? await UNUserNotificationCenter.current().setBadgeCount(0)
     }
     
     //MARK: addProfile used in EditNameSheetView on login when creating Profile
@@ -497,6 +500,7 @@ class NetworkService: ObservableObject {
             await MainActor.run {
                 self.profiles.removeAll { $0.id == profileId }
             }
+            await self.logout(profileId: profileId,local: true)
         } catch {
             print("deleteProfile error: \(error)")
         }
@@ -791,6 +795,7 @@ class NetworkService: ObservableObject {
 
                 let matchFound = await MainActor.run { self.profiles.first(where: { $0.id == currentUserId }) != nil }
                 if !matchFound {
+                    //Should be local but im not sure if server is clean profileId: currentUSerId,local:true
                     await NetworkService.shared.logout(profileId: currentUserId)
                     return
                 }

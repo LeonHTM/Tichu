@@ -196,7 +196,7 @@ struct GameSummaryBottomToolbar: ToolbarContent {
                     Text("\(currentGame?.currentPointsTeam1 ?? 0)")
                         .fontWeight(.bold)
                         .foregroundStyle(Color.accentColor)
-                    Text(String(localized: "general.versus")).fontWeight(.bold).font(.title3)
+                    Text(":").fontWeight(.bold).font(.title3)
                     Text("\(currentGame?.currentPointsTeam2 ?? 0)")
                         .fontWeight(.bold)
                 }

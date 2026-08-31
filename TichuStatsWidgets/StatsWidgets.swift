@@ -1,6 +1,6 @@
 //
-//  TichuWidgets.swift
-//  TichuWidgets
+//  StatsWidgets.swift
+//  StatsWidgets
 //
 //  Created by Leon on 03.06.2026.
 //
@@ -33,8 +33,6 @@ enum playerStat {
     case bomber
 }
 
-
-
 enum TichuStorage {
     static let suite = "group.com.drakynem.tichu"
 
@@ -51,200 +49,279 @@ enum TichuStorage {
     }
 }
 
-
-
 struct Provider: AppIntentTimelineProvider {
 
     func placeholder(in context: Context) -> TichuWidgetEntry {
         TichuWidgetEntry(
             date: Date(),
-            title: "Rating",
-            description: "All time Rating",
+            title: String(localized: "statistics.stat.elo"),
+            description: String(localized: "statistics.stat.elo.description"),
             image: "chart.line.uptrend.xyaxis",
             value: 1000,
             percentage: false
         )
     }
 
-    func snapshot(for configuration: GraphConfigurationAppIntent, in context: Context) async -> TichuWidgetEntry {
+    func snapshot(
+        for configuration: GraphConfigurationAppIntent,
+        in context: Context
+    ) async -> TichuWidgetEntry {
         makeEntry(for: configuration)
     }
 
-    func timeline(for configuration: GraphConfigurationAppIntent, in context: Context) async -> Timeline<TichuWidgetEntry> {
+    func timeline(
+        for configuration: GraphConfigurationAppIntent,
+        in context: Context
+    ) async -> Timeline<TichuWidgetEntry> {
 
         let entry = makeEntry(for: configuration)
-        let next = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
+        let next = Calendar.current.date(
+            byAdding: .hour,
+            value: 1,
+            to: Date()
+        )!
 
-        return Timeline(entries: [entry], policy: .after(next))
+        return Timeline(
+            entries: [entry],
+            policy: .after(next)
+        )
     }
 
-    private func makeEntry(for configuration: GraphConfigurationAppIntent) -> TichuWidgetEntry {
+    private func makeEntry(
+        for configuration: GraphConfigurationAppIntent
+    ) -> TichuWidgetEntry {
+
         var value: Double
         var title: String
         var description: String
         var image: String
         var percentage: Bool
-        
+
         switch configuration.stat {
 
         case .elo:
             value = TichuStorage.double("userElo")
-            title = "Rating"
-            description = "All time Rating"
+            title = String(localized: "statistics.stat.elo")
+            description = String(localized: "statistics.stat.elo.description")
             percentage = false
             image = "chart.line.uptrend.xyaxis"
 
         case .winnerPercentage:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userWinnerPercentageYear")
-            case .month: value = TichuStorage.double("userWinnerPercentageMonth")
-            case .week:  value = TichuStorage.double("userWinnerPercentageWeek")
-            case .day:   value = TichuStorage.double("userWinnerPercentageDay")
-            default:     value = TichuStorage.double("userWinnerPercentage")
+            case .year:
+                value = TichuStorage.double("userWinnerPercentageYear")
+            case .month:
+                value = TichuStorage.double("userWinnerPercentageMonth")
+            case .week:
+                value = TichuStorage.double("userWinnerPercentageWeek")
+            case .day:
+                value = TichuStorage.double("userWinnerPercentageDay")
+            default:
+                value = TichuStorage.double("userWinnerPercentage")
             }
-            title = "Winner"
-            description = "Winning percentage"
+
+            title = String(localized: "statistics.stat.winnerPercentage")
+            description = String(localized: "statistics.stat.winnerPercentage.description")
             percentage = true
             image = "trophy"
 
         case .tichuMaster:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userTichuMasterYear")
-            case .month: value = TichuStorage.double("userTichuMasterMonth")
-            case .week:  value = TichuStorage.double("userTichuMasterWeek")
-            case .day:   value = TichuStorage.double("userTichuMasterDay")
-            default:     value = TichuStorage.double("userTichuMaster")
+            case .year:
+                value = TichuStorage.double("userTichuMasterYear")
+            case .month:
+                value = TichuStorage.double("userTichuMasterMonth")
+            case .week:
+                value = TichuStorage.double("userTichuMasterWeek")
+            case .day:
+                value = TichuStorage.double("userTichuMasterDay")
+            default:
+                value = TichuStorage.double("userTichuMaster")
             }
-            title = "Tichumaster"
-            description = "Points from Announcing"
+
+            title = String(localized: "statistics.stat.tichuMaster")
+            description = String(localized: "statistics.stat.tichuMaster.description")
             percentage = false
             image = "number"
 
         case .visionary:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userVisionaryYear")
-            case .month: value = TichuStorage.double("userVisionaryMonth")
-            case .week:  value = TichuStorage.double("userVisionaryWeek")
-            case .day:   value = TichuStorage.double("userVisionaryDay")
-            default:     value = TichuStorage.double("userVisionary")
+            case .year:
+                value = TichuStorage.double("userVisionaryYear")
+            case .month:
+                value = TichuStorage.double("userVisionaryMonth")
+            case .week:
+                value = TichuStorage.double("userVisionaryWeek")
+            case .day:
+                value = TichuStorage.double("userVisionaryDay")
+            default:
+                value = TichuStorage.double("userVisionary")
             }
-            title = "Visionary"
-            description = "Announced when first"
+
+            title = String(localized: "statistics.stat.visionary")
+            description = String(localized: "statistics.stat.visionary.description")
             percentage = true
             image = "checkmark.circle"
 
         case .addict:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userAddictYear")
-            case .month: value = TichuStorage.double("userAddictMonth")
-            case .week:  value = TichuStorage.double("userAddictWeek")
-            case .day:   value = TichuStorage.double("userAddictDay")
-            default:     value = TichuStorage.double("userAddict")
+            case .year:
+                value = TichuStorage.double("userAddictYear")
+            case .month:
+                value = TichuStorage.double("userAddictMonth")
+            case .week:
+                value = TichuStorage.double("userAddictWeek")
+            case .day:
+                value = TichuStorage.double("userAddictDay")
+            default:
+                value = TichuStorage.double("userAddict")
             }
-            title = "Addict"
-            description = "Games played"
+
+            title = String(localized: "statistics.stat.addict")
+            description = String(localized: "statistics.stat.addict.description")
             percentage = false
             image = "pill"
 
         case .teamplayer:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userTeamplayerYear")
-            case .month: value = TichuStorage.double("userTeamplayerMonth")
-            case .week:  value = TichuStorage.double("userTeamplayerWeek")
-            case .day:   value = TichuStorage.double("userTeamplayerDay")
-            default:     value = TichuStorage.double("userTeamplayer")
+            case .year:
+                value = TichuStorage.double("userTeamplayerYear")
+            case .month:
+                value = TichuStorage.double("userTeamplayerMonth")
+            case .week:
+                value = TichuStorage.double("userTeamplayerWeek")
+            case .day:
+                value = TichuStorage.double("userTeamplayerDay")
+            default:
+                value = TichuStorage.double("userTeamplayer")
             }
-            title = "Teamplayer"
-            description = "Double-Win Rate"
+
+            title = String(localized: "statistics.stat.teamPlayer")
+            description = String(localized: "statistics.stat.teamPlayer.description")
             percentage = true
             image = "hands.clap"
 
         case .announcer:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userAnnouncerYear")
-            case .month: value = TichuStorage.double("userAnnouncerMonth")
-            case .week:  value = TichuStorage.double("userAnnouncerWeek")
-            case .day:   value = TichuStorage.double("userAnnouncerDay")
-            default:     value = TichuStorage.double("userAnnouncer")
+            case .year:
+                value = TichuStorage.double("userAnnouncerYear")
+            case .month:
+                value = TichuStorage.double("userAnnouncerMonth")
+            case .week:
+                value = TichuStorage.double("userAnnouncerWeek")
+            case .day:
+                value = TichuStorage.double("userAnnouncerDay")
+            default:
+                value = TichuStorage.double("userAnnouncer")
             }
-            title = "Announcer"
-            description = "Announcement likelyhood"
+
+            title = String(localized: "statistics.stat.announcer")
+            description = String(localized: "statistics.stat.announcer.description")
             percentage = true
             image = "megaphone"
 
         case .saboteur:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userSaboteurYear")
-            case .month: value = TichuStorage.double("userSaboteurMonth")
-            case .week:  value = TichuStorage.double("userSaboteurWeek")
-            case .day:   value = TichuStorage.double("userSaboteurDay")
-            default:     value = TichuStorage.double("userSaboteur")
+            case .year:
+                value = TichuStorage.double("userSaboteurYear")
+            case .month:
+                value = TichuStorage.double("userSaboteurMonth")
+            case .week:
+                value = TichuStorage.double("userSaboteurWeek")
+            case .day:
+                value = TichuStorage.double("userSaboteurDay")
+            default:
+                value = TichuStorage.double("userSaboteur")
             }
-            title = "Saboteur"
-            description = "Tichu prevented rate"
+
+            title = String(localized: "statistics.stat.saboteur")
+            description = String(localized: "statistics.stat.saboteur.description")
             percentage = true
             image = "xmark.circle"
 
         case .gambler:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userGamblerYear")
-            case .month: value = TichuStorage.double("userGamblerMonth")
-            case .week:  value = TichuStorage.double("userGamblerWeek")
-            case .day:   value = TichuStorage.double("userGamblerDay")
-            default:     value = TichuStorage.double("userGambler")
+            case .year:
+                value = TichuStorage.double("userGamblerYear")
+            case .month:
+                value = TichuStorage.double("userGamblerMonth")
+            case .week:
+                value = TichuStorage.double("userGamblerWeek")
+            case .day:
+                value = TichuStorage.double("userGamblerDay")
+            default:
+                value = TichuStorage.double("userGambler")
             }
-            title = "Gambler"
-            description = "Tichu rate"
+
+            title = String(localized: "statistics.stat.gambler")
+            description = String(localized: "statistics.stat.gambler.description")
             percentage = true
             image = "exclamationmark.circle"
 
         case .bigGambler:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userBigGamblerYear")
-            case .month: value = TichuStorage.double("userBigGamblerMonth")
-            case .week:  value = TichuStorage.double("userBigGamblerWeek")
-            case .day:   value = TichuStorage.double("userBigGamblerDay")
-            default:     value = TichuStorage.double("userBigGambler")
+            case .year:
+                value = TichuStorage.double("userBigGamblerYear")
+            case .month:
+                value = TichuStorage.double("userBigGamblerMonth")
+            case .week:
+                value = TichuStorage.double("userBigGamblerWeek")
+            case .day:
+                value = TichuStorage.double("userBigGamblerDay")
+            default:
+                value = TichuStorage.double("userBigGambler")
             }
-            title = "Big Gambler"
-            description = "Big Tichu rate"
+
+            title = String(localized: "statistics.stat.bigGambler")
+            description = String(localized: "statistics.stat.bigGambler.description")
             percentage = true
             image = "exclamationmark.2.circle"
 
         case .pinguGambler:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userPinguGamblerYear")
-            case .month: value = TichuStorage.double("userPinguGamblerMonth")
-            case .week:  value = TichuStorage.double("userPinguGamblerWeek")
-            case .day:   value = TichuStorage.double("userPinguGamblerDay")
-            default:     value = TichuStorage.double("userPinguGambler")
+            case .year:
+                value = TichuStorage.double("userPinguGamblerYear")
+            case .month:
+                value = TichuStorage.double("userPinguGamblerMonth")
+            case .week:
+                value = TichuStorage.double("userPinguGamblerWeek")
+            case .day:
+                value = TichuStorage.double("userPinguGamblerDay")
+            default:
+                value = TichuStorage.double("userPinguGambler")
             }
-            title = "Pingu Gambler"
-            description = "Pingu rate"
+
+            title = String(localized: "statistics.stat.pinguGambler")
+            description = String(localized: "statistics.stat.pinguGambler.description")
             percentage = true
             image = "exclamationmark.3.circle"
 
         case .bomber:
             switch configuration.timeframe {
-            case .year:  value = TichuStorage.double("userBomberYear")
-            case .month: value = TichuStorage.double("userBomberMonth")
-            case .week:  value = TichuStorage.double("userBomberWeek")
-            case .day:   value = TichuStorage.double("userBomberDay")
-            default:     value = TichuStorage.double("userBomber")
+            case .year:
+                value = TichuStorage.double("userBomberYear")
+            case .month:
+                value = TichuStorage.double("userBomberMonth")
+            case .week:
+                value = TichuStorage.double("userBomberWeek")
+            case .day:
+                value = TichuStorage.double("userBomberDay")
+            default:
+                value = TichuStorage.double("userBomber")
             }
-            title = "Bomber"
-            description = "Bombs per Round rate"
+
+            title = String(localized: "statistics.stat.bomber")
+            description = String(localized: "statistics.stat.bomber.description")
             percentage = true
             image = "bomb"
 
         default:
             value = TichuStorage.double("userElo")
-            title = "Rating"
-            description = "All time Rating"
+            title = String(localized: "statistics.stat.elo")
+            description = String(localized: "statistics.stat.elo.description")
             percentage = false
             image = "chart.line.uptrend.xyaxis"
         }
-
 
         return TichuWidgetEntry(
             date: Date(),
@@ -263,44 +340,76 @@ struct SimpleEntry: TimelineEntry {
 }
 
 struct StatsWidgetsEntryView: View {
+
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.widgetFamily) var family
+
     var entry: TichuWidgetEntry
 
+    // MARK: - Value Formatting
+
     var valueText: String {
-        entry.percentage ? "\(Int(entry.value * 100))%" : "\(Int(entry.value))"
+        if entry.percentage {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .percent
+            formatter.maximumFractionDigits = 0
+
+            return formatter.string(
+                from: NSNumber(value: entry.value)
+            ) ?? "-"
+        } else {
+            return String(Int(entry.value))
+        }
     }
 
+    // MARK: - Body
+
     var body: some View {
+
         switch family {
 
         case .systemSmall:
-            VStack() {
+
+            VStack {
+
                 HStack {
-                    if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+
+                    if entry.image == "exclamationmark.2.circle"
+                        || entry.image == "bomb"
+                        || entry.image == "exclamationmark.3.circle" {
+
                         Image(entry.image)
                             .renderingMode(.template)
                             .resizable()
                             .foregroundStyle(.accent)
                             .frame(width: 20, height: 20)
-                        
+
                     } else {
+
                         Image(systemName: entry.image)
                             .resizable()
                             .frame(width: 20, height: 20)
                             .scaledToFit()
                             .foregroundStyle(.accent)
                     }
+
                     Text(entry.title)
                         .font(.system(size: 17))
                         .fontWeight(.bold)
-                }.opacity(0.8)
+
+                }
+                .opacity(0.8)
+
                 Spacer()
+
                 HStack {
+
                     Text(valueText)
                         .font(.system(size: 40, weight: .heavy))
                 }
+
                 Spacer()
+
                 Text(entry.description)
                     .font(.system(size: 16))
                     .multilineTextAlignment(.leading)
@@ -310,65 +419,70 @@ struct StatsWidgetsEntryView: View {
             .widgetURL(URL(string: "tichu://stats")!)
 
         case .accessoryRectangular:
-            
-            HStack{
-                if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+
+            HStack {
+
+                if entry.image == "exclamationmark.2.circle"
+                    || entry.image == "bomb"
+                    || entry.image == "exclamationmark.3.circle" {
+
                     Image(entry.image)
                         .font(.system(size: 32))
                         .symbolVariant(.fill)
+
                 } else {
+
                     Image(systemName: entry.image)
                         .font(.system(size: 32))
                         .symbolVariant(.fill)
                 }
-                
-                VStack(alignment:.leading){
+
+                VStack(alignment: .leading) {
+
                     Text(entry.title)
                         .font(.system(size: 13))
+
                     Text(valueText)
                         .font(.system(size: 20, weight: .heavy))
-                    
                 }
             }
             .widgetURL(URL(string: "tichu://stats")!)
             .containerBackground(.fill.tertiary, for: .widget)
-
-       
 
         case .accessoryInline:
-            HStack{
-                if entry.image == "exclamationmark.2.circle" || entry.image == "bomb" || entry.image == "exclamationmark.3.circle" {
+
+            HStack {
+
+                if entry.image == "exclamationmark.2.circle"
+                    || entry.image == "bomb"
+                    || entry.image == "exclamationmark.3.circle" {
+
                     Image(entry.image)
-                        
+
                 } else {
+
                     Image(systemName: entry.image)
-                       
                 }
-                if entry.percentage == true {
-                    Text("\(entry.title): \(Int(entry.value*100))%")
-                }else{
-                    Text("\(entry.title): \(Int(entry.value))")
-                }
-                
+
+                Text("\(entry.title): \(valueText)")
             }
             .widgetURL(URL(string: "tichu://stats")!)
             .containerBackground(.fill.tertiary, for: .widget)
-            
+
         case .accessoryCircular:
-            VStack(alignment:.center){
-                HStack{
-                    
+
+            VStack(alignment: .center) {
+
+                HStack {
                     Text(entry.title)
-                    
                 }
-                    .font(.system(size: 13))
+                .font(.system(size: 13))
+
                 Text(valueText)
                     .font(.system(size: 20, weight: .heavy))
-                
             }
             .widgetURL(URL(string: "tichu://stats")!)
             .containerBackground(.fill.tertiary, for: .widget)
-            
 
         default:
             EmptyView()
@@ -377,25 +491,40 @@ struct StatsWidgetsEntryView: View {
 }
 
 struct TichuWidgets: Widget {
+
     let kind: String = "StatWidgets"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: GraphConfigurationAppIntent.self, provider: Provider()) { entry in
-            StatsWidgetsEntryView(entry:entry
-            )
-        }.configurationDisplayName("Statistics")
-            .description("Tichu Statistics of your Choice")
-            .supportedFamilies([.systemSmall,.accessoryCircular,
-                                .accessoryRectangular,
-                                .accessoryInline])
+
+        AppIntentConfiguration(
+            kind: kind,
+            intent: GraphConfigurationAppIntent.self,
+            provider: Provider()
+        ) { entry in
+
+            StatsWidgetsEntryView(entry: entry)
+        }
+        .configurationDisplayName(
+            LocalizedStringResource("statistics.widgetTitle")
+        )
+        .description(
+            LocalizedStringResource("statistics.widgetDescription")
+        )
+        .supportedFamilies([
+            .systemSmall,
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryInline
+        ])
     }
-       
 }
 
-
 #Preview(as: .accessoryInline) {
+
     TichuWidgets()
+
 } timeline: {
+
     TichuWidgetEntry(
         date: .now,
         title: "Big Gambler",
@@ -405,7 +534,3 @@ struct TichuWidgets: Widget {
         percentage: true
     )
 }
-
-
-
-

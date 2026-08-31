@@ -106,9 +106,8 @@ struct PlayView: View {
                     guest3Name: guest3Name,
                     guest4Name: guest4Name
                 )
-                await MainActor.run {
-                    network.currentGameId = game?.id
-                }
+                print("Curent Game setting ID: \(game?.id ?? -1)")
+                network.currentGameId = game?.id
             }
         }
     }

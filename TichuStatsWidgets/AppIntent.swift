@@ -24,21 +24,21 @@ enum PlayerStat: String, AppEnum {
     case pinguGambler
     case bomber
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Choose Statistic")
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: LocalizedStringResource("statistics.stat.chooseStat"))
 
     static var caseDisplayRepresentations: [PlayerStat: DisplayRepresentation] = [
-        .elo:              "Elo",
-        .winnerPercentage: "Winner Percentage",
-        .tichuMaster:      "Tichu Master",
-        .visionary:        "Visionary",
-        .addict:           "Addict",
-        .teamplayer:       "Team Player",
-        .announcer:        "Announcer",
-        .saboteur:         "Saboteur",
-        .gambler:          "Gambler",
-        .bigGambler:       "Big Gambler",
-        .pinguGambler:     "Pingu Gambler",
-        .bomber:           "Bomber"
+        .elo:              DisplayRepresentation(title: LocalizedStringResource("statistics.stat.elo")),
+        .winnerPercentage: DisplayRepresentation(title: LocalizedStringResource("statistics.stat.winnerPercentage")),
+        .tichuMaster:      DisplayRepresentation(title: LocalizedStringResource("statistics.stat.tichuMaster")),
+        .visionary:        DisplayRepresentation(title: LocalizedStringResource("statistics.stat.visionary")),
+        .addict:           DisplayRepresentation(title: LocalizedStringResource("statistics.stat.addict")),
+        .teamplayer:       DisplayRepresentation(title: LocalizedStringResource("statistics.stat.teamPlayer")),
+        .announcer:        DisplayRepresentation(title: LocalizedStringResource("statistics.stat.announcer")),
+        .saboteur:         DisplayRepresentation(title: LocalizedStringResource("statistics.stat.saboteur")),
+        .gambler:          DisplayRepresentation(title: LocalizedStringResource("statistics.stat.gambler")),
+        .bigGambler:       DisplayRepresentation(title: LocalizedStringResource("statistics.stat.bigGambler")),
+        .pinguGambler:     DisplayRepresentation(title: LocalizedStringResource("statistics.stat.pinguGambler")),
+        .bomber:           DisplayRepresentation(title: LocalizedStringResource("statistics.stat.bomber"))
     ]
 }
 
@@ -49,25 +49,24 @@ enum PlayerStatsTimeFrameD: String, AppEnum {
     case week
     case day
 
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Choose Time Frame")
+    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: LocalizedStringResource("statistics.timeframe.chooseTimeframe"))
 
     static var caseDisplayRepresentations: [PlayerStatsTimeFrameD: DisplayRepresentation] = [
-        .allTime: "All Time",
-        .year:    "Year",
-        .month:   "Month",
-        .week:    "Week",
-        .day:     "Day",
+        .allTime: DisplayRepresentation(title: LocalizedStringResource("statistics.timeframe.allTime")),
+        .year:    DisplayRepresentation(title: LocalizedStringResource("statistics.timeframe.year")),
+        .month:   DisplayRepresentation(title: LocalizedStringResource("statistics.timeframe.month")),
+        .week:    DisplayRepresentation(title: LocalizedStringResource("statistics.timeframe.week")),
+        .day:     DisplayRepresentation(title: LocalizedStringResource("statistics.timeframe.day")),
     ]
 }
 
 struct GraphConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Choose Statistic" }
-    static var description: IntentDescription { "This is an example widget." }
+    static var title: LocalizedStringResource {"statistics.title"}
 
-    @Parameter(title: "Statistic", default: .elo)
+    @Parameter(title: LocalizedStringResource ("statistics.title.statistic"), default: .elo)
     var stat: PlayerStat?
 
-    @Parameter(title: "Time Frame", default: .allTime)
+    @Parameter(title: LocalizedStringResource("statistics.title.timeframe"), default: .allTime)
     var timeframe: PlayerStatsTimeFrameD?
 }
 
@@ -103,7 +102,7 @@ struct GameEntity: AppEntity {
     let team2Score: Int
     let favorite: Bool
 
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Choose Game"
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(name: LocalizedStringResource("game.chooseGame"))
     static var defaultQuery = GameEntityQuery()
 
     var displayRepresentation: DisplayRepresentation {
@@ -139,9 +138,9 @@ struct GameEntityQuery: EntityQuery {
 // MARK: - Game Intent
 
 struct GameConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Choose Game" }
-    static var description: IntentDescription { "Pick a game to display its score chart." }
+    static var title: LocalizedStringResource {"game.title"}
+    //static var description: IntentDescription {"game.widgetDescription"}
 
-    @Parameter(title: "Favorize a Game inside the App")
+    @Parameter(title: LocalizedStringResource("game.title.game"))
     var game: GameEntity?
 }

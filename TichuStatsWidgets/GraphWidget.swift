@@ -32,7 +32,7 @@
 
     // MARK: - Helpers
     private func userName() -> String {
-        UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? "Player"
+        UserDefaults(suiteName: "group.com.drakynem.tichu")?.string(forKey: "userName") ?? String(localized:"general.unknown")
     }
 
     private func userElo() -> Double {
@@ -125,6 +125,7 @@
         var userName: String
         var userElo: Double
         @Environment(\.widgetFamily) var family
+        @Environment(\.colorScheme) var colorScheme
 
         
         
@@ -139,11 +140,11 @@
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     if family != .systemSmall {
-                        Text("\(userName) Rating")
+                        Text(String(format:String(localized:"elo.rating"), userName))
                             .font(.headline)
                             .bold()
                     }else{
-                        Text("Elo")
+                        Text(String(localized:"elo.elo"))
                         
                             .foregroundStyle(.secondary)
                     }
@@ -152,9 +153,9 @@
                         .font(.headline)
                         .bold()
                 }
-
+                ZStack{
                 Chart(entry.points) { point in
-
+                    
                     LineMark(
                         x: .value("Date", point.date),
                         y: .value("Elo", point.elo)
@@ -162,7 +163,7 @@
                     .interpolationMethod(.monotone)
                     .lineStyle(StrokeStyle(lineWidth: 3))
                     .foregroundStyle(.accent)
-
+                    
                     PointMark(
                         x: .value("Date", point.date),
                         y: .value("Elo", point.elo)
@@ -170,13 +171,14 @@
                     .symbolSize(40)
                     .foregroundStyle(.accent)
                 }
+                .opacity(entry.points.count <= 1 ? 0 : 1)
                 .chartYScale(domain: yDomain)
-
+                
                 .chartXAxis {
                     AxisMarks(values: .automatic) { value in
                         AxisGridLine()
                         AxisTick()
-
+                        
                         if family != .systemSmall {
                             AxisValueLabel(format: .dateTime.day().month())
                         }
@@ -186,18 +188,23 @@
                     AxisMarks { value in
                         AxisGridLine()
                         AxisTick()
-
+                        
                         if let elo = value.as(Double.self) {
-
+                            
                             if family == .systemSmall {
                                 let lastTwo = Int(elo) % 100
-                                AxisValueLabel(String(format: "%02d", lastTwo))
+                                AxisValueLabel(String(format: "%02d", lastTwo)).foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                             } else {
-                                AxisValueLabel("\(Int(elo))")
+                                AxisValueLabel("\(Int(elo))").foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                             }
                         }
                     }
                 }
+                    if entry.points.count <= 1{
+                        Text(String(localized:"elo.willAppear")).foregroundStyle(.secondary)
+                    }
+            }
+                
                 
             }
 
@@ -214,14 +221,14 @@
             StaticConfiguration(kind: kind, provider: EloProvider()) { entry in
                 EloWidgetView(entry: entry,userName: userName(), userElo: userElo())
             }
-            .configurationDisplayName("Rating History")
-            .description("Your Tichu rating over time.")
+            .configurationDisplayName(String(localized:"elo.widgetTitle"))
+            .description(String(localized:"elo.widgetDescription"))
             .supportedFamilies([.systemSmall, .systemMedium,.systemLarge,.systemExtraLarge])
         }
     }
 
     // MARK: - Preview
-    #Preview(as: .systemSmall) {
+    #Preview(as: .systemMedium) {
         GraphWidget()
     } timeline: {
         EloWidgetEntry(
