@@ -295,79 +295,123 @@ struct HistoryView: View {
             }
         }
     }
+    
+    //Date Stuff used below
+    private static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("d")
+        formatter.locale = Locale.current
+        return formatter
+    }()
 
-    // MARK: - Game Row
-    private func gameRow(game: Game, isSelected: Bool) -> some View {
-        Button {
-            sheetGame = game
-        } label: {
-            HStack {
-                VStack(alignment:.center){
-                    HStack{
-                        Image(systemName:"trophy.fill").redactedShimmer()
-                        Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)").redactedShimmer()
-                            .fontWeight(.bold)
-                            
-                            
-                    }.font(.system(size: 20))
-                    Text(game.date, style: .date).redactedShimmer()
-                        .font(.system(size: 15))
-                }.padding(.trailing, 10)
+    private static let monthFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate("MMM")
+        formatter.locale = Locale.current
+        return formatter
+    }()
 
-                VStack(alignment: .leading) {
-                        var player1Name: String {
-                            return playerName(game.team1Player1Id)
-                        }
-                        
-                        var player2Name: String {
-                            if game.team1Player2Id == -2{
-                                return game.guest2Name ?? String(localized:"play.guest")
-                            }else{
-                                return playerName(game.team1Player2Id)
-                            }
-                        }
-                        
-                        var player3Name: String {
-                            if game.team2Player1Id == -3{
-                                return game.guest3Name ?? String(localized:"play.guest")
-                            }else{
-                                return playerName(game.team2Player1Id)
-                            }
-                        }
-                        
-                        var player4Name: String {
-                            if game.team2Player2Id == -4{
-                                return game.guest4Name ?? String(localized:"play.guest")
-                            }else{
-                                return playerName(game.team2Player2Id)
-                            }
-                        }
-                        Text("\(player1Name) & \(player2Name)").redactedShimmer()
-                            .foregroundStyle(Color.accentColor)
-                        Text("\(player3Name) & \(player4Name)").redactedShimmer()
-                    
-                    
-                    }.lineLimit(1).font(.system(size: 15))
-
-                Spacer()
-            }
-            .padding(8)
-            .padding(.vertical, 5)
-            .background(
-                colorScheme == .dark
-                ? Color(uiColor: .tertiarySystemFill)
-                : .white,
-                in: .rect(cornerRadius: 24)
-            )
-            .foregroundColor(.primary)
-            .overlay {
-                RoundedRectangle(cornerRadius: 24)
-                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
-            }
+    private func isWinner(player_id: Int, game: Game) -> Bool{
+        let winner = game.winner
+        var team = 0
+        if player_id == game.team1Player1Id || player_id == game.team1Player2Id {
+            team = 1
+        }else if player_id == game.team2Player1Id || player_id == game.team2Player2Id {
+            team = 2
         }
-        .matchedTransitionSource(id: "\(game.id)", in: historySpace)
-        .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
+        return team == winner
+        
     }
+    
+
+    private func gameRow(game: Game, isSelected: Bool) -> some View {
+            let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+            let day = Self.dayFormatter.string(from: game.date)
+            let month = Self.monthFormatter.string(from: game.date)
+            
+            return Button {
+                sheetGame = game
+            } label: {
+                
+                HStack(alignment:.center){
+                    VStack{
+                        if languageCode == "de"{
+                            Text("\(day).").redactedShimmer()
+                            Text("\(month).").redactedShimmer()
+                        }else{
+                            Text(day).redactedShimmer()
+                            Text(month).redactedShimmer()
+                        }
+                        
+                    }.font(.system(size: 15)).multilineTextAlignment(.center).padding(.trailing,15).padding(.leading,10)
+                    VStack(alignment:.leading){
+                        HStack{
+                            if isWinner(player_id: userId, game: game){
+                                Image(systemName:"trophy.fill").font(.system(size: 15)).redactedShimmer()
+                            }else{
+                                Image("trophy.slash.fill").font(.system(size: 15)).offset(x:-3).redactedShimmer()
+                            }
+                            
+                            Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)").redactedShimmer().font(.system(size: 20)).fontWeight(.bold)
+                        }
+                        HStack(spacing:3){
+                            var player1Name: String {
+                                return playerName(game.team1Player1Id)
+                            }
+                            
+                            var player2Name: String {
+                                if game.team1Player2Id == -2{
+                                    return game.guest2Name ?? String(localized:"play.guest")
+                                }else{
+                                    return playerName(game.team1Player2Id)
+                                }
+                            }
+                            
+                            var player3Name: String {
+                                if game.team2Player1Id == -3{
+                                    return game.guest3Name ?? String(localized:"play.guest")
+                                }else{
+                                    return playerName(game.team2Player1Id)
+                                }
+                            }
+                            
+                            var player4Name: String {
+                                if game.team2Player2Id == -4{
+                                    return game.guest4Name ?? String(localized:"play.guest")
+                                }else{
+                                    return playerName(game.team2Player2Id)
+                                }
+                            }
+                            
+                            Text("\(player1Name) & \(player2Name)").foregroundStyle(Color.accent).redactedShimmer()
+                            Text(":").redactedShimmer()
+                            Text("\(player3Name) & \(player4Name)").redactedShimmer()
+                            
+                        }
+                    }
+                    Spacer()
+                    Image(systemName:"chevron.right").font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(.tertiary)
+                        .padding(.trailing,10)
+                        //.rotationEffect(.degrees(sheetGame == game ? 90 : 0))
+                }
+                .padding(8)
+                .padding(.vertical, 5)
+                .background(
+                    colorScheme == .dark
+                    ? Color(uiColor: .tertiarySystemFill)
+                    : .white,
+                    in: .rect(cornerRadius: 24)
+                )
+                .foregroundColor(.primary)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 24)
+                        .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2)
+                }
+            }
+            .matchedTransitionSource(id: "\(game.id)", in: historySpace)
+            .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
+        }
 
     // MARK: - Empty State View
     private var emptyStateView: some View {
