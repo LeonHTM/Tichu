@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import TipKit
 import Combine
 
 struct EditRoundsSheetView: View {

@@ -113,6 +113,7 @@ struct GameProvider: AppIntentTimelineProvider {
 
 struct GameWidgetView: View {
     var entry: GameWidgetEntry
+    @AppStorage("userId", store: UserDefaults(suiteName: "group.com.drakynem.tichu")) var userId: Int = -69420
     @Environment(\.widgetFamily) var family
     @Environment(\.colorScheme) var colorScheme
 
@@ -124,73 +125,75 @@ struct GameWidgetView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                if entry.favorite {
-                    Image(systemName: "star.fill")
+        ZStack{
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    if entry.favorite {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(Color.secondary)
+                    }
+                    
+                    Text("\(entry.gameDate, style: .date)")
                         .foregroundStyle(Color.secondary)
+                    
+                    Spacer()
+                    HStack(spacing: 4) {
+                        Text("\(entry.team1Score)")
+                            .font(.headline)
+                            .bold()
+                            .foregroundStyle(.accent)
+                        Text(":")
+                            .font(.headline)
+                        Text("\(entry.team2Score)")
+                            .font(.headline)
+                            .bold()
+                    }
                 }
-
-                Text("\(entry.gameDate, style: .date)")
-                    .foregroundStyle(Color.secondary)
-
-                Spacer()
-                HStack(spacing: 4) {
-                    Text("\(entry.team1Score)")
-                        .font(.headline)
-                        .bold()
-                        .foregroundStyle(.accent)
-                    Text(":")
-                        .font(.headline)
-                    Text("\(entry.team2Score)")
-                        .font(.headline)
-                        .bold()
+                
+                Chart(entry.chartData) { point in
+                    LineMark(
+                        x: .value("Round", point.round),
+                        y: .value("Score", point.value)
+                    )
+                    .interpolationMethod(.catmullRom)
+                    .lineStyle(StrokeStyle(lineWidth: 3))
+                    .foregroundStyle(by: .value("Team", point.team))
+                    
+                    PointMark(
+                        x: .value("Round", point.round),
+                        y: .value("Score", point.value)
+                    )
+                    .symbolSize(40)
+                    .foregroundStyle(by: .value("Team", point.team))
                 }
-            }
-
-            Chart(entry.chartData) { point in
-                LineMark(
-                    x: .value("Round", point.round),
-                    y: .value("Score", point.value)
-                )
-                .interpolationMethod(.catmullRom)
-                .lineStyle(StrokeStyle(lineWidth: 3))
-                .foregroundStyle(by: .value("Team", point.team))
-
-                PointMark(
-                    x: .value("Round", point.round),
-                    y: .value("Score", point.value)
-                )
-                .symbolSize(40)
-                .foregroundStyle(by: .value("Team", point.team))
-            }
-            .chartYScale(domain: yDomain)
-            .chartForegroundStyleScale([
-                String(format:String(localized:"game.team"),1): .accent,
-                String(format:String(localized:"game.team"),2): Color.primary
-            ])
-            .chartXAxis {
-                AxisMarks(values: .stride(by: 1)) { _ in
-                    AxisTick()
-                    if family != .systemSmall { AxisValueLabel() }
+                .chartYScale(domain: yDomain)
+                .chartForegroundStyleScale([
+                    String(format:String(localized:"game.team"),1): .accent,
+                    String(format:String(localized:"game.team"),2): Color.primary
+                ])
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: 1)) { _ in
+                        AxisTick()
+                        if family != .systemSmall { AxisValueLabel() }
+                    }
                 }
-            }
-            .chartYAxis {
-                AxisMarks { value in
-                    AxisGridLine()
-                    AxisTick()
-                    if let v = value.as(Int.self) {
-                        if family == .systemSmall {
-                            AxisValueLabel(String(v % 100 == 0 ? "\(v)" : "")).foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-                        } else {
-                            AxisValueLabel("\(v)").foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+                .chartYAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisTick()
+                        if let v = value.as(Int.self) {
+                            if family == .systemSmall {
+                                AxisValueLabel(String(v % 100 == 0 ? "\(v)" : "")).foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+                            } else {
+                                AxisValueLabel("\(v)").foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+                            }
                         }
                     }
                 }
             }
+            .containerBackground(.fill.tertiary, for: .widget)
+            .widgetURL(URL(string: "tichu://game/\(entry.id)")!)
         }
-        .containerBackground(.fill.tertiary, for: .widget)
-        .widgetURL(URL(string: "tichu://game/\(entry.id)")!)
     }
 }
 

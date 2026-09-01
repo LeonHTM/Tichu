@@ -31,6 +31,7 @@ struct GameSummaryShareView: View {
     }
 
     private var team1Profiles: [Profile] {
+        
         [profile(for: currentGame?.team1Player1Id ?? 0),
          profile(for: currentGame?.team1Player2Id ?? 0)].compactMap { $0 }
     }

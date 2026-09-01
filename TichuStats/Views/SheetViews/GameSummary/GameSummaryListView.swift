@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct GameSummaryListView: View {
     @Binding var showGameSummarySheetView: Bool
@@ -118,7 +119,10 @@ struct GameSummaryListView: View {
                         let sum2 = allRounds.prefix(index + 1).reduce(0) { $0 + $1.tichuPointsTeam2 + $1.roundPointsTeam2 }
                         return (index, round, sum1, sum2)
                     }
-
+                    if allowEditing {
+                        TipView(ListSwipeTip()).tipBackground(Color.clear)
+                    }
+                    
                     ForEach(cumulative, id: \.round.id) { item in
                         Section{
                         let index = item.index
@@ -265,6 +269,7 @@ struct GameSummaryListView: View {
                         }
                     }
                     }
+                    
 
                     if allRounds.count != winRounds.count {
                         Section {
@@ -287,6 +292,11 @@ struct GameSummaryListView: View {
                         }
                         .listRowBackground(Color.clear)
                 
+                    }
+                }
+                .task {
+                    do { try Tips.configure() } catch {
+                        print("Error initializing TipKit \(error.localizedDescription)")
                     }
                 }
                 .sheet(isPresented: $showAddRoundSheet, onDismiss: {

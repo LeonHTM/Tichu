@@ -23,6 +23,9 @@ struct LoginView: View {
     @State private var isChecking:Bool = false
     @State private var alreadyExistsId: Int?
     @State private var showOfflineAlert: Bool = false
+    @State private var isPasskeyLoading: Bool = false
+    @State private var passkeyErrorMessage: String?
+    @State private var navigateToNameSheetAfterPasskey: Bool = false
 
     // MARK: - Body
     var body: some View {
@@ -68,13 +71,14 @@ struct LoginView: View {
                 Spacer()
             }
 
-            appleSignInButton
+            //appleSignInButton
+            passKeySignInButton()
         }
         .padding(.horizontal)
         .padding(.bottom, 30)
     }
 
-    // MARK: - Email Field (NOW NAVIGATES)
+    // MARK: - Email Field
     private var emailField: some View {
         HStack {
             Image(systemName: "envelope.fill")
@@ -153,7 +157,28 @@ struct LoginView: View {
         .padding(.vertical, 13)
         .glassEffect(.regular.tint(.secondary.opacity(0.2)).interactive())
     }
+    
+    private func passKeySignInButton() -> some View {
+        Button {
+        } label: {
+            HStack{
+                Spacer()
+                if isPasskeyLoading {
+                    ProgressView()
+                        .tint(colorScheme == .light ? Color.white : Color.black)
+                } else {
+                    Image(systemName:"person.badge.key.fill")
+                    Text("Sign in with Passkey")
+                }
+                Spacer()
+            }.fontWeight(.semibold).font(.system(size: 18)).foregroundStyle(colorScheme == .light ? Color.white : Color.black).backgroundStyle(Color.black).frame(height: 50).clipShape(RoundedRectangle(cornerRadius: 24))
+                .glassEffect(.regular.tint(colorScheme == .light ? .black : .white).interactive())
+        }
+       
+    }
 
+
+   
     // MARK: - Destination Routing
     @ViewBuilder
     private func destinationView() -> some View {
