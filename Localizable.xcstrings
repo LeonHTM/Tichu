@@ -1448,19 +1448,19 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zielpunkte: %d"
+            "value" : "Zielpunkte: %@"
           }
         },
         "de-CH" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ziel: %d"
+            "value" : "Ziel: %@"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Target: %d"
+            "value" : "Target:  %@"
           }
         }
       }
@@ -2040,6 +2040,29 @@
         }
       }
     },
+    "history.context.favorite" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorisieren"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfavosrisiärä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorite"
+          }
+        }
+      }
+    },
     "history.context.openGame" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2059,6 +2082,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Game"
+          }
+        }
+      }
+    },
+    "history.context.unfavorite" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfavorisieren"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorisiärä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unfavorite"
           }
         }
       }

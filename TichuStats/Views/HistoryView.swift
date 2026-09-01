@@ -44,6 +44,8 @@ struct HistoryView: View {
     @State private var dateUp: Bool = false
     @State private var switchedGameId: Int? = nil
     @State private var switchedGameIdFav: Int? = nil
+    
+ 
 
     // MARK: - Computed
     private var gameHistory: [Game] {
@@ -87,7 +89,8 @@ struct HistoryView: View {
                                         historySpace: historySpace,
                                         colorScheme: colorScheme,
                                         selectedCounter: selectedCounter,
-                                        sheetGame: $sheetGame
+                                        sheetGame: $sheetGame,
+                                        scrolledGameId: $scrolledGameId
                                     )
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
@@ -104,8 +107,11 @@ struct HistoryView: View {
                                         historySpace: historySpace,
                                         colorScheme: colorScheme,
                                         selectedCounter: selectedCounter,
-                                        sheetGame: $sheetGame
+                                        sheetGame: $sheetGame,
+                                        scrolledGameId: $scrolledGameId
                                     )
+                                    //Forces View to redraw when favorite status has changed because otherwise it wont update view
+                                    .id("\(game.id)-\(game.favorite)")
                                     .padding(.horizontal, 10)
                                     .frame(height: rowHeight)
                                 }
@@ -400,6 +406,7 @@ struct GameRow: View {
     let selectedCounter: Int
 
     @Binding var sheetGame: Game?
+    @Binding var scrolledGameId: Int?
 
     @State private var renderedImage: Image?
 
@@ -514,7 +521,6 @@ struct GameRow: View {
         .matchedTransitionSource(id: "\(game.id)", in: historySpace)
         .sensoryFeedback(.selection, trigger: isSelected && selectedCounter > 0)
         .popoverTip(HistoryTapTip(), arrowEdge: .bottom)
-        
         .contextMenu {
             Button {
                 sheetGame = game
@@ -523,15 +529,18 @@ struct GameRow: View {
                 Text(String(localized: "history.context.openGame"))
                 Text("\(game.currentPointsTeam1) : \(game.currentPointsTeam2)")
             }
-            //WHY WONT YOU WORK GODDAMN
-            /*Button{
+            Button {
                 
-                
-                    network.updateGameFavorite(gameId: game.id , favorite: !game.favorite )
-                
-            }label:{
-                Image(systemName:game.favorite ? "star.slash.fill" :"star.fill")
-            }.sensoryFeedback(.success,trigger:game.favorite)*/
+                Task {
+                    //This is the only way i got the view to update the Star on the left side of the GameRow
+                    //Delay becaue wait till the conextmenu close animaiton has finished before forcing a redraw on line 114
+                    try? await Task.sleep(nanoseconds: 275_000_000) // 0.275s
+                    await network.updateGameFavorite(gameId: game.id, favorite: !game.favorite)
+                }
+            } label: {
+                Text(game.favorite ? String(localized: "history.context.unfavorite") : String(localized: "history.context.favorite"))
+                Image(systemName: game.favorite ? "star.slash.fill" : "star.fill")
+            }.sensoryFeedback(.success, trigger: game.favorite)
             if let renderedImage {
                 ShareLink(
                     item: renderedImage,

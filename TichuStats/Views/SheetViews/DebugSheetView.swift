@@ -131,6 +131,8 @@ struct DebugGameView: View{
             } label: {
                 Text("Manually recalculate Game \(reCalculate)")
             }
+            
+            //Text("\(network.favDic)")
             Spacer()
         }
     }
