@@ -10,7 +10,7 @@ import Combine
 struct EditNameSheetView: View {
 
     // MARK: - Bindings
-    @Binding var showNameSheet: Bool
+    @Environment(\.dismiss) private var dismiss
     
     var editMode: Bool
     
@@ -137,6 +137,24 @@ struct EditNameSheetView: View {
                             Spacer()
                         }
                     }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
+                }else{
+                    Button{
+                        let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        Task{
+                            await network.updateUsername(profileId:userId,name:name)
+                            userNametiming = Date().timeIntervalSince1970 + (24 * 60 * 60)
+                            dismiss()
+                        }
+                    }label:{
+                        HStack{
+                            Spacer()
+                            Text(String(localized:"general.alert.save"))
+                                .fontWeight(.semibold)
+                                .font(.system(size: 18))
+                            Spacer()
+                        }
+                    }
+                    .foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValidEdit).padding(.bottom,10)
                 }
             }
             .navigationTitle(editMode == true ? String(localized: "username.edit") : String(localized: "username.create"))
@@ -146,30 +164,6 @@ struct EditNameSheetView: View {
                     .padding(.horizontal, 25)
                     .padding(.top, 10)
                     .padding(.bottom, -10)
-            }
-            .toolbar {
-                if editMode == true{
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button("Cancel", systemImage: "xmark") {
-                            
-                            showNameSheet = false
-                        }
-                    }
-                
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done", systemImage: "checkmark") {
-                            let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-                            Task{
-                                await network.updateUsername(profileId:userId,name:name)
-                                userNametiming = Date().timeIntervalSince1970 + (24 * 60 * 60)
-                                showNameSheet = false
-                            }
-                        }
-                        .disabled(!isAllValidEdit)
-                        
-                    }
-                }
-                
             }
             .onChange(of: newName) {
                 if isLengthValid && isCharsetValid{
@@ -193,5 +187,5 @@ struct EditNameSheetView: View {
 }
 
 #Preview {
-    EditNameSheetView(showNameSheet: .constant(true),editMode: false,showLoginSheet:.constant(false),signIn: .constant(false), chosenName: .constant(""))
+    EditNameSheetView(editMode: false,showLoginSheet:.constant(false),signIn: .constant(false), chosenName: .constant(""))
 }

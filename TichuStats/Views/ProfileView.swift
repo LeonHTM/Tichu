@@ -48,24 +48,6 @@ struct ProfileView: View {
             }.alert(isPresented:$showOfflineAlert){
                 OfflineView.offlineAlert()
             }
-            .sheet(isPresented: $showNameSheet) {
-                EditNameSheetView(showNameSheet: $showNameSheet, editMode: true,showLoginSheet:.constant(false),signIn:.constant(false),chosenName:.constant(""))
-                    .presentationDetents([.large])
-            }
-            .sheet(isPresented: $showFriendsSheet, onDismiss: {
-                Task {
-                    let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
-                    let toRemove = delivered
-                        .compactMap { $0.request.content.userInfo["notification_id"] as? String }
-                        .filter { $0.hasPrefix("friend-request-accepted-") }
-                    
-                    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
-                    try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
-                }
-            }) {
-                EditFriendsSheetView(showFriendsSheet: $showFriendsSheet)
-                    .presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.large])
-            }
             .animation(.easeInOut, value: network.isOnline)
             .padding(.top, -20)
             .navigationTitle(String(localized: "profile.title"))
@@ -149,37 +131,39 @@ struct ProfileView: View {
                     .labelStyle(ColorfulIconLabelStyle(color: .gray, fontSize: 14))
             }
             //MARK: Edit Username
-            Button {
-                withAnimation(.easeInOut(duration: 0.285)) {
-                    if network.isOnline {
-                        showNameSheet = true
-                    } else {
-                        showOfflineAlert = true
-                    }
-                }
+            NavigationLink {
+    
+                        EditNameSheetView(editMode: true,showLoginSheet:.constant(false),signIn:.constant(false),chosenName:.constant(""))
+                    
+                
             } label: {
                 HStack {
                     Label(String(localized: "profile.section.account.editUsername"), systemImage: "person.fill")
                         .labelStyle(ColorfulIconLabelStyle(color: .accent, fontSize: 17))
                     Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.tertiary)
-                            .padding(.trailing,1.2)
-                        .rotationEffect(.degrees(showNameSheet ? 90 : 0))
                 }
             }
+            .disabled(!network.isOnline)
             .foregroundColor(network.isOnline ? .primary : .secondary)
             
             //MARK: Manage Friends
-            Button {
-                withAnimation(.easeInOut(duration: 0.285)) {
-                    if network.isOnline {
-                        showFriendsSheet = true
-                    } else {
-                        showOfflineAlert = true
+            NavigationLink {
+                EditFriendsSheetView().onDisappear {
+                    Task {
+                        Task {
+                            try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
+                        }
+                        let delivered = await UNUserNotificationCenter.current().deliveredNotifications()
+                        let toRemove = delivered
+                            .compactMap { $0.request.content.userInfo["notification_id"] as? String }
+                            .filter { $0.hasPrefix("friend-request-accepted-") }
+                        
+                        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toRemove)
+                        try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
                     }
                 }
+                        
+                    
             } label: {
                 HStack {
                     Label(String(localized: "profile.section.account.manageFriends"), systemImage: "person.2.fill")
@@ -195,14 +179,10 @@ struct ProfileView: View {
                             }
                             .padding(.trailing)
                     }
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(.tertiary)
-                            .padding(.trailing,1.2)
-                        .rotationEffect(.degrees(showFriendsSheet ? 90 : 0))
                 }
-            }
+            }.disabled(!network.isOnline)
             .foregroundColor(network.isOnline ? .primary : .secondary)
+            
         }
     }
 
@@ -210,6 +190,7 @@ struct ProfileView: View {
     private var supportSection: some View {
         Section {
             //MARK: Privacy
+            
             Button {
                 withAnimation(.easeInOut(duration: 0.285)) {
                     showPrivacyAlert = true
@@ -282,6 +263,12 @@ struct ProfileView: View {
                     .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 17))
             }
             .foregroundColor(.primary)
+            Button{
+                
+            }label:{
+                Label("Create Passkey", systemImage:"person.badge.key.fill")
+                    .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 13))
+            }.disabled(!network.isOnline).foregroundStyle(Color.primary)
         }
     }
 

@@ -10,9 +10,8 @@ import TipKit
 
 struct EditFriendsSheetView: View {
     @Namespace private var FriendsSpace
+    @Environment(\.dismiss) private var dismiss
 
-    // MARK: - Bindings
-    @Binding var showFriendsSheet: Bool
 
     // MARK: - Storage
     @AppStorage("userName") var userName: String = ""
@@ -54,15 +53,7 @@ struct EditFriendsSheetView: View {
         return makeItems(from: profiles, stat: .dateAdded, sortBy: sortBySentRequests)
     }
 
-    // MARK: - Done Button
-    private var doneButton: some View {
-        Button("Done", systemImage: "checkmark") {
-            Task {
-                try? await UNUserNotificationCenter.current().setBadgeCount(network.friendRequests.count)
-            }
-            showFriendsSheet = false
-        }
-    }
+   
 
     // MARK: - Body
     var body: some View {
@@ -88,7 +79,7 @@ struct EditFriendsSheetView: View {
                     await network.fetchSentRequests(profileId: userId)
                 }
                 .onChange(of: network.isOnline) {
-                    if !network.isOnline { showFriendsSheet = false }
+                    if !network.isOnline { dismiss() }
                 }
                 .onAppear {
                     withAnimation(.easeInOut) {
@@ -142,9 +133,7 @@ struct EditFriendsSheetView: View {
                         showMenu: true
                     ).presentationDetents(UIDevice.current.userInterfaceIdiom == .pad ? [.large] : [.medium, .large]).navigationTransition(.zoom(sourceID:"69420",in:FriendsSpace))
                 }
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) { doneButton }
-                }
+               
             }
             .task {
                 await network.fetchSentRequests(profileId: userId)
@@ -431,17 +420,19 @@ struct EditFriendsSheetView: View {
             Button {
                 showAddPlayerSheet = true
             } label: {
-                Image(systemName: "plus")
+                Image(systemName: "plus").font(.system(size: 20))
                 Text(String(localized: "friends.request"))
             }.matchedTransitionSource(id: "69420", in: FriendsSpace)
             .foregroundStyle(Color.primary)
             .padding(13)
             .glassEffect(.regular.interactive())
+            .padding(.trailing, 20)
+            .padding(.bottom, 10)
         }
-        .padding(.horizontal)
+        
     }
 }
 
 #Preview {
-    EditFriendsSheetView(showFriendsSheet: .constant(true))
+    EditFriendsSheetView()
 }
