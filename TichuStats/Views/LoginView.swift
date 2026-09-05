@@ -9,15 +9,21 @@ import SwiftUI
 import AuthenticationServices
 
 
-struct LoginView: View {
+
+struct LoginSheetView: View{
+
+    @Binding var showLoginSheet:Bool
+    @Binding var signIn: Bool
+    var chosenName: String = ""
 
     // MARK: - Storage
-    @AppStorage("userId") var userId: Int = -69420
     @StateObject private var socket = SocketService.shared
     @ObservedObject private var network = NetworkService.shared
-    @Environment(\.scenePhase) private var scenePhase
+
+
+
     // MARK: - State
-    @Binding var userEmail: String
+    @State private var userEmail: String = ""
     @Environment(\.colorScheme) var colorScheme
     @FocusState private var isEmailFocused: Bool
     @State private var isChecking:Bool = false
@@ -25,58 +31,7 @@ struct LoginView: View {
     @State private var showOfflineAlert: Bool = false
     @State private var isPasskeyLoading: Bool = false
     @State private var passkeyErrorMessage: String?
-    @State private var navigateToNameSheetAfterPasskey: Bool = false
-
-    // MARK: - Body
-    var body: some View {
-        GlassEffectContainer {
-            Spacer()
-            appLogoHeader
-            Spacer()
-            signInSection
-        }
-    }
-
-    // MARK: - App Logo Header
-    private var appLogoHeader: some View {
-        VStack {
-            Image("AppLogo")
-                .resizable()
-                .frame(width: 100, height: 100)
-
-            Text(String(localized:"login.title"))
-                .font(.title)
-                .fontWeight(.bold)
-        }
-    }
-
-    // MARK: - Sign In Section
-    private var signInSection: some View {
-        VStack {
-            HStack {
-                Text(String(localized:"login.signup"))
-                    .fontWeight(.bold)
-                    .font(.title2)
-                Spacer()
-            }
-
-            Text(String(localized:"login.description"))
-                .foregroundStyle(.secondary)
-
-            emailField
-
-            HStack {
-                Spacer()
-                Text(String(localized:"login.or")).foregroundStyle(.secondary)
-                Spacer()
-            }
-
-            //appleSignInButton
-            passKeySignInButton()
-        }
-        .padding(.horizontal)
-        .padding(.bottom, 30)
-    }
+    @State private var showPasskeyError: Bool = false
 
     // MARK: - Email Field
     private var emailField: some View {
@@ -119,7 +74,7 @@ struct LoginView: View {
                     if network.isOnline && socket.connected {
                         if alreadyExistsId == nil{
                             NavigationLink {
-                                destinationView()
+                                //HERE
                             } label: {
                                 Image(systemName: "arrow.right.circle.fill")
                                     .font(.system(size: 24))
@@ -160,6 +115,7 @@ struct LoginView: View {
     
     private func passKeySignInButton() -> some View {
         Button {
+            Task { await handlePasskeyTap(signIn: signIn) }
         } label: {
             HStack{
                 Spacer()
@@ -168,70 +124,185 @@ struct LoginView: View {
                         .tint(colorScheme == .light ? Color.white : Color.black)
                 } else {
                     Image(systemName:"person.badge.key.fill")
-                    Text("Sign in with Passkey")
+                    Text(String(localized:signIn ? "login.signInPasskey" : "login.signUpPasskey"))
                 }
                 Spacer()
             }.fontWeight(.semibold).font(.system(size: 18)).foregroundStyle(colorScheme == .light ? Color.white : Color.black).backgroundStyle(Color.black).frame(height: 50).clipShape(RoundedRectangle(cornerRadius: 24))
                 .glassEffect(.regular.tint(colorScheme == .light ? .black : .white).interactive())
         }
-       
+        .disabled(isChecking || isPasskeyLoading)
     }
 
+    // MARK: - Passkey Tap Handler
+    private func handlePasskeyTap(signIn: Bool) async {
+        guard network.isOnline else {
+            showOfflineAlert = true
+            return
+        }
 
-   
-    // MARK: - Destination Routing
-    @ViewBuilder
-    private func destinationView() -> some View {
-        if network.isOnline {
-            EditNameSheetView(
-                showNameSheet: .constant(true),
-                email: userEmail,
-                editMode: false,
-                done: .constant(false)
-            )
-        } else if !network.isOnline && scenePhase == .active {
-            OfflineView(showNavBar: .constant(false))
+        isPasskeyLoading = true
+        defer { isPasskeyLoading = false }
+
+        
+        do{
+            if signIn == true{
+                _ = try await network.signInWithPasskey(email: userEmail)
+            } else if !chosenName.isEmpty {
+                _ = try await network.signUpWithPasskey(name: chosenName,mail:userEmail)
+                showLoginSheet = false
+            } else {
+                showPasskeyError = true
+                return
+            }
+        }catch PasskeyError.cancelled {
+            
+        } catch PasskeyError.server(let code) {
+            passkeyErrorMessage = friendlyMessage(for: code)
+            showPasskeyError = true
+        } catch {
+            passkeyErrorMessage =  String(localized:"passKeyError.general")
+            showPasskeyError = true
+        }
+        
+    }
+
+    private func friendlyMessage(for code: String) -> String {
+        switch code {
+        case "challenge_expired":
+            return String(localized:"passKeyError.expired")
+        case "unknown_credential", "unknown_user":
+            return String(localized:"passKeyError.unknown")
+        case "verification_failed":
+            return String(localized:"passKeyError.verfication")
+        default:
+            return String(localized:"passKeyError.general")
         }
     }
-
-    // MARK: - Apple Sign In Button
-    private var appleSignInButton: some View {
-        SignInWithAppleButton(
-            .signUp,
-            onRequest: { request in
-                request.requestedScopes = [.fullName, .email]
-            },
-            onCompletion: { result in
-                switch result {
-                case .success:
-                    print("Success")
-                case .failure(let error):
-                    print(error.localizedDescription)
+    var body: some View {
+        NavigationStack{
+            GlassEffectContainer {
+                Spacer()
+                
+                VStack {
+                    Text("")
+                    emailField
+                    
+                    HStack {
+                        Spacer()
+                        Text(String(localized: "login.or"))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
+                    
+                    passKeySignInButton()
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 30)
+            }
+            .navigationTitle(signIn ? String(localized:"login.signIn") : String(localized:"login.signUp"))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", systemImage: "xmark") {
+                        showLoginSheet = false
+                    }
                 }
             }
-        )
-        .frame(height: 50)
-        .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .glassEffect(.regular.interactive())
+            .alert("Passkey Sign In Failed", isPresented: $showPasskeyError, presenting: passkeyErrorMessage) { _ in
+                Button("OK", role: .cancel) {}
+            } message: { message in
+                Text(message)
+            }
+        }
     }
 }
 
-#Preview {
-    LoginMainView()
+
+struct WelcomeView: View {
+    @ObservedObject private var network = NetworkService.shared
+    @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var showLoginSheet: Bool
+    @Binding var signIn: Bool
+    @Binding var chosenName: String
+
+    var body: some View {
+        GlassEffectContainer {
+            Spacer()
+            VStack {
+                Image("AppLogo")
+                    .resizable()
+                    .frame(width: 100, height: 100)
+
+                Text(String(localized:"login.title"))
+                    .font(.title)
+                    .fontWeight(.bold)
+            }
+            Spacer()
+            
+            VStack{
+                Text(String(localized:"login.description"))
+                    .foregroundStyle(.secondary)
+                NavigationButton(
+                    title: String(localized:"login.getStarted"),
+                    icon: nil,
+                    primary:true,
+                ) {
+                    if network.isOnline {
+                        EditNameSheetView(
+                            showNameSheet: .constant(true),
+                            editMode: false,
+                            showLoginSheet: $showLoginSheet,
+                            signIn: $signIn,
+                            chosenName: $chosenName
+                        )
+                    } else {
+                        OfflineView(
+                            showNavBar: .constant(false)
+                        )
+                    }
+                }
+                Button{
+                    signIn = true
+                    showLoginSheet = true
+                }label:{
+                    HStack{
+                        Spacer()
+                        Text(String(localized:"login.alreadyHave"))
+                        Spacer()
+                    }
+                    .fontWeight(.semibold)
+                    .font(.system(size: 18))
+                    .frame(height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
+                    .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
+                    .glassEffect(.regular.tint(colorScheme == .dark ? Color.white : Color.primary).interactive())
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 30)
+        }
+    }
 }
 
 
 
-
-struct LoginMainView: View {
-    @StateObject private var socket = SocketService.shared
-    @State private var userEmail: String = ""
-
-    var body: some View {
-        NavigationStack {
-            LoginView(userEmail: $userEmail).navigationTitle("Login or Sign up").toolbar(.hidden, for: .navigationBar)
-         
+struct LoginView: View{
+    @State private var showLoginSheet: Bool = false
+    @State private var signIn: Bool = true
+    @State private var chosenName: String = ""
+    var body: some View{
+        NavigationStack{
+            WelcomeView(showLoginSheet:$showLoginSheet,signIn: $signIn, chosenName: $chosenName)
+                .navigationTitle(String(localized:"login.title"))
+                .toolbar(.hidden, for: .navigationBar)
+                .sheet(isPresented: $showLoginSheet) {
+                LoginSheetView(showLoginSheet: $showLoginSheet,signIn: $signIn, chosenName: signIn ? "" : chosenName)
+                    .presentationDetents([.height(250)])
+                
+            }
+                
+            
         }
     }
 }

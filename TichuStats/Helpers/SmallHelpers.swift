@@ -339,13 +339,60 @@ func getURL(dev:Bool = false,auth:Bool = false) -> String{
         }
         //https here
         if auth{
+            //print("AUTH: \(host)")
             return host
+            
         }else{
+            //print("REGULAR: https://\(host)")
             return "https://" + host
         }
         
     }
 }
 
+struct NavigationButton<Destination: View>: View {
+    @Environment(\.colorScheme) var colorScheme
+    let title: String
+    let icon: String?
+    let primary: Bool
+    let destination: () -> Destination
 
+
+    init(
+        title: String,
+        icon: String? = nil,
+        primary: Bool = false,
+        @ViewBuilder destination: @escaping () -> Destination
+    ) {
+        self.title = title
+        self.icon = icon
+        self.primary = primary
+        self.destination = destination
+    }
+
+    var body: some View {
+        NavigationLink {
+            destination()
+        } label: {
+            HStack {
+                Spacer()
+
+                if let icon {
+                    Image(systemName: icon)
+                }
+
+                Text(title)
+
+                Spacer()
+            }
+            .fontWeight(.semibold)
+            .font(.system(size: 18))
+            .frame(height: 50)
+            .clipShape(RoundedRectangle(cornerRadius: 24))
+            .foregroundStyle(primary ? Color.white : colorScheme == .dark ? Color.black : Color.white)
+            .glassEffect(primary ? .regular.tint(.accent).interactive() : .regular.tint(colorScheme == .dark ? Color.white : Color.primary).interactive())
+            
+        }
+    }
+}
 

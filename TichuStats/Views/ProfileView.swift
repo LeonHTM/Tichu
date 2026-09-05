@@ -49,7 +49,7 @@ struct ProfileView: View {
                 OfflineView.offlineAlert()
             }
             .sheet(isPresented: $showNameSheet) {
-                EditNameSheetView(showNameSheet: $showNameSheet, email: "", editMode: true, done: .constant(true))
+                EditNameSheetView(showNameSheet: $showNameSheet, editMode: true,showLoginSheet:.constant(false),signIn:.constant(false),chosenName:.constant(""))
                     .presentationDetents([.large])
             }
             .sheet(isPresented: $showFriendsSheet, onDismiss: {

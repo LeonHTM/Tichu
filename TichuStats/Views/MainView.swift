@@ -33,7 +33,7 @@ struct MainView: View {
     var body: some View {
         Group {
             if userId == -69420 {
-                LoginMainView()
+                LoginView()
                     .transition(.asymmetric(
                         insertion: .move(edge: .leading).combined(with: .opacity),
                         removal: .move(edge: .leading).combined(with: .opacity)

@@ -11,12 +11,11 @@ struct EditNameSheetView: View {
 
     // MARK: - Bindings
     @Binding var showNameSheet: Bool
-    @State private var loginWait: Bool = false
-    var email: String
+    
     var editMode: Bool
-    @Binding var done: Bool
+    
     @ObservedObject private var network = NetworkService.shared
-    @FocusState private var isTextFocused: Bool 
+    @FocusState private var isTextFocused: Bool
 
     // MARK: - Storage
     @AppStorage("userId") private var userId: Int = -69420
@@ -26,6 +25,9 @@ struct EditNameSheetView: View {
     @State private var newName: String = ""
     @State private var isAvailable: Bool = false
     @State private var isCheckingAvailability: Bool = false
+    @Binding var showLoginSheet:Bool
+    @Binding var signIn:Bool
+    @Binding var chosenName: String
     
     @State private var now: Date = Date()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -122,24 +124,16 @@ struct EditNameSheetView: View {
             }.listSectionSpacing(0).safeAreaInset(edge:.bottom){
                 if editMode == false{
                     Button{
-                        if  newName == "Sorin2" || newName == "Sorin3"{
-                            UserDefaults.standard.set(4, forKey: "userId")
-                        }else{
-                            Task {
-                                if let id = await network.addProfile(email: email,name:newName) {
-                                    loginWait = true
-                                    _ = await network.login(userId:id)
-                                    loginWait = false
-                                }
-                            }
-                        }
+                        chosenName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        signIn = false
+                        showLoginSheet = true
+                        
                     }label:{
                         HStack{
                             Spacer()
-                            if loginWait{
-                                ProgressView()
-                            }
-                            Text(loginWait ? String(localized: "username.creating") : String(localized: "username.create"))
+                            Text(String(localized:"login.continue"))
+                                .fontWeight(.semibold)
+                                .font(.system(size: 18))
                             Spacer()
                         }
                     }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
@@ -199,5 +193,5 @@ struct EditNameSheetView: View {
 }
 
 #Preview {
-    EditNameSheetView(showNameSheet: .constant(true),email: "brakka.brakka",editMode: false,done:.constant(true) )
+    EditNameSheetView(showNameSheet: .constant(true),editMode: false,showLoginSheet:.constant(false),signIn: .constant(false), chosenName: .constant(""))
 }

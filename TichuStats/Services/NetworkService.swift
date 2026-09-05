@@ -177,6 +177,7 @@ class NetworkService: ObservableObject {
         }
         return false
     }
+
     
     //MARK: logout used in NavigationProfileImage, SocketService and ProfileView
     func logout(profileId: Int, local: Bool = false) async {
@@ -311,6 +312,38 @@ class NetworkService: ObservableObject {
         } catch {
             print("checkEmail error: \(error)")
             return nil
+        }
+    }
+    
+    // MARK: - Passkey Section
+
+    // MARK: signUpWithPasskey used in LoginSheetView when there's a chosen
+    @discardableResult
+    func signUpWithPasskey(name: String,mail:String?) async throws -> Int {
+        let result = try await PasskeyManager.shared.signUp(name: name, mail: mail)
+        await applyPasskeyResult(result)
+        return result.userId
+    }
+
+    // MARK: signInWithPasskey used in LoginSheetView (Mail is optional)
+    @discardableResult
+    func signInWithPasskey(email: String?) async throws -> Int {
+        let result = try await PasskeyManager.shared.signIn(email: email)
+        await applyPasskeyResult(result)
+        return result.userId
+    }
+
+    // MARK: applyPasskeyResult mirrors the second half of login(userId:).
+    private func applyPasskeyResult(_ result: AuthResult) async {
+        await MainActor.run {
+            self.authToken = result.token
+            self.userId = result.userId
+        }
+        Task {
+            isLoading = true
+            await registerDevice(profileId: result.userId, deviceToken: pendingDeviceToken)
+            await NetworkService.shared.fetch()
+            isLoading = false
         }
     }
     
@@ -1253,4 +1286,3 @@ class NetworkService: ObservableObject {
         }
     }
 }
-
