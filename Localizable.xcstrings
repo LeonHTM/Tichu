@@ -3089,7 +3089,7 @@
         }
       }
     },
-    "passKeyError.verification" : {
+    "passKeyError.verfication" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {

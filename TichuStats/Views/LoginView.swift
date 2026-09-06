@@ -53,8 +53,8 @@ struct WelcomeView: View {
                     }
                 }
                 Button{
-                    signIn = true
-                    showLoginSheet = true
+                        signIn = true
+                        showLoginSheet = true
                 }label:{
                     HStack{
                         Spacer()

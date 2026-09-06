@@ -61,6 +61,9 @@ struct ProfileView: View {
                 showFriendsSheet = true
             }
         }
+        .navigationDestination(isPresented: $showFriendsSheet) {
+            EditFriendsSheetView()
+        }
     }
 
     // MARK: - Profile Header
