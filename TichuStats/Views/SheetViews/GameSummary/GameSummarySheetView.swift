@@ -68,6 +68,8 @@ struct GameSummarySheetView: View {
             .toolbar {
                 bottomToolbar
                 toolbarContent
+            }.onChange(of: currentGame){
+                showGameOverViewSheetView = false
             }
             .navigationTitle(String(format: String(localized: "gamesummary.title.won"), String(winnerName)))
             .navigationBarTitleDisplayMode(.inline)
@@ -226,8 +228,8 @@ struct GameSummaryBottomToolbar: ToolbarContent {
                         await network.updateGameFavorite(gameId: currentGameId ?? 0, favorite: !currentGame!.favorite )
                     }
                 }label:{
-                    Image(systemName: currentGame!.favorite ? "star.slash.fill" :"star.fill")
-                }.sensoryFeedback(.success,trigger:currentGame!.favorite)
+                    Image(systemName: currentGame?.favorite ?? false ? "star.slash.fill" :"star.fill")
+                }.sensoryFeedback(.success,trigger:currentGame?.favorite ?? false)
             }
         }
     }

@@ -3716,6 +3716,29 @@
         }
       }
     },
+    "profile.section.support.passKey" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passkey erstellen"
+          }
+        },
+        "de-CH" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passkey machä"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Passkey"
+          }
+        }
+      }
+    },
     "profile.section.support.privacy" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -347,6 +347,11 @@ class NetworkService: ObservableObject {
         }
     }
     
+    //MARK: addPasskeyToACcount used in ProfilesView
+    func addPasskeyToAccount() async throws {
+           try await PasskeyManager.shared.addPasskey(userToken: authToken)
+       }
+    
     
     //MARK: - Profile Section
     

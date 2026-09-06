@@ -141,6 +141,64 @@ final class PasskeyManager: NSObject {
         )
         return try parseAuthResult(verifyResponse)
     }
+    
+    // Adds a passkey to an already logged-in account 
+    func addPasskey(userToken: String) async throws {
+        let options = try await fetchJSON(
+            path: "/passkey/add/options",
+            body: [:],
+            userToken: userToken
+        )
+
+        guard
+            let challengeB64 = options["challenge"] as? String,
+            let userDict = options["user"] as? [String: Any],
+            let userIdB64 = userDict["id"] as? String,
+            let userName = userDict["name"] as? String,
+            let challengeId = options["challengeId"] as? String
+        else {
+            throw PasskeyError.badServerResponse
+        }
+
+        let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
+            relyingPartyIdentifier: relyingPartyIdentifier
+        )
+        let request = provider.createCredentialRegistrationRequest(
+            challenge: Data.fromBase64URL(challengeB64),
+            name: userName,
+            userID: Data.fromBase64URL(userIdB64)
+        )
+        request.userVerificationPreference = .required
+
+        let authorization = try await performRequests([request])
+
+        guard
+            let credential = authorization.credential
+                as? ASAuthorizationPlatformPublicKeyCredentialRegistration,
+            let attestationObject = credential.rawAttestationObject
+        else {
+            throw PasskeyError.badServerResponse
+        }
+
+        let credentialJSON: [String: Any] = [
+            "id": credential.credentialID.toBase64URL(),
+            "rawId": credential.credentialID.toBase64URL(),
+            "type": "public-key",
+            "response": [
+                "attestationObject": attestationObject.toBase64URL(),
+                "clientDataJSON": credential.rawClientDataJSON.toBase64URL(),
+            ],
+        ]
+
+        _ = try await fetchJSON(
+            path: "/passkey/add/verify",
+            body: [
+                "challengeId": challengeId,
+                "credential": credentialJSON,
+            ],
+            userToken: userToken
+        )
+    }
 
     // MARK: - ASAuthorizationController bridging
     private func performRequests(
@@ -157,14 +215,15 @@ final class PasskeyManager: NSObject {
     }
 
     // MARK: - Networking
-    private func fetchJSON(path: String, body: [String: Any]) async throws -> [String: Any] {
+    private func fetchJSON(path: String, body: [String: Any], userToken: String? = nil) async throws -> [String: Any] {
         var req = URLRequest(url: baseURL.appendingPathComponent(path))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        // APP Token and not JWT required here
-        if let appToken = Bundle.main.object(forInfoDictionaryKey: "APP_TOKEN") as? String,
+        if let userToken, !userToken.isEmpty {
+            req.setValue("Bearer \(userToken)", forHTTPHeaderField: "Authorization")
+        } else if let appToken = Bundle.main.object(forInfoDictionaryKey: "APP_TOKEN") as? String,
            !appToken.isEmpty {
             req.setValue("Bearer \(appToken)", forHTTPHeaderField: "Authorization")
         }

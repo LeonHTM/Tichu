@@ -64,27 +64,84 @@ struct GameSummaryListView: View {
 
     // MARK: - Helpers
 
+    
     private func place(of profile: Profile, in round: Round) -> Int {
-        if round.firstProfileId  == profile.id { return 1 }
-        if round.secondProfileId == profile.id { return 2 }
-        if round.thirdProfileId  == profile.id { return 3 }
-        if round.fourthProfileId == profile.id { return 4 }
-        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4{
-            if network.profiles.first(where:{$0.id == round.firstProfileId}) == nil{
+        if round.doubleWinTeam1 {
+            if round.firstProfileId == profile.id {
                 return 1
             }
-            if network.profiles.first(where:{$0.id == round.secondProfileId}) == nil{
+
+            if round.secondProfileId == profile.id {
                 return 2
             }
-            if network.profiles.first(where:{$0.id == round.thirdProfileId}) == nil{
+
+            if round.thirdProfileId == profile.id {
                 return 3
             }
-            if network.profiles.first(where:{$0.id == round.fourthProfileId}) == nil{
-                return 4
+
+            if round.fourthProfileId == profile.id {
+                return 3
             }
         }
+
+        if round.doubleWinTeam2 {
+            if round.firstProfileId == profile.id {
+                return 1
+            }
+
+            if round.secondProfileId == profile.id {
+                return 2
+            }
+
+            if round.thirdProfileId == profile.id {
+                return 3
+            }
+
+            if round.fourthProfileId == profile.id {
+                return 3
+            }
+        }
+
+        // Normal placement
+        if round.firstProfileId == profile.id {
+            return 1
+        }
+
+        if round.secondProfileId == profile.id {
+            return 2
+        }
+
+        if round.thirdProfileId == profile.id {
+            return 3
+        }
+
+        if round.fourthProfileId == profile.id {
+            return 4
+        }
+
+        // Guest players
+        if profile.id == -1 || profile.id == -2 || profile.id == -3 || profile.id == -4 {
+            if network.profiles.first(where: { $0.id == round.firstProfileId }) == nil {
+                return 1
+            }
+
+            if network.profiles.first(where: { $0.id == round.secondProfileId }) == nil {
+                return 2
+            }
+
+            if network.profiles.first(where: { $0.id == round.thirdProfileId }) == nil {
+                return 3
+            }
+
+            if network.profiles.first(where: { $0.id == round.fourthProfileId }) == nil {
+                return round.doubleWinTeam1 || round.doubleWinTeam2 ? 3 : 4
+            }
+        }
+
         return 0
     }
+    
+
 
     private func sortedTeamProfiles(_ teamProfiles: [Profile], in round: Round) -> [Profile] {
         teamProfiles.sorted { place(of: $0, in: round) < place(of: $1, in: round) }

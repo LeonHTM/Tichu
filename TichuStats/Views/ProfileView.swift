@@ -33,6 +33,9 @@ struct ProfileView: View {
     @State private var showDeleteAlert: Bool = false
     @State private var showOfflineAlert: Bool = false
     @State private var showImageFailAlert: Bool = false
+    @State private var isAddingPasskey: Bool = false
+    @State private var showAddPasskeyError: Bool = false
+    @State private var addPasskeyErrorMessage: String?
 
     // MARK: Body
     var body: some View {
@@ -264,11 +267,42 @@ struct ProfileView: View {
             }
             .foregroundColor(.primary)
             Button{
-                
+                Task {
+                    isAddingPasskey = true
+                    defer { isAddingPasskey = false }
+                    do {
+                        try await network.addPasskeyToAccount()
+                    } catch PasskeyError.cancelled {
+                        // backed out of Face ID sheet — no-op
+                    } catch PasskeyError.server(let code) {
+                        addPasskeyErrorMessage = code == "challenge_expired"
+                            ? "That took too long — please try again."
+                            : "Couldn't add a passkey. Please try again."
+                        showAddPasskeyError = true
+                    } catch {
+                        addPasskeyErrorMessage = "Something went wrong. Please try again."
+                        showAddPasskeyError = true
+                    }
+                }
             }label:{
-                Label("Create Passkey", systemImage:"person.badge.key.fill")
-                    .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 13))
-            }.disabled(!network.isOnline).foregroundStyle(Color.primary)
+                HStack {
+                    
+                    Label("Create Passkey", systemImage:"person.badge.key.fill")
+                            .labelStyle(ColorfulIconLabelStyle(color: .black, fontSize: 13))
+                    Spacer()
+                    if isAddingPasskey {
+                        ProgressView()
+                    }
+                    
+                }
+            }
+            .disabled(!network.isOnline || isAddingPasskey)
+            .foregroundStyle(Color.primary)
+            .alert("Couldn't Add Passkey", isPresented: $showAddPasskeyError, presenting: addPasskeyErrorMessage) { _ in
+                Button("OK", role: .cancel) {}
+            } message: { message in
+                Text(message)
+            }
         }
     }
 

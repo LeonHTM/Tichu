@@ -267,6 +267,8 @@ struct AddRoundSheetView: View {
             }
         }
     }
+    
+    
 
     // MARK: - Body
     var body: some View {
@@ -419,7 +421,21 @@ struct AddRoundSheetView: View {
             ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
                 let golden = isGolden(index: index)
                 HStack {
-                    Text("\(index + 1).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
+                    let displayRanking: Int = {
+                        if hasDoubleWinTeam1 || hasDoubleWinTeam2 {
+                            // Winning team keeps 1, 2.
+                            // Losing team displays both players as 3.
+                            if let player {
+                                let winningTeamIds = hasDoubleWinTeam1 ? team1Ids : team2Ids
+                                if !winningTeamIds.contains(player.id) {
+                                    return 3
+                                }
+                            }
+                        }
+
+                        return index + 1
+                    }()
+                    Text("\(displayRanking).").fontWeight(.bold).foregroundStyle(golden ? Color.green : Color.primary)
                     if player?.id == -2{
                         Text(guest2Name ?? String(localized:"play.guest"))
                     }else if player?.id == -3{
@@ -443,6 +459,8 @@ struct AddRoundSheetView: View {
 
     // MARK: - Tap Placement List
     private var tapPlacementList: some View {
+        
+        
         List {
             ForEach(Array(players.enumerated()), id: \.element?.id) { index, player in
                 let golden = isGolden2(index: index)
@@ -481,7 +499,21 @@ struct AddRoundSheetView: View {
                         }
                     } label: {
                         HStack {
-                            Text("\(rankingList[index]).").fontWeight(.bold)
+                            let displayRanking: Int = {
+                                if hasDoubleWinTeam1 || hasDoubleWinTeam2 {
+                                    // Winning team keeps 1, 2.
+                                    // Losing team displays both players as 3.
+                                    if let player {
+                                        let winningTeamIds = hasDoubleWinTeam1 ? team1Ids : team2Ids
+                                        if !winningTeamIds.contains(player.id) {
+                                            return 3
+                                        }
+                                    }
+                                }
+
+                                return rankingList[index]
+                            }()
+                            Text("\(displayRanking).").fontWeight(.bold)
                                 .foregroundStyle(rankingList[index] == 0 ? Color.secondary : golden ? Color.green : Color.primary)
                             if player?.id == -2{
                                 Text(guest2Name ?? String(localized:"play.guest"))
@@ -505,6 +537,8 @@ struct AddRoundSheetView: View {
         .padding(.top, -40)
         .zIndex(0)
     }
+    
+ 
 
     // MARK: - Points Section
     private var pointsSection: some View {
