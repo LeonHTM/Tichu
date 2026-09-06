@@ -148,6 +148,7 @@ struct LoginSheetView: View{
                 _ = try await network.signUpWithPasskey(name: chosenName,mail:userEmail)
                 showLoginSheet = false
             } else {
+                print("LOGIN ChosenNAME ERROR: \(chosenName)")
                 showPasskeyError = true
                 return
             }

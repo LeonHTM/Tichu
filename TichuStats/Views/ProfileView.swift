@@ -36,6 +36,7 @@ struct ProfileView: View {
     @State private var isAddingPasskey: Bool = false
     @State private var showAddPasskeyError: Bool = false
     @State private var addPasskeyErrorMessage: String?
+    @State private var chosenName: String = ""
 
     // MARK: Body
     var body: some View {
@@ -136,7 +137,7 @@ struct ProfileView: View {
             //MARK: Edit Username
             NavigationLink {
     
-                        EditNameSheetView(editMode: true,showLoginSheet:.constant(false),signIn:.constant(false),chosenName:.constant(""))
+                        EditNameSheetView(editMode: true,showLoginSheet:.constant(false),signIn:.constant(false),chosenName:$chosenName)
                     
                 
             } label: {

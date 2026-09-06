@@ -22,7 +22,6 @@ struct EditNameSheetView: View {
     @AppStorage("userNameTiming") private var userNametiming: Double = 0
     
     // MARK: - State
-    @State private var newName: String = ""
     @State private var isAvailable: Bool = false
     @State private var isCheckingAvailability: Bool = false
     @Binding var showLoginSheet:Bool
@@ -39,7 +38,7 @@ struct EditNameSheetView: View {
     }
     // MARK: - Validation
     private var isLengthValid: Bool {
-        let count = newName.count
+        let count = chosenName.count
         return count >= 3 && count <= 20
     }
 
@@ -47,12 +46,12 @@ struct EditNameSheetView: View {
         let allowed = CharacterSet(
             charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
         )
-        return !newName.isEmpty &&
-            newName.unicodeScalars.allSatisfy { allowed.contains($0) }
+        return !chosenName.isEmpty &&
+            chosenName.unicodeScalars.allSatisfy { allowed.contains($0) }
     }
     
     private var isNotGuest: Bool {
-        newName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() != "guest"
+        chosenName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() != "guest"
     }
 
     
@@ -78,7 +77,7 @@ struct EditNameSheetView: View {
             
             Form {
                 Section {
-                    TextField(String(localized: "username.enter"), text: $newName)
+                    TextField(String(localized: "username.enter"), text: $chosenName)
                         .autocorrectionDisabled(true)
                         .textInputAutocapitalization(.never)
                         .focused($isTextFocused)
@@ -98,7 +97,7 @@ struct EditNameSheetView: View {
                     )
                     HStack {
                         requirementRow(
-                            text: newName == network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown") ? String(localized: "username.old") : String(localized: "username.available"),
+                            text: chosenName == network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown") ? String(localized: "username.old") : String(localized: "username.available"),
                             isValid: isAvailable
                         )
                         if isCheckingAvailability {
@@ -124,7 +123,7 @@ struct EditNameSheetView: View {
             }.listSectionSpacing(0).safeAreaInset(edge:.bottom){
                 if editMode == false{
                     Button{
-                        chosenName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        chosenName = chosenName.trimmingCharacters(in: .whitespacesAndNewlines)
                         signIn = false
                         showLoginSheet = true
                         
@@ -139,7 +138,7 @@ struct EditNameSheetView: View {
                     }.foregroundStyle(.primary).padding().glassEffect(.regular.tint(Color.accentColor).interactive()).padding(.horizontal,10).disabled(!isAllValid).padding(.bottom,10)
                 }else{
                     Button{
-                        let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let name = chosenName.trimmingCharacters(in: .whitespacesAndNewlines)
                         Task{
                             await network.updateUsername(profileId:userId,name:name)
                             userNametiming = Date().timeIntervalSince1970 + (24 * 60 * 60)
@@ -165,13 +164,13 @@ struct EditNameSheetView: View {
                     .padding(.top, 10)
                     .padding(.bottom, -10)
             }
-            .onChange(of: newName) {
+            .onChange(of: chosenName) {
                 if isLengthValid && isCharsetValid{
                     isAvailable = false
                     guard isLengthValid && isCharsetValid else { return }
                     isCheckingAvailability = true
                     Task {
-                        isAvailable = await network.checkUsername(username: newName)
+                        isAvailable = await network.checkUsername(username: chosenName)
                         isCheckingAvailability = false
                     }
                 }
@@ -180,7 +179,7 @@ struct EditNameSheetView: View {
         }
         .onAppear {
             if editMode == true{
-                newName = network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown")
+                chosenName = network.profiles.first { $0.id == userId }?.name ?? String(localized: "general.unknown")
             }
         }
     }

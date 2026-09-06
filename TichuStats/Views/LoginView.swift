@@ -87,10 +87,12 @@ struct LoginView: View{
                 .navigationTitle(String(localized:"login.title"))
                 .toolbar(.hidden, for: .navigationBar)
                 .sheet(isPresented: $showLoginSheet) {
-                LoginSheetView(showLoginSheet: $showLoginSheet,signIn: $signIn, chosenName: signIn ? "" : chosenName)
+                LoginSheetView(showLoginSheet: $showLoginSheet,signIn: $signIn, chosenName: chosenName)
                     .presentationDetents([.height(250)])
                 
-            }
+                }.onChange(of:chosenName){
+                    print(chosenName)
+                }
                 
             
         }

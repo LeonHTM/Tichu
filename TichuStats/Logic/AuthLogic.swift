@@ -35,7 +35,7 @@ final class PasskeyManager: NSObject {
             path: "/passkey/register/options",
             body: ["name": name]
         )
-        
+        print("Sign Up")
 
         guard
             let challengeB64 = options["challenge"] as? String,
@@ -46,6 +46,8 @@ final class PasskeyManager: NSObject {
         else {
             throw PasskeyError.badServerResponse
         }
+        
+        print("challengeB64: \(challengeB64), userDict: \(userDict), challengeId: \(challengeId), userIdB64: \(userIdB64), userName: \(userName)")
 
         let provider = ASAuthorizationPlatformPublicKeyCredentialProvider(
             relyingPartyIdentifier: relyingPartyIdentifier
